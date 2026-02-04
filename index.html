@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Technician Dashboard - v282_UNIQUE</title>
-  <link rel="stylesheet" href="./css/app.css" />
+  <title>Technician Performance Dashboard</title>
+
+  <!-- Cache-bust -->
+  <link rel="stylesheet" href="./css/app.css?v=3" />
 </head>
 <body>
   <div class="wrap">
@@ -19,6 +21,7 @@
     </div>
 
     <input type="checkbox" id="menuToggle" class="menuToggle">
+
     <div id="sideMenu" class="sideMenu" aria-hidden="true">
       <div class="menuHdr">
         <div class="menuTitle"></div>
@@ -40,13 +43,16 @@
       </details>
 
       <details class="menuGroup" open>
-        <summary><span class="mIcon asrIcon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
-            <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
-            <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
-            <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
-          </svg>
-        </span>Services</summary>
+        <summary>
+          <span class="mIcon asrIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
+              <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+              <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
+              <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
+            </svg>
+          </span>
+          Services
+        </summary>
         <div id="asrMenuLinks"></div>
       </details>
 
@@ -55,6 +61,7 @@
         <a class="menuLink" href="#/settings/goals">Goals</a>
       </details>
     </div>
+
     <label for="menuToggle" id="menuScrim" class="menuScrim" aria-hidden="true"></label>
 
     <div id="app" style="display:grid;gap:12px;margin-top:12px"></div>
@@ -74,15 +81,15 @@
   </div>
 
   <!-- Shared core + page files (classic scripts so functions become globals) -->
-  <script src="./js/core/base.js"></script>
-  <script src="./js/pages/renderMain.js"></script>
-  <script src="./js/pages/renderTech.js"></script>
-  <script src="./js/pages/renderGroupPage.js"></script>
-  <script src="./js/pages/renderGoalsPage.js"></script>
-  <script src="./js/pages/renderServicesHome.js"></script>
-  <script src="./js/pages/renderSettingsHome.js"></script>
+  <script src="./js/core/base.js?v=3"></script>
+  <script src="./js/pages/renderMain.js?v=3"></script>
+  <script src="./js/pages/renderTech.js?v=3"></script>
+  <script src="./js/pages/renderGroupPage.js?v=3"></script>
+  <script src="./js/pages/renderGoalsPage.js?v=3"></script>
+  <script src="./js/pages/renderServicesHome.js?v=3"></script>
+  <script src="./js/pages/renderSettingsHome.js?v=3"></script>
 
   <!-- Router (module) -->
-  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/app.js?v=3"></script>
 </body>
 </html>
