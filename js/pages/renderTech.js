@@ -138,64 +138,7 @@ const hash = location.hash || "";
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
 const tfOpen = !!UI.techFilters[techId];
-  
-  // ===== Top / Bottom 3 services for this technician (uses the same req/close used in the tiles) =====
-  const svcRows = CAT_LIST.map(cat=>{
-    const c = (t.categories||{})[cat] || {};
-    const req = Number(c.req);
-    const close = Number(c.close);
-    const asr = Number(c.asr)||0;
-    const sold = Number(c.sold)||0;
-    return { cat, label: catLabel(cat), req, close, asr, sold };
-  }).filter(x=>x.label);
-
-  const byReq = svcRows.filter(x=>Number.isFinite(x.req)).sort((a,b)=>b.req-a.req);
-  const byClose = svcRows.filter(x=>Number.isFinite(x.close)).sort((a,b)=>b.close-a.close);
-
-  const topReq = byReq.slice(0,3);
-  const botReq = byReq.slice(-3).reverse();
-  const topClose = byClose.slice(0,3);
-  const botClose = byClose.slice(-3).reverse();
-
-  function pickRow(item, idx, mode){
-    const pct = mode==="sold" ? item.close : item.req;
-    const cnt = mode==="sold" ? item.sold : item.asr;
-    const lbl = mode==="sold" ? "Sold" : "ASR";
-    return `<div class="techRow pickRowFrame">
-      <div class="techRowLeft">
-        <span class="rankNum">${idx}.</span>
-        <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
-      </div>
-      <div class="mini">${lbl} ${fmtInt(cnt)} <span class="midDot">•</span> ${fmtPct(pct)}</div>
-    </div>`;
-  }
-
-  function pickBlock(mode){
-    const top = mode==="sold" ? topClose : topReq;
-    const bot = mode==="sold" ? botClose : botReq;
-    return `
-      <div class="pickBox">
-        <div class="pickMiniHdr">Top 3 Most ${mode==="sold" ? "Sold" : "Recommended"}</div>
-        <div class="pickList">${top.map((x,i)=>pickRow(x,i+1,mode)).join("") || `<div class="notice">No data</div>`}</div>
-        <div class="pickMiniHdr" style="margin-top:10px">Bottom 3 Least ${mode==="sold" ? "Sold" : "Recommended"}</div>
-        <div class="pickList">${bot.map((x,i)=>pickRow(x,i+1,mode)).join("") || `<div class="notice">No data</div>`}</div>
-      </div>`;
-  }
-
-  const top3Panel = `
-    <div class="panel techPickPanel">
-      <div class="phead" style="padding:12px">
-        <div class="pickHdrRow">
-          <div class="pickHdrLabel">ASR</div>
-          <div class="pickHdrLabel">SOLD</div>
-        </div>
-        <div class="pickGrid2">
-          ${pickBlock("asr")}
-          ${pickBlock("sold")}
-        </div>
-      </div>
-    </div>`;
-const appliedParts = [
+  const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
     (focus==="sold" ? "Focus: Sold" : (focus==="goal" ? "Focus: Goal" : "Focus: ASR/RO"))
@@ -270,7 +213,7 @@ const appliedParts = [
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
   
-const headerLeft = `
+const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
@@ -299,9 +242,6 @@ const headerLeft = `
     </div>
   `;
 
-  const header = `<div class="techHeaderTopGrid">${headerLeft}${top3Panel}</div>`;
-
-
   function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
 
   function renderCategoryRectSafe(cat, compareBasis){
@@ -320,13 +260,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
     const goalReq = Number(getGoal(cat,"req"));
     const goalClose = Number(getGoal(cat,"close"));
 
-    
-    const domId = "svc-" + String(cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-    const goalScore = (Number.isFinite(req) && Number.isFinite(goalReq) && goalReq>0) ? (req/goalReq) : NaN;
-    const goalSoldScore = (Number.isFinite(close) && Number.isFinite(goalClose) && goalClose>0) ? (close/goalClose) : NaN;
-    // Optional separate top close name (if your bench stores it)
-    basis.topCloseName = basis.topCloseName || basis.topName;
-const cmpReq = Number(basis.avgReq);
+    const cmpReq = Number(basis.avgReq);
     const cmpClose = Number(basis.avgClose);
 
     const pctGoalReq = (Number.isFinite(req) && Number.isFinite(goalReq) && goalReq>0) ? (req/goalReq) : NaN;
@@ -459,91 +393,32 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard" id="${domId}">
+      <div class="catCard" id="svc-${cat}">
         <div class="catHeader">
-          <div class="catTitleBlock">
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
+<div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
               ${fmt1(asrCount,0)} ASR · ${fmt1(soldCount,0)} Sold · ${fmt1(techRos,0)} ROs
             </div>
           </div>
-
-          <div class="svcGaugeWrap" style="--sz:72px">
-            ${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}
-          </div>
-
           <div class="catRank">
-            <div class="rankNum">${rk && rk.rank? rk.rank : "—"}/${rk && rk.total? rk.total : "—"}</div>
-            <div class="rankLbl">${focus==="sold"?"SOLD%":"ASR%"}</div>
+            <div class="rankNum">${rk && rk.rank ? rk.rank : "—"}${rk && rk.total ? `<span class="rankDen">/${rk.total}</span>`:""}</div>
+            <div class="rankLbl">${focus==="sold"?"SOLD%":(focus==="goal"?"GOAL%":"ASR%")}</div>
           </div>
         </div>
 
         <div class="metricStack">
-          <div class="metricBlock">
-            <div class="mbLeft">
-              <div class="mbKicker">ASR/RO%</div>
-              <div class="mbStat ${bandClass(pctVsAvgReq)}">${fmtPctPlain(req)}</div>
-            </div>
-            <div class="mbRight">
-              <div class="mbRow">
-                <div class="mbItem">
-                  <div class="mbLbl">Team Avg</div>
-                  <div class="mbNum">${Number.isFinite(avgReq)? fmtPctPlain(avgReq) : "—"}</div>
-                </div>
-                <div class="mbGauge">${Number.isFinite(pctVsAvgReq)? svcGauge(pctVsAvgReq,"") : ""}</div>
-              </div>
-              <div class="mbRow">
-                <div class="mbItem">
-                  <div class="mbLbl">Goal</div>
-                  <div class="mbNum">${Number.isFinite(goalReq)? fmtPctPlain(goalReq) : "—"}</div>
-                </div>
-                <div class="mbGauge">${Number.isFinite(goalScore)? svcGauge(goalScore,"") : ""}</div>
-              </div>
-              <div class="mbRow">
-                <div class="mbItem">
-                  <div class="mbLbl">Top Performer</div>
-                  <div class="mbNote">(${safe(basis.topName || "—")})</div>
-                </div>
-                <div class="mbGauge">${Number.isFinite(basis.topReq) && Number.isFinite(avgReq) && avgReq>0 ? svcGauge(basis.topReq/avgReq,"") : ""}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="metricBlock">
-            <div class="mbLeft">
-              <div class="mbKicker">SOLD%</div>
-              <div class="mbStat ${bandClass(pctVsAvgClose)}">${fmtPct(close)}</div>
-            </div>
-            <div class="mbRight">
-              <div class="mbRow">
-                <div class="mbItem">
-                  <div class="mbLbl">Team Avg</div>
-                  <div class="mbNum">${Number.isFinite(avgClose)? fmtPct(avgClose) : "—"}</div>
-                </div>
-                <div class="mbGauge">${Number.isFinite(pctVsAvgClose)? svcGauge(pctVsAvgClose,"") : ""}</div>
-              </div>
-              <div class="mbRow">
-                <div class="mbItem">
-                  <div class="mbLbl">Goal</div>
-                  <div class="mbNum">${Number.isFinite(goalClose)? fmtPct(goalClose) : "—"}</div>
-                </div>
-                <div class="mbGauge">${Number.isFinite(goalSoldScore)? svcGauge(goalSoldScore,"") : ""}</div>
-              </div>
-              <div class="mbRow">
-                <div class="mbItem">
-                  <div class="mbLbl">Top Performer</div>
-                  <div class="mbNote">(${safe(basis.topCloseName || basis.topName || "—")})</div>
-                </div>
-                <div class="mbGauge">${Number.isFinite(basis.topClose) && Number.isFinite(avgClose) && avgClose>0 ? svcGauge(basis.topClose/avgClose,"") : ""}</div>
-              </div>
-            </div>
-          </div>
+          ${asrBlock}
+          ${soldBlock}
         </div>
 
-        <a class="roLink" href="#/ros/${encodeURIComponent(t.id)}?cat=${encodeURIComponent(cat)}" onclick="event.preventDefault(); if(window.goROListForTech) window.goROListForTech(${JSON.stringify(t.id)}, ${JSON.stringify(cat)});">ROs</a>
+        <div class="catFooter">
+          <a class="linkPill" href="#/raw?tech=${encodeURIComponent(t.id)}&cat=${encodeURIComponent(cat)}">ROs</a>
+        </div>
       </div>
     `;
-}
+  }
   function sectionStatsForTech(sec){
     const cats = sec.categories || [];
     const reqs = cats.map(cat=>Number(t.categories?.[cat]?.req)).filter(n=>Number.isFinite(n));
@@ -621,7 +496,85 @@ return `
     `;
   }).join("");
 
-  document.getElementById('app').innerHTML = `${header}${sectionsHtml}`;
+  
+  // === Top/Bottom 3 panel (ASR% and Sold%) ===
+  const allCatsTB = Array.from(new Set((DATA.sections||[]).flatMap(s => (s.categories||[])).filter(Boolean)));
+  const svcRowsTB = allCatsTB.map(cat=>{
+    const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
+    const req = Number(c.req);
+    const close = Number(c.close);
+    const label = (typeof catLabel==="function") ? catLabel(cat) : String(cat);
+    return { cat, label, req, close };
+  });
+
+  const byReqTB = svcRowsTB.filter(x=>Number.isFinite(x.req)).sort((a,b)=>b.req-a.req);
+  const byCloseTB = svcRowsTB.filter(x=>Number.isFinite(x.close)).sort((a,b)=>b.close-a.close);
+
+  const topReqTB = byReqTB.slice(0,3);
+  const botReqTB = byReqTB.slice(-3).reverse();
+  const topCloseTB = byCloseTB.slice(0,3);
+  const botCloseTB = byCloseTB.slice(-3).reverse();
+
+  // Safe jump helper (never throws on null)
+  window.jumpToService = function(cat){
+    const id = `svc-${cat}`;
+    const el = document.getElementById(id);
+    if(!el){ console.warn("jumpToService: not found", id); return false; }
+    const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
+    if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+    if(el.classList){
+      el.classList.add("flashPick");
+      setTimeout(()=>{ const el2=document.getElementById(id); if(el2 && el2.classList) el2.classList.remove("flashPick"); }, 900);
+    }
+    return false;
+  };
+
+  function tbRow(item, idx, mode){
+    const metric = mode==="sold" ? item.close : item.req;
+    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
+    return `
+      <div class="techRow pickRowFrame">
+        <div class="techRowLeft">
+          <span class="rankNum">${idx}.</span>
+          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
+        </div>
+        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
+      </div>
+    `;
+  }
+
+  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
+    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    return `
+      <div class="pickBox">
+        <div class="pickMiniHdr">${safe(titleTop)}</div>
+        <div class="pickList">${topHtml}</div>
+        <div class="pickMiniHdr" style="margin-top:10px">${safe(titleBot)}</div>
+        <div class="pickList">${botHtml}</div>
+      </div>
+    `;
+  }
+
+  const top3Panel = `
+    <div class="panel techPickPanel">
+      <div class="phead" style="border-bottom:none;padding:12px">
+        <div class="pickHdrRow">
+          <div class="pickHdrLabel">ASR</div>
+          <div class="pickHdrLabel">SOLD</div>
+        </div>
+        <div class="pickGrid2">
+          ${tbBlock("Top 3 Most Recommended","Bottom 3 Least Recommended", topReqTB, botReqTB, "asr")}
+          ${tbBlock("Top 3 Most Sold","Bottom 3 Least Sold", topCloseTB, botCloseTB, "sold")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
+
+  document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
 
