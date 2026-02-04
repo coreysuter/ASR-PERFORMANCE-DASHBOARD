@@ -241,40 +241,96 @@ function renderGroupPage(groupKey){
   }).join("");
 }
 
-  const cards = serviceAggs.map(s=>{
-    const rk = rankMap.get(s.serviceName) || {rank:"—",total:"—"};
-    const roLink = `#/ros/${encodeURIComponent(s.serviceName)}?team=${encodeURIComponent(teamKey)}`;
-    return `
-      <div class="catCard serviceCard">
-        <div class="catHeader">
-          <div>
-            <div class="catTitle">${safe(s.serviceName)}</div>
-            <div class="catCounts">ROs: <b>${fmtInt(totalRos)}</b> • ASR: <b>${fmtInt(s.asr)}</b> • Sold: <b>${fmtInt(s.sold)}</b></div>
+  function bandClass(pct){
+  if(!Number.isFinite(pct)) return "bandNeutral";
+  if(pct >= 0.80) return "bandGood";
+  if(pct >= 0.60) return "bandWarn";
+  return "bandBad";
+}
+
+const cards = serviceAggs.map(s=>{
+  const rk = rankMap.get(s.serviceName) || {rank:null,total:serviceAggs.length};
+
+  // Compare each service to the selected team's average across services
+  const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq)   : NaN;
+  const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
+
+  const asrDial  = Number.isFinite(pctVsAvgReq)   ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgReq, "Team Avg")}</div>` : "";
+  const soldDial = Number.isFinite(pctVsAvgClose) ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgClose, "Team Avg")}</div>` : "";
+
+  const asrBlock = `
+    <div class="metricBlock">
+      <div class="mbLeft">
+        <div class="mbKicker">ASR/RO%</div>
+        <div class="mbStat ${bandClass(pctVsAvgReq)}">${fmtPctPlain(s.reqTot)}</div>
+      </div>
+      <div class="mbRight">
+        <div class="mbRow">
+          <div class="mbItem">
+            <div class="mbLbl">Team Avg</div>
+            <div class="mbNum">${fmtPctPlain(avgReq)}</div>
           </div>
-          <div class="catRank">${rk.rank} of ${rk.total}<div class="byAsr">ASR/RO%</div></div>
+          ${asrDial}
+        </div>
+      </div>
+    </div>
+  `;
+
+  const soldBlock = `
+    <div class="metricBlock">
+      <div class="mbLeft">
+        <div class="mbKicker">SOLD%</div>
+        <div class="mbStat ${bandClass(pctVsAvgClose)}">${fmtPct(s.closeTot)}</div>
+      </div>
+      <div class="mbRight">
+        <div class="mbRow">
+          <div class="mbItem">
+            <div class="mbLbl">Team Avg</div>
+            <div class="mbNum">${fmtPct(avgClose)}</div>
+          </div>
+          ${soldDial}
+        </div>
+      </div>
+    </div>
+  `;
+
+  const roLink = `#/ros?group=${encodeURIComponent(groupKey)}&service=${encodeURIComponent(s.serviceName)}&team=${encodeURIComponent(teamKey)}`;
+
+  return `
+    <div class="card serviceCard">
+      <div class="catHeader">
+        <div class="catRank">
+          <div class="rankNum">${rk.rank ?? "—"}</div>
+          <div class="rankDen">/${rk.total ?? "—"}</div>
+          <div class="rankLbl">RANK</div>
         </div>
 
-        <div class="techTilesRow">
-          <div class="statTile t3">
-            <div class="tLbl">ASR/RO</div>
-            <div class="tVal">${fmtPctPlain(s.reqTot)}</div>
-            <div class="goalLine">Goal: ${fmtGoal(getGoal(s.serviceName,"req"))}</div>
-          </div>
-          <div class="statTile t4">
-            <div class="tLbl">Sold%</div>
-            <div class="tVal">${fmtPct(s.closeTot)}</div>
-            <div class="goalLine">Goal: ${fmtGoal(getGoal(s.serviceName,"close"))}</div>
-          </div>
+        <div>
+          <div class="catTitle">${safe(s.serviceName)}</div>
+          <div class="catCounts muted">ASRs <b>${fmtInt(s.asr)}</b> • Sold <b>${fmtInt(s.sold)}</b></div>
         </div>
+
+        <div class="svcGaugeWrap" style="--sz:72px">
+          ${
+            focus==="sold"
+              ? (Number.isFinite(pctVsAvgClose) ? svcGauge(pctVsAvgClose, "Sold%") : "")
+              : (Number.isFinite(pctVsAvgReq)   ? svcGauge(pctVsAvgReq, "ASR%")  : "")
+          }
+        </div>
+      </div>
+
+      <div class="tileBody">
+        ${asrBlock}
+        ${soldBlock}
 
         <div class="techList">${techListFor(s) || '<div class="sub">No technicians found.</div>'}</div>
 
         <div class="roLink"><a href="${roLink}">ROs</a></div>
       </div>
-    `;
-  }).join("");
-
-  document.getElementById("app").innerHTML = header + `
+    </div>
+  `;
+}).join("");
+document.getElementById("app").innerHTML = header + `
     <div class="sectionFrame">
       <div class="categoryGrid">${cards}</div>
     </div>
