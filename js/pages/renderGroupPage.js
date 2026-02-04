@@ -90,7 +90,9 @@ function renderGroupPage(groupKey){
     return;
   }
 
-  // read querystring from hash
+  
+  document.body.classList.add('route-tech');
+// read querystring from hash
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   let teamKey = "all";
@@ -171,29 +173,42 @@ function renderGroupPage(groupKey){
   `;
 
   const header = `
-    <div class="panel">
-      <div class="phead">
-        <div class="titleRow">
-          <div>
-            <div class="h2">${safe(title)}</div>
-            <div class="sub"><a href="#/" style="text-decoration:none">← Back to dashboard</a></div>
-          </div>
-          <div>
-            <div class="big">${fmt1(avgReq,1)}</div>
-            <div class="tag">Avg ASR/RO (Summary)</div>
-          </div>
-        </div>
-        <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(avgClose)}</div></div>
-        </div>
-        ${filters}
-      </div>
-    </div>
-  `;
+  <div class="panel techHeaderPanel">
+    <div class="phead">
 
-  // ---- Service cards (look like tech detail category cards, but with technician list instead of benchmarks) ----
+      <div class="titleRow techTitleRow">
+        <div class="techTitleLeft">
+          <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+        </div>
+
+        <div class="techNameWrap">
+          <div class="h2 techH2Big">${safe(title)}</div>
+          <div class="techTeamLine">${safe(teamKey.toUpperCase())} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
+          <div class="sub">
+            <a href="#/" style="text-decoration:none">← Back to dashboard</a>
+          </div>
+        </div>
+
+        <div class="overallBlock">
+          <div class="big">${fmt1(avgReq,1)}</div>
+          <div class="tag">Avg ASR/RO (Summary)</div>
+          <div class="overallMetric">${fmtPct(avgClose)}</div>
+          <div class="tag">Avg Sold% (Summary)</div>
+        </div>
+      </div>
+
+      <div class="pills">
+        <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+        <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+        <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(avgClose)}</div></div>
+      </div>
+
+      ${filters}
+    </div>
+  </div>
+`;
+
+// ---- Service cards (look like tech detail category cards, but with technician list instead of benchmarks) ----
   function techListFor(service){
   const rows = service.techRows.slice().sort((a,b)=>{
     return focus==="sold" ? (b.close - a.close) : (b.req - a.req);
