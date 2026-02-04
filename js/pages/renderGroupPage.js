@@ -1,5 +1,3 @@
-function fmtGoal(v){ const n=Number(v); if(v===null||v===undefined||!Number.isFinite(n)) return '—'; return (n*100).toFixed(1)+'%'; }
-
 function renderCategoryRectSafe(cat, compareBasis){
   try{
     return renderCategoryRectSafe(cat, compareBasis);
@@ -92,7 +90,9 @@ function renderGroupPage(groupKey){
     return;
   }
 
-  // read querystring from hash
+  
+  document.body.classList.add('route-tech');
+// read querystring from hash
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   let teamKey = "all";
@@ -173,29 +173,42 @@ function renderGroupPage(groupKey){
   `;
 
   const header = `
-    <div class="panel">
-      <div class="phead">
-        <div class="titleRow">
-          <div>
-            <div class="h2">${safe(title)}</div>
-            <div class="sub"><a href="#/" style="text-decoration:none">← Back to dashboard</a></div>
-          </div>
-          <div>
-            <div class="big">${fmt1(avgReq,1)}</div>
-            <div class="tag">Avg ASR/RO (Summary)</div>
-          </div>
-        </div>
-        <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(avgClose)}</div></div>
-        </div>
-        ${filters}
-      </div>
-    </div>
-  `;
+  <div class="panel techHeaderPanel">
+    <div class="phead">
 
-  // ---- Service cards (look like tech detail category cards, but with technician list instead of benchmarks) ----
+      <div class="titleRow techTitleRow">
+        <div class="techTitleLeft">
+          <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+        </div>
+
+        <div class="techNameWrap">
+          <div class="h2 techH2Big">${safe(title)}</div>
+          <div class="techTeamLine">${safe(teamKey.toUpperCase())} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
+          <div class="sub">
+            <a href="#/" style="text-decoration:none">← Back to dashboard</a>
+          </div>
+        </div>
+
+        <div class="overallBlock">
+          <div class="big">${fmt1(avgReq,1)}</div>
+          <div class="tag">Avg ASR/RO (Summary)</div>
+          <div class="overallMetric">${fmtPct(avgClose)}</div>
+          <div class="tag">Avg Sold% (Summary)</div>
+        </div>
+      </div>
+
+      <div class="pills">
+        <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+        <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+        <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(avgClose)}</div></div>
+      </div>
+
+      ${filters}
+    </div>
+  </div>
+`;
+
+// ---- Service cards (look like tech detail category cards, but with technician list instead of benchmarks) ----
   function techListFor(service){
   const rows = service.techRows.slice().sort((a,b)=>{
     return focus==="sold" ? (b.close - a.close) : (b.req - a.req);
@@ -228,61 +241,98 @@ function renderGroupPage(groupKey){
   }).join("");
 }
 
-  const cards = serviceAggs.map(s=>{
-    const rk = rankMap.get(s.serviceName) || {rank:"—",total:"—"};
-    const roLink = `#/ros/${encodeURIComponent(s.serviceName)}?team=${encodeURIComponent(teamKey)}`;
-    
-const goalReq = Number(getGoal(s.serviceName,"req"));
-const goalClose = Number(getGoal(s.serviceName,"close"));
-const pctGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(goalReq) && goalReq>0) ? (s.reqTot/goalReq) : NaN;
-const pctGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(goalClose) && goalClose>0) ? (s.closeTot/goalClose) : NaN;
+  function bandClass(pct){
+  if(!Number.isFinite(pct)) return "bandNeutral";
+  if(pct >= 0.80) return "bandGood";
+  if(pct >= 0.60) return "bandWarn";
+  return "bandBad";
+}
 
-return `
-      <div class="catCard serviceCard">
-        <div class="catHeader">
-          <div>
-            <div class="catTitle">${safe(s.serviceName)}</div>
-            <div class="muted svcMetaLine" style="margin-top:2px">
-              ${fmt1(s.asr,0)} ASR · ${fmt1(s.sold,0)} Sold · ${fmt1(s.totalRos,0)} ROs
-            </div>
+const cards = serviceAggs.map(s=>{
+  const rk = rankMap.get(s.serviceName) || {rank:null,total:serviceAggs.length};
+
+  // Compare each service to the selected team's average across services
+  const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq)   : NaN;
+  const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
+
+  const asrDial  = Number.isFinite(pctVsAvgReq)   ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgReq, "Team Avg")}</div>` : "";
+  const soldDial = Number.isFinite(pctVsAvgClose) ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgClose, "Team Avg")}</div>` : "";
+
+  const asrBlock = `
+    <div class="metricBlock">
+      <div class="mbLeft">
+        <div class="mbKicker">ASR/RO%</div>
+        <div class="mbStat ${bandClass(pctVsAvgReq)}">${fmtPctPlain(s.reqTot)}</div>
+      </div>
+      <div class="mbRight">
+        <div class="mbRow">
+          <div class="mbItem">
+            <div class="mbLbl">Team Avg</div>
+            <div class="mbNum">${fmtPctPlain(avgReq)}</div>
           </div>
-          <div class="catRank">${rk.rank} of ${rk.total}<div class="byAsr">ASR/RO%</div></div>
+          ${asrDial}
         </div>
-
-        <div class="techTilesRow">
-          <div class="statTile t3">
-  <div class="tLbl">ASR/RO</div>
-  <div class="tVal">${fmtPctPlain(s.reqTot)}</div>
-  <div class="mbRow" style="margin-top:6px">
-    <div class="mbItem">
-      <div class="mbLbl">Goal</div>
-      <div class="mbNum">${fmtGoal(goalReq)}</div>
+      </div>
     </div>
-    <div class="mbGauge" style="--sz:44px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq,"Goal") : ""}</div>
-  </div>
-</div>
+  `;
 
-<div class="statTile t4">
-  <div class="tLbl">Sold%</div>
-  <div class="tVal">${fmtPct(s.closeTot)}</div>
-  <div class="mbRow" style="margin-top:6px">
-    <div class="mbItem">
-      <div class="mbLbl">Goal</div>
-      <div class="mbNum">${fmtGoal(goalClose)}</div>
+  const soldBlock = `
+    <div class="metricBlock">
+      <div class="mbLeft">
+        <div class="mbKicker">SOLD%</div>
+        <div class="mbStat ${bandClass(pctVsAvgClose)}">${fmtPct(s.closeTot)}</div>
+      </div>
+      <div class="mbRight">
+        <div class="mbRow">
+          <div class="mbItem">
+            <div class="mbLbl">Team Avg</div>
+            <div class="mbNum">${fmtPct(avgClose)}</div>
+          </div>
+          ${soldDial}
+        </div>
+      </div>
     </div>
-    <div class="mbGauge" style="--sz:44px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose,"Goal") : ""}</div>
+  `;
+
+  const roLink = `#/ros?group=${encodeURIComponent(groupKey)}&service=${encodeURIComponent(s.serviceName)}&team=${encodeURIComponent(teamKey)}`;
+
+  return `
+    
+<div class="catCard">
+  <div class="catHeader">
+    <div class="svcGaugeWrap" style="--sz:72px">
+      ${
+        focus==="sold"
+          ? (Number.isFinite(pctVsAvgClose) ? svcGauge(pctVsAvgClose, "Sold%") : "")
+          : (Number.isFinite(pctVsAvgReq)   ? svcGauge(pctVsAvgReq, "ASR%")  : "")
+      }
+    </div>
+    <div>
+      <div class="catTitle">${safe(s.serviceName)}</div>
+      <div class="muted svcMetaLine" style="margin-top:2px">
+        ${fmt1(s.asr,0)} ASR · ${fmt1(s.sold,0)} Sold · ${fmt1(s.totalRos,0)} ROs
+      </div>
+    </div>
+    <div class="catRank">
+      <div class="rankNum">${rk.rank ?? "—"}${rk.total ? `<span class="rankDen">/${rk.total}</span>` : ""}</div>
+      <div class="rankLbl">${focus==="sold" ? "SOLD%" : "ASR%"}</div>
+    </div>
   </div>
-</div>
+
+        <div class="metricStack">
+
+        ${asrBlock}
+        ${soldBlock}
         </div>
 
         <div class="techList">${techListFor(s) || '<div class="sub">No technicians found.</div>'}</div>
 
-        <div class="roLink"><a href="${roLink}">ROs</a></div>
+        <div class="catFooter"><a class="linkPill" href="${roLink}">ROs</a></div>
       </div>
-    `;
-  }).join("");
-
-  document.getElementById("app").innerHTML = header + `
+    </div>
+  `;
+}).join("");
+document.getElementById("app").innerHTML = header + `
     <div class="sectionFrame">
       <div class="categoryGrid">${cards}</div>
     </div>
