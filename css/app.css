@@ -115,8 +115,8 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 
 @media (max-width: 980px){
   .catHeader{grid-template-columns:1fr}
-  .catHdrRight{display:flex;align-items:center;gap:10px}
-  .svcGaugeWrap{flex:0 0 auto}
+.catHdrRight{display:flex;align-items:center;gap:10px}
+.svcGaugeWrap{flex:0 0 auto}
   .benchGrid4{grid-template-columns:1fr 1fr}
   .detailLower{grid-template-columns:1fr}
 }
@@ -463,7 +463,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
   .goalsQuads{grid-template-columns:1fr}
 }
 @media (max-width:720px){
-  .goalName{font-weight:1100;letter-spacing:.15px;flex:1;min-width:0;max-width:none;overflow:visible;text-overflow:clip;white-space:normal;line-height:1.12}
+.goalName{font-weight:1100;letter-spacing:.15px;flex:1;min-width:0;max-width:none;overflow:visible;text-overflow:clip;white-space:normal;line-height:1.12}
 }
 .fluidsGrid{margin-top:0}
 .goalBoxInner{padding:10px;flex:1 1 260px;max-width:340px;min-width:210px}
@@ -738,13 +738,8 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 body.route-tech .top{display:none !important;}
 body.route-tech .techH2{font-size:33px;line-height:1.05;}
 @media (max-width: 820px){ body.route-tech .techH2{font-size:26px;} }
-
-/* ✅ FIX: tech header panel should span full width so we can place 2 boxes side-by-side */
-body.route-tech .techHeaderPanel{display:block;width:100%;max-width:100%;min-width:420px;}
-@media (max-width: 820px){
-  body.route-tech .techHeaderPanel{display:block;min-width:0;width:100%;max-width:100%;}
-}
-
+body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width:420px;}
+@media (max-width: 820px){ body.route-tech .techHeaderPanel{display:block;min-width:0;width:100%;max-width:100%;} }
 .techTitleRow{display:flex;align-items:flex-start;gap:14px}
 .techTitleLeft{display:flex;align-items:center;gap:10px;padding-top:6px;flex:0 0 auto}
 .hamburgerMini{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;
@@ -857,7 +852,7 @@ h3{font-size:var(--H3);font-weight:var(--HB);letter-spacing:.2px}
 */
 :root{
   --H1:33px; /* main header */
-  --H2:23px; /* section/category header_togglebutton (smaller than v194) */
+  --H2:23px; /* section/category header (smaller than v194) */
   --H3:20px; /* subsection/service header (larger than v194) */
   --HB:900;
 }
@@ -1013,10 +1008,6 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
   pointer-events:none;
 }
 
-/* ✅ FIX: removed the stray invalid text that was breaking the CSS:
-   "ht:1}" */
-
-
 /* ===== v273_UNIQUE: service tile meta line not bold ===== */
 .svcMetaLine{font-weight:500 !important; letter-spacing:.2px; text-transform:uppercase;}
 
@@ -1107,152 +1098,111 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .route-tech .secFocusDial .svcGaugeWrap{width:90px !important;height:90px !important;flex:0 0 148px !important;}
 .route-tech .secFocusDial .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
 
-/* === Dial traffic-light colors (override) ===
-   Ensures dials are clearly Red / Yellow / Green wherever svcGauge() adds gRed/gYellow/gGreen.
-*/
-.svcGauge.gGreen{--gCol:rgba(34,197,94,.98) !important;}
-.svcGauge.gYellow{--gCol:rgba(245,158,11,.98) !important;}
-.svcGauge.gRed{--gCol:rgba(239,68,68,.98) !important;}
-
-/* Slightly thicker ring + stronger glow for legibility */
-.svcGauge .bg{stroke-width:5.5 !important;}
-.svcGauge .fg{
-  stroke-width:5.5 !important;
-  filter:drop-shadow(0 2px 8px rgba(0,0,0,.45)) !important;
-}
-
 /* =========================================================
-   ✅ TECH DETAILS: TOP/BOTTOM BOX (matches your screenshot)
-   - Dark blue outer panel beside name box
-   - Black inner boxes w/ fine grey border
-   - ASR/SOLD labels in same font as name (smaller)
-   - Grey mini headers like "Overall ASR Rank"
-   - Grey framed rows like category tech list rectangles
+   TECH DETAILS: Top/Bottom 3 panel
+   - Restore original layout by NOT changing existing header panel
+   - Add a sibling panel to the right (matches screenshot "before")
+   - Use the exact same row typography as technician lists on category pages
    ========================================================= */
 
-/* Two panels side-by-side inside the tech header */
-.techHeaderTopGrid{
+/* Wrapper around the two header panels (name panel + top/bottom panel) */
+.techHeaderGrid{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap:14px;               /* black background shows between panels */
-  align-items:stretch;
+  gap:18px;                  /* show black background between */
+  align-items:start;
+  margin-bottom:12px;
 }
+
+/* Let the existing techHeaderPanel behave normally inside the grid */
+.techHeaderGrid .techHeaderPanel{
+  width:auto !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+/* On smaller screens, stack like everything else */
 @media (max-width: 980px){
-  .techHeaderTopGrid{grid-template-columns:1fr;}
+  .techHeaderGrid{grid-template-columns:1fr; gap:12px;}
 }
 
-/* Right panel should look like the name panel (dark blue), with same rounding */
-.techPickPanel{
-  background:linear-gradient(180deg,var(--card),var(--card2));
-  border:1px solid var(--border);
+/* Right-side panel base */
+.top3Panel{
   border-radius:18px;
-  overflow:hidden;
 }
 
-/* Keep the panel header clean (no bottom border inside this box) */
-.techPickPanel .phead{
-  border-bottom:none;
-  padding:12px;
-}
-
-/* Labels row (ASR / SOLD) between top of blue box and inner black boxes */
-.pickHdrRow{
+/* ASR / SOLD labels (same family as main headers, smaller) */
+.top3HdrRow{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:12px;
-  margin-bottom:8px;
+  gap:14px;
+  margin-top:2px;
+  margin-bottom:10px;
 }
-.pickHdrLabel{
-  font-size:18px;               /* same font vibe as tech name, just smaller */
+.top3Hdr{
+  font-size:18px;
   font-weight:1000;
   letter-spacing:.2px;
+  text-transform:uppercase;
   opacity:.92;
 }
 
-/* Two inner black boxes */
-.pickGrid2{
+/* Inner black boxes */
+.top3Cols{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:12px;
+  gap:14px;
 }
-@media (max-width: 680px){
-  .pickGrid2{grid-template-columns:1fr;}
+@media (max-width: 980px){
+  .top3Cols{grid-template-columns:1fr;}
 }
 
-/* Inner black box w fine grey border like other areas */
-.pickBox{
-  background:rgba(0,0,0,.33);
-  border:1px solid rgba(234,240,255,.14); /* fine grey border */
+.top3Box{
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.14);
   border-radius:14px;
-  padding:10px;
+  padding:10px 10px 12px;
 }
 
-/* Mini headers inside black box (match "Overall ASR Rank" label style) */
-.pickMiniHdr{
+/* Small grey headers (match tag style like "Overall ASR Rank") */
+.top3SecHdr{
   font-size:11px;
   color:var(--muted);
   font-weight:900;
   letter-spacing:.2px;
   text-transform:uppercase;
-  margin:0 0 8px 0;
+  margin:2px 2px 8px;
 }
 
-/* List container */
-.pickList{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
+.top3List{display:block}
 
-/* Row frame like category tech list rectangle (slightly lighter grey) */
-.pickRowFrame{
-  border:1px solid rgba(234,240,255,.14);
-  background:rgba(255,255,255,.06);
-  border-radius:12px;
-  padding:8px 10px;
-}
-
-/* Row content aligns like tech rows: rank + name + right stats */
-.pickRowGrid{
-  display:grid;
-  grid-template-columns: 28px 1fr auto;
-  gap:10px;
-  align-items:center;
-}
-
-/* Rank number at left */
-.pickRank{
-  font-weight:1000;
-  opacity:.85;
-  text-align:right;
-}
-
-/* Service name (match tech list font) */
-.pickName{
-  min-width:0;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  font-weight:1000;
-  letter-spacing:.15px;
-}
-.pickName a{
-  color:var(--text);
-  text-decoration:none;
-}
-.pickName a:hover{ text-decoration:underline; }
-
-/* Right-side stat (small, muted, like list stats) */
-.pickStat{
+/* Force the rows to match the category-page tech list look */
+.top3Box .techRow{
+  margin:0;
+  padding:5px 0;
+  border:none;
+  border-radius:0;
+  background:transparent;
   font-size:12px;
-  font-weight:900;
+}
+.top3Box .techRow + .techRow{
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:6px;
+  margin-top:6px;
+}
+.top3Box .rankNum{min-width:18px;text-align:right;margin-right:8px;opacity:.8;font-weight:700}
+.top3Box .techRowLeft a{
+  max-width:210px;
+  text-decoration:underline;   /* same as lists */
+}
+.top3Box .mini{
   color:var(--muted);
+  font-weight:900;
   white-space:nowrap;
 }
 
-/* Flash highlight when jumping to a tile */
-.flashPick{
-  outline:2px solid rgba(147,197,253,.75);
-  box-shadow:0 0 0 6px rgba(147,197,253,.12);
-  transition: outline-color .2s ease, box-shadow .2s ease;
+/* Flash highlight for jumped-to service tiles */
+.catCard.flashPick{
+  outline:2px solid rgba(255,255,255,.28);
+  box-shadow:0 0 0 6px rgba(255,255,255,.06);
 }
