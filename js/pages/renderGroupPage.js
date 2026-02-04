@@ -297,35 +297,37 @@ const cards = serviceAggs.map(s=>{
   const roLink = `#/ros?group=${encodeURIComponent(groupKey)}&service=${encodeURIComponent(s.serviceName)}&team=${encodeURIComponent(teamKey)}`;
 
   return `
-    <div class="card serviceCard">
-      <div class="catHeader">
-        <div class="catRank">
-          <div class="rankNum">${rk.rank ?? "—"}</div>
-          <div class="rankDen">/${rk.total ?? "—"}</div>
-          <div class="rankLbl">RANK</div>
-        </div>
-
-        <div>
-          <div class="catTitle">${safe(s.serviceName)}</div>
-          <div class="catCounts muted">ASRs <b>${fmtInt(s.asr)}</b> • Sold <b>${fmtInt(s.sold)}</b></div>
-        </div>
-
-        <div class="svcGaugeWrap" style="--sz:72px">
-          ${
-            focus==="sold"
-              ? (Number.isFinite(pctVsAvgClose) ? svcGauge(pctVsAvgClose, "Sold%") : "")
-              : (Number.isFinite(pctVsAvgReq)   ? svcGauge(pctVsAvgReq, "ASR%")  : "")
-          }
-        </div>
+    
+<div class="catCard">
+  <div class="catHeader">
+    <div class="svcGaugeWrap" style="--sz:72px">
+      ${
+        focus==="sold"
+          ? (Number.isFinite(pctVsAvgClose) ? svcGauge(pctVsAvgClose, "Sold%") : "")
+          : (Number.isFinite(pctVsAvgReq)   ? svcGauge(pctVsAvgReq, "ASR%")  : "")
+      }
+    </div>
+    <div>
+      <div class="catTitle">${safe(s.serviceName)}</div>
+      <div class="muted svcMetaLine" style="margin-top:2px">
+        ${fmt1(s.asr,0)} ASR · ${fmt1(s.sold,0)} Sold · ${fmt1(s.totalRos,0)} ROs
       </div>
+    </div>
+    <div class="catRank">
+      <div class="rankNum">${rk.rank ?? "—"}${rk.total ? `<span class="rankDen">/${rk.total}</span>` : ""}</div>
+      <div class="rankLbl">${focus==="sold" ? "SOLD%" : "ASR%"}</div>
+    </div>
+  </div>
 
-      <div class="tileBody">
+        <div class="metricStack">
+
         ${asrBlock}
         ${soldBlock}
+        </div>
 
         <div class="techList">${techListFor(s) || '<div class="sub">No technicians found.</div>'}</div>
 
-        <div class="roLink"><a href="${roLink}">ROs</a></div>
+        <div class="catFooter"><a class="linkPill" href="${roLink}">ROs</a></div>
       </div>
     </div>
   `;
