@@ -466,3 +466,10 @@ window.renderTechSearchResults = renderTechSearchResults;
 
 window.renderTeam = renderTeam;
 
+try { renderMenuTechLists(); } catch(e) {}
+try { populateAsrMenuLinks(); } catch(e) {}
+
+window.addEventListener("hashchange", () => {
+  try { renderMenuTechLists(); } catch(e) {}
+  try { populateAsrMenuLinks(); } catch(e) {}
+});
