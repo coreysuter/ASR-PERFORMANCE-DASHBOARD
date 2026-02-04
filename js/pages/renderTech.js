@@ -213,7 +213,87 @@ const tfOpen = !!UI.techFilters[techId];
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
   
-var header = `
+
+  // ===== Top/
+    <div class="techHeaderGrid">
+    <div class="panel techHeaderPanel">
+      <div class="phead">
+        <div class="titleRow techTitleRow">
+          <div class="techTitleLeft">
+            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+          </div>
+          <div class="techNameWrap">
+            <div class="h2 techH2Big">${safe(t.name)}</div>
+            <div class="techTeamLine">${safe(team)}</div>
+          </div>
+          <div class="overallBlock">
+            <div class="big">${overall.rank ?? "—"}/${overall.total ?? "—"}</div>
+            <div class="tag">${focus==="sold" ? "Overall Sold Rank" : "Overall ASR Rank"}</div>
+            <div class="overallMetric">${focusVal}</div>
+            <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
+          </div>
+        </div>
+        <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmt1(techAsrPerRo(t, filterKey),1)}</div></div>
+          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(techSoldPct(t, filterKey))}</div></div>
+        </div>
+        ${filters}
+      </div>
+    </div>
+  
+
+    <div class="panel top3Panel">
+      <div class="phead top3Phead">
+        <div class="top3Cols">
+          <div class="top3Col">
+            <div class="top3Label">ASR</div>
+            <div class="top3Box">
+              <div class="top3SecHdr">Top 3 Most Recommended</div>
+              <div class="top3Rows">${svcRowsBlock(asrTop,"asr")}</div>
+              <div class="top3SecHdr" style="margin-top:10px">Bottom 3 Least Recommended</div>
+              <div class="top3Rows">${svcRowsBlock(asrBot,"asr")}</div>
+            </div>
+          </div>
+          <div class="top3Col">
+            <div class="top3Label">SOLD</div>
+            <div class="top3Box">
+              <div class="top3SecHdr">Top 3 Most Sold</div>
+              <div class="top3Rows">${svcRowsBlock(soldTop,"sold")}</div>
+              <div class="top3SecHdr" style="margin-top:10px">Bottom 3 Least Sold</div>
+              <div class="top3Rows">${svcRowsBlock(soldBot,"sold")}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+soldSorted.slice(0,3);
+  const soldBot = soldSorted.slice().reverse().slice(0,3);
+
+  const svcRowHtml = (item, i, mode)=> {
+    // mode: "asr" or "sold"
+    const right = mode==="sold"
+      ? `Sold ${fmtInt(item.sold)} • ${pct0(item.close)}`
+      : `ASR ${fmtInt(item.asr)} • ${pct0(item.req)}`;
+    return `
+      <div class="svcRankRow">
+        <div class="svcLeft">
+          <span class="svcRankNum">${i+1}.</span>
+          <a href="#" class="svcJump" data-svc="${safe(svcAnchorId(item.cat))}">${safe(item.label)}</a>
+        </div>
+        <div class="svcRight">${right}</div>
+      </div>
+    `;
+  };
+
+  const svcRowsBlock = (arr, mode)=> arr.length
+    ? arr.map((it,i)=>svcRowHtml(it,i,mode)).join("")
+    : `<div class="svcEmpty">No service data</div>`;
+
+const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
@@ -393,7 +473,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard">
+      <div class="catCard" id="${svcAnchorId(cat)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
@@ -499,6 +579,29 @@ return `
   document.getElementById('app').innerHTML = `${header}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
+
+  // Jump-to-service links from Top/Bottom panel
+  const jumpLinks = document.querySelectorAll('.svcJump[data-svc]');
+  jumpLinks.forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const id = a.getAttribute('data-svc');
+      if(!id) return;
+      const el = document.getElementById(id);
+      if(!el) return;
+      // expand its section if collapsed
+      const sec = el.closest('.section');
+      if(sec && sec.classList.contains('collapsed')){
+        const btn = sec.querySelector('.sectionToggle');
+        if(btn) btn.click();
+        sec.classList.remove('collapsed');
+      }
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+      el.classList.add('svcFlash');
+      setTimeout(()=>el.classList.remove('svcFlash'), 900);
+    });
+  });
+
 
   const sel = document.getElementById('techFilter');
   if(sel){
