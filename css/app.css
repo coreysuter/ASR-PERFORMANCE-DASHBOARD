@@ -1098,3 +1098,17 @@ ht:1}
 
 .route-tech .secFocusDial .svcGaugeWrap{width:90px !important;height:90px !important;flex:0 0 148px !important;}
 .route-tech .secFocusDial .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
+
+/* === Dial traffic-light colors (override) ===
+   Ensures dials are clearly Red / Yellow / Green wherever svcGauge() adds gRed/gYellow/gGreen.
+*/
+.svcGauge.gGreen{--gCol:rgba(34,197,94,.98) !important;}
+.svcGauge.gYellow{--gCol:rgba(245,158,11,.98) !important;}
+.svcGauge.gRed{--gCol:rgba(239,68,68,.98) !important;}
+
+/* Slightly thicker ring + stronger glow for legibility */
+.svcGauge .bg{stroke-width:5.5 !important;}
+.svcGauge .fg{
+  stroke-width:5.5 !important;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.45)) !important;
+}
