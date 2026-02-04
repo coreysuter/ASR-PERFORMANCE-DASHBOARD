@@ -7,11 +7,17 @@ function renderTech(techId){
 
   const team = t.team;
 
+  try{
+    document.body.classList.add("route-tech");
+    document.body.classList.remove("route-main","route-group","route-goals","route-settings");
+  }catch(e){}
+
   const logoSrc = (document.querySelector(".brandLogo")||{}).src || "";
 
   let filterKey = "total";
   let compareBasis = "team";
   let focus = "asr"; // asr | sold
+  let jump = "";
 const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
@@ -26,11 +32,56 @@ const hash = location.hash || "";
         const vv = decodeURIComponent(v||"") || "asr";
         focus = (vv==="sold"||vv==="goal"||vv==="asr") ? vv : "asr";
       }
+      if(k==="jump") jump = decodeURIComponent(v||"") || "";
     }
   }
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
   const s = t.summary?.[filterKey] || {};
+
+  function slugifyCat(cat){
+    return String(cat||"")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+  }
+
+  function jumpToService(cat){
+    const id = "svc-" + slugifyCat(cat);
+    const el = document.getElementById(id);
+    if(!el) return;
+    const panel = el.closest(".panel");
+    if(panel && panel.classList.contains("secCollapsed")){
+      panel.classList.remove("secCollapsed");
+      const tg = panel.querySelector(".secToggle");
+      if(tg) tg.textContent = "−";
+    }
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  function buildTopBottom(metricKey, n=3){
+    const cats = Array.from(new Set((DATA.sections||[]).flatMap(s=>s.categories||[])));
+    const items = cats.map(cat=>{
+      const c = t.categories?.[cat] || {};
+      return {
+        cat,
+        asr: Number(c.asr ?? 0),
+        sold: Number(c.sold ?? 0),
+        req: Number(c.req),
+        close: Number(c.close),
+      };
+    });
+
+    const getVal = (it)=> metricKey==="sold" ? it.sold : it.asr;
+    const pos = items.filter(it=>Number.isFinite(getVal(it)) && getVal(it)>0);
+    const all = items.filter(it=>Number.isFinite(getVal(it)));
+
+    const topSrc = (pos.length>=n ? pos : all).slice().sort((a,b)=>getVal(b)-getVal(a));
+    const botSrc = (pos.length>=n ? pos : all).slice().sort((a,b)=>getVal(a)-getVal(b));
+
+    return { top: topSrc.slice(0,n), bottom: botSrc.slice(0,n) };
+  }
 
   function allTechs(){ return (DATA.techs||[]).filter(x=>x.team==="EXPRESS" || x.team==="KIA"); }
   function categoryUniverse(){
@@ -240,7 +291,74 @@ const header = `
         ${filters}
       </div>
     </div>
+  
+  const tbAsr = buildTopBottom("asr", 3);
+  const tbSold = buildTopBottom("sold", 3);
+
+  function recapRows(items, mode){
+    const isSold = mode==="sold";
+    const label = isSold ? "Sold" : "ASR";
+    const rows = (items||[]).map((it, i)=>{
+      const right = isSold
+        ? `${label} ${fmtInt(it.sold)} <span class="midDot">•</span> ${fmtPct(it.close)}`
+        : `${label} ${fmtInt(it.asr)} <span class="midDot">•</span> ${fmtPct(it.req)}`;
+      return `
+        <div class="recapRow">
+          <div class="recapLeft">
+            <span class="recapRank">${i+1}.</span>
+            <a class="recapLink" href="#" onclick="jumpToService(${json.dumps("__CAT__")});return false;">__LBL__</a>
+          </div>
+          <div class="recapRight">${right}</div>
+        </div>
+      `;
+    }).join("");
+
+    return rows || `<div class="recapEmpty">—</div>`;
+  }
+
+  function recapBlock(titleTop, titleBottom, data, mode){
+    const mk = (items, mode)=> (items||[]).map((it,i)=>{
+      const right = (mode==="sold")
+        ? `Sold ${fmtInt(it.sold)} <span class="midDot">•</span> ${fmtPct(it.close)}`
+        : `ASR ${fmtInt(it.asr)} <span class="midDot">•</span> ${fmtPct(it.req)}`;
+      return `
+        <div class="recapRow">
+          <div class="recapLeft">
+            <span class="recapRank">${i+1}.</span>
+            <a class="recapLink" href="#" onclick="jumpToService(${JSON.stringify(it.cat)});return false;">${safe(catLabel(it.cat))}</a>
+          </div>
+          <div class="recapRight">${right}</div>
+        </div>
+      `;
+    }).join("") || `<div class="recapEmpty">—</div>`;
+
+    return `
+      <div class="recapCol">
+        <div class="recapTitle">${safe(titleTop)}</div>
+        <div class="recapList">${mk(data.top, mode)}</div>
+        <div class="recapTitle mid" style="margin-top:16px">${safe(titleBottom)}</div>
+        <div class="recapList">${mk(data.bottom, mode)}</div>
+      </div>
+    `;
+  }
+
+  const recapPanel = `
+    <div class="panel techRecapPanel">
+      <div class="phead">
+        <div class="recapHdr">
+          <div class="recapHdrKicker">ASR</div>
+          <div class="recapHdrKicker">SOLD</div>
+        </div>
+        <div class="recapGrid">
+          ${recapBlock("Top 3 Most Recommended", "Bottom 3 Least Recommended", tbAsr, "asr")}
+          ${recapBlock("Top 3 Most Sold", "Bottom 3 Least Sold", tbSold, "sold")}
+        </div>
+      </div>
+    </div>
   `;
+
+  const headerRow = `<div class="techTopGrid">${header}${recapPanel}</div>`;
+`;
 
   function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
 
@@ -393,7 +511,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard">
+      <div class="catCard" id="svc-${slugifyCat(cat)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
@@ -496,9 +614,24 @@ return `
     `;
   }).join("");
 
-  document.getElementById('app').innerHTML = `${header}${sectionsHtml}`;
+  document.getElementById('app').innerHTML = `${headerRow}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
+
+  if(jump){
+    const id = "svc-" + slugifyCat(jump);
+    const el = document.getElementById(id);
+    if(el){
+      const panel = el.closest(".panel");
+      if(panel && panel.classList.contains("secCollapsed")){
+        panel.classList.remove("secCollapsed");
+        const tg = panel.querySelector(".secToggle");
+        if(tg) tg.textContent = "−";
+      }
+      setTimeout(()=>el.scrollIntoView({behavior:"smooth", block:"start"}), 80);
+    }
+  }
+
 
   const sel = document.getElementById('techFilter');
   if(sel){
