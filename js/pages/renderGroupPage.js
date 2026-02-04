@@ -310,7 +310,7 @@ const cards = serviceAggs.map(s=>{
     <div>
       <div class="catTitle">${safe(s.serviceName)}</div>
       <div class="muted svcMetaLine" style="margin-top:2px">
-        ASRs <b>${fmtInt(s.asr)}</b> • Sold <b>${fmtInt(s.sold)}</b> • ROs <b>${fmtInt(s.totalRos)}</b>
+        ${fmt1(s.asr,0)} ASR • ${fmt1(s.sold,0)} Sold • ${fmt1(s.totalRos,0)} ROs
       </div>
     </div>
     <div class="catRank">
