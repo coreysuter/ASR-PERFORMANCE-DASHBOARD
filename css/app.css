@@ -1182,3 +1182,15 @@ body.route-tech .pickMiniHdr{
 .thumbIcon{display:inline-flex; vertical-align:middle; margin-left:8px; transform:translateY(1px);}
 .thumbIcon.up{color:rgba(34,197,94,.98);}   /* green */
 .thumbIcon.down{color:rgba(239,68,68,.98);} /* red */
+
+/* === v6: Service tile stat line smaller + grey (tech details) === */
+/* The line like: "0 ASR • 0 SOLD • 62 ROS" */
+body.route-tech .svcMetaLine,
+body.route-tech .catCounts,
+body.route-tech .catHeader .meta,
+body.route-tech .catTitle .meta{
+  color: var(--muted) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: .15px !important;
+}
