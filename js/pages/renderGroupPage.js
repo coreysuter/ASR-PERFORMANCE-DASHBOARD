@@ -255,8 +255,8 @@ const cards = serviceAggs.map(s=>{
   const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq)   : NaN;
   const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
 
-  const asrDial  = Number.isFinite(pctVsAvgReq)   ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgReq, "Team Avg")}</div>` : "";
-  const soldDial = Number.isFinite(pctVsAvgClose) ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgClose, "Team Avg")}</div>` : "";
+  const asrDial  = Number.isFinite(pctVsAvgReq)   ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgReq, "")}</div>` : "";
+  const soldDial = Number.isFinite(pctVsAvgClose) ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgClose, "")}</div>` : "";
 
   const asrBlock = `
     <div class="metricBlock">
@@ -267,7 +267,7 @@ const cards = serviceAggs.map(s=>{
       <div class="mbRight">
         <div class="mbRow">
           <div class="mbItem">
-            <div class="mbLbl">Team Avg</div>
+            <div class="mbLbl">Goal</div>
             <div class="mbNum">${fmtPctPlain(avgReq)}</div>
           </div>
           ${asrDial}
@@ -285,7 +285,7 @@ const cards = serviceAggs.map(s=>{
       <div class="mbRight">
         <div class="mbRow">
           <div class="mbItem">
-            <div class="mbLbl">Team Avg</div>
+            <div class="mbLbl">Goal</div>
             <div class="mbNum">${fmtPct(avgClose)}</div>
           </div>
           ${soldDial}
@@ -310,7 +310,7 @@ const cards = serviceAggs.map(s=>{
     <div>
       <div class="catTitle">${safe(s.serviceName)}</div>
       <div class="muted svcMetaLine" style="margin-top:2px">
-        ${fmt1(s.asr,0)} ASR · ${fmt1(s.sold,0)} Sold · ${fmt1(s.totalRos,0)} ROs
+        ASRs <b>${fmtInt(s.asr)}</b> • Sold <b>${fmtInt(s.sold)}</b> • ROs <b>${fmtInt(s.totalRos)}</b>
       </div>
     </div>
     <div class="catRank">
