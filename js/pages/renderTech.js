@@ -530,6 +530,15 @@ return `
     return false;
   };
 
+  // Inline icons (colored via CSS)
+  const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+    <path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/>
+  </svg>`;
+  const ICON_THUMBS_DOWN = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+    <path fill="currentColor" d="M2 2h4v12H2V2zm20 11c0 1.1-.9 2-2 2h-6.3l.9 4.4.02.2c0 .3-.13.6-.33.8L13 22l-5.4-5.4c-.4-.4-.6-.9-.6-1.4V4c0-1.1.9-2 2-2h7c.8 0 1.5.5 1.8 1.2l3 7c.1.3.2.6.2.8v2z"/>
+  </svg>`;
+
+
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
     const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
@@ -547,11 +556,15 @@ return `
   function tbBlock(titleTop, titleBot, topArr, botArr, mode){
     const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
     const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+
+    const up = `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
+    const down = `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
+
     return `
       <div class="pickBox">
-        <div class="pickMiniHdr">${safe(titleTop)}</div>
+        <div class="pickMiniHdr pickMiniHdrTop">${safe(titleTop)} ${up}</div>
         <div class="pickList">${topHtml}</div>
-        <div class="pickMiniHdr" style="margin-top:10px">${safe(titleBot)}</div>
+        <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:10px">${safe(titleBot)} ${down}</div>
         <div class="pickList">${botHtml}</div>
       </div>
     `;
