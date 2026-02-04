@@ -9,80 +9,7 @@ function renderTech(techId){
 
   const logoSrc = (document.querySelector(".brandLogo")||{}).src || "";
 
-  
-  // --- Top/Bottom service jump + lists (Tech Details Header Right Box) ---
-  function _slug(s){
-    return String(s||"").toLowerCase().trim()
-      .replace(/&/g,"and")
-      .replace(/[^a-z0-9]+/g,"-")
-      .replace(/(^-|-$)/g,"");
-  }
-  function svcAnchorId(cat){
-    // Use the raw category key for stability
-    return "svc-" + _slug(cat);
-  }
-  window.jumpToSvc = function(catKey){
-    const id = svcAnchorId(catKey);
-    const el = document.getElementById(id);
-    if(el){
-      el.scrollIntoView({behavior:"smooth", block:"start"});
-      // flash highlight
-      el.classList.add("jumpFlash");
-      setTimeout(()=>el.classList.remove("jumpFlash"), 900);
-    }
-    return false;
-  };
-
-  function _svcEntries(metric){
-    const obj = t.categories || {};
-    return Object.keys(obj).map(cat=>{
-      const c = obj[cat] || {};
-      return {
-        cat,
-        label: catLabel(cat),
-        ro: Number(c.ro ?? 0),
-        count: Number(c[metric] ?? 0),
-      };
-    }).filter(x => x.ro>0); // only services the tech actually had ROs for
-  }
-
-  function _topBottomHtml(metric){
-    const rows = _svcEntries(metric);
-    const labelMetric = metric==="sold" ? "Sold" : "ASR";
-    if(!rows.length){
-      return `<div class="svcEmpty">No service data</div>`;
-    }
-
-    const top = [...rows].sort((a,b)=> (b.count-a.count) || (b.ro-a.ro) || a.label.localeCompare(b.label)).slice(0,3);
-    const bot = [...rows].sort((a,b)=> (a.count-b.count) || (a.ro-b.ro) || a.label.localeCompare(b.label)).slice(0,3);
-
-    const itemHtml = (arr, kind) => arr.map((x,i)=>{
-      const n = i+1;
-      const cnt = fmtInt(x.count);
-      return `
-        <div class="svcRankItem">
-          <div class="svcRankTop">
-            <div class="svcRankNum">${n}</div>
-            <a class="svcRankLink" href="#" onclick="return window.jumpToSvc(${JSON.stringify(x.cat)})">${safe(x.label)}</a>
-          </div>
-          <div class="rankUnder">${cnt} ${labelMetric}${x.count===1?"":"s"}</div>
-        </div>
-      `;
-    }).join("");
-
-    return `
-      <div class="svcListBlock">
-        <div class="svcListHdr">Top 3 Most ${metric==="sold"?"Sold":"Recommended"}</div>
-        ${itemHtml(top, "top")}
-      </div>
-      <div class="svcListBlock">
-        <div class="svcListHdr mid">Bottom 3 Least ${metric==="sold"?"Sold":"Recommended"}</div>
-        ${itemHtml(bot, "bot")}
-      </div>
-    `;
-  }
-
-let filterKey = "total";
+  let filterKey = "total";
   let compareBasis = "team";
   let focus = "asr"; // asr | sold
 const hash = location.hash || "";
@@ -286,9 +213,7 @@ const tfOpen = !!UI.techFilters[techId];
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
   
-
-const header = `
-  <div class="techHeaderRow">
+const headerLeft = `
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
@@ -315,23 +240,114 @@ const header = `
         ${filters}
       </div>
     </div>
-  
-    <div class="panel techHeaderPanel techSummaryPanel">
+  `;
+
+
+  // ===== Top/Bottom 3 service summary (ASR% + Sold%) =====
+  function catKeyOf(cat){
+    return String(cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
+  }
+  const allCats = Array.from(new Set((DATA.sections||[]).flatMap(s=>s.categories||[]).filter(Boolean)));
+  const svcStats = allCats.map(cat=>{
+    const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
+    const req = Number(c.req);
+    const close = Number(c.close);
+    const asr = Number(c.asr ?? 0);
+    const sold = Number(c.sold ?? 0);
+    const ro = Number(c.ro ?? 0);
+    return { cat, req, close, asr, sold, ro, key: catKeyOf(cat) };
+  }).filter(x => Number.isFinite(x.req) || Number.isFinite(x.close));
+
+  function topN(arr, key, n=3){
+    return arr.slice().filter(x=>Number.isFinite(x[key])).sort((a,b)=>b[key]-a[key]).slice(0,n);
+  }
+  function bottomN(arr, key, n=3){
+    return arr.slice().filter(x=>Number.isFinite(x[key])).sort((a,b)=>a[key]-b[key]).slice(0,n);
+  }
+
+  const topAsr = topN(svcStats, "req", 3);
+  const botAsr = bottomN(svcStats, "req", 3);
+  const topSold = topN(svcStats, "close", 3);
+  const botSold = bottomN(svcStats, "close", 3);
+
+  function jumpToService(cat){
+    const id = "svc-" + catKeyOf(cat);
+    const el = document.getElementById(id);
+    if(!el) return;
+    // expand section if collapsed
+    const panel = el.closest(".panel");
+    if(panel){
+      const body = panel.querySelector(".list");
+      if(body && body.style && body.style.display==="none"){
+        const btn = panel.querySelector(".secToggleBtn");
+        if(btn) btn.click();
+        else body.style.display = "";
+      }
+    }
+    el.scrollIntoView({ behavior:"smooth", block:"start" });
+    // small flash
+    el.classList.add("flash");
+    setTimeout(()=>el.classList.remove("flash"), 900);
+  }
+  window.jumpToService = jumpToService;
+
+  function svcRow(rank, item, mode){
+    if(!item) return "";
+    const pct = mode==="asr" ? item.req : item.close;
+    const count = mode==="asr" ? item.asr : item.sold;
+    const lbl = mode==="asr" ? "ASR" : "Sold";
+    return `
+      <div class="top3Row">
+        <div class="top3Num">${rank}.</div>
+        <a class="top3Name" href="#/tech/${encodeURIComponent(t.id)}" onclick="jumpToService(${JSON.stringify(item.cat)});return false;">${safe(catLabel(item.cat))}</a>
+        <div class="top3Stats">
+          <span class="s">${lbl} ${fmtInt(count)}</span>
+          <span class="dot">•</span>
+          <span class="p">${fmtPct(pct)}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function svcBlock(titleTop, listTop, titleBot, listBot, mode){
+    const noData = (!listTop.length && !listBot.length);
+    if(noData) return `<div class="top3Empty">No service data</div>`;
+    return `
+      <div class="top3Block">
+        <div class="top3Title">${titleTop}</div>
+        <div class="top3List">
+          ${listTop.map((it,i)=>svcRow(i+1,it,mode)).join("") || `<div class="top3Empty">No service data</div>`}
+        </div>
+        <div class="top3Title mid">${titleBot}</div>
+        <div class="top3List">
+          ${listBot.map((it,i)=>svcRow(i+1,it,mode)).join("") || `<div class="top3Empty">No service data</div>`}
+        </div>
+      </div>
+    `;
+  }
+
+  const top3Panel = `
+    <div class="panel techTop3Panel">
       <div class="phead">
         <div class="top3Grid">
-          <div class="top3Col">
-            <div class="top3Title">ASR</div>
-            ${_topBottomHtml("asr")}
+          <div class="top3Side">
+            <div class="top3Hdr">ASR</div>
+            <div class="top3Inner">
+              ${svcBlock("Top 3 Most Recommended", topAsr, "Bottom 3 Least Recommended", botAsr, "asr")}
+            </div>
           </div>
-          <div class="top3Col">
-            <div class="top3Title">SOLD</div>
-            ${_topBottomHtml("sold")}
+          <div class="top3Side">
+            <div class="top3Hdr">SOLD</div>
+            <div class="top3Inner">
+              ${svcBlock("Top 3 Most Sold", topSold, "Bottom 3 Least Sold", botSold, "sold")}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-`;
+  `;
+
+  const header = `<div class="techHeaderRowGrid">${headerLeft}${top3Panel}</div>`;
 
   function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
 
@@ -342,6 +358,7 @@ const header = `
     const req = Number(c.req ?? NaN);
     const close = Number(c.close ?? NaN);
     const ro = Number(c.ro ?? 0);
+    const catKey = String(cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
 
         const techRos = Number(t.ros ?? 0);
 const tb = getTeamBenchmarks(cat, team) || {};
@@ -484,7 +501,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard" id="${svcAnchorId(cat)}">
+      <div class="catCard" id="svc-${catKey}" data-cat="${safe(cat)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
