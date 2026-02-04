@@ -192,7 +192,7 @@ function renderGroupPage(groupKey){
         <div class="overallBlock">
           <div class="big">${fmt1(avgReq,1)}</div>
           <div class="tag">Avg ASR/RO (Summary)</div>
-          <div class="overallMetric">${fmtPct(avgClose)}</div>
+          <div class="overallMetric">${Number.isFinite(goalSold)?fmtPct(goalSold):'—'}</div>
           <div class="tag">Avg Sold% (Summary)</div>
         </div>
       </div>
@@ -200,7 +200,7 @@ function renderGroupPage(groupKey){
       <div class="pills">
         <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
         <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-        <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(avgClose)}</div></div>
+        <div class="pill"><div class="k">Sold %</div><div class="v">${Number.isFinite(goalSold)?fmtPct(goalSold):'—'}</div></div>
       </div>
 
       ${filters}
@@ -248,27 +248,66 @@ function renderGroupPage(groupKey){
   return "bandBad";
 }
 
+function goalFor(serviceName){
+  // Try common goal structures; fall back to NaN if missing
+  const g = (window.UI && UI.goals) ? UI.goals : (window.DATA && DATA.goals ? DATA.goals : null);
+  if(!g) return NaN;
+
+  // If goals are stored by group/team/service, try a few shapes.
+  // 1) { [serviceName]: { asr:0.25, sold:0.35 } } or { [serviceName]: 0.25 }
+  const key = String(serviceName||"");
+  const v = g[key];
+  if(v==null) return NaN;
+  if(typeof v === "number") return v;
+  if(typeof v === "object"){
+    // prefer ASR goal for ASR blocks; sold goal handled separately
+    return Number(v.asr ?? v.asrGoal ?? v.goal ?? v.target);
+  }
+  return NaN;
+}
+function soldGoalFor(serviceName){
+  const g = (window.UI && UI.goals) ? UI.goals : (window.DATA && DATA.goals ? DATA.goals : null);
+  if(!g) return NaN;
+  const key = String(serviceName||"");
+  const v = g[key];
+  if(v==null) return NaN;
+  if(typeof v === "object"){
+    return Number(v.sold ?? v.soldGoal ?? v.sold_target ?? v.targetSold);
+  }
+  return NaN;
+}
+
+function perfClass(val, goal){
+  if(!Number.isFinite(val) || !Number.isFinite(goal) || goal<=0) return "bandNeutral";
+  const r = val/goal;
+  if(r >= 1.0) return "bandGood";
+  if(r >= 0.8) return "bandWarn";
+  return "bandBad";
+}
+
 const cards = serviceAggs.map(s=>{
   const rk = rankMap.get(s.serviceName) || {rank:null,total:serviceAggs.length};
 
   // Compare each service to the selected team's average across services
-  const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq)   : NaN;
-  const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
+      const goalReq = goalFor(s.serviceName);
+    const pctVsGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(goalReq) && goalReq>0) ? (s.reqTot/goalReq) : NaN;
+      const goalSold = soldGoalFor(s.serviceName);
+    const pctVsGoalSold = (Number.isFinite(s.closeTot) && Number.isFinite(goalSold) && goalSold>0) ? (s.closeTot/goalSold) : NaN;
 
-  const asrDial  = Number.isFinite(pctVsAvgReq)   ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgReq, "Team Avg")}</div>` : "";
-  const soldDial = Number.isFinite(pctVsAvgClose) ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsAvgClose, "Team Avg")}</div>` : "";
+  const asrDial  = Number.isFinite(pctVsGoalReq)   ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsGoalReq, \"\")}</div>` : "";
+  const soldDial = Number.isFinite(pctVsGoalSold) ? `<div class="mbGauge" style="--sz:56px">${svcGauge(pctVsGoalSold, \"\")}</div>` : "";
 
   const asrBlock = `
     <div class="metricBlock">
       <div class="mbLeft">
         <div class="mbKicker">ASR/RO%</div>
-        <div class="mbStat ${bandClass(pctVsAvgReq)}">${fmtPctPlain(s.reqTot)}</div>
+        <div class="mbStat ${perfClass(s.reqTot, goalReq)}">${fmtPctPlain(s.reqTot)}</div>
       </div>
       <div class="mbRight">
         <div class="mbRow">
           <div class="mbItem">
-            <div class="mbLbl">Team Avg</div>
-            <div class="mbNum">${fmtPctPlain(avgReq)}</div>
+            <div class="mbLbl">Goal</div>
+            <div class="mbNum">${Number.isFinite(goalReq)?fmtPctPlain(goalReq):'—'}</div>
           </div>
           ${asrDial}
         </div>
@@ -280,13 +319,13 @@ const cards = serviceAggs.map(s=>{
     <div class="metricBlock">
       <div class="mbLeft">
         <div class="mbKicker">SOLD%</div>
-        <div class="mbStat ${bandClass(pctVsAvgClose)}">${fmtPct(s.closeTot)}</div>
+        <div class="mbStat ${perfClass(s.closeTot, goalSold)}">${fmtPct(s.closeTot)}</div>
       </div>
       <div class="mbRight">
         <div class="mbRow">
           <div class="mbItem">
-            <div class="mbLbl">Team Avg</div>
-            <div class="mbNum">${fmtPct(avgClose)}</div>
+            <div class="mbLbl">Goal</div>
+            <div class="mbNum">${Number.isFinite(goalSold)?fmtPct(goalSold):'—'}</div>
           </div>
           ${soldDial}
         </div>
@@ -303,8 +342,8 @@ const cards = serviceAggs.map(s=>{
     <div class="svcGaugeWrap" style="--sz:72px">
       ${
         focus==="sold"
-          ? (Number.isFinite(pctVsAvgClose) ? svcGauge(pctVsAvgClose, "Sold%") : "")
-          : (Number.isFinite(pctVsAvgReq)   ? svcGauge(pctVsAvgReq, "ASR%")  : "")
+          ? (Number.isFinite(pctVsGoalSold) ? svcGauge(pctVsGoalSold, "Sold%") : "")
+          : (Number.isFinite(pctVsGoalReq)   ? svcGauge(pctVsGoalReq, "ASR%")  : "")
       }
     </div>
     <div>
