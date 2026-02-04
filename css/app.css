@@ -1131,3 +1131,33 @@ body.route-tech .techPickPanel .mini{font-size:12px}
   outline:2px solid rgba(147,197,253,.75);
   box-shadow:0 0 0 6px rgba(147,197,253,.12);
 }
+
+/* === v4: widen tech header + Top/Bottom panel (tech details only) === */
+body.route-tech .techHeaderWrap{
+  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
+}
+
+/* The tech name header panel was previously constrained to 50% width in older rules */
+body.route-tech .techHeaderPanel{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+}
+
+/* Make the tech header box feel larger */
+body.route-tech .techHeaderPanel .phead{
+  padding:18px 18px 12px !important;
+}
+
+/* Slightly larger tech name on desktop */
+body.route-tech .techH2Big{
+  font-size:36px !important;
+}
+@media (max-width: 820px){
+  body.route-tech .techH2Big{font-size:28px !important;}
+}
+
+/* Ensure right panel fills its grid column */
+body.route-tech .techPickPanel{
+  width:100% !important;
+}
