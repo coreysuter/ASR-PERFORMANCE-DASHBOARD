@@ -9,7 +9,80 @@ function renderTech(techId){
 
   const logoSrc = (document.querySelector(".brandLogo")||{}).src || "";
 
-  let filterKey = "total";
+  
+  // --- Top/Bottom service jump + lists (Tech Details Header Right Box) ---
+  function _slug(s){
+    return String(s||"").toLowerCase().trim()
+      .replace(/&/g,"and")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/(^-|-$)/g,"");
+  }
+  function svcAnchorId(cat){
+    // Use the raw category key for stability
+    return "svc-" + _slug(cat);
+  }
+  window.jumpToSvc = function(catKey){
+    const id = svcAnchorId(catKey);
+    const el = document.getElementById(id);
+    if(el){
+      el.scrollIntoView({behavior:"smooth", block:"start"});
+      // flash highlight
+      el.classList.add("jumpFlash");
+      setTimeout(()=>el.classList.remove("jumpFlash"), 900);
+    }
+    return false;
+  };
+
+  function _svcEntries(metric){
+    const obj = t.categories || {};
+    return Object.keys(obj).map(cat=>{
+      const c = obj[cat] || {};
+      return {
+        cat,
+        label: catLabel(cat),
+        ro: Number(c.ro ?? 0),
+        count: Number(c[metric] ?? 0),
+      };
+    }).filter(x => x.ro>0); // only services the tech actually had ROs for
+  }
+
+  function _topBottomHtml(metric){
+    const rows = _svcEntries(metric);
+    const labelMetric = metric==="sold" ? "Sold" : "ASR";
+    if(!rows.length){
+      return `<div class="svcEmpty">No service data</div>`;
+    }
+
+    const top = [...rows].sort((a,b)=> (b.count-a.count) || (b.ro-a.ro) || a.label.localeCompare(b.label)).slice(0,3);
+    const bot = [...rows].sort((a,b)=> (a.count-b.count) || (a.ro-b.ro) || a.label.localeCompare(b.label)).slice(0,3);
+
+    const itemHtml = (arr, kind) => arr.map((x,i)=>{
+      const n = i+1;
+      const cnt = fmtInt(x.count);
+      return `
+        <div class="svcRankItem">
+          <div class="svcRankTop">
+            <div class="svcRankNum">${n}</div>
+            <a class="svcRankLink" href="#" onclick="return window.jumpToSvc(${JSON.stringify(x.cat)})">${safe(x.label)}</a>
+          </div>
+          <div class="rankUnder">${cnt} ${labelMetric}${x.count===1?"":"s"}</div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="svcListBlock">
+        <div class="svcListHdr">Top 3 Most ${metric==="sold"?"Sold":"Recommended"}</div>
+        ${itemHtml(top, "top")}
+      </div>
+      <div class="svcListBlock">
+        <div class="svcListHdr mid">Bottom 3 Least ${metric==="sold"?"Sold":"Recommended"}</div>
+        ${itemHtml(bot, "bot")}
+      </div>
+    `;
+  }
+
+let filterKey = "total";
   let compareBasis = "team";
   let focus = "asr"; // asr | sold
 const hash = location.hash || "";
@@ -213,7 +286,9 @@ const tfOpen = !!UI.techFilters[techId];
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
   
+
 const header = `
+  <div class="techHeaderRow">
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
@@ -240,7 +315,23 @@ const header = `
         ${filters}
       </div>
     </div>
-  `;
+  
+    <div class="panel techHeaderPanel techSummaryPanel">
+      <div class="phead">
+        <div class="top3Grid">
+          <div class="top3Col">
+            <div class="top3Title">ASR</div>
+            ${_topBottomHtml("asr")}
+          </div>
+          <div class="top3Col">
+            <div class="top3Title">SOLD</div>
+            ${_topBottomHtml("sold")}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
 
   function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
 
@@ -393,7 +484,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard">
+      <div class="catCard" id="${svcAnchorId(cat)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
