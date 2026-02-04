@@ -1007,7 +1007,6 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
   backdrop-filter: blur(10px);
   pointer-events:none;
 }
-ht:1}
 
 /* ===== v273_UNIQUE: service tile meta line not bold ===== */
 .svcMetaLine{font-weight:500 !important; letter-spacing:.2px; text-transform:uppercase;}
@@ -1099,79 +1098,111 @@ ht:1}
 .route-tech .secFocusDial .svcGaugeWrap{width:90px !important;height:90px !important;flex:0 0 148px !important;}
 .route-tech .secFocusDial .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
 
+/* =========================================================
+   TECH DETAILS: Top/Bottom 3 panel
+   - Restore original layout by NOT changing existing header panel
+   - Add a sibling panel to the right (matches screenshot "before")
+   - Use the exact same row typography as technician lists on category pages
+   ========================================================= */
 
-/* ===== Tech Details: Top/Bottom panel beside name header ===== */
+/* Wrapper around the two header panels (name panel + top/bottom panel) */
 .techHeaderGrid{
   display:grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap:18px;
-  align-items:stretch;
+  grid-template-columns: 1fr 1fr;
+  gap:18px;                  /* show black background between */
+  align-items:start;
+  margin-bottom:12px;
 }
-@media(max-width:1050px){
-  .techHeaderGrid{grid-template-columns:1fr;gap:12px}
+
+/* Let the existing techHeaderPanel behave normally inside the grid */
+.techHeaderGrid .techHeaderPanel{
+  width:auto !important;
+  max-width:none !important;
+  min-width:0 !important;
 }
-.top3Panel{background:var(--panel)}
-.top3Phead{padding:14px 14px 12px}
-.top3Cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:1050px){
-  .top3Cols{grid-template-columns:1fr}
+
+/* On smaller screens, stack like everything else */
+@media (max-width: 980px){
+  .techHeaderGrid{grid-template-columns:1fr; gap:12px;}
 }
-.top3Label{
-  font-size:22px;
-  font-weight:900;
+
+/* Right-side panel base */
+.top3Panel{
+  border-radius:18px;
+}
+
+/* ASR / SOLD labels (same family as main headers, smaller) */
+.top3HdrRow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:2px;
+  margin-bottom:10px;
+}
+.top3Hdr{
+  font-size:18px;
+  font-weight:1000;
   letter-spacing:.2px;
-  margin:0 0 8px 2px;
   text-transform:uppercase;
+  opacity:.92;
 }
+
+/* Inner black boxes */
+.top3Cols{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+@media (max-width: 980px){
+  .top3Cols{grid-template-columns:1fr;}
+}
+
 .top3Box{
-  background:rgba(0,0,0,.55);
-  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.14);
   border-radius:14px;
   padding:10px 10px 12px;
-  min-height:210px;
 }
+
+/* Small grey headers (match tag style like "Overall ASR Rank") */
 .top3SecHdr{
+  font-size:11px;
   color:var(--muted);
-  font-size:12px;
   font-weight:900;
   letter-spacing:.2px;
   text-transform:uppercase;
   margin:2px 2px 8px;
 }
-.top3Rows{display:grid;gap:8px}
-.svcRankRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding:8px 10px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.22);
+
+.top3List{display:block}
+
+/* Force the rows to match the category-page tech list look */
+.top3Box .techRow{
+  margin:0;
+  padding:5px 0;
+  border:none;
+  border-radius:0;
+  background:transparent;
+  font-size:12px;
 }
-.svcLeft{display:flex;align-items:center;gap:8px;min-width:0}
-.svcRankNum{opacity:.85;font-weight:900;min-width:18px;text-align:right}
-.svcJump{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.06);
-  font-weight:900;
-  text-decoration:underline;
-  color:var(--text);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  max-width:250px;
+.top3Box .techRow + .techRow{
+  border-top:1px solid rgba(255,255,255,.10);
+  padding-top:6px;
+  margin-top:6px;
 }
-.svcRight{
+.top3Box .rankNum{min-width:18px;text-align:right;margin-right:8px;opacity:.8;font-weight:700}
+.top3Box .techRowLeft a{
+  max-width:210px;
+  text-decoration:underline;   /* same as lists */
+}
+.top3Box .mini{
   color:var(--muted);
   font-weight:900;
   white-space:nowrap;
 }
-.svcEmpty{color:var(--muted);padding:10px 2px}
-.catCard.svcFlash{
+
+/* Flash highlight for jumped-to service tiles */
+.catCard.flashPick{
   outline:2px solid rgba(255,255,255,.28);
   box-shadow:0 0 0 6px rgba(255,255,255,.06);
 }
