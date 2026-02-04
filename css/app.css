@@ -22,8 +22,7 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .pill{display:inline-flex;gap:8px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(0,0,0,.25)}
 .pill .k{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.2px;text-transform:uppercase}
-.pill .v{font-size:18px;font-weight:1000;line-height:1}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.pill .v{font-size:18px;font-weight:1000;line-heig.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .controls label{display:block;font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.2px;margin-bottom:6px}
 select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);outline:none}
 .list{padding:12px}
@@ -46,8 +45,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .statGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .statTile{border:1px solid var(--border);border-radius:14px;padding:14px;min-height:78px;display:flex;flex-direction:column;justify-content:space-between}
 .statTile .tLbl{font-size:11px;letter-spacing:.2px;text-transform:uppercase;font-weight:1000;opacity:.85}
-.statTile .tVal{font-size:22px;font-weight:var(--HB);line-height:1}
-.goalLine{margin-top:4px;font-size:9px;color:var(--muted);font-style:italic}
+.statTile .tVal{font-size:22px;font-weight:var(--HB);line-heig.goalLine{margin-top:4px;font-size:9px;color:var(--muted);font-style:italic}
 
 .t1{background:rgba(124,255,178,.14)}
 .t2{background:rgba(255,226,122,.14)}
@@ -81,9 +79,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .rankUnder{margin-top:4px;font-size:16px;font-weight:1100;color:var(--muted)}
 
 /* === Rank + ASR/RO header sizing === */
-.rankUnder{margin-top:6px;font-size:24px;font-weight:1200;color:var(--text);line-height:1}
-.asrBlockNum{font-size:24px;font-weight:1200;line-height:1}
-.asrBlockLbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted);text-align:right}
+.rankUnder{margin-top:6px;font-size:24px;font-weight:1200;color:var(--text);line-heig.asrBlockNum{font-size:24px;font-weight:1200;line-heig.asrBlockLbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted);text-align:right}
 
 /* === ASR/RO top-right corner placement === */
 .techRow{position:relative}
@@ -96,8 +92,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .teamTitle{font-size:28px;font-weight:1200;letter-spacing:.2px}
 /* Match header stat size to tech corner */
 .heroAvg .num{font-size:24px;font-weight:var(--HB);text-align:right;padding:0;border:none;background:transparent;min-width:0}
-.teamStat .num{font-size:24px;font-weight:var(--HB);line-height:1}
-.teamStat .lbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
+.teamStat .num{font-size:24px;font-weight:var(--HB);line-heig.teamStat .lbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
 
 /* ranking suffix */
 .byAsr{font-size:10px;font-style:italic;font-weight:800;color:var(--muted);margin-left:4px;opacity:.9}
@@ -134,8 +129,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .benchHdrGrid{display:grid;grid-template-columns:190px 190px 190px;gap:10px;align-items:stretch}
 .benchHdrTile{height:100%}
 .benchInner{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.benchNum{font-size:18px;font-weight:1200;line-height:1}
-.benchLbl{margin-top:6px;font-size:10px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
+.benchNum{font-size:18px;font-weight:1200;line-heig.benchLbl{margin-top:6px;font-size:10px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
 .benchNoteSmall{margin-top:8px;font-size:10px;font-style:italic;color:var(--muted);line-height:1.2}
 .rightStats{display:flex;gap:14px;align-items:flex-end;text-align:right}
 @media (max-width: 1200px){
@@ -152,8 +146,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .benchTile{border:1px solid var(--border);border-radius:14px;padding:10px;background:rgba(0,0,0,.18)}
 .benchHdr{font-size:11px;letter-spacing:.2px;text-transform:uppercase;font-weight:1100;color:var(--muted)}
 .benchInner2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.benchNum{font-size:18px;font-weight:1200;line-height:1}
-.benchLbl{margin-top:6px;font-size:10px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
+.benchNum{font-size:18px;font-weight:1200;line-heig.benchLbl{margin-top:6px;font-size:10px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
 .benchNote{margin-top:8px;font-size:10px;font-style:italic;color:var(--muted)}
 @media (max-width: 980px){ .benchTiles{grid-template-columns:1fr} }
 
@@ -622,8 +615,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .brRYTop{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px}
 .brRYLeft{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
 .brRYRight{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
-.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.18); font-size:11px; line-height:1}
-.switch.sm{width:34px; height:18px}
+.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.18); font-size:11px; line-heig.switch.sm{width:34px; height:18px}
 .switch.sm .slider:before{height:14px; width:14px; left:2px; bottom:2px}
 .switch.sm input:checked + .slider:before{transform:translateX(16px)}
 .brColorHdr{font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:2px}
@@ -666,8 +658,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pillMini{display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
 .pillMini .k{font-size:10px;color:var(--muted);font-weight:1000;letter-spacing:.2px;text-transform:uppercase}
-.pillMini .v{font-size:13px;font-weight:1000;line-height:1}
-.pillMini.sold .v{color:rgba(190,255,210,.92)}
+.pillMini .v{font-size:13px;font-weight:1000;line-heig.pillMini.sold .v{color:rgba(190,255,210,.92)}
 .pillMini.sold{border-color:rgba(190,255,210,.22)}
 .serviceAvgs{gap:6px}
 .gTitleRow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -720,8 +711,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .metricBlock{display:flex;gap:14px;padding:12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)}
 .mbLeft{flex:0 0 130px;display:flex;flex-direction:column;justify-content:center}
 .mbKicker{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.35px;text-transform:uppercase;margin-bottom:6px}
-.mbStat{font-size:30px;font-weight:1200;line-height:1}
-.mbRight{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mbStat{font-size:30px;font-weight:1200;line-heig.mbRight{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
 .mbRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .mbItem{min-width:0}
 .mbLbl{font-size:12px;color:var(--muted);font-weight:900}
@@ -744,8 +734,7 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techTitleLeft{display:flex;align-items:center;gap:10px;padding-top:6px;flex:0 0 auto}
 .hamburgerMini{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;
   border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;
-  font-size:22px;line-height:1}
-.brandLogoMini{display:none !important;}
+  font-size:22px;line-heig.brandLogoMini{display:none !important;}
 .techNameWrap{flex:1 1 auto;min-width:0}
 .techH2Big{font-size:32px;font-weight:1000;line-height:1.05;letter-spacing:.2px}
 .techH2Big .teamDot{opacity:.7;font-weight:900}
@@ -911,8 +900,7 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .catHeader .svcGaugeWrap{order:2!important;margin-left:auto}
 
 /* 2) Service tile ranking larger */
-.catRank .rankNum{font-size:28px!important;font-weight:var(--HB)!important;line-height:1}
-.catRank .rankDen{font-size:16px!important;font-weight:var(--HB)!important}
+.catRank .rankNum{font-size:28px!important;font-weight:var(--HB)!important;line-heig.catRank .rankDen{font-size:16px!important;font-weight:var(--HB)!important}
 .catRank .rankLbl{font-size:12px!important;font-weight:var(--HB)!important;letter-spacing:.3px}
 
 /* 3) Revert Sold count under service title back to original size (keep bold) */
@@ -920,8 +908,7 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .catHeader .muted b:nth-of-type(2){font-size:1em!important}
 
 /* 4) Category (section) header ASR% and Sold% bigger */
-.phead .big{font-size:34px!important;font-weight:var(--HB)!important;line-height:1}
-.phead .tag{font-weight:var(--HB)!important}
+.phead .big{font-size:34px!important;font-weight:var(--HB)!important;line-heig.phead .tag{font-weight:var(--HB)!important}
 .phead .titleRow > div:last-child{font-weight:var(--HB)!important}
 .phead .titleRow > div:last-child b{font-size:1.25em!important;font-weight:var(--HB)!important}
 
@@ -937,8 +924,7 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 
 /* Make both sides of ranking the same size (2/5) */
 .catRank .rankNum,
-.catRank .rankDen{font-size:28px!important;font-weight:var(--HB)!important;line-height:1}
-
+.catRank .rankDen{font-size:28px!important;font-weight:var(--HB)!important;line-heig
 
 /* ---- Top Performer name under label (v209) ---- */
 .mbSub{margin-top:2px;font-size:11px;opacity:.85;font-weight:650}
@@ -994,9 +980,7 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 
 /* ===== v222: stat label centered inside dial ===== */
 .pctStack{flex-direction:column;gap:2px}
-.pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
-.pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
-
+.pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-heig.pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-heig
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1098,111 +1082,81 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .route-tech .secFocusDial .svcGaugeWrap{width:90px !important;height:90px !important;flex:0 0 148px !important;}
 .route-tech .secFocusDial .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
 
-/* =========================================================
-   TECH DETAILS: Top/Bottom 3 panel
-   - Restore original layout by NOT changing existing header panel
-   - Add a sibling panel to the right (matches screenshot "before")
-   - Use the exact same row typography as technician lists on category pages
-   ========================================================= */
 
-/* Wrapper around the two header panels (name panel + top/bottom panel) */
-.techHeaderGrid{
+/* =========================================================
+   TECH DETAILS: header two-panel grid + Top/Bottom 3 panel
+   (Scoped so it won't affect other pages)
+   ========================================================= */
+body.route-tech .techHeaderTopGrid{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap:18px;                  /* show black background between */
-  align-items:start;
-  margin-bottom:12px;
+  gap:14px;
+  align-items:stretch;
 }
-
-/* Let the existing techHeaderPanel behave normally inside the grid */
-.techHeaderGrid .techHeaderPanel{
+@media (max-width: 980px){
+  body.route-tech .techHeaderTopGrid{grid-template-columns:1fr;}
+}
+/* Prevent the existing techHeaderPanel width constraints from shrinking inside the grid */
+body.route-tech .techHeaderTopGrid .techHeaderPanel{
   width:auto !important;
   max-width:none !important;
   min-width:0 !important;
 }
 
-/* On smaller screens, stack like everything else */
-@media (max-width: 980px){
-  .techHeaderGrid{grid-template-columns:1fr; gap:12px;}
-}
+/* Right panel */
+body.route-tech .techPickPanel{border-radius:18px;overflow:hidden}
+body.route-tech .techPickPanel .phead{border-bottom:none}
 
-/* Right-side panel base */
-.top3Panel{
-  border-radius:18px;
-}
-
-/* ASR / SOLD labels (same family as main headers, smaller) */
-.top3HdrRow{
+/* Labels row */
+body.route-tech .pickHdrRow{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin-top:2px;
-  margin-bottom:10px;
+  gap:12px;
+  margin-bottom:8px;
 }
-.top3Hdr{
+body.route-tech .pickHdrLabel{
   font-size:18px;
   font-weight:1000;
   letter-spacing:.2px;
-  text-transform:uppercase;
   opacity:.92;
 }
 
-/* Inner black boxes */
-.top3Cols{
+/* Inner boxes */
+body.route-tech .pickGrid2{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:14px;
+  gap:12px;
 }
-@media (max-width: 980px){
-  .top3Cols{grid-template-columns:1fr;}
+@media (max-width: 680px){
+  body.route-tech .pickGrid2{grid-template-columns:1fr;}
 }
-
-.top3Box{
-  background:rgba(0,0,0,.45);
-  border:1px solid rgba(255,255,255,.14);
+body.route-tech .pickBox{
+  background:rgba(0,0,0,.33);
+  border:1px solid rgba(234,240,255,.14);
   border-radius:14px;
-  padding:10px 10px 12px;
+  padding:10px;
 }
-
-/* Small grey headers (match tag style like "Overall ASR Rank") */
-.top3SecHdr{
+body.route-tech .pickMiniHdr{
   font-size:11px;
   color:var(--muted);
   font-weight:900;
   letter-spacing:.2px;
   text-transform:uppercase;
-  margin:2px 2px 8px;
+  margin:0 0 8px 0;
 }
+body.route-tech .pickList{display:flex;flex-direction:column;gap:8px}
 
-.top3List{display:block}
-
-/* Force the rows to match the category-page tech list look */
-.top3Box .techRow{
+/* Match category-page tech list row sizing (small + tight) */
+body.route-tech .pickBox .techRow{
+  padding:6px 8px;
+  border-radius:12px;
   margin:0;
-  padding:5px 0;
-  border:none;
-  border-radius:0;
-  background:transparent;
-  font-size:12px;
 }
-.top3Box .techRow + .techRow{
-  border-top:1px solid rgba(255,255,255,.10);
-  padding-top:6px;
-  margin-top:6px;
-}
-.top3Box .rankNum{min-width:18px;text-align:right;margin-right:8px;opacity:.8;font-weight:700}
-.top3Box .techRowLeft a{
-  max-width:210px;
-  text-decoration:underline;   /* same as lists */
-}
-.top3Box .mini{
-  color:var(--muted);
-  font-weight:900;
-  white-space:nowrap;
-}
+body.route-tech .pickBox .rankNum{min-width:16px;margin-right:8px}
+body.route-tech .pickBox .mini{font-size:12px}
 
-/* Flash highlight for jumped-to service tiles */
-.catCard.flashPick{
-  outline:2px solid rgba(255,255,255,.28);
-  box-shadow:0 0 0 6px rgba(255,255,255,.06);
+/* Highlight target tile when clicked */
+.flashPick{
+  outline:2px solid rgba(147,197,253,.75);
+  box-shadow:0 0 0 6px rgba(147,197,253,.12);
 }
