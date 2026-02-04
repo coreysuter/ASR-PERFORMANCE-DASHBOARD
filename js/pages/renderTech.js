@@ -41,6 +41,104 @@ const hash = location.hash || "";
     return Array.from(cats);
   }
   const CAT_LIST = categoryUniverse();
+  // --- Top/Bottom 3 services (for header panel) ---
+  function svcIdFromCat(cat){
+    return "svc-" + String(cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+  }
+  function serviceRowsBy(metric){ // metric: "req" (ASR/RO) or "close" (Sold%)
+    const rows=[];
+    for(const cat of CAT_LIST){
+      const c = t.categories?.[cat];
+      if(!c) continue;
+      const v = Number(c[metric]);
+      if(!Number.isFinite(v)) continue;
+      rows.push({
+        cat,
+        id: svcIdFromCat(cat),
+        name: catLabel(cat),
+        ro: Number(c.ro)||0,
+        asr: Number(c.asr)||0,
+        sold: Number(c.sold)||0,
+        pct: v
+      });
+    }
+    return rows;
+  }
+  function topN(rows, n=3){
+    return rows.slice().sort((a,b)=> (b.pct-a.pct) || (b.asr-a.asr) || (b.ro-a.ro) || String(a.name).localeCompare(String(b.name))).slice(0,n);
+  }
+  function bottomN(rows, n=3){
+    return rows.slice().sort((a,b)=> (a.pct-b.pct) || (a.asr-b.asr) || (a.ro-b.ro) || String(a.name).localeCompare(String(b.name))).slice(0,n);
+  }
+  function top3PanelHtml(){
+    const asrRows = serviceRowsBy("req");
+    const soldRows = serviceRowsBy("close");
+
+    const asrTop = topN(asrRows,3);
+    const asrBot = bottomN(asrRows,3);
+    const soldTop = topN(soldRows,3);
+    const soldBot = bottomN(soldRows,3);
+
+    function rowHtml(r, mode){
+      const stat = (mode==="asr")
+        ? `ROs ${fmtInt(r.ro)} • ASR ${fmtInt(r.asr)} • ${fmtPct(r.pct)}`
+        : `ROs ${fmtInt(r.ro)} • Sold ${fmtInt(r.sold)} • ${fmtPct(r.pct)}`;
+      return `
+        <div class="top3Row">
+          <div class="top3Rank">${mode==="asr"||mode==="sold" ? "" : ""}</div>
+          <div class="top3RowGrid">
+            <div class="top3RankNum"></div>
+            <div class="top3Name">
+              <a href="#${r.id}" onclick="return window.scrollToSvc && window.scrollToSvc('${r.id}')">${safe(r.name)}</a>
+            </div>
+            <div class="top3Stats">${stat}</div>
+          </div>
+        </div>`;
+    }
+
+    function listBlock(title, rows, mode){
+      if(!rows.length){
+        return `<div class="top3SubHdr">${safe(title)}</div><div class="top3Empty">No service data</div>`;
+      }
+      return `
+        <div class="top3SubHdr">${safe(title)}</div>
+        <div class="top3List">
+          ${rows.map((r,i)=>`
+            <div class="top3Item">
+              <div class="top3ItemGrid">
+                <div class="top3Num">${i+1}.</div>
+                <div class="top3Name">
+                  <a href="#${r.id}" onclick="return window.scrollToSvc && window.scrollToSvc('${r.id}')">${safe(r.name)}</a>
+                </div>
+                <div class="top3Stats">${mode==="asr" ? `ROs ${fmtInt(r.ro)} • ASR ${fmtInt(r.asr)} • ${fmtPct(r.pct)}` : `ROs ${fmtInt(r.ro)} • Sold ${fmtInt(r.sold)} • ${fmtPct(r.pct)}`}</div>
+              </div>
+            </div>`).join("")}
+        </div>`;
+    }
+
+    return `
+      <div class="panel top3Panel">
+        <div class="top3PanelInner">
+          <div class="top3Cols">
+            <div class="top3Col">
+              <div class="top3ColLabel">ASR</div>
+              <div class="top3InnerBox">
+                ${listBlock("Top 3 Most Recommended", asrTop, "asr")}
+                ${listBlock("Bottom 3 Least Recommended", asrBot, "asr")}
+              </div>
+            </div>
+            <div class="top3Col">
+              <div class="top3ColLabel">SOLD</div>
+              <div class="top3InnerBox">
+                ${listBlock("Top 3 Most Sold", soldTop, "sold")}
+                ${listBlock("Bottom 3 Least Sold", soldBot, "sold")}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
 
   function buildBench(scopeTechs){
     const bench={};
@@ -213,7 +311,7 @@ const tfOpen = !!UI.techFilters[techId];
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
   
-const headerLeft = `
+const leftHeader = `
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
@@ -242,113 +340,6 @@ const headerLeft = `
     </div>
   `;
 
-
-  // ===== Top/Bottom 3 service summary (ASR% + Sold%) =====
-  function catKeyOf(cat){
-    return String(cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
-  }
-  const allCats = Array.from(new Set((DATA.sections||[]).flatMap(s=>s.categories||[]).filter(Boolean)));
-  const svcStats = allCats.map(cat=>{
-    const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
-    const req = Number(c.req);
-    const close = Number(c.close);
-    const asr = Number(c.asr ?? 0);
-    const sold = Number(c.sold ?? 0);
-    const ro = Number(c.ro ?? 0);
-    return { cat, req, close, asr, sold, ro, key: catKeyOf(cat) };
-  }).filter(x => Number.isFinite(x.req) || Number.isFinite(x.close));
-
-  function topN(arr, key, n=3){
-    return arr.slice().filter(x=>Number.isFinite(x[key])).sort((a,b)=>b[key]-a[key]).slice(0,n);
-  }
-  function bottomN(arr, key, n=3){
-    return arr.slice().filter(x=>Number.isFinite(x[key])).sort((a,b)=>a[key]-b[key]).slice(0,n);
-  }
-
-  const topAsr = topN(svcStats, "req", 3);
-  const botAsr = bottomN(svcStats, "req", 3);
-  const topSold = topN(svcStats, "close", 3);
-  const botSold = bottomN(svcStats, "close", 3);
-
-  function jumpToService(cat){
-    const id = "svc-" + catKeyOf(cat);
-    const el = document.getElementById(id);
-    if(!el) return;
-    // expand section if collapsed
-    const panel = el.closest(".panel");
-    if(panel){
-      const body = panel.querySelector(".list");
-      if(body && body.style && body.style.display==="none"){
-        const btn = panel.querySelector(".secToggleBtn");
-        if(btn) btn.click();
-        else body.style.display = "";
-      }
-    }
-    el.scrollIntoView({ behavior:"smooth", block:"start" });
-    // small flash
-    el.classList.add("flash");
-    setTimeout(()=>el.classList.remove("flash"), 900);
-  }
-  window.jumpToService = jumpToService;
-
-  function svcRow(rank, item, mode){
-    if(!item) return "";
-    const pct = mode==="asr" ? item.req : item.close;
-    const count = mode==="asr" ? item.asr : item.sold;
-    const lbl = mode==="asr" ? "ASR" : "Sold";
-    return `
-      <div class="top3Row">
-        <div class="top3Num">${rank}.</div>
-        <a class="top3Name" href="#/tech/${encodeURIComponent(t.id)}" onclick="jumpToService(${JSON.stringify(item.cat)});return false;">${safe(catLabel(item.cat))}</a>
-        <div class="top3Stats">
-          <span class="s">${lbl} ${fmtInt(count)}</span>
-          <span class="dot">•</span>
-          <span class="p">${fmtPct(pct)}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  function svcBlock(titleTop, listTop, titleBot, listBot, mode){
-    const noData = (!listTop.length && !listBot.length);
-    if(noData) return `<div class="top3Empty">No service data</div>`;
-    return `
-      <div class="top3Block">
-        <div class="top3Title">${titleTop}</div>
-        <div class="top3List">
-          ${listTop.map((it,i)=>svcRow(i+1,it,mode)).join("") || `<div class="top3Empty">No service data</div>`}
-        </div>
-        <div class="top3Title mid">${titleBot}</div>
-        <div class="top3List">
-          ${listBot.map((it,i)=>svcRow(i+1,it,mode)).join("") || `<div class="top3Empty">No service data</div>`}
-        </div>
-      </div>
-    `;
-  }
-
-  const top3Panel = `
-    <div class="panel techTop3Panel">
-      <div class="phead">
-        <div class="top3Grid">
-          <div class="top3Side">
-            <div class="top3Hdr">ASR</div>
-            <div class="top3Inner">
-              ${svcBlock("Top 3 Most Recommended", topAsr, "Bottom 3 Least Recommended", botAsr, "asr")}
-            </div>
-          </div>
-          <div class="top3Side">
-            <div class="top3Hdr">SOLD</div>
-            <div class="top3Inner">
-              ${svcBlock("Top 3 Most Sold", topSold, "Bottom 3 Least Sold", botSold, "sold")}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const header = `<div class="techHeaderRowGrid">${headerLeft}${top3Panel}</div>`;
-
   function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
 
   function renderCategoryRectSafe(cat, compareBasis){
@@ -358,7 +349,6 @@ const headerLeft = `
     const req = Number(c.req ?? NaN);
     const close = Number(c.close ?? NaN);
     const ro = Number(c.ro ?? 0);
-    const catKey = String(cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
 
         const techRos = Number(t.ros ?? 0);
 const tb = getTeamBenchmarks(cat, team) || {};
@@ -501,7 +491,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard" id="svc-${catKey}" data-cat="${safe(cat)}">
+      <div class="catCard" id="${svcIdFromCat(cat)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
@@ -526,6 +516,13 @@ return `
         </div>
       </div>
     `;
+
+  const header = `
+    <div class="techHeaderRow">
+      ${leftHeader}
+      ${top3PanelHtml()}
+    </div>
+  `;
   }
   function sectionStatsForTech(sec){
     const cats = sec.categories || [];
@@ -605,6 +602,31 @@ return `
   }).join("");
 
   document.getElementById('app').innerHTML = `${header}${sectionsHtml}`;
+
+  // Scroll helper for Top/Bottom links
+  window.scrollToSvc = function(id){
+    try{
+      const el = document.getElementById(id);
+      if(!el) return false;
+
+      // If this card is inside a collapsed section, expand it first
+      const sec = el.closest?.('.section');
+      if(sec){
+        const body = sec.querySelector?.('.sectionBody');
+        if(body && body.style && body.style.display==="none"){
+          body.style.display="block";
+          sec.classList.remove('collapsed');
+        }
+      }
+
+      el.scrollIntoView({behavior:"smooth", block:"start"});
+      // subtle highlight
+      el.classList.add("svcFlash");
+      setTimeout(()=>el.classList.remove("svcFlash"), 900);
+      return false;
+    }catch(e){ console.error(e); return false; }
+  };
+
   animateSvcGauges();
   initSectionToggles();
 
