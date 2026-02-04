@@ -170,93 +170,106 @@ function renderTech(techId){
   const topClose = byClose.slice(0,3);
   const botClose = byClose.slice(-3).reverse();
 
-  // global jump helper for inline onclicks
+    // ✅ SAFE jump helper (scrolls to service tile; never throws)
   window.jumpToService = function(cat){
-    const el = document.getElementById(`svc-${cat}`);
-    if(!el) return false;
+    const id = `svc-${cat}`;
+    const el = document.getElementById(id);
+    if(!el){
+      console.warn("jumpToService: anchor not found:", id);
+      return false;
+    }
+    // expand collapsed section if present
+    const sec = el.closest(".panel");
+    if(sec && sec.classList && sec.classList.contains("secCollapsed")){
+      sec.classList.remove("secCollapsed");
+    }
     el.scrollIntoView({ behavior:"smooth", block:"start" });
-    el.classList.add("flashPick");
-    setTimeout(()=>el.classList.remove("flashPick"), 900);
+    if(el.classList){
+      el.classList.add("flashPick");
+      setTimeout(()=>{
+        const el2 = document.getElementById(id);
+        if(el2 && el2.classList) el2.classList.remove("flashPick");
+      }, 900);
+    }
     return false;
   };
 
-  function pickRowHtml(item, rank, mode){
-    const metric = mode==="sold" ? item.close : item.req;
-    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
+  function svcRow(item, rank, mode){
+    // mode: "asr" uses req + asr count; "sold" uses close + sold count
+    const name = safe(item.label);
+    const href = `javascript:void(0)`;
+    const mini = mode==="sold"
+      ? `Sold ${fmtInt(item.sold)} • <b>${fmtPct(item.close)}</b>`
+      : `ASR ${fmtInt(item.asr)} • <b>${fmtPct(item.req)}</b>`;
+
     return `
-      <div class="techRow pickRow">
-        <div class="rowGrid pickGrid" style="grid-template-columns: 34px 1fr 78px;gap:10px">
-          <div class="k" style="text-align:center;font-weight:1000;color:var(--muted)">${rank}</div>
-          <div class="name">
-            <a href="javascript:void(0)" onclick="return (window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)}))">${safe(item.label)}</a>
-          </div>
-          <div style="text-align:right">
-            <div class="val" style="font-size:13px">${fmtPct(metric)}</div>
-            <div class="k" style="font-size:11px">${metricLbl}</div>
-          </div>
+      <div class="techRow">
+        <div class="techRowLeft">
+          <span class="rankNum">${rank}.</span>
+          <a href="${href}" onclick="return (window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)}))">${name}</a>
         </div>
+        <span class="mini">${mini}</span>
       </div>
     `;
   }
 
-  function picksBlockHtml(mode){
-    const top = mode==="sold" ? topClose : topReq;
-    const bot = mode==="sold" ? botClose : botReq;
+  function listBlock(title, rowsHtml){
+    return `
+      <div class="top3SecHdr">${safe(title)}</div>
+      <div class="top3List">${rowsHtml || `<div class="notice" style="padding:0;color:var(--muted)">No data.</div>`}</div>
+    `;
+  }
 
-    const topHtml = top.length ? top.map((x,i)=>pickRowHtml(x,i+1,mode)).join("") : `<div class="notice" style="margin:8px 0">No data.</div>`;
-    const botHtml = bot.length ? bot.map((x,i)=>pickRowHtml(x,i+1,mode)).join("") : `<div class="notice" style="margin:8px 0">No data.</div>`;
+  function panelSide(mode){
+    const isSold = mode==="sold";
+    const top = isSold ? topClose : topReq;
+    const bot = isSold ? botClose : botReq;
+
+    const topHtml = top.map((x,i)=>svcRow(x,i+1,mode)).join("");
+    const botHtml = bot.map((x,i)=>svcRow(x,i+1,mode)).join("");
 
     return `
-      <div class="pickCol">
-        <div class="pickMiniHdr">Top 3 Most ${mode==="sold" ? "Sold" : "Recommended"}</div>
-        <div class="pickList">${topHtml}</div>
-        <div class="pickMiniHdr" style="margin-top:10px">Bottom 3 Least ${mode==="sold" ? "Sold" : "Recommended"}</div>
-        <div class="pickList">${botHtml}</div>
+      <div class="top3Box">
+        ${listBlock(isSold ? "Top 3 Most Sold" : "Top 3 Most Recommended", topHtml)}
+        <div style="height:10px"></div>
+        ${listBlock(isSold ? "Bottom 3 Least Sold" : "Bottom 3 Least Recommended", botHtml)}
       </div>
     `;
   }
 
   const top3Panel = `
-    <div class="panel techPickPanel">
-      <div class="phead" style="padding:12px">
-        <div class="pickHdrRow">
-          <div class="pickHdrLabel">ASR</div>
-          <div class="pickHdrLabel">SOLD</div>
+    <div class="panel top3Panel">
+      <div class="phead" style="padding:12px 14px 12px;border-bottom:none">
+        <div class="top3HdrRow">
+          <div class="top3Hdr">ASR</div>
+          <div class="top3Hdr">SOLD</div>
         </div>
-        <div class="pickGrid2">
-          <div class="pickBox">${picksBlockHtml("asr")}</div>
-          <div class="pickBox">${picksBlockHtml("sold")}</div>
+        <div class="top3Cols">
+          ${panelSide("asr")}
+          ${panelSide("sold")}
         </div>
       </div>
     </div>
   `;
 
-  const header = `
+  // Name header panel stays EXACTLY like before; Top/Bottom panel is a sibling to the right.
+  const namePanel = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-
-        <div class="techHeaderTopGrid">
-          <div class="panel techNameHeaderBox">
-            <div class="phead" style="padding:12px">
-              <div class="titleRow techTitleRow">
-                <div class="techTitleLeft">
-                  <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-                </div>
-                <div class="techNameWrap">
-                  <div class="h2 techH2Big">${safe(t.name)}</div>
-                  <div class="techTeamLine">${safe(team)}</div>
-                </div>
-                <div class="overallBlock">
-                  <div class="big">${overall.rank ?? "—"}/${overall.total ?? "—"}</div>
-                  <div class="tag">${focus==="sold" ? "Overall Sold Rank" : "Overall ASR Rank"}</div>
-                  <div class="overallMetric">${focusVal}</div>
-                  <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
-                </div>
-              </div>
-            </div>
+        <div class="titleRow techTitleRow">
+          <div class="techTitleLeft">
+            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
-
-          ${top3Panel}
+          <div class="techNameWrap">
+            <div class="h2 techH2Big">${safe(t.name)}</div>
+            <div class="techTeamLine">${safe(team)}</div>
+          </div>
+          <div class="overallBlock">
+            <div class="big">${overall.rank ?? "—"}/${overall.total ?? "—"}</div>
+            <div class="tag">${focus==="sold" ? "Overall Sold Rank" : "Overall ASR Rank"}</div>
+            <div class="overallMetric">${focusVal}</div>
+            <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
+          </div>
         </div>
 
         <div class="pills">
@@ -271,7 +284,14 @@ function renderTech(techId){
     </div>
   `;
 
-  function renderCategoryRectSafe(cat, compareBasis){
+  const header = `
+    <div class="techHeaderGrid">
+      ${namePanel}
+      ${top3Panel}
+    </div>
+  `;
+
+function renderCategoryRectSafe(cat, compareBasis){
     const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
     const asrCount = Number(c.asr ?? 0);
     const soldCount = Number(c.sold ?? 0);
@@ -389,35 +409,4 @@ function renderTech(techId){
 
 // ✅ Make sure the router can call it
 window.renderTech = renderTech;
-
-
-// ✅ SAFE global jump helper (prevents: Cannot read properties of null \(reading 'classList'\))
-window.jumpToService = function(cat){
-  const id = `svc-${cat}`;
-  const el = document.getElementById(id);
-
-  if(!el){
-    console.warn("jumpToService: anchor not found:", id);
-    return false;
-  }
-
-  // If sections can be collapsed, expand parent section if needed
-  const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
-  if(sec && sec.classList && sec.classList.contains("secCollapsed")){
-    sec.classList.remove("secCollapsed");
-  }
-
-  el.scrollIntoView({ behavior:"smooth", block:"start" });
-
-  // highlight (guarded)
-  if(el.classList){
-    el.classList.add("flashPick");
-    setTimeout(()=>{
-      const el2 = document.getElementById(id);
-      if(el2 && el2.classList) el2.classList.remove("flashPick");
-    }, 900);
-  }
-
-  return false;
-};
 
