@@ -41,104 +41,6 @@ const hash = location.hash || "";
     return Array.from(cats);
   }
   const CAT_LIST = categoryUniverse();
-  // --- Top/Bottom 3 services (for header panel) ---
-  function svcIdFromCat(cat){
-    return "svc-" + String(cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
-  }
-  function serviceRowsBy(metric){ // metric: "req" (ASR/RO) or "close" (Sold%)
-    const rows=[];
-    for(const cat of CAT_LIST){
-      const c = t.categories?.[cat];
-      if(!c) continue;
-      const v = Number(c[metric]);
-      if(!Number.isFinite(v)) continue;
-      rows.push({
-        cat,
-        id: svcIdFromCat(cat),
-        name: catLabel(cat),
-        ro: Number(c.ro)||0,
-        asr: Number(c.asr)||0,
-        sold: Number(c.sold)||0,
-        pct: v
-      });
-    }
-    return rows;
-  }
-  function topN(rows, n=3){
-    return rows.slice().sort((a,b)=> (b.pct-a.pct) || (b.asr-a.asr) || (b.ro-a.ro) || String(a.name).localeCompare(String(b.name))).slice(0,n);
-  }
-  function bottomN(rows, n=3){
-    return rows.slice().sort((a,b)=> (a.pct-b.pct) || (a.asr-b.asr) || (a.ro-b.ro) || String(a.name).localeCompare(String(b.name))).slice(0,n);
-  }
-  function top3PanelHtml(){
-    const asrRows = serviceRowsBy("req");
-    const soldRows = serviceRowsBy("close");
-
-    const asrTop = topN(asrRows,3);
-    const asrBot = bottomN(asrRows,3);
-    const soldTop = topN(soldRows,3);
-    const soldBot = bottomN(soldRows,3);
-
-    function rowHtml(r, mode){
-      const stat = (mode==="asr")
-        ? `ROs ${fmtInt(r.ro)} • ASR ${fmtInt(r.asr)} • ${fmtPct(r.pct)}`
-        : `ROs ${fmtInt(r.ro)} • Sold ${fmtInt(r.sold)} • ${fmtPct(r.pct)}`;
-      return `
-        <div class="top3Row">
-          <div class="top3Rank">${mode==="asr"||mode==="sold" ? "" : ""}</div>
-          <div class="top3RowGrid">
-            <div class="top3RankNum"></div>
-            <div class="top3Name">
-              <a href="#${r.id}" onclick="return window.scrollToSvc && window.scrollToSvc('${r.id}')">${safe(r.name)}</a>
-            </div>
-            <div class="top3Stats">${stat}</div>
-          </div>
-        </div>`;
-    }
-
-    function listBlock(title, rows, mode){
-      if(!rows.length){
-        return `<div class="top3SubHdr">${safe(title)}</div><div class="top3Empty">No service data</div>`;
-      }
-      return `
-        <div class="top3SubHdr">${safe(title)}</div>
-        <div class="top3List">
-          ${rows.map((r,i)=>`
-            <div class="top3Item">
-              <div class="top3ItemGrid">
-                <div class="top3Num">${i+1}.</div>
-                <div class="top3Name">
-                  <a href="#${r.id}" onclick="return window.scrollToSvc && window.scrollToSvc('${r.id}')">${safe(r.name)}</a>
-                </div>
-                <div class="top3Stats">${mode==="asr" ? `ROs ${fmtInt(r.ro)} • ASR ${fmtInt(r.asr)} • ${fmtPct(r.pct)}` : `ROs ${fmtInt(r.ro)} • Sold ${fmtInt(r.sold)} • ${fmtPct(r.pct)}`}</div>
-              </div>
-            </div>`).join("")}
-        </div>`;
-    }
-
-    return `
-      <div class="panel top3Panel">
-        <div class="top3PanelInner">
-          <div class="top3Cols">
-            <div class="top3Col">
-              <div class="top3ColLabel">ASR</div>
-              <div class="top3InnerBox">
-                ${listBlock("Top 3 Most Recommended", asrTop, "asr")}
-                ${listBlock("Bottom 3 Least Recommended", asrBot, "asr")}
-              </div>
-            </div>
-            <div class="top3Col">
-              <div class="top3ColLabel">SOLD</div>
-              <div class="top3InnerBox">
-                ${listBlock("Top 3 Most Sold", soldTop, "sold")}
-                ${listBlock("Bottom 3 Least Sold", soldBot, "sold")}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-  }
-
 
   function buildBench(scopeTechs){
     const bench={};
@@ -311,7 +213,7 @@ const tfOpen = !!UI.techFilters[techId];
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
   
-const leftHeader = `
+var header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
@@ -491,7 +393,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard" id="${svcIdFromCat(cat)}">
+      <div class="catCard">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
@@ -516,13 +418,6 @@ return `
         </div>
       </div>
     `;
-
-  const header = `
-    <div class="techHeaderRow">
-      ${leftHeader}
-      ${top3PanelHtml()}
-    </div>
-  `;
   }
   function sectionStatsForTech(sec){
     const cats = sec.categories || [];
@@ -602,31 +497,6 @@ return `
   }).join("");
 
   document.getElementById('app').innerHTML = `${header}${sectionsHtml}`;
-
-  // Scroll helper for Top/Bottom links
-  window.scrollToSvc = function(id){
-    try{
-      const el = document.getElementById(id);
-      if(!el) return false;
-
-      // If this card is inside a collapsed section, expand it first
-      const sec = el.closest?.('.section');
-      if(sec){
-        const body = sec.querySelector?.('.sectionBody');
-        if(body && body.style && body.style.display==="none"){
-          body.style.display="block";
-          sec.classList.remove('collapsed');
-        }
-      }
-
-      el.scrollIntoView({behavior:"smooth", block:"start"});
-      // subtle highlight
-      el.classList.add("svcFlash");
-      setTimeout(()=>el.classList.remove("svcFlash"), 900);
-      return false;
-    }catch(e){ console.error(e); return false; }
-  };
-
   animateSvcGauges();
   initSectionToggles();
 
