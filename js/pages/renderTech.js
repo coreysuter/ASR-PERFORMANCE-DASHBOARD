@@ -878,7 +878,7 @@ function classifyDial(pct){
       const cmpReq = Number(basis.avgReq);
       const cmpClose = Number(basis.avgClose);
 
-      const goalReq = (typeof getGoal==="function") ? Number(getGoal(cat,"req")) : Number(((DATA.goals||{})[cat]||{}).req);
+      const goalReq = Number(((DATA.goals||{})[cat]||{}).req);
 
       const asrRatio  = (Number.isFinite(req)   && Number.isFinite(cmpReq)   && cmpReq>0)   ? (req/cmpReq)     : NaN;
       const soldRatio = (Number.isFinite(close) && Number.isFinite(cmpClose) && cmpClose>0) ? (close/cmpClose) : NaN;
@@ -891,7 +891,65 @@ function classifyDial(pct){
         soldClass: classifyDial(soldRatio),
         goalClass: classifyDial(goalRatio),
       }
-  // Popup (no search) - uses the same classification as badges (prevents mismatch)
+
+  // --- Focus popup helpers (fresh compute; prevents "No matches" when badge counts are nonzero) ---
+  function dialBand(p){
+    const n = Number(p);
+    if(!Number.isFinite(n)) return "na";
+    if(n >= 0.80) return "green";
+    if(n >= 0.60) return "yellow";
+    return "red";
+  }
+
+  function getFocusMatches(focusKey, tone){
+    // focusKey: "ASR" | "SOLD" | "GOAL"
+    const allCats = Array.from(new Set((DATA.sections||[]).flatMap(s => (s.categories||[])).filter(Boolean)));
+    return allCats.map(cat=>{
+      const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
+      const req = Number(c.req);
+      const close = Number(c.close);
+      const label = (typeof catLabel==="function") ? catLabel(cat) : String(cat);
+
+      const tb = (typeof getTeamBenchmarks==="function") ? getTeamBenchmarks(cat, team) : null;
+      const sb = (typeof getStoreBenchmarks==="function") ? getStoreBenchmarks(cat) : null;
+      const basis = (compareBasis==="store") ? (sb||{}) : (tb||{});
+      const cmpReq = Number(basis.avgReq);
+      const cmpClose = Number(basis.avgClose);
+
+      const goalReq = (typeof getGoal==="function") ? Number(getGoal(cat,"req")) : Number(((DATA.goals||{})[cat]||{}).req);
+
+      const asrRatio  = (Number.isFinite(req)   && Number.isFinite(cmpReq)   && cmpReq>0)   ? (req/cmpReq)     : NaN;
+      const soldRatio = (Number.isFinite(close) && Number.isFinite(cmpClose) && cmpClose>0) ? (close/cmpClose) : NaN;
+      const goalRatio = (Number.isFinite(req)   && Number.isFinite(goalReq)  && goalReq>0)  ? (req/goalReq)    : asrRatio;
+
+      const ratio = (focusKey==="ASR") ? asrRatio : (focusKey==="SOLD") ? soldRatio : goalRatio;
+      const band = dialBand(ratio);
+
+      return { cat, label, ratio, band };
+    })
+    .filter(x => x.band === tone)
+    .sort((a,b)=>{
+      const av = Number(a.ratio), bv = Number(b.ratio);
+      if(!Number.isFinite(av) && !Number.isFinite(bv)) return 0;
+      if(!Number.isFinite(av)) return 1;
+      if(!Number.isFinite(bv)) return -1;
+      return av - bv; // worst first
+    });
+  }
+
+;
+    });
+
+    const count = (k, tone)=> items.filter(it=>it[k]===tone).length;
+    return {
+      items,
+      ASR:  { red: count("asrClass","red"),  yellow: count("asrClass","yellow") },
+      SOLD: { red: count("soldClass","red"), yellow: count("soldClass","yellow") },
+      GOAL: { red: count("goalClass","red"), yellow: count("goalClass","yellow") },
+    };
+  }
+
+  // Searchable popup for badge counts
   window.openFocusPopup = function(focusKey, tone){
     let modal = document.getElementById("focusPopupModal");
     if(!modal){
@@ -900,6 +958,7 @@ function classifyDial(pct){
       modal.className = "modal";
       modal.setAttribute("role","dialog");
       modal.setAttribute("aria-modal","true");
+      modal.setAttribute("aria-label","Focus alerts");
       modal.innerHTML = `
         <div class="modalCard">
           <div class="modalHdr">
@@ -919,37 +978,24 @@ function classifyDial(pct){
     }
 
     modal.classList.add("open");
+    window.__focusPopupState = { focusKey, tone };
+
     const title = modal.querySelector("#focusPopupTitle");
-    title.textContent = focusKey;
-
-    const counts = window.__focusCountsCache;
+    // Title is focusKey only; badge icon is already shown on the page (per your request)
+    
+    // Render immediately (fresh compute, no search)
+    const matches = getFocusMatches(focusKey, tone);
     const box = modal.querySelector("#focusPopupResults");
-    if(!counts || !counts.items){
-      box.innerHTML = `<div class="notice">No data.</div>`;
-      return false;
-    }
 
-    const classKey = (focusKey==="ASR") ? "asrClass" : (focusKey==="SOLD") ? "soldClass" : "goalClass";
-    const ratioKey = (focusKey==="ASR") ? "asrRatio" : (focusKey==="SOLD") ? "soldRatio" : "goalRatio";
-    const metricLbl = (focusKey==="SOLD") ? "Sold%" : (focusKey==="GOAL") ? "Goal" : "ASR%";
-
-    const list = counts.items
-      .filter(it=>it[classKey]===tone)
-      .sort((a,b)=>{
-        const av=Number(a[ratioKey]), bv=Number(b[ratioKey]);
-        if(!Number.isFinite(av)&&!Number.isFinite(bv)) return 0;
-        if(!Number.isFinite(av)) return 1;
-        if(!Number.isFinite(bv)) return -1;
-        return av-bv;
-      });
-
-    if(!list.length){
+    if(!matches.length){
       box.innerHTML = `<div class="notice">No matches.</div>`;
       return false;
     }
 
-    box.innerHTML = list.map(it=>{
-      const v = Number.isFinite(it[ratioKey]) ? fmtPct(it[ratioKey]) : "—";
+    const metricLbl = (focusKey==="SOLD") ? "Sold%" : (focusKey==="GOAL") ? "Goal" : "ASR%";
+
+    box.innerHTML = matches.map(it=>{
+      const v = Number.isFinite(it.ratio) ? fmtPct(it.ratio) : "—";
       return `
         <a class="resItem" href="javascript:void(0)" onclick="window.closeFocusPopup(); return window.jumpToService && window.jumpToService(${JSON.stringify(it.cat)});">
           <span>${safe(it.label)}</span>
@@ -960,33 +1006,8 @@ function classifyDial(pct){
 
     return false;
   };
-
-  window.closeFocusPopup = function(){
+window.closeFocusPopup = function(){
     const modal = document.getElementById("focusPopupModal");
     if(modal) modal.classList.remove("open");
     return false;
   };
-;
-    });
-
-    const count = (k, tone)=> items.filter(it=>it[k]===tone).length;
-    return {
-      items,
-      ASR:  { red: count("asrClass","red"),  yellow: count("asrClass","yellow") },
-      SOLD: { red: count("soldClass","red"), yellow: count("soldClass","yellow") },
-      GOAL: { red: count("goalClass","red"), yellow: count("goalClass","yellow") },
-    };
-  };
-    });
-
-    const count = (k, tone)=> items.filter(it=>it[k]===tone).length;
-    return {
-      items,
-      ASR:  { red: count("asrClass","red"),  yellow: count("asrClass","yellow") },
-      SOLD: { red: count("soldClass","red"), yellow: count("soldClass","yellow") },
-      GOAL: { red: count("goalClass","red"), yellow: count("goalClass","yellow") },
-    };
-  }
-
-  // Searchable popup for badge counts
-  
