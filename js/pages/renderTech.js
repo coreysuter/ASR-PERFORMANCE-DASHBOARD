@@ -904,6 +904,10 @@ function classifyDial(pct){
 
   // Searchable popup for badge counts
   window.openFocusPopup = function(focusKey, tone){
+    // focusKey: ASR | SOLD | GOAL ; tone: red | yellow
+    // Always compute fresh from the same function used for badge counts
+    window.__focusCountsCache = buildFocusCounts(t, team, compareBasis);
+
     let modal = document.getElementById("focusPopupModal");
     if(!modal){
       modal = document.createElement("div");
@@ -911,13 +915,14 @@ function classifyDial(pct){
       modal.className = "modal";
       modal.setAttribute("role","dialog");
       modal.setAttribute("aria-modal","true");
+      modal.setAttribute("aria-label","Focus alerts");
       modal.innerHTML = `
         <div class="modalCard">
           <div class="modalHdr">
-            <div class="modalTitle" id="focusPopupTitle">Focus Alerts</div>
+            <div class="modalTitle" id="focusPopupTitle"></div>
             <button class="iconBtn" id="focusPopupCloseBtn" aria-label="Close" title="Close">✕</button>
           </div>
-                    <div id="focusPopupResults" class="modalList"></div>
+          <div id="focusPopupResults" class="modalList"></div>
         </div>
       `;
       document.body.appendChild(modal);
@@ -928,34 +933,26 @@ function classifyDial(pct){
         if(m2 && m2.classList.contains("open") && e.key==="Escape") window.closeFocusPopup();
       });
     }
+
     modal.classList.add("open");
     window.__focusPopupState = { focusKey, tone };
-      const titleEl = modal.querySelector("#focusPopupTitle");
-  const iconHtml = focusBadgeIconSvg({tone, textColor: (focusKey==='SOLD' && tone==='red') ? '#FFFFFF' : undefined});
-  titleEl.innerHTML = `<span class="focusPopupKey">${safe(focusKey)}</span>${iconHtml}`;
-    window.renderFocusPopupResults();
-  };
 
-  window.closeFocusPopup = function(){
-    const modal = document.getElementById("focusPopupModal");
-    if(modal) modal.classList.remove("open");
-  };
+    const title = modal.querySelector("#focusPopupTitle");
+    if(typeof focusBadgeIconSvg === "function"){
+      title.innerHTML = `<span style="display:inline-flex;align-items:center;gap:10px">${focusBadgeIconSvg(tone)}<span>${safe(focusKey)}</span></span>`;
+    }else{
+      title.textContent = focusKey;
+    }
 
-  window.renderFocusPopupResults = function(){
-    const modal = document.getElementById("focusPopupModal");
-    if(!modal) return;
     const box = modal.querySelector("#focusPopupResults");
-    const state = window.__focusPopupState || {focusKey:"ASR", tone:"red"};
     const counts = window.__focusCountsCache;
-    if(!counts){ box.innerHTML = `<div class="notice">No data.</div>`; return; }
 
-    const classKey = (state.focusKey==="ASR") ? "asrClass" : (state.focusKey==="SOLD") ? "soldClass" : "goalClass";
-    const ratioKey = (state.focusKey==="ASR") ? "asrRatio" : (state.focusKey==="SOLD") ? "soldRatio" : "goalRatio";
-    const metricLbl = (state.focusKey==="SOLD") ? "Sold%" : (state.focusKey==="GOAL") ? "Goal" : "ASR%";
+    const bandKey = (focusKey==="ASR") ? "asrBand" : (focusKey==="SOLD") ? "soldBand" : "goalBand";
+    const ratioKey = (focusKey==="ASR") ? "asrRatio" : (focusKey==="SOLD") ? "soldRatio" : "goalRatio";
+    const metricLbl = (focusKey==="SOLD") ? "Sold%" : (focusKey==="GOAL") ? "Goal" : "ASR%";
 
-    const list = counts.items
-      .filter(it=>it[classKey]===state.tone)
-      
+    const list = (counts.items||[])
+      .filter(it => it[bandKey]===tone)
       .sort((a,b)=>{
         const av=Number(a[ratioKey]), bv=Number(b[ratioKey]);
         if(!Number.isFinite(av)&&!Number.isFinite(bv)) return 0;
@@ -964,7 +961,10 @@ function classifyDial(pct){
         return av-bv;
       });
 
-    if(!list.length){ box.innerHTML = `<div class="notice">No matches.</div>`; return; }
+    if(!list.length){
+      box.innerHTML = `<div class="notice">No matches.</div>`;
+      return false;
+    }
 
     box.innerHTML = list.map(it=>{
       const v = Number.isFinite(it[ratioKey]) ? fmtPct(it[ratioKey]) : "—";
@@ -975,6 +975,11 @@ function classifyDial(pct){
         </a>
       `;
     }).join("");
+
+    return false;
   };
-
-
+window.closeFocusPopup = function(){
+    const modal = document.getElementById("focusPopupModal");
+    if(modal) modal.classList.remove("open");
+    return false;
+  };
