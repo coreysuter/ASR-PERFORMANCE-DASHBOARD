@@ -1240,3 +1240,21 @@ body.route-tech .badgeLink:hover .focusBadgeSvg{
   transform:translateY(-1px);
 }
 body.route-tech .badgeLink:active .focusBadgeSvg{transform:translateY(0);}
+
+
+/* === Focus popup title: key + badge icon (no search field) === */
+#focusPopupTitle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+#focusPopupTitle .focusPopupKey{
+  font-weight:1200;
+  letter-spacing:.2px;
+}
+#focusPopupTitle .focusBadgeIcon{
+  height:28px;
+  width:auto;
+  display:block;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.25));
+}
