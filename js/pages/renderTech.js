@@ -393,7 +393,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard">
+      <div class="catCard" id="svc-${cat}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
@@ -496,7 +496,284 @@ return `
     `;
   }).join("");
 
-  document.getElementById('app').innerHTML = `${header}${sectionsHtml}`;
+  
+  // === Top/Bottom 3 panel (per-tech) ===
+  const allCatsTB = Array.from(new Set((DATA.sections||[]).flatMap(s => (s.categories||[])).filter(Boolean)));
+
+  const rowsTB = allCatsTB.map(cat=>{
+    const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
+    return {
+      cat,
+      label: (typeof catLabel==="function") ? catLabel(cat) : String(cat),
+      req: Number(c.req),
+      close: Number(c.close)
+    };
+  });
+
+  const byReqTB = rowsTB.filter(x=>Number.isFinite(x.req)).sort((a,b)=>b.req-a.req);
+  const byCloseTB = rowsTB.filter(x=>Number.isFinite(x.close)).sort((a,b)=>b.close-a.close);
+
+  const topReqTB = byReqTB.slice(0,3);
+  const botReqTB = byReqTB.slice(-3).reverse();
+  const topCloseTB = byCloseTB.slice(0,3);
+  const botCloseTB = byCloseTB.slice(-3).reverse();
+
+  // Safe jump-to-service (expands section if collapsed)
+  window.jumpToService = function(cat){
+    const el = document.getElementById(`svc-${cat}`);
+    if(!el) return false;
+    const panel = el.closest(".panel");
+    if(panel && panel.classList && panel.classList.contains("secCollapsed")){
+      panel.classList.remove("secCollapsed");
+      const tg = panel.querySelector(".secToggle");
+      if(tg) tg.textContent = "−";
+    }
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+    if(el.classList){
+      el.classList.add("flashPick");
+      setTimeout(()=>{ const e2=document.getElementById(`svc-${cat}`); if(e2 && e2.classList) e2.classList.remove("flashPick"); }, 900);
+    }
+    return false;
+  };
+
+  function tbRow(it, i, mode){
+    const pct = (mode==="sold") ? it.close : it.req;
+    const lbl = (mode==="sold") ? "Sold%" : "ASR%";
+    return `
+      <div class="techRow tbRow">
+        <div class="techRowLeft">
+          <span class="rankNum">${i}.</span>
+          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(it.cat)})">${safe(it.label)}</a>
+        </div>
+        <div class="mini">${lbl} ${fmtPct(pct)}</div>
+      </div>
+    `;
+  }
+
+  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
+    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    return `
+      <div class="pickBox">
+        <div class="pickMiniHdr">${safe(titleTop)}</div>
+        <div class="pickList">${topHtml}</div>
+        <div class="pickMiniHdr" style="margin-top:10px">${safe(titleBot)}</div>
+        <div class="pickList">${botHtml}</div>
+      </div>
+    `;
+  }
+
+  const top3Panel = `
+    <div class="panel techPickPanel">
+      <div class="phead" style="border-bottom:none;padding:12px">
+        <div class="pickHdrRow">
+          <div class="pickHdrLabel">ASR</div>
+          <div class="pickHdrLabel">SOLD</div>
+        </div>
+        <div class="pickGrid2">
+          ${tbBlock("Top 3 Most Recommended","Bottom 3 Least Recommended", topReqTB, botReqTB, "asr")}
+          ${tbBlock("Top 3 Most Sold","Bottom 3 Least Sold", topCloseTB, botCloseTB, "sold")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // === Current-focus badges (red + yellow) with popup (no search) ===
+  function dialBand(n){
+    const p = Number(n);
+    if(!Number.isFinite(p)) return "na";
+    if(p >= 0.80) return "green";
+    if(p >= 0.60) return "yellow";
+    return "red";
+  }
+
+  function focusIconSvg(tone){
+    const isYellow = tone==="yellow";
+    const border = isYellow ? "#E7B300" : "#C81F0A";
+    const fill1 = isYellow ? "#FFD54A" : "#FF3B1F";
+    const fill2 = isYellow ? "#FFB000" : "#D91908";
+    const gloss = isYellow ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.20)";
+    const exclam = isYellow ? "#1A1A1A" : "#FFFFFF";
+    return `
+      <svg class="focusBadgeIcon ${tone}" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="ig-${tone}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="${fill1}"/>
+            <stop offset="1" stop-color="${fill2}"/>
+          </linearGradient>
+          <linearGradient id="igl-${tone}" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="${gloss}"/>
+            <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+        </defs>
+        <path d="M100 8 Q108 8 114 14 L190 146 Q194 153 190 160 Q186 167 178 167
+                 L22 167 Q14 167 10 160 Q6 153 10 146 L86 14 Q92 8 100 8 Z"
+              fill="url(#ig-${tone})" stroke="${border}" stroke-width="6" />
+        <path d="M100 18 Q106 18 111 23 L178 140 Q181 145 178 150 Q175 155 169 155
+                 L31 155 Q25 155 22 150 Q19 145 22 140 L89 23 Q94 18 100 18 Z"
+              fill="url(#igl-${tone})" />
+        <path d="M100 48 C110 48 115 54 114 64 L110 108 C109 118 91 118 90 108
+                 L86 64 C85 54 90 48 100 48 Z"
+              fill="${exclam}" opacity="0.95"/>
+        <circle cx="100" cy="122" r="11" fill="${exclam}" opacity="0.95"/>
+      </svg>
+    `;
+  }
+
+  function focusBadgeSvg(tone, number){
+    const isYellow = tone==="yellow";
+    const border = isYellow ? "#E7B300" : "#C81F0A";
+    const fill1  = isYellow ? "#FFD54A" : "#FF3B1F";
+    const fill2  = isYellow ? "#FFB000" : "#D91908";
+    const gloss  = isYellow ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.20)";
+    const exclam = isYellow ? "#1A1A1A" : "#FFFFFF";
+    const txt = isYellow ? "#1A1A1A" : "#FFFFFF";
+    return `
+      <svg class="focusBadgeSvg ${tone}" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="g-${tone}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="${fill1}"/>
+            <stop offset="1" stop-color="${fill2}"/>
+          </linearGradient>
+          <linearGradient id="gl-${tone}" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="${gloss}"/>
+            <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+        </defs>
+        <path d="M100 8 Q108 8 114 14 L190 146 Q194 153 190 160 Q186 167 178 167
+                 L22 167 Q14 167 10 160 Q6 153 10 146 L86 14 Q92 8 100 8 Z"
+              fill="url(#g-${tone})" stroke="${border}" stroke-width="6" />
+        <path d="M100 18 Q106 18 111 23 L178 140 Q181 145 178 150 Q175 155 169 155
+                 L31 155 Q25 155 22 150 Q19 145 22 140 L89 23 Q94 18 100 18 Z"
+              fill="url(#gl-${tone})" />
+        <path d="M100 48 C110 48 115 54 114 64 L110 108 C109 118 91 118 90 108
+                 L86 64 C85 54 90 48 100 48 Z"
+              fill="${exclam}" opacity="0.95"/>
+        <circle cx="100" cy="122" r="11" fill="${exclam}" opacity="0.95"/>
+        <text x="156" y="150" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="900"
+              fill="${txt}">${safe(String(number))}</text>
+        <rect x="136" y="156" width="40" height="5" rx="2.5" fill="${txt}" opacity="0.95"/>
+      </svg>
+    `;
+  }
+
+  function buildFocusItems(){
+    const allCats = allCatsTB;
+    return allCats.map(cat=>{
+      const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
+      const req = Number(c.req);
+      const close = Number(c.close);
+
+      const tb = (typeof getTeamBenchmarks==="function") ? getTeamBenchmarks(cat, team) : null;
+      const sb = (typeof getStoreBenchmarks==="function") ? getStoreBenchmarks(cat) : null;
+      const basis = (compareBasis==="store") ? (sb||{}) : (tb||{});
+      const cmpReq = Number(basis.avgReq);
+      const cmpClose = Number(basis.avgClose);
+      const goalReq = (typeof getGoal==="function") ? Number(getGoal(cat,"req")) : Number(((DATA.goals||{})[cat]||{}).req);
+
+      const asrRatio = (Number.isFinite(req) && Number.isFinite(cmpReq) && cmpReq>0) ? (req/cmpReq) : NaN;
+      const soldRatio = (Number.isFinite(close) && Number.isFinite(cmpClose) && cmpClose>0) ? (close/cmpClose) : NaN;
+      const goalRatio = (Number.isFinite(req) && Number.isFinite(goalReq) && goalReq>0) ? (req/goalReq) : asrRatio;
+
+      return {
+        cat,
+        label: (typeof catLabel==="function") ? catLabel(cat) : String(cat),
+        asrRatio, soldRatio, goalRatio,
+        asrBand: dialBand(asrRatio),
+        soldBand: dialBand(soldRatio),
+        goalBand: dialBand(goalRatio),
+      };
+    });
+  }
+
+  window.openFocusPopup = function(focusKey, tone){
+    const items = buildFocusItems();
+    const bandKey = (focusKey==="ASR") ? "asrBand" : (focusKey==="SOLD") ? "soldBand" : "goalBand";
+    const ratioKey = (focusKey==="ASR") ? "asrRatio" : (focusKey==="SOLD") ? "soldRatio" : "goalRatio";
+    const metricLbl = (focusKey==="SOLD") ? "Sold%" : (focusKey==="GOAL") ? "Goal" : "ASR%";
+
+    const list = items.filter(it=>it[bandKey]===tone).sort((a,b)=>{
+      const av=Number(a[ratioKey]), bv=Number(b[ratioKey]);
+      if(!Number.isFinite(av)&&!Number.isFinite(bv)) return 0;
+      if(!Number.isFinite(av)) return 1;
+      if(!Number.isFinite(bv)) return -1;
+      return av-bv;
+    });
+
+    let modal = document.getElementById("focusPopupModal");
+    if(!modal){
+      modal = document.createElement("div");
+      modal.id = "focusPopupModal";
+      modal.className = "modal";
+      modal.setAttribute("role","dialog");
+      modal.setAttribute("aria-modal","true");
+      modal.innerHTML = `
+        <div class="modalCard">
+          <div class="modalHdr">
+            <div class="modalTitle" id="focusPopupTitle"></div>
+            <button class="iconBtn" id="focusPopupCloseBtn" aria-label="Close" title="Close">✕</button>
+          </div>
+          <div id="focusPopupResults" class="modalList"></div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.addEventListener("click", (e)=>{ if(e.target===modal) window.closeFocusPopup(); });
+      modal.querySelector("#focusPopupCloseBtn").addEventListener("click", window.closeFocusPopup);
+      document.addEventListener("keydown", (e)=>{
+        const m2=document.getElementById("focusPopupModal");
+        if(m2 && m2.classList.contains("open") && e.key==="Escape") window.closeFocusPopup();
+      });
+    }
+
+    modal.classList.add("open");
+    const title = modal.querySelector("#focusPopupTitle");
+    title.innerHTML = `<span style="display:inline-flex;align-items:center;gap:10px">${focusIconSvg(tone)}<span>${safe(focusKey)}</span></span>`;
+
+    const box = modal.querySelector("#focusPopupResults");
+    if(!list.length){
+      box.innerHTML = `<div class="notice">No matches.</div>`;
+      return false;
+    }
+
+    box.innerHTML = list.map(it=>{
+      const v = Number.isFinite(it[ratioKey]) ? fmtPct(it[ratioKey]) : "—";
+      return `
+        <a class="resItem" href="javascript:void(0)" onclick="window.closeFocusPopup(); return window.jumpToService && window.jumpToService(${JSON.stringify(it.cat)});">
+          <span>${safe(it.label)}</span>
+          <span class="resBadge">${metricLbl}: ${v}</span>
+        </a>
+      `;
+    }).join("");
+
+    return false;
+  };
+
+  window.closeFocusPopup = function(){
+    const modal = document.getElementById("focusPopupModal");
+    if(modal) modal.classList.remove("open");
+    return false;
+  };
+
+  // Current-focus badge pair (red + yellow)
+  const currentFocusKey = (focus==="sold") ? "SOLD" : (focus==="goal") ? "GOAL" : "ASR";
+  const focusItems = buildFocusItems();
+  const keyBand = (currentFocusKey==="ASR") ? "asrBand" : (currentFocusKey==="SOLD") ? "soldBand" : "goalBand";
+  const redCount = focusItems.filter(it=>it[keyBand]==="red").length;
+  const yellowCount = focusItems.filter(it=>it[keyBand]==="yellow").length;
+
+  const focusBadgesHtml = `
+    <div class="focusBadges">
+      <div class="focusBadgePair">
+        <a class="badgeLink" href="javascript:void(0)" onclick="return window.openFocusPopup && window.openFocusPopup('${'${currentFocusKey}'}','red')">${'${focusBadgeSvg("red", redCount)}'}</a>
+        <a class="badgeLink" href="javascript:void(0)" onclick="return window.openFocusPopup && window.openFocusPopup('${'${currentFocusKey}'}','yellow')">${'${focusBadgeSvg("yellow", yellowCount)}'}</a>
+      </div>
+    </div>
+  `;
+
+  // Insert badges between team line and pills by patching header HTML string
+  const headerWrap = `<div class="techHeaderWrap">${header.replace(/(<div class="techTeamLine">[\\s\\S]*?<\\/div>)/, '$1'+focusBadgesHtml)}${top3Panel}</div>`;
+
+document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
 
