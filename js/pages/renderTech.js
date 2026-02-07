@@ -878,7 +878,7 @@ function classifyDial(pct){
       const cmpReq = Number(basis.avgReq);
       const cmpClose = Number(basis.avgClose);
 
-      const goalReq = Number(((DATA.goals||{})[cat]||{}).req);
+      const goalReq = (typeof getGoal==="function") ? Number(getGoal(cat,"req")) : Number(((DATA.goals||{})[cat]||{}).req);
 
       const asrRatio  = (Number.isFinite(req)   && Number.isFinite(cmpReq)   && cmpReq>0)   ? (req/cmpReq)     : NaN;
       const soldRatio = (Number.isFinite(close) && Number.isFinite(cmpClose) && cmpClose>0) ? (close/cmpClose) : NaN;
@@ -890,7 +890,93 @@ function classifyDial(pct){
         asrClass:  classifyDial(asrRatio),
         soldClass: classifyDial(soldRatio),
         goalClass: classifyDial(goalRatio),
-      };
+      }
+  // Popup (no search) - uses the same classification as badges (prevents mismatch)
+  window.openFocusPopup = function(focusKey, tone){
+    let modal = document.getElementById("focusPopupModal");
+    if(!modal){
+      modal = document.createElement("div");
+      modal.id = "focusPopupModal";
+      modal.className = "modal";
+      modal.setAttribute("role","dialog");
+      modal.setAttribute("aria-modal","true");
+      modal.innerHTML = `
+        <div class="modalCard">
+          <div class="modalHdr">
+            <div class="modalTitle" id="focusPopupTitle"></div>
+            <button class="iconBtn" id="focusPopupCloseBtn" aria-label="Close" title="Close">✕</button>
+          </div>
+          <div id="focusPopupResults" class="modalList"></div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.addEventListener("click", (e)=>{ if(e.target===modal) window.closeFocusPopup(); });
+      modal.querySelector("#focusPopupCloseBtn").addEventListener("click", window.closeFocusPopup);
+      document.addEventListener("keydown", (e)=>{
+        const m2=document.getElementById("focusPopupModal");
+        if(m2 && m2.classList.contains("open") && e.key==="Escape") window.closeFocusPopup();
+      });
+    }
+
+    modal.classList.add("open");
+    const title = modal.querySelector("#focusPopupTitle");
+    title.textContent = focusKey;
+
+    const counts = window.__focusCountsCache;
+    const box = modal.querySelector("#focusPopupResults");
+    if(!counts || !counts.items){
+      box.innerHTML = `<div class="notice">No data.</div>`;
+      return false;
+    }
+
+    const classKey = (focusKey==="ASR") ? "asrClass" : (focusKey==="SOLD") ? "soldClass" : "goalClass";
+    const ratioKey = (focusKey==="ASR") ? "asrRatio" : (focusKey==="SOLD") ? "soldRatio" : "goalRatio";
+    const metricLbl = (focusKey==="SOLD") ? "Sold%" : (focusKey==="GOAL") ? "Goal" : "ASR%";
+
+    const list = counts.items
+      .filter(it=>it[classKey]===tone)
+      .sort((a,b)=>{
+        const av=Number(a[ratioKey]), bv=Number(b[ratioKey]);
+        if(!Number.isFinite(av)&&!Number.isFinite(bv)) return 0;
+        if(!Number.isFinite(av)) return 1;
+        if(!Number.isFinite(bv)) return -1;
+        return av-bv;
+      });
+
+    if(!list.length){
+      box.innerHTML = `<div class="notice">No matches.</div>`;
+      return false;
+    }
+
+    box.innerHTML = list.map(it=>{
+      const v = Number.isFinite(it[ratioKey]) ? fmtPct(it[ratioKey]) : "—";
+      return `
+        <a class="resItem" href="javascript:void(0)" onclick="window.closeFocusPopup(); return window.jumpToService && window.jumpToService(${JSON.stringify(it.cat)});">
+          <span>${safe(it.label)}</span>
+          <span class="resBadge">${metricLbl}: ${v}</span>
+        </a>
+      `;
+    }).join("");
+
+    return false;
+  };
+
+  window.closeFocusPopup = function(){
+    const modal = document.getElementById("focusPopupModal");
+    if(modal) modal.classList.remove("open");
+    return false;
+  };
+;
+    });
+
+    const count = (k, tone)=> items.filter(it=>it[k]===tone).length;
+    return {
+      items,
+      ASR:  { red: count("asrClass","red"),  yellow: count("asrClass","yellow") },
+      SOLD: { red: count("soldClass","red"), yellow: count("soldClass","yellow") },
+      GOAL: { red: count("goalClass","red"), yellow: count("goalClass","yellow") },
+    };
+  };
     });
 
     const count = (k, tone)=> items.filter(it=>it[k]===tone).length;
@@ -903,78 +989,4 @@ function classifyDial(pct){
   }
 
   // Searchable popup for badge counts
-  window.openFocusPopup = function(focusKey, tone){
-    let modal = document.getElementById("focusPopupModal");
-    if(!modal){
-      modal = document.createElement("div");
-      modal.id = "focusPopupModal";
-      modal.className = "modal";
-      modal.setAttribute("role","dialog");
-      modal.setAttribute("aria-modal","true");
-      modal.innerHTML = `
-        <div class="modalCard">
-          <div class="modalHdr">
-            <div class="modalTitle" id="focusPopupTitle">Focus Alerts</div>
-            <button class="iconBtn" id="focusPopupCloseBtn" aria-label="Close" title="Close">✕</button>
-          </div>
-                    <div id="focusPopupResults" class="modalList"></div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      modal.addEventListener("click", (e)=>{ if(e.target===modal) window.closeFocusPopup(); });
-      modal.querySelector("#focusPopupCloseBtn").addEventListener("click", window.closeFocusPopup);
-      document.addEventListener("keydown", (e)=>{
-        const m2=document.getElementById("focusPopupModal");
-        if(m2 && m2.classList.contains("open") && e.key==="Escape") window.closeFocusPopup();
-      });
-    }
-    modal.classList.add("open");
-    window.__focusPopupState = { focusKey, tone };
-      const titleEl = modal.querySelector("#focusPopupTitle");
-  const iconHtml = focusBadgeIconSvg({tone, textColor: (focusKey==='SOLD' && tone==='red') ? '#FFFFFF' : undefined});
-  titleEl.innerHTML = `<span class="focusPopupKey">${safe(focusKey)}</span>${iconHtml}`;
-    window.renderFocusPopupResults();
-  };
-
-  window.closeFocusPopup = function(){
-    const modal = document.getElementById("focusPopupModal");
-    if(modal) modal.classList.remove("open");
-  };
-
-  window.renderFocusPopupResults = function(){
-    const modal = document.getElementById("focusPopupModal");
-    if(!modal) return;
-    const box = modal.querySelector("#focusPopupResults");
-    const state = window.__focusPopupState || {focusKey:"ASR", tone:"red"};
-    const counts = window.__focusCountsCache;
-    if(!counts){ box.innerHTML = `<div class="notice">No data.</div>`; return; }
-
-    const classKey = (state.focusKey==="ASR") ? "asrClass" : (state.focusKey==="SOLD") ? "soldClass" : "goalClass";
-    const ratioKey = (state.focusKey==="ASR") ? "asrRatio" : (state.focusKey==="SOLD") ? "soldRatio" : "goalRatio";
-    const metricLbl = (state.focusKey==="SOLD") ? "Sold%" : (state.focusKey==="GOAL") ? "Goal" : "ASR%";
-
-    const list = counts.items
-      .filter(it=>it[classKey]===state.tone)
-      
-      .sort((a,b)=>{
-        const av=Number(a[ratioKey]), bv=Number(b[ratioKey]);
-        if(!Number.isFinite(av)&&!Number.isFinite(bv)) return 0;
-        if(!Number.isFinite(av)) return 1;
-        if(!Number.isFinite(bv)) return -1;
-        return av-bv;
-      });
-
-    if(!list.length){ box.innerHTML = `<div class="notice">No matches.</div>`; return; }
-
-    box.innerHTML = list.map(it=>{
-      const v = Number.isFinite(it[ratioKey]) ? fmtPct(it[ratioKey]) : "—";
-      return `
-        <a class="resItem" href="javascript:void(0)" onclick="window.closeFocusPopup(); return window.jumpToService && window.jumpToService(${JSON.stringify(it.cat)});">
-          <span>${safe(it.label)}</span>
-          <span class="resBadge">${metricLbl}: ${v}</span>
-        </a>
-      `;
-    }).join("");
-  };
-
-
+  
