@@ -809,9 +809,6 @@ window.renderTech = renderTech;
               fill="${exclam}" opacity="0.95"/>
         <circle cx="100" cy="122" r="11" fill="${exclam}" opacity="0.95"/>
 
-        <text x="38" y="150" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="900"
-              fill="${lblCol}" letter-spacing="1">${safe(label)}</text>
-
         <text x="156" y="150" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="900"
               fill="${numCol}">${safe(number)}</text>
 
@@ -820,7 +817,46 @@ window.renderTech = renderTech;
     `;
   }
 
-  function classifyDial(pct){
+  
+  function focusBadgeIconSvg({tone, textColor}){
+    const isYellow = tone === "yellow";
+    const border = isYellow ? "#E7B300" : "#C81F0A";
+    const fill1  = isYellow ? "#FFD54A" : "#FF3B1F";
+    const fill2  = isYellow ? "#FFB000" : "#D91908";
+    const gloss  = isYellow ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.20)";
+    const exclam = isYellow ? "#1A1A1A" : "#FFFFFF";
+    const col = textColor || (isYellow ? "#1A1A1A" : "#FFFFFF");
+
+    return `
+      <svg class="focusBadgeIcon ${tone}" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="ig-${tone}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="${fill1}"/>
+            <stop offset="1" stop-color="${fill2}"/>
+          </linearGradient>
+          <linearGradient id="igl-${tone}" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="${gloss}"/>
+            <stop offset="1" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+        </defs>
+
+        <path d="M100 8 Q108 8 114 14 L190 146 Q194 153 190 160 Q186 167 178 167
+                 L22 167 Q14 167 10 160 Q6 153 10 146 L86 14 Q92 8 100 8 Z"
+              fill="url(#ig-${tone})" stroke="${border}" stroke-width="6" />
+
+        <path d="M100 18 Q106 18 111 23 L178 140 Q181 145 178 150 Q175 155 169 155
+                 L31 155 Q25 155 22 150 Q19 145 22 140 L89 23 Q94 18 100 18 Z"
+              fill="url(#igl-${tone})" />
+
+        <path d="M100 48 C110 48 115 54 114 64 L110 108 C109 118 91 118 90 108
+                 L86 64 C85 54 90 48 100 48 Z"
+              fill="${exclam}" opacity="0.95"/>
+        <circle cx="100" cy="122" r="11" fill="${exclam}" opacity="0.95"/>
+      </svg>
+    `;
+  }
+
+function classifyDial(pct){
     const p = Number(pct);
     if(!Number.isFinite(p)) return "na";
     if(p >= 0.80) return "green";
@@ -881,14 +917,12 @@ window.renderTech = renderTech;
             <div class="modalTitle" id="focusPopupTitle">Focus Alerts</div>
             <button class="iconBtn" id="focusPopupCloseBtn" aria-label="Close" title="Close">✕</button>
           </div>
-          <input id="focusPopupSearch" type="text" placeholder="Search services..." autocomplete="off" />
-          <div id="focusPopupResults" class="modalList"></div>
+                    <div id="focusPopupResults" class="modalList"></div>
         </div>
       `;
       document.body.appendChild(modal);
       modal.addEventListener("click", (e)=>{ if(e.target===modal) window.closeFocusPopup(); });
       modal.querySelector("#focusPopupCloseBtn").addEventListener("click", window.closeFocusPopup);
-      modal.querySelector("#focusPopupSearch").addEventListener("input", ()=>window.renderFocusPopupResults());
       document.addEventListener("keydown", (e)=>{
         const m2=document.getElementById("focusPopupModal");
         if(m2 && m2.classList.contains("open") && e.key==="Escape") window.closeFocusPopup();
@@ -896,10 +930,10 @@ window.renderTech = renderTech;
     }
     modal.classList.add("open");
     window.__focusPopupState = { focusKey, tone };
-    modal.querySelector("#focusPopupTitle").textContent = `${focusKey} • ${tone.toUpperCase()} Dials`;
-    modal.querySelector("#focusPopupSearch").value = "";
+      const titleEl = modal.querySelector("#focusPopupTitle");
+  const iconHtml = focusBadgeIconSvg({tone, textColor: (focusKey==='SOLD' && tone==='red') ? '#FFFFFF' : undefined});
+  titleEl.innerHTML = `<span class="focusPopupKey">${safe(focusKey)}</span>${iconHtml}`;
     window.renderFocusPopupResults();
-    setTimeout(()=>modal.querySelector("#focusPopupSearch").focus(), 50);
   };
 
   window.closeFocusPopup = function(){
@@ -911,7 +945,6 @@ window.renderTech = renderTech;
     const modal = document.getElementById("focusPopupModal");
     if(!modal) return;
     const box = modal.querySelector("#focusPopupResults");
-    const q = (modal.querySelector("#focusPopupSearch")?.value || "").trim().toLowerCase();
     const state = window.__focusPopupState || {focusKey:"ASR", tone:"red"};
     const counts = window.__focusCountsCache;
     if(!counts){ box.innerHTML = `<div class="notice">No data.</div>`; return; }
@@ -922,7 +955,7 @@ window.renderTech = renderTech;
 
     const list = counts.items
       .filter(it=>it[classKey]===state.tone)
-      .filter(it=>!q || it.label.toLowerCase().includes(q))
+      
       .sort((a,b)=>{
         const av=Number(a[ratioKey]), bv=Number(b[ratioKey]);
         if(!Number.isFinite(av)&&!Number.isFinite(bv)) return 0;
