@@ -225,7 +225,25 @@ const header = `
           <div class="techNameWrap">
             <div class="h2 techH2Big">${safe(t.name)}</div>
             <div class="techTeamLine">${safe(team)}</div>
-`;
+                  <div class="focusBadges">
+                    ${(()=>{
+                      const f = (focus==="sold") ? "SOLD" : (focus==="goal") ? "GOAL" : "ASR";
+                      const fc = window.__focusCountsCache || buildFocusCounts(t, team, compareBasis);
+                      const redN = fc[f].red;
+                      const yelN = fc[f].yellow;
+                      const lblCol = (f==="SOLD") ? "#FFFFFF" : undefined;
+                      const numCol = (f==="SOLD") ? "#FFFFFF" : undefined;
+
+                      return `
+                        <div class="focusBadgePair" title="${safe(f)} alerts">
+                          <a class="badgeLink" href="javascript:void(0)" onclick="return window.openFocusPopup && window.openFocusPopup('${f}','red')">
+                            ${focusBadgeSvg({tone:'red',label:f,number:String(redN), textColor:lblCol, numberColor:numCol})}
+                          </a>
+                          <a class="badgeLink" href="javascript:void(0)" onclick="return window.openFocusPopup && window.openFocusPopup('${f}','yellow')">
+                            ${focusBadgeSvg({tone:'yellow',label:f,number:String(yelN), textColor:lblCol, numberColor:numCol})}
+                          </a>
+                        </div>
+                      `;
                     })()}
                   </div>
 
@@ -655,15 +673,19 @@ function tbRow(item, idx, mode){
     `;
   }
 
-  function tbBlock(title, arr, mode, isTop){
-    const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-    const icon = isTop
-      ? `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`
-      : `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
+  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
+    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+
+    const up = `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
+    const down = `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
+
     return `
       <div class="pickBox">
-        <div class="pickMiniHdr">${safe(title)} ${icon}</div>
-        <div class="pickList">${html}</div>
+        <div class="pickMiniHdr pickMiniHdrTop">${safe(titleTop)} ${up}</div>
+        <div class="pickList">${topHtml}</div>
+        <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:10px">${safe(titleBot)} ${down}</div>
+        <div class="pickList">${botHtml}</div>
       </div>
     `;
   }
@@ -676,53 +698,23 @@ function tbRow(item, idx, mode){
           <div class="pickHdrLabel">SOLD</div>
         </div>
         <div class="pickGrid2">
-          ${tbBlconst top3Panel = `
-    <div class="panel techPickPanel">
-      <div class="phead" style="border-bottom:none;padding:12px">
-        <div class="top3Grid">
-          
-          <div class="top3Badges">
-            ${(()=>{
-              const fc = window.__focusCountsCache || buildFocusCounts(t, team, compareBasis);
-              const mk = (focusKey, tone) => {
-                const n = fc[focusKey][tone];
-                const toneWord = tone === "red" ? "red" : "yellow";
-                // label removed inside badge; number stays and is clickable
-                return `
-                  <a class="badgeLink" href="javascript:void(0)" onclick="return window.openFocusPopup && window.openFocusPopup('${focusKey}','${toneWord}')">
-                    ${focusBadgeSvg({tone:toneWord, label:'', number:String(n), textColor:(toneWord==='yellow'?'#1A1A1A':'#FFFFFF'), numberColor:(toneWord==='yellow'?'#1A1A1A':'#FFFFFF')})}
-                  </a>
-                `;
-              };
-              return `
-                <div class="top3BadgeRow">
-                  ${mk('ASR','red')}
-                  ${mk('ASR','yellow')}
-                </div>
-                <div class="top3BadgeRow" style="margin-top:10px">
-                  ${mk('SOLD','red')}
-                  ${mk('SOLD','yellow')}
-                </div>
-              `;
-            })()}
-          </div>
-
-
-          <div class="top3Content">
-            <div class="top3Row">
-              ${tbBlock("Top 3 Most Recommended", topReqTB, "asr", true)}
-              ${tbBlock("Bottom 3 Least Recommended", botReqTB, "asr", false)}
-            </div>
-
-            <div class="top3Row" style="margin-top:12px">
-              ${tbBlock("Top 3 Most Sold", topCloseTB, "sold", true)}
-              ${tbBlock("Bottom 3 Least Sold", botCloseTB, "sold", false)}
-            </div>
-          </div>
+          ${tbBlock("Top 3 Most Recommended","Bottom 3 Least Recommended", topReqTB, botReqTB, "asr")}
+          ${tbBlock("Top 3 Most Sold","Bottom 3 Least Sold", topCloseTB, botCloseTB, "sold")}
         </div>
       </div>
     </div>
-  `;    const v = sel.value || "total";
+  `;
+
+  const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
+
+  document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+  animateSvcGauges();
+  initSectionToggles();
+
+  const sel = document.getElementById('techFilter');
+  if(sel){
+    sel.addEventListener('change', ()=>{
+      const v = sel.value || "total";
       const c = encodeURIComponent(compareBasis||"team");
       const fo = encodeURIComponent(focus||"asr");
       location.hash = `#/tech/${encodeURIComponent(t.id)}?filter=${encodeURIComponent(v)}&compare=${c}&focus=${fo}`;
@@ -815,7 +807,12 @@ window.renderTech = renderTech;
         <path d="M100 48 C110 48 115 54 114 64 L110 108 C109 118 91 118 90 108
                  L86 64 C85 54 90 48 100 48 Z"
               fill="${exclam}" opacity="0.95"/>
-        <circle cx="100" cy="122" r="11" fill="${exclam}" opacity="0.95"/>${label ? `<text x="38" y="150" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="900" fill="${lblCol}" letter-spacing="1">${safe(label)}</text>` : ``}<text x="156" y="150" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="900"
+        <circle cx="100" cy="122" r="11" fill="${exclam}" opacity="0.95"/>
+
+        <text x="38" y="150" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="900"
+              fill="${lblCol}" letter-spacing="1">${safe(label)}</text>
+
+        <text x="156" y="150" text-anchor="middle" font-family="system-ui,Segoe UI,Arial" font-size="30" font-weight="900"
               fill="${numCol}">${safe(number)}</text>
 
         <rect x="136" y="156" width="40" height="5" rx="2.5" fill="${numCol}" opacity="0.95"/>
@@ -899,9 +896,7 @@ window.renderTech = renderTech;
     }
     modal.classList.add("open");
     window.__focusPopupState = { focusKey, tone };
-    const titleEl = modal.querySelector("#focusPopupTitle");
-    const lblCol = (tone==='yellow') ? '#1A1A1A' : '#FFFFFF';
-    titleEl.innerHTML = `<div class="focusPopupTitleRow"><span class="focusPopupTitleTxt">${safe(focusKey)}</span><span class="focusPopupTitleIcon">${focusBadgeSvg({tone, label:'', number:'', textColor:lblCol, numberColor:lblCol})}</span></div>`;
+    modal.querySelector("#focusPopupTitle").textContent = `${focusKey} • ${tone.toUpperCase()} Dials`;
     modal.querySelector("#focusPopupSearch").value = "";
     window.renderFocusPopupResults();
     setTimeout(()=>modal.querySelector("#focusPopupSearch").focus(), 50);
