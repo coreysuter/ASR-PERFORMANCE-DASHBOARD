@@ -620,7 +620,7 @@ return `
     });
 
     if(!items.length){
-      box.innerHTML = `<div class="notice">No services.</div>`;
+      box.innerHTML = `<div class="notice">No matches.</div>`;
       return;
     }
 
@@ -884,12 +884,27 @@ window.renderTech = renderTech;
             <div class="modalTitle" id="focusPopupTitle">Focus Alerts</div>
             <button class="iconBtn" id="focusPopupCloseBtn" aria-label="Close" title="Close">✕</button>
           </div>
+          <input id="focusPopupSearch" type="text" placeholder="Search services..." autocomplete="off" />
           <div id="focusPopupResults" class="modalList"></div>
         </div>
       `;
       document.body.appendChild(modal);
       modal.addEventListener("click", (e)=>{ if(e.target===modal) window.closeFocusPopup(); });
-      modal.querySelector("#focusPopupCloseBtn").addEventListener("click", window.closeFocusPopup);    setTimeout(()=>modal.querySelector("#focusPopupSearch").focus(), 50);
+      modal.querySelector("#focusPopupCloseBtn").addEventListener("click", window.closeFocusPopup);
+      modal.querySelector("#focusPopupSearch").addEventListener("input", ()=>window.renderFocusPopupResults());
+      document.addEventListener("keydown", (e)=>{
+        const m2=document.getElementById("focusPopupModal");
+        if(m2 && m2.classList.contains("open") && e.key==="Escape") window.closeFocusPopup();
+      });
+    }
+    modal.classList.add("open");
+    window.__focusPopupState = { focusKey, tone };
+    const titleEl = modal.querySelector("#focusPopupTitle");
+    const lblCol = (tone==='yellow') ? '#1A1A1A' : '#FFFFFF';
+    titleEl.innerHTML = `<div class="focusPopupTitleRow"><span class="focusPopupTitleTxt">${safe(focusKey)}</span><span class="focusPopupTitleIcon">${focusBadgeSvg({tone, label:'', number:'', textColor:lblCol, numberColor:lblCol})}</span></div>`;
+    modal.querySelector("#focusPopupSearch").value = "";
+    window.renderFocusPopupResults();
+    setTimeout(()=>modal.querySelector("#focusPopupSearch").focus(), 50);
   };
 
   window.closeFocusPopup = function(){
@@ -901,8 +916,8 @@ window.renderTech = renderTech;
     const modal = document.getElementById("focusPopupModal");
     if(!modal) return;
     const box = modal.querySelector("#focusPopupResults");
-    const q = "";
-const state = window.__focusPopupState || {focusKey:"ASR", tone:"red"};
+    const q = (modal.querySelector("#focusPopupSearch")?.value || "").trim().toLowerCase();
+    const state = window.__focusPopupState || {focusKey:"ASR", tone:"red"};
     const counts = window.__focusCountsCache;
     if(!counts){ box.innerHTML = `<div class="notice">No data.</div>`; return; }
 
@@ -921,7 +936,7 @@ const state = window.__focusPopupState || {focusKey:"ASR", tone:"red"};
         return av-bv;
       });
 
-    if(!list.length){ box.innerHTML = `<div class="notice">No services.</div>`; return; }
+    if(!list.length){ box.innerHTML = `<div class="notice">No matches.</div>`; return; }
 
     box.innerHTML = list.map(it=>{
       const v = Number.isFinite(it[ratioKey]) ? fmtPct(it[ratioKey]) : "—";
