@@ -893,6 +893,10 @@ function classifyDial(pct){
       }
   // Popup (no search) - uses the same classification as badges (prevents mismatch)
   window.openFocusPopup = function(focusKey, tone){
+    // focusKey: ASR | SOLD | GOAL ; tone: red | yellow
+    // Always compute fresh from the same function used for badge counts
+    window.__focusCountsCache = buildFocusCounts(t, team, compareBasis);
+
     let modal = document.getElementById("focusPopupModal");
     if(!modal){
       modal = document.createElement("div");
@@ -900,6 +904,7 @@ function classifyDial(pct){
       modal.className = "modal";
       modal.setAttribute("role","dialog");
       modal.setAttribute("aria-modal","true");
+      modal.setAttribute("aria-label","Focus alerts");
       modal.innerHTML = `
         <div class="modalCard">
           <div class="modalHdr">
@@ -919,22 +924,24 @@ function classifyDial(pct){
     }
 
     modal.classList.add("open");
-    const title = modal.querySelector("#focusPopupTitle");
-    title.textContent = focusKey;
+    window.__focusPopupState = { focusKey, tone };
 
-    const counts = window.__focusCountsCache;
-    const box = modal.querySelector("#focusPopupResults");
-    if(!counts || !counts.items){
-      box.innerHTML = `<div class="notice">No data.</div>`;
-      return false;
+    const title = modal.querySelector("#focusPopupTitle");
+    if(typeof focusBadgeIconSvg === "function"){
+      title.innerHTML = `<span style="display:inline-flex;align-items:center;gap:10px">${focusBadgeIconSvg(tone)}<span>${safe(focusKey)}</span></span>`;
+    }else{
+      title.textContent = focusKey;
     }
 
-    const classKey = (focusKey==="ASR") ? "asrClass" : (focusKey==="SOLD") ? "soldClass" : "goalClass";
+    const box = modal.querySelector("#focusPopupResults");
+    const counts = window.__focusCountsCache;
+
+    const bandKey = (focusKey==="ASR") ? "asrBand" : (focusKey==="SOLD") ? "soldBand" : "goalBand";
     const ratioKey = (focusKey==="ASR") ? "asrRatio" : (focusKey==="SOLD") ? "soldRatio" : "goalRatio";
     const metricLbl = (focusKey==="SOLD") ? "Sold%" : (focusKey==="GOAL") ? "Goal" : "ASR%";
 
-    const list = counts.items
-      .filter(it=>it[classKey]===tone)
+    const list = (counts.items||[])
+      .filter(it => it[bandKey]===tone)
       .sort((a,b)=>{
         const av=Number(a[ratioKey]), bv=Number(b[ratioKey]);
         if(!Number.isFinite(av)&&!Number.isFinite(bv)) return 0;
@@ -960,8 +967,7 @@ function classifyDial(pct){
 
     return false;
   };
-
-  window.closeFocusPopup = function(){
+window.closeFocusPopup = function(){
     const modal = document.getElementById("focusPopupModal");
     if(modal) modal.classList.remove("open");
     return false;
