@@ -1255,7 +1255,7 @@ body.route-tech .diagSection .warnTri{
 body.route-tech .diagSection .warnTri svg{width:84px;height:75px;display:block;}
 body.route-tech .diagSection .warnTriNum{
   position:absolute;
-  right:12px;
+  right:16px;
   bottom:8px;
   font-size:16px;
   font-weight:500;
