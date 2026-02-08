@@ -1201,44 +1201,19 @@ body.route-tech .catTitle .meta{
 
 
 
-/* === DIAG SECTION: extend background left to meet tech name header WITHOUT moving lists ===
-   - Leaves the Top/Bottom 3 lists exactly where they are
-   - Fills the blank spacer column with the diag section background
+/* === DIAG SECTION (Top/Bottom 3): extend background left into the blank spacer WITHOUT moving the lists ===
+   We keep the Tech Name section exactly where it is.
+   We make the diag section span columns 2-3, then offset its inner content by the spacer width (0.25fr of 1.5fr = 16.6667%).
 */
-body.route-tech .techPickPanel,
-body.route-tech .techPickPanel.diagSection{
-  position:relative;
-  overflow:visible; /* allow the left extension to show */
-}
-
-/* left extension that occupies the blank spacer column */
-body.route-tech .techPickPanel::before,
-body.route-tech .techPickPanel.diagSection::before{
-  content:"";
-  position:absolute;
-  top:-1px;
-  bottom:-1px;
-
-  /* Adjust this if needed, but it should match the blank space between header and diag section */
-  left:-240px;
-  width:240px;
-
-  background:linear-gradient(180deg,var(--card),var(--card2));
-  border:1px solid var(--border);
-  border-right:none;              /* avoid double border where it meets the real panel */
-  border-radius:18px 0 0 18px;    /* match panel rounding */
-  pointer-events:none;
-}
-
-/* keep the real panel border/radius intact */
 body.route-tech .techPickPanel{
-  overflow:hidden; /* keep inner clipping */
-}
-body.route-tech .techPickPanel::before{
-  /* extension still shows because parent is overflow:visible above, then we re-hide inner with a child clip wrapper */
+  grid-column:2 / 4 !important; /* span the blank spacer + the original diag column */
+  width:100% !important;
 }
 
-/* If you have the diagSection class, ensure the inner content stays clipped cleanly */
-body.route-tech .techPickPanel.diagSection{
-  overflow:hidden;
+/* Keep the Top/Bottom 3 content aligned to where it used to start (column 3) */
+body.route-tech .techPickPanel .phead{
+  padding-left: calc(15px + 16.6667%) !important;
+}
+body.route-tech .techPickPanel .list{
+  padding-left: calc(12px + 16.6667%) !important;
 }
