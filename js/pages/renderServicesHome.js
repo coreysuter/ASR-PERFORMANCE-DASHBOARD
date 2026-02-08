@@ -1,5 +1,5 @@
 function renderServicesHome(){
-  // Route: #/services?team=all|express|kia&focus=asr|sold
+  // Route: #/servicesHome?team=all|express|kia&focus=asr|sold
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   let teamKey = "all";
@@ -231,7 +231,7 @@ function renderServicesHome(){
   const teamSel = document.getElementById("svcTeam");
   const focusSel = document.getElementById("svcFocus");
   const updateHash = ()=>{
-    location.hash = `#/services?team=${encodeURIComponent(teamSel.value)}&focus=${encodeURIComponent(focusSel.value)}`;
+    location.hash = `#/servicesHome?team=${encodeURIComponent(teamSel.value)}&focus=${encodeURIComponent(focusSel.value)}`;
   };
   if(teamSel && focusSel){
     teamSel.addEventListener("change", updateHash);
