@@ -568,18 +568,37 @@ return `
         <div class="pickList">${botHtml}</div>
       </div>
     `;
+
+  function tbMiniBox(title, arr, mode, iconKind){
+    const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const icon = iconKind==="down"
+      ? `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`
+      : `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
+    return `
+      <div class="pickBox">
+        <div class="pickMiniHdr">${safe(title)} ${icon}</div>
+        <div class="pickList">${html}</div>
+      </div>
+    `;
+  }
+
   }
 
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
-        <div class="pickHdrRow">
-          <div class="pickHdrLabel">ASR</div>
-          <div class="pickHdrLabel">SOLD</div>
+        <!-- ASR row -->
+        <div class="pickHdrLabel" style="margin-bottom:8px">ASR</div>
+        <div class="pickGrid2" style="margin-bottom:14px">
+          ${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}
+          ${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}
         </div>
+
+        <!-- SOLD row -->
+        <div class="pickHdrLabel" style="margin-bottom:8px">SOLD</div>
         <div class="pickGrid2">
-          ${tbBlock("Top 3 Most Recommended","Bottom 3 Least Recommended", topReqTB, botReqTB, "asr")}
-          ${tbBlock("Top 3 Most Sold","Bottom 3 Least Sold", topCloseTB, botCloseTB, "sold")}
+          ${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}
+          ${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}
         </div>
       </div>
     </div>
