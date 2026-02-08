@@ -17,6 +17,7 @@ function route(){
   try{
     if(parts.length===0){ window.renderMain?.(); window.animateSvcGauges?.(); return; }
     if(parts[0]==="tech" && parts[1]){ window.renderTech?.(parts[1]); window.animateSvcGauges?.(); return; }
+    if(parts[0]==="services" && !parts[1]){ window.renderServicesHome?.(); return; }
     if(parts[0]==="services" && parts[1]){ window.renderGroupPage?.(parts[1]); window.animateSvcGauges?.(); return; }
     if(parts[0]==="settings" && parts[1]==="goals"){ window.renderGoalsPage?.(); return; }
     if(parts[0]==="settings"){ window.renderSettingsHome?.(); return; }
