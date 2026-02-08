@@ -571,21 +571,17 @@ return `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
         <!-- ASR row -->
-        <div class="pickRow">
-          <div class="pickHdrLabel" style="margin:2px 0 10px 2px">ASR</div>
-          <div class="pickRowGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            ${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}
-            ${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}
-          </div>
+        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start">
+          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
+          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
         </div>
 
         <!-- SOLD row -->
-        <div class="pickRow" style="margin-top:14px">
-          <div class="pickHdrLabel" style="margin:2px 0 10px 2px">SOLD</div>
-          <div class="pickRowGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            ${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}
-            ${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}
-          </div>
+        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
+          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
+          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>
       </div>
     </div>
