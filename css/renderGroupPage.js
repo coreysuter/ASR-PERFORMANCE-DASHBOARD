@@ -28,7 +28,7 @@ function populateAsrMenuLinks(){
   const links = [];
 
   // Main Services page link above categories
-  links.push(`<a class="menuLink" href="#/servicesHome">Services</a>`);
+  links.push(`<a class="menuLink" href="#/services">Services</a>`);
 
   for(const sec of secs){
     const name = String(sec?.name || "").trim();
