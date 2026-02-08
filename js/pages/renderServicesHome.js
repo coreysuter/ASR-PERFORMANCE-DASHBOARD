@@ -136,24 +136,45 @@ function renderServicesHome(){
     const name = (typeof catLabel==="function") ? catLabel(catKey) : String(catKey);
     const agg = aggFor(catKey, techs);
 
+    // Compare benchmarks for focus dial in header (team or store, to match tech details behavior)
+    const bench = (compareBasis==="store") ? getStoreBenchmarks(catKey) : getTeamBenchmarks(catKey, teamLabel);
+
+    const pctVsAvgReq = (Number.isFinite(agg.reqTot) && Number.isFinite(bench.avgReq) && bench.avgReq>0) ? (agg.reqTot/bench.avgReq) : NaN;
+    const pctVsAvgClose = (Number.isFinite(agg.closeTot) && Number.isFinite(bench.avgClose) && bench.avgClose>0) ? (agg.closeTot/bench.avgClose) : NaN;
+
+    const gauge = focus==="sold"
+      ? (Number.isFinite(pctVsAvgClose) ? svcGauge(pctVsAvgClose, "Sold%") : "")
+      : (Number.isFinite(pctVsAvgReq) ? svcGauge(pctVsAvgReq, "ASR%") : "");
+
+    // Rank vs peers (store) for the focus label, same function used elsewhere if available
+    let rk = { rank: "—", total: "" };
+    try{
+      if(typeof computeServiceRanksForTeam === "function"){
+        // ranks across selected teamKey
+        const ranks = computeServiceRanksForTeam(catKey, teamKey, focus);
+        rk = ranks || rk;
+      }
+    }catch(e){}
+
+    const techListHtml = `<div class="techList">${techListFor(agg) || '<div class="sub">No technicians found.</div>'}</div>`;
+
     return `
-      <div class="card serviceCard" id="svc-${safeId(catKey)}">
-        <div class="svcHead">
-          <div class="svcLeft">
-            <div class="svcName">${safe(name)}</div>
-            <div class="svcSub">
-              <div class="pill small"><div class="k">ROs</div><div class="v">${fmtInt(agg.totalRos)}</div></div>
+      <div class="catCard" id="svc-${safeId(catKey)}">
+        <div class="catHeader">
+          <div class="svcGaugeWrap" style="--sz:72px">${gauge}</div>
+          <div>
+            <div class="catTitle">${safe(name)}</div>
+            <div class="muted svcMetaLine" style="margin-top:2px">
+              ${fmt1(agg.asr,0)} ASR • ${fmt1(agg.sold,0)} Sold • ${fmt1(agg.totalRos,0)} ROs
             </div>
+          </div>
+          <div class="catRank">
+            <div class="rankNum">${rk.rank ?? "—"}${rk.total ? `<span class="rankDen">/${rk.total}</span>` : ""}</div>
+            <div class="rankLbl">${focus==="sold" ? "SOLD%" : "ASR%"}</div>
           </div>
         </div>
 
-        <div class="svcBody">
-          <div class="svcTechList">
-            <div class="techList">
-              ${techListFor(agg)}
-            </div>
-          </div>
-        </div>
+        ${techListHtml}
       </div>
     `;
   }
