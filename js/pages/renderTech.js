@@ -553,19 +553,16 @@ return `
     `;
   }
 
-  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
-    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-
-    const up = `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
-    const down = `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
-
+  
+  function tbMiniBox(title, arr, mode, iconDir){
+    const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const icon = iconDir==="down"
+      ? `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`
+      : `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
     return `
       <div class="pickBox">
-        <div class="pickMiniHdr pickMiniHdrTop">${safe(titleTop)} ${up}</div>
-        <div class="pickList">${topHtml}</div>
-        <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:10px">${safe(titleBot)} ${down}</div>
-        <div class="pickList">${botHtml}</div>
+        <div class="pickMiniHdr">${safe(title)} ${icon}</div>
+        <div class="pickList">${html}</div>
       </div>
     `;
   }
@@ -573,13 +570,22 @@ return `
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
-        <div class="pickHdrRow">
-          <div class="pickHdrLabel">ASR</div>
-          <div class="pickHdrLabel">SOLD</div>
+        <!-- ASR row -->
+        <div class="pickRow">
+          <div class="pickHdrLabel" style="margin:2px 0 10px 2px">ASR</div>
+          <div class="pickRowGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            ${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}
+            ${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}
+          </div>
         </div>
-        <div class="pickGrid2">
-          ${tbBlock("Top 3 Most Recommended","Bottom 3 Least Recommended", topReqTB, botReqTB, "asr")}
-          ${tbBlock("Top 3 Most Sold","Bottom 3 Least Sold", topCloseTB, botCloseTB, "sold")}
+
+        <!-- SOLD row -->
+        <div class="pickRow" style="margin-top:14px">
+          <div class="pickHdrLabel" style="margin:2px 0 10px 2px">SOLD</div>
+          <div class="pickRowGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            ${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}
+            ${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}
+          </div>
         </div>
       </div>
     </div>
