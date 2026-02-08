@@ -515,6 +515,39 @@ return `
   const topCloseTB = byCloseTB.slice(0,3);
   const botCloseTB = byCloseTB.slice(-3).reverse();
 
+  // === Diag section (Top/Bottom 3) warning counts ===
+  // Use the SAME dial band thresholds as service dials:
+  //   >= 80%  => green
+  //   >= 60%  => yellow
+  //   else:      red
+  // And compare against the currently selected comparison basis (Team/Store).
+  function diagBand(pct){
+    if(!Number.isFinite(pct)) return null;
+    if(pct>=0.80) return "green";
+    if(pct>=0.60) return "yellow";
+    return "red";
+  }
+  function diagCounts(){
+    const out = { asr:{red:0,yellow:0}, sold:{red:0,yellow:0} };
+    for(const row of svcRowsTB){
+      const cat = row.cat;
+      const basis = (compareBasis==="store") ? (STORE_B?.[cat]||{}) : (TEAM_B?.[cat]||{});
+      const cmpReq = Number(basis.avgReq);
+      const cmpClose = Number(basis.avgClose);
+
+      const pctReq = (Number.isFinite(row.req) && Number.isFinite(cmpReq) && cmpReq>0) ? (row.req/cmpReq) : NaN;
+      const pctClose = (Number.isFinite(row.close) && Number.isFinite(cmpClose) && cmpClose>0) ? (row.close/cmpClose) : NaN;
+
+      const bReq = diagBand(pctReq);
+      if(bReq==="red") out.asr.red++; else if(bReq==="yellow") out.asr.yellow++;
+
+      const bClose = diagBand(pctClose);
+      if(bClose==="red") out.sold.red++; else if(bClose==="yellow") out.sold.yellow++;
+    }
+    return out;
+  }
+  const DIAG = diagCounts();
+
   // Safe jump helper (never throws on null)
   window.jumpToService = function(cat){
     const id = `svc-${cat}`;
@@ -567,19 +600,47 @@ return `
     `;
   }
 
+  // Warning triangle (SVG) with count in lower-right corner
+  function warnTri(kind, num){
+    const fill = kind==="red" ? "#EF4444" : "#F59E0B";
+    const ink = "rgba(11,16,32,.88)";
+    const n = Number(num);
+    const show = Number.isFinite(n) ? Math.round(n) : 0;
+    return `
+      <div class="warnTri ${kind}">
+        <svg viewBox="0 0 64 56" aria-hidden="true" focusable="false">
+          <path d="M32 2 L62 54 H2 Z" fill="${fill}"></path>
+          <rect x="29" y="17" width="6" height="20" rx="3" fill="${ink}"></rect>
+          <circle cx="32" cy="44" r="4" fill="${ink}"></circle>
+        </svg>
+        <div class="warnTriNum">${fmtInt(show)}</div>
+      </div>
+    `;
+  }
+
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
-        <!-- ASR row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start">
-          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
+        <div class="diagGrid">
+          <!-- ASR row: labels + icons live in the blank spacer area on the left -->
+          <div class="diagSide">
+            <div class="diagLbl">ASR</div>
+            <div class="diagIcons">
+              ${warnTri("red", DIAG.asr.red)}
+              ${warnTri("yellow", DIAG.asr.yellow)}
+            </div>
+          </div>
           <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
           <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
-        </div>
 
-        <!-- SOLD row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
-          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
+          <!-- SOLD row -->
+          <div class="diagSide">
+            <div class="diagLbl">SOLD</div>
+            <div class="diagIcons">
+              ${warnTri("red", DIAG.sold.red)}
+              ${warnTri("yellow", DIAG.sold.yellow)}
+            </div>
+          </div>
           <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
           <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>

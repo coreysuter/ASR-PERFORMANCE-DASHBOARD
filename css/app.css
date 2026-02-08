@@ -1201,19 +1201,74 @@ body.route-tech .catTitle .meta{
 
 
 
-/* === DIAG SECTION (Top/Bottom 3): extend background left into the blank spacer WITHOUT moving the lists ===
-   We keep the Tech Name section exactly where it is.
-   We make the diag section span columns 2-3, then offset its inner content by the spacer width (0.25fr of 1.5fr = 16.6667%).
+/* === DIAG SECTION (Top/Bottom 3): extend background left into the blank spacer ===
+   The panel spans into the blank spacer (grid col 2), and we keep the lists anchored
+   by reserving that same space as an explicit LEFT COLUMN inside the diag grid.
 */
 body.route-tech .techPickPanel{
   grid-column:2 / 4 !important; /* span the blank spacer + the original diag column */
   width:100% !important;
 }
 
-/* Keep the Top/Bottom 3 content aligned to where it used to start (column 3) */
+/* Do NOT shift all content right via padding-left (we now use the left column in .diagGrid) */
 body.route-tech .techPickPanel .phead{
-  padding-left: calc(15px + 16.6667%) !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
 }
 body.route-tech .techPickPanel .list{
-  padding-left: calc(12px + 16.6667%) !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+/* Diag grid: left column = blank spacer area (plus a little extra for label room) */
+body.route-tech .diagSection .diagGrid{
+  display:grid;
+  grid-template-columns: calc(16.6667% + 64px) 1fr 1fr; /* 16.6667% (spacer) + 52px label + 12px gap */
+  column-gap: 12px;
+  row-gap: 14px;
+  align-items:start;
+}
+
+body.route-tech .diagSection .diagLbl{
+  font-size:23px;
+  font-weight:1000;
+  letter-spacing:.2px;
+  opacity:.92;
+  margin:2px 0 10px 0;
+}
+
+body.route-tech .diagSection .diagIcons{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+body.route-tech .diagSection .warnTri{
+  position:relative;
+  width:56px;
+  height:50px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
+}
+body.route-tech .diagSection .warnTri svg{width:56px;height:50px;display:block;}
+body.route-tech .diagSection .warnTriNum{
+  position:absolute;
+  right:6px;
+  bottom:4px;
+  font-size:18px;
+  font-weight:1000;
+  color:#fff;
+  line-height:1;
+  text-shadow:0 2px 6px rgba(0,0,0,.55);
+}
+
+@media (max-width: 980px){
+  /* On mobile the header becomes 1 column; don't force the panel into non-existent grid columns */
+  body.route-tech .techPickPanel{grid-column:auto !important;}
+  body.route-tech .diagSection .diagGrid{grid-template-columns:1fr; row-gap:12px;}
+  body.route-tech .diagSection .diagSide{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  body.route-tech .diagSection .diagLbl{margin:0;}
+  body.route-tech .diagSection .diagIcons{justify-content:flex-end;}
 }
