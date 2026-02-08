@@ -1,25 +1,36 @@
 function renderServicesHome(){
-  // Route: #/servicesHome?team=all|express|kia&focus=asr|sold
+  // Route: #/servicesHome?team=all|express|kia&focus=asr|sold&filter=total|without_fluids|fluids_only&compare=team|store
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   let teamKey = "all";
   let focus = "asr";
   let filterKey = UI.servicesFilterKey || "total";
+  let compareBasis = UI.servicesCompareBasis || "team"; // "team" or "store"
+
   if(qs){
     for(const part of qs.split("&")){
       const [k,v]=part.split("=");
-      if(k==="team") teamKey = decodeURIComponent(v||"all") || "all";
-      if(k==="compare"){ UI.servicesCompareBasis = decodeURIComponent(v||"team") || "team"; }
-      if(k==="filter"){ filterKey = decodeURIComponent(v||"total") || "total"; }
-      if(k==="focus"){
-        const vv = decodeURIComponent(v||"asr") || "asr";
-        focus = (vv==="sold") ? "sold" : "asr";
-      }
+      const val = decodeURIComponent(v||"");
+      if(k==="team") teamKey = val || "all";
+      if(k==="focus") focus = (val==="sold") ? "sold" : "asr";
+      if(k==="filter") filterKey = val || "total";
+      if(k==="compare") compareBasis = (val==="store") ? "store" : "team";
     }
   }
 
+  function filterLabel(k){
+    return k==="without_fluids" ? "Without Fluids" : (k==="fluids_only" ? "Fluids Only" : "With Fluids (Total)");
+  }
+
+  const teamLabel = (teamKey==="all") ? "ALL" : teamKey.toUpperCase();
   const techs = getTechsByTeam(teamKey);
   const storeTechs = getTechsByTeam("all");
+  const compareTechs = (compareBasis==="store") ? storeTechs : techs;
+
+  // NOTE: The underlying data currently doesn't change per filterKey in this Services page.
+  // We still show the filter control + text to match the Tech Details header UX.
+  UI.servicesFilterKey = filterKey;
+  UI.servicesCompareBasis = compareBasis;
 
   const totalRos = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
   const avgOdo = totalRos
@@ -54,20 +65,31 @@ function renderServicesHome(){
   const overallAggs = allServiceKeys.map(k=> aggFor(k, techs));
   const overallAvgReq = overallAggs.length ? mean(overallAggs.map(x=>x.reqTot).filter(n=>Number.isFinite(n))) : NaN;
 
-  function storeBench(serviceName){
+  // Benchmarks helpers (copied pattern from Tech Details)
+  function getTeamBenchmarks(cat, _team){
     const reqs=[], closes=[];
-    for(const t of storeTechs){
-      const c = (t.categories||{})[serviceName];
-      if(!c) continue;
-      const r = Number(c.req);
-      const cl = Number(c.close);
+    const techList = (_team==="EXPRESS") ? getTechsByTeam("express")
+                  : (_team==="KIA") ? getTechsByTeam("kia")
+                  : getTechsByTeam("all");
+    for(const t of techList){
+      const c = (t.categories||{})[cat];
+      const r = Number(c?.req);
+      const cl = Number(c?.close);
       if(Number.isFinite(r)) reqs.push(r);
       if(Number.isFinite(cl)) closes.push(cl);
     }
-    return {
-      avgReq: reqs.length ? mean(reqs) : NaN,
-      avgClose: closes.length ? mean(closes) : NaN
-    };
+    return { avgReq: reqs.length ? mean(reqs) : NaN, avgClose: closes.length ? mean(closes) : NaN };
+  }
+  function getStoreBenchmarks(cat){
+    const reqs=[], closes=[];
+    for(const t of storeTechs){
+      const c = (t.categories||{})[cat];
+      const r = Number(c?.req);
+      const cl = Number(c?.close);
+      if(Number.isFinite(r)) reqs.push(r);
+      if(Number.isFinite(cl)) closes.push(cl);
+    }
+    return { avgReq: reqs.length ? mean(reqs) : NaN, avgClose: closes.length ? mean(closes) : NaN };
   }
 
   // Tech list formatting (same as Category pages)
@@ -107,30 +129,20 @@ function renderServicesHome(){
     return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
   }
 
-  // Service tile: SAME header title as tech details tiles, but body is technician list (like Category pages)
+  // Service tile: header like Tech Details tile, body is technician list
   function serviceTile(catKey){
     const name = (typeof catLabel==="function") ? catLabel(catKey) : String(catKey);
     const agg = aggFor(catKey, techs);
-    const bench = storeBench(catKey);
-
-    const pctVsStore = (focus==="sold")
-      ? ((Number.isFinite(agg.closeTot) && Number.isFinite(bench.avgClose) && bench.avgClose>0) ? (agg.closeTot/bench.avgClose) : NaN)
-      : ((Number.isFinite(agg.reqTot) && Number.isFinite(bench.avgReq) && bench.avgReq>0) ? (agg.reqTot/bench.avgReq) : NaN);
-
-    const gaugeHtml = Number.isFinite(pctVsStore)
-      ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(pctVsStore, (focus==="sold"?"Sold%":"ASR%"))}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
-
-    const roPill = `<div class="pill small"><div class="k">ROs</div><div class="v">${fmtInt(agg.totalRos)}</div></div>`;
 
     return `
       <div class="card serviceCard" id="svc-${safeId(catKey)}">
         <div class="svcHead">
           <div class="svcLeft">
             <div class="svcName">${safe(name)}</div>
-            <div class="svcSub">${roPill}</div>
+            <div class="svcSub">
+              <div class="pill small"><div class="k">ROs</div><div class="v">${fmtInt(agg.totalRos)}</div></div>
+            </div>
           </div>
-          <div class="svcRight">${gaugeHtml}</div>
         </div>
 
         <div class="svcBody">
@@ -144,24 +156,20 @@ function renderServicesHome(){
     `;
   }
 
-  const applied = `${teamKey.toUpperCase()} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}`;
-
-  const openKey = "_services_main";
+  // Controls / applied text to match Tech Details header UX
   UI.groupFilters = UI.groupFilters || {};
+  const openKey = "_services_main";
   const open = !!UI.groupFilters[openKey];
 
-  // Match tech-details appliedParts text line
-  let compareBasis = UI.servicesCompareBasis || "team"; // "team" or "store"
-  const teamLabel = (teamKey==="all") ? "ALL" : teamKey.toUpperCase();
   const appliedParts = [
-    `${filterLabel(filterKey)}`,
+    filterLabel(filterKey),
     (compareBasis==="team" ? `Compare: ${teamLabel}` : "Compare: Store"),
     (focus==="sold" ? "Focus: Sold" : "Focus: ASR/RO")
   ];
-  const appliedTextHtml = renderFiltersText(appliedParts);
+  const appliedTextHtml = (typeof renderFiltersText==="function") ? renderFiltersText(appliedParts) : appliedParts.join(" • ");
 
-  const filters = `
-    <div class="iconBar" style="margin-top:0">
+  const controls = `
+    <div class="iconBar">
       <button class="iconBtn" onclick="toggleGroupFilters('${openKey}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
       <div class="appliedInline">${appliedTextHtml}</div>
     </div>
@@ -201,6 +209,7 @@ function renderServicesHome(){
     </div>
   `;
 
+  // Section header stats: averages across all technicians (selected team)
   function sectionStatsAllTechs(sec){
     const cats = sec.categories || [];
     const reqs = [];
@@ -215,16 +224,18 @@ function renderServicesHome(){
       }
     }
     return {
-      avgReq: reqs.length ? mean(reqs) : null,
-      avgClose: closes.length ? mean(closes) : null
+      avgReq: reqs.length ? mean(reqs) : NaN,
+      avgClose: closes.length ? mean(closes) : NaN
     };
   }
 
   const sectionsHtml = (DATA.sections||[]).map(sec=>{
-    const secStats = sectionStatsAllTechs(sec);
-    const cats = (sec.categories||[]);
+    const cats = Array.from(new Set((sec.categories||[]).filter(Boolean))).filter(c=>allCats.has(c));
+    if(!cats.length) return "";
 
-    // Benchmarks for section-level dials (avg across categories)
+    const secStats = sectionStatsAllTechs(sec);
+
+    // Section-level compare benchmarks (average of per-category compare benchmarks)
     const benchReqs = cats.map(cat=>{
       const b = (compareBasis==="store") ? getStoreBenchmarks(cat) : getTeamBenchmarks(cat, teamLabel);
       return Number(b && b.avgReq);
@@ -238,7 +249,7 @@ function renderServicesHome(){
     const benchReq = benchReqs.length ? mean(benchReqs) : NaN;
     const benchClose = benchCloses.length ? mean(benchCloses) : NaN;
 
-    // Goals for section-level dials (avg across categories)
+    // Goals (average of per-category goals)
     const goalReqs = cats.map(cat=>Number(getGoal(cat,"req"))).filter(n=>Number.isFinite(n) && n>0);
     const goalCloses = cats.map(cat=>Number(getGoal(cat,"close"))).filter(n=>Number.isFinite(n) && n>0);
     const goalReq = goalReqs.length ? mean(goalReqs) : NaN;
@@ -264,9 +275,9 @@ function renderServicesHome(){
     const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
-    const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean))).filter(c=>allCats.has(c));
-    const rows = __cats.map(cat=>serviceTile(cat)).join("");
+    const rows = cats.map(cat=>serviceTile(cat)).join("");
 
+    // EXACT tech-details style header layout
     return `
       <div class="panel">
         <div class="phead">
@@ -276,7 +287,7 @@ function renderServicesHome(){
                 <div class="h2 techH2">${safe(sec.name)}</div>
                 <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
               </div>
-              <div class="sub">${appliedParts.join(" • ")}</div>
+              <div class="sub">${safe(appliedParts.join(" • "))}</div>
             </div>
             <div class="secHdrRight">
               <div class="secFocusDial">${dialFocus}</div>
@@ -295,7 +306,6 @@ function renderServicesHome(){
     `;
   }).join("");
 
-
   // Header like tech details page but name is "Services" and pills per your spec
   document.getElementById("app").innerHTML = `
     <div class="panel techHeaderPanel">
@@ -307,7 +317,7 @@ function renderServicesHome(){
 
           <div class="techNameWrap">
             <div class="h2 techH2Big">SERVICES</div>
-            <div class="techTeamLine">${safe(applied)}</div>
+            <div class="techTeamLine">${safe(teamLabel)} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
             <div class="sub"><a href="#/" style="text-decoration:none">← Back to technician dashboard</a></div>
           </div>
 
@@ -323,17 +333,13 @@ function renderServicesHome(){
           <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
         </div>
 
-        ${filters}
+        ${controls}
       </div>
     </div>
 
     ${sectionsHtml}
   `;
 
-    const teamSel = document.getElementById('svcTeam');
-  const focusSel = document.getElementById('svcFocus');
-  const filterSel = document.getElementById('svcFilter');
-  const compareSel = document.getElementById('svcCompareBasis');
   const updateHash = ()=>{
     const t = document.getElementById('svcTeam');
     const f = document.getElementById('svcFocus');
@@ -342,11 +348,16 @@ function renderServicesHome(){
     const teamV = t ? t.value : teamKey;
     const focusV = f ? f.value : focus;
     const filterV = flt ? flt.value : filterKey;
-    const compareV = cb ? cb.value : (UI.servicesCompareBasis||'team');
+    const compareV = cb ? cb.value : compareBasis;
     UI.servicesFilterKey = filterV;
     UI.servicesCompareBasis = compareV;
     location.hash = `#/servicesHome?team=${encodeURIComponent(teamV)}&focus=${encodeURIComponent(focusV)}&filter=${encodeURIComponent(filterV)}&compare=${encodeURIComponent(compareV)}`;
   };
+
+  const teamSel = document.getElementById('svcTeam');
+  const focusSel = document.getElementById('svcFocus');
+  const filterSel = document.getElementById('svcFilter');
+  const compareSel = document.getElementById('svcCompareBasis');
   if(teamSel) teamSel.addEventListener('change', updateHash);
   if(focusSel) focusSel.addEventListener('change', updateHash);
   if(filterSel) filterSel.addEventListener('change', updateHash);
