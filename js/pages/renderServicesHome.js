@@ -1,5 +1,5 @@
 function renderServicesHome(){
-  // Querystring: ?team=all|express|kia&focus=asr|sold
+  // Route: #/services?team=all|express|kia&focus=asr|sold
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   let teamKey = "all";
@@ -15,7 +15,6 @@ function renderServicesHome(){
     }
   }
 
-  // Data scope
   const techs = getTechsByTeam(teamKey);
   const storeTechs = getTechsByTeam("all");
 
@@ -25,11 +24,11 @@ function renderServicesHome(){
     : 0;
 
   const allCats = getAllCategoriesSet();
+  const allServiceKeys = Array.from(allCats);
 
-  // Helpers
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
-  function aggForTechList(serviceName, scopeTechs){
+  function aggFor(serviceName, scopeTechs){
     const totalRosScope = scopeTechs.reduce((s,t)=>s+(Number(t.ros)||0),0);
     let asr=0, sold=0;
     const techRows=[];
@@ -48,11 +47,12 @@ function renderServicesHome(){
     return {serviceName, totalRos: totalRosScope, asr, sold, reqTot, closeTot, techRows};
   }
 
+  // Overall Avg ASR/RO across all services (mean of each service's reqTot)
+  const overallAggs = allServiceKeys.map(k=> aggFor(k, techs));
+  const overallAvgReq = overallAggs.length ? mean(overallAggs.map(x=>x.reqTot).filter(n=>Number.isFinite(n))) : NaN;
+
   function storeBench(serviceName){
-    // Store benchmarks: average of per-tech ratios (same logic used in tech detail)
     const reqs=[], closes=[];
-    let topReq=-1, topReqName="—";
-    let topClose=-1, topCloseName="—";
     for(const t of storeTechs){
       const c = (t.categories||{})[serviceName];
       if(!c) continue;
@@ -60,26 +60,14 @@ function renderServicesHome(){
       const cl = Number(c.close);
       if(Number.isFinite(r)) reqs.push(r);
       if(Number.isFinite(cl)) closes.push(cl);
-      if(Number.isFinite(r) && r>topReq){ topReq=r; topReqName=t.name||"—"; }
-      if(Number.isFinite(cl) && cl>topClose){ topClose=cl; topCloseName=t.name||"—"; }
     }
     return {
       avgReq: reqs.length ? mean(reqs) : NaN,
-      avgClose: closes.length ? mean(closes) : NaN,
-      topReq: topReq>=0 ? topReq : NaN,
-      topReqName,
-      topClose: topClose>=0 ? topClose : NaN,
-      topCloseName
+      avgClose: closes.length ? mean(closes) : NaN
     };
   }
 
-  // Build overall stats across *all* services
-  const allServiceKeys = Array.from(allCats);
-  const overallAggs = allServiceKeys.map(k=> aggForTechList(k, techs));
-  const overallAvgReq = overallAggs.length ? mean(overallAggs.map(x=>x.reqTot).filter(n=>Number.isFinite(n))) : NaN;
-  const overallAvgClose = overallAggs.length ? mean(overallAggs.map(x=>x.closeTot).filter(n=>Number.isFinite(n))) : NaN;
-
-  // Filters UI (keep existing pattern)
+  // Filters UI (matches category pages)
   const filtersKey = "_services_home";
   const open = !!(UI.groupFilters && UI.groupFilters[filtersKey]);
   const filters = `
@@ -108,131 +96,58 @@ function renderServicesHome(){
     </div>
   `;
 
-  // Tech list (same format as group/category pages)
-  function techListFor(serviceAgg){
-    const rows = (serviceAgg.techRows||[]).slice().sort((a,b)=>{
+  // Tech list formatting (same as Category pages)
+  function techListFor(service){
+    const rows = (service.techRows||[]).slice().sort((a,b)=>{
       return focus==="sold" ? (b.close - a.close) : (b.req - a.req);
     });
 
-    const metricLbl = (focus==="sold") ? "Sold%" : "ASR%";
     return rows.map((r, idx)=>{
       const rank = idx + 1;
-      const metric = (focus==="sold") ? r.close : r.req;
-      const metricFmt = fmtPct(metric);
-      const link = `#/tech/${encodeURIComponent(r.id)}`;
-      return `
-        <a class="techRow" href="${link}" style="text-decoration:none;color:inherit">
+
+      if(focus==="sold"){
+        return `<div class="techRow">
           <div class="techRowLeft">
             <span class="rankNum">${rank}.</span>
-            <span class="techName">${safe(r.name)}</span>
+            <a href="#/tech/${encodeURIComponent(r.id)}">${safe(r.name)}</a>
           </div>
-          <div class="mini">${metricLbl} <b>${metricFmt}</b></div>
-        </a>
-      `;
+          <span class="mini">
+            ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • Sold ${fmtInt(r.sold)} • <b>${fmtPct(r.close)}</b>
+          </span>
+        </div>`;
+      }
+
+      return `<div class="techRow">
+        <div class="techRowLeft">
+          <span class="rankNum">${rank}.</span>
+          <a href="#/tech/${encodeURIComponent(r.id)}">${safe(r.name)}</a>
+        </div>
+        <span class="mini">
+          ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • <b>${fmtPctPlain(r.req)}</b>
+        </span>
+      </div>`;
     }).join("");
   }
 
-  function serviceCard(catKey){
+  function safeId(s){
+    return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+  }
+
+  // Service tile: SAME header title as tech details tiles, but body is technician list (like Category pages)
+  function serviceTile(catKey){
     const name = (typeof catLabel==="function") ? catLabel(catKey) : String(catKey);
-    const agg = aggForTechList(catKey, techs);
+    const agg = aggFor(catKey, techs);
     const bench = storeBench(catKey);
 
-    const req = Number(agg.reqTot);
-    const close = Number(agg.closeTot);
+    const pctVsStore = (focus==="sold")
+      ? ((Number.isFinite(agg.closeTot) && Number.isFinite(bench.avgClose) && bench.avgClose>0) ? (agg.closeTot/bench.avgClose) : NaN)
+      : ((Number.isFinite(agg.reqTot) && Number.isFinite(bench.avgReq) && bench.avgReq>0) ? (agg.reqTot/bench.avgReq) : NaN);
 
-    const goalReq = Number(getGoal(catKey,"req"));
-    const goalClose = Number(getGoal(catKey,"close"));
-
-    const pctGoalReq = (Number.isFinite(req) && Number.isFinite(goalReq) && goalReq>0) ? (req/goalReq) : NaN;
-    const pctGoalClose = (Number.isFinite(close) && Number.isFinite(goalClose) && goalClose>0) ? (close/goalClose) : NaN;
-
-    const pctStoreReq = (Number.isFinite(req) && Number.isFinite(bench.avgReq) && bench.avgReq>0) ? (req/bench.avgReq) : NaN;
-    const pctStoreClose = (Number.isFinite(close) && Number.isFinite(bench.avgClose) && bench.avgClose>0) ? (close/bench.avgClose) : NaN;
-
-    function bandClass(pct){
-      if(!Number.isFinite(pct)) return "bandNeutral";
-      if(pct >= 0.80) return "bandGood";
-      if(pct >= 0.60) return "bandWarn";
-      return "bandBad";
-    }
-
-    // Header gauge follows focus vs store avg
-    const hdrPct = (focus==="sold") ? pctStoreClose : pctStoreReq;
-    const gaugeHtml = Number.isFinite(hdrPct)
-      ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":"ASR%"))}</div>`
+    const gaugeHtml = Number.isFinite(pctVsStore)
+      ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(pctVsStore, (focus==="sold"?"Sold%":"ASR%"))}</div>`
       : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
-    const compareLabel = "Store Avg";
-
-    const asrBlock = `
-      <div class="metricBlock">
-        <div class="mbLeft">
-          <div class="mbKicker">ASR/RO%</div>
-          <div class="mbStat ${bandClass(pctStoreReq)}">${fmtPct(req)}</div>
-        </div>
-        <div class="mbRight">
-          <div class="mbRow">
-            <div class="mbItem">
-              <div class="mbLbl">${compareLabel}</div>
-              <div class="mbNum">${fmtPct(bench.avgReq)}</div>
-            </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctStoreReq)? svcGauge(pctStoreReq):""}</div>
-          </div>
-          <div class="mbRow">
-            <div class="mbItem">
-              <div class="mbLbl">Goal</div>
-              <div class="mbNum">${fmtPct(goalReq)}</div>
-            </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq):""}</div>
-          </div>
-          <div class="mbRow">
-            <div class="mbItem">
-              <div class="mbLbl">Top Performer</div>
-              <div class="mbSub">(${safe(bench.topReqName||"—")})</div>
-              <div class="mbNum">${fmtPct(bench.topReq)}</div>
-            </div>
-            <div class="mbGauge" style="--sz:56px"></div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    const soldBlock = `
-      <div class="metricBlock">
-        <div class="mbLeft">
-          <div class="mbKicker">SOLD%</div>
-          <div class="mbStat ${bandClass(pctStoreClose)}">${fmtPct(close)}</div>
-        </div>
-        <div class="mbRight">
-          <div class="mbRow">
-            <div class="mbItem">
-              <div class="mbLbl">${compareLabel}</div>
-              <div class="mbNum">${fmtPct(bench.avgClose)}</div>
-            </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctStoreClose)? svcGauge(pctStoreClose):""}</div>
-          </div>
-          <div class="mbRow">
-            <div class="mbItem">
-              <div class="mbLbl">Goal</div>
-              <div class="mbNum">${fmtPct(goalClose)}</div>
-            </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose):""}</div>
-          </div>
-          <div class="mbRow">
-            <div class="mbItem">
-              <div class="mbLbl">Top Performer</div>
-              <div class="mbSub">(${safe(bench.topCloseName||"—")})</div>
-              <div class="mbNum">${fmtPct(bench.topClose)}</div>
-            </div>
-            <div class="mbGauge" style="--sz:56px"></div>
-          </div>
-        </div>
-      </div>
-    `;
-
     const roPill = `<div class="pill small"><div class="k">ROs</div><div class="v">${fmtInt(agg.totalRos)}</div></div>`;
-
-    const techList = techListFor(agg) || `<div class="notice">No tech data</div>`;
 
     return `
       <div class="card serviceCard" id="svc-${safeId(catKey)}">
@@ -241,21 +156,13 @@ function renderServicesHome(){
             <div class="svcName">${safe(name)}</div>
             <div class="svcSub">${roPill}</div>
           </div>
-          <div class="svcRight">
-            ${gaugeHtml}
-          </div>
+          <div class="svcRight">${gaugeHtml}</div>
         </div>
 
         <div class="svcBody">
-          <div class="svcMetrics">
-            ${asrBlock}
-            ${soldBlock}
-          </div>
-
           <div class="svcTechList">
-            <div class="sub" style="margin:8px 2px 8px;font-weight:900;color:var(--muted)">Technicians</div>
             <div class="techList">
-              ${techList}
+              ${techListFor(agg)}
             </div>
           </div>
         </div>
@@ -263,32 +170,11 @@ function renderServicesHome(){
     `;
   }
 
-  function safeId(s){
-    return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
-  }
-
-  // Render sections like technician details page
-  const applied = `${teamKey.toUpperCase()} • ${focus==="sold"?"SOLD%":"ASR/RO"}`;
+  const applied = `${teamKey.toUpperCase()} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}`;
 
   const sectionsHtml = (DATA.sections||[]).map(sec=>{
     const cats = Array.from(new Set((sec.categories||[]).filter(Boolean))).filter(c=>allCats.has(c));
     if(!cats.length) return "";
-
-    // section-level summary
-    const aggs = cats.map(k=> aggForTechList(k, techs));
-    const secAvgReq = mean(aggs.map(x=>x.reqTot).filter(n=>Number.isFinite(n)));
-    const secAvgClose = mean(aggs.map(x=>x.closeTot).filter(n=>Number.isFinite(n)));
-
-    const dialPct = (focus==="sold")
-      ? ((Number.isFinite(secAvgClose) && Number.isFinite(overallAvgClose) && overallAvgClose>0) ? (secAvgClose/overallAvgClose) : NaN)
-      : ((Number.isFinite(secAvgReq) && Number.isFinite(overallAvgReq) && overallAvgReq>0) ? (secAvgReq/overallAvgReq) : NaN);
-
-    const dial = Number.isFinite(dialPct)
-      ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(dialPct, (focus==="sold"?"Sold":"ASR"))}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
-
-    const cards = cats.map(k=>serviceCard(k)).join("");
-
     return `
       <div class="panel sectionFrame">
         <div class="phead">
@@ -297,26 +183,18 @@ function renderServicesHome(){
               <div class="h2 techH2">${safe(sec.name||"Section")}</div>
               <div class="sub">${safe(applied)}</div>
             </div>
-            <div class="secHdrRight">
-              <div class="secFocusDial">${dial}</div>
-              <div class="secHdrStats" style="text-align:right">
-                <div class="big">${fmtPct(secAvgReq)}</div>
-                <div class="tag">ASR%</div>
-                <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secAvgClose)}</b></div>
-              </div>
-            </div>
           </div>
         </div>
         <div class="list">
           <div class="categoryGrid">
-            ${cards}
+            ${cats.map(k=>serviceTile(k)).join("")}
           </div>
         </div>
       </div>
     `;
   }).join("");
 
-  // Header like tech details page
+  // Header like tech details page but name is "Services" and pills per your spec
   document.getElementById("app").innerHTML = `
     <div class="panel techHeaderPanel">
       <div class="phead">
@@ -332,17 +210,15 @@ function renderServicesHome(){
           </div>
 
           <div class="overallBlock">
-            <div class="big">${fmtPct(overallAvgReq)}</div>
+            <div class="big">${fmtPctPlain(overallAvgReq)}</div>
             <div class="tag">Avg ASR/RO (All Services)</div>
-            <div class="overallMetric">${fmtPct(overallAvgClose)}</div>
-            <div class="tag">Avg Sold% (All Services)</div>
           </div>
         </div>
 
         <div class="pills">
           <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Services</div><div class="v">${fmtInt(allServiceKeys.length)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
         </div>
 
         ${filters}
@@ -362,5 +238,4 @@ function renderServicesHome(){
     focusSel.addEventListener("change", updateHash);
   }
 }
-
 window.renderServicesHome = renderServicesHome;
