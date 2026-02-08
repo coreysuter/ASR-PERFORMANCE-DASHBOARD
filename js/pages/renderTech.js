@@ -137,6 +137,7 @@ const hash = location.hash || "";
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
+const tfOpen = !!UI.techFilters[techId];
   const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
@@ -144,12 +145,13 @@ const hash = location.hash || "";
   ];
   const appliedTextHtml = renderFiltersText(appliedParts);
 
-  // Filters are always visible on the tech details page (no collapsible panel).
+
   const filters = `
     <div class="iconBar" style="margin-top:0">
+      <button class="iconBtn" onclick="toggleTechFilters('${safe(techId)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
       <div class="appliedInline">${appliedTextHtml}</div>
     </div>
-    <div class="ctlPanel open">
+    <div class="ctlPanel ${tfOpen?"open":""}">
       <div class="controls" style="margin-top:10px">
         <div>
           <label>Summary Filter</label>
@@ -569,7 +571,7 @@ return `
   }
 
   const top3Panel = `
-    <div class="panel techPickPanel">
+    <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
         <div class="pickHdrRow">
           <div class="pickHdrLabel">ASR</div>
