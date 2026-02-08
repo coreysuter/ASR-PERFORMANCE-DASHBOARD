@@ -1,4 +1,6 @@
 function renderServicesHome(){
+  // reuse tech-details header sizing/spacing rules
+  try{ document.body.classList.add("route-tech"); }catch(e){}
   // Route: #/servicesHome?team=all|express|kia&focus=asr|sold&filter=total|without_fluids|fluids_only&compare=team|store
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
@@ -362,5 +364,10 @@ function renderServicesHome(){
   if(focusSel) focusSel.addEventListener('change', updateHash);
   if(filterSel) filterSel.addEventListener('change', updateHash);
   if(compareSel) compareSel.addEventListener('change', updateHash);
+
+  // animate gauges + enable section collapse toggles (same as tech details)
+  try{ window.animateSvcGauges?.(); }catch(e){}
+  try{ window.initSectionToggles?.(); }catch(e){}
+
 }
 window.renderServicesHome = renderServicesHome;
