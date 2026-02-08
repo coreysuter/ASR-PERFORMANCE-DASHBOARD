@@ -1255,10 +1255,10 @@ body.route-tech .diagSection .warnTri{
 body.route-tech .diagSection .warnTri svg{width:84px;height:75px;display:block;}
 body.route-tech .diagSection .warnTriNum{
   position:absolute;
-  right:8px;
-  bottom:6px;
-  font-size:22px;
-  font-weight:1000;
+  right:12px;
+  bottom:8px;
+  font-size:16px;
+  font-weight:500;
   color:#fff;
   line-height:1;
   text-shadow:0 2px 6px rgba(0,0,0,.55);
