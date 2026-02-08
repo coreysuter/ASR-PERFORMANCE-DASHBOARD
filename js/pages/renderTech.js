@@ -553,35 +553,88 @@ return `
     `;
   }
 
-  
-  function tbMiniBox(title, arr, mode, iconDir){
-    const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-    const icon = iconDir==="down"
-      ? `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`
-      : `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
+  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
+    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+
+    const up = `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
+    const down = `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
+
     return `
       <div class="pickBox">
-        <div class="pickMiniHdr">${safe(title)} ${icon}</div>
-        <div class="pickList">${html}</div>
+        <div class="pickMiniHdr pickMiniHdrTop">${safe(titleTop)} ${up}</div>
+        <div class="pickList">${topHtml}</div>
+        <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:10px">${safe(titleBot)} ${down}</div>
+        <div class="pickList">${botHtml}</div>
       </div>
     `;
   }
 
-  const top3Panel = `
-    <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px">
-        <!-- ASR row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start">
-          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
-          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
-        </div>
+    // === Warning icon counts (Red/Yellow services) ===
+  function _bandFromPct(p){
+    if(!Number.isFinite(p)) return null;
+    if(p >= 0.80) return "green";
+    if(p >= 0.60) return "yellow";
+    return "red";
+  }
 
-        <!-- SOLD row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
-          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
-          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
+  // Compare each service to the current comparison basis (Team Avg / Store Avg)
+  let asrRedCount=0, asrYellowCount=0, soldRedCount=0, soldYellowCount=0;
+  for(const row of (svcRowsTB||[])){
+    const b = (compareBasis==="store") ? (STORE_B?.[row.cat]||{}) : (TEAM_B?.[row.cat]||{});
+    const cmpReq = Number(b.avgReq);
+    const cmpClose = Number(b.avgClose);
+
+    const pctReq = (Number.isFinite(row.req) && Number.isFinite(cmpReq) && cmpReq>0) ? (row.req/cmpReq) : NaN;
+    const pctClose = (Number.isFinite(row.close) && Number.isFinite(cmpClose) && cmpClose>0) ? (row.close/cmpClose) : NaN;
+
+    const br = _bandFromPct(pctReq);
+    const bs = _bandFromPct(pctClose);
+
+    if(br==="red") asrRedCount++;
+    else if(br==="yellow") asrYellowCount++;
+
+    if(bs==="red") soldRedCount++;
+    else if(bs==="yellow") soldYellowCount++;
+  }
+
+  // Inline warning icon (triangle) – color is controlled via CSS class (.warnRed/.warnYellow)
+  const ICON_WARN = `<svg class="warnSvg" viewBox="0 0 64 56" aria-hidden="true" focusable="false">
+    <path fill="currentColor" d="M32 2c1.6 0 3.1.9 3.9 2.2L62 50.6c.8 1.4.8 3.1 0 4.5S59.7 57 58.1 57H5.9c-1.6 0-3.1-.9-3.9-2.3s-.8-3.1 0-4.5L28.1 4.2C28.9 2.9 30.4 2 32 2z" />
+    <rect x="29" y="18" width="6" height="20" rx="3" fill="rgba(0,0,0,.55)"></rect>
+    <circle cx="32" cy="45" r="3.6" fill="rgba(0,0,0,.55)"></circle>
+  </svg>`;
+
+  function warnIcon(cls, n){
+    const num = (n===null || n===undefined || !Number.isFinite(Number(n))) ? "0" : String(Math.max(0, Math.round(Number(n))));
+    return `<div class="warnIcon ${cls}" title="${cls==='warnRed'?'Red':'Yellow'} services: ${num}">
+      ${ICON_WARN}
+      <div class="warnNum">${safe(num)}</div>
+    </div>`;
+  }
+
+  const top3Panel = `
+    <div class="panel techPickPanel">
+      <div class="phead" style="border-bottom:none;padding:12px">
+        <div class="pickHdrRow">
+          <div class="pickHdrCell">
+            <div class="pickHdrLabel">ASR</div>
+            <div class="warnIconRow">
+              ${warnIcon("warnRed", asrRedCount)}
+              ${warnIcon("warnYellow", asrYellowCount)}
+            </div>
+          </div>
+          <div class="pickHdrCell">
+            <div class="pickHdrLabel">SOLD</div>
+            <div class="warnIconRow">
+              ${warnIcon("warnRed", soldRedCount)}
+              ${warnIcon("warnYellow", soldYellowCount)}
+            </div>
+          </div>
+        </div>
+        <div class="pickGrid2">
+          ${tbBlock("Top 3 Most Recommended","Bottom 3 Least Recommended", topReqTB, botReqTB, "asr")}
+          ${tbBlock("Top 3 Most Sold","Bottom 3 Least Sold", topCloseTB, botCloseTB, "sold")}
         </div>
       </div>
     </div>
