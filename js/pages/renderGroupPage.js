@@ -26,6 +26,10 @@ function populateAsrMenuLinks(){
   if(!host) return;
   const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
   const links = [];
+
+  // Main Services page link above categories
+  links.push(`<a class="menuLink" href="#/servicesHome">Services</a>`);
+
   for(const sec of secs){
     const name = String(sec?.name || "").trim();
     if(!name) continue;

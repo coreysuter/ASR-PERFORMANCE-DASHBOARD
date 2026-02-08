@@ -590,15 +590,15 @@ return `
         <!-- ASR row -->
         <div class="pickHdrLabel" style="margin-bottom:8px">ASR</div>
         <div class="pickGrid2" style="margin-bottom:14px">
-          ${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}
-          ${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}
+          ${window.tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}
+          ${window.tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}
         </div>
 
         <!-- SOLD row -->
         <div class="pickHdrLabel" style="margin-bottom:8px">SOLD</div>
         <div class="pickGrid2">
-          ${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}
-          ${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}
+          ${window.tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}
+          ${window.tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}
         </div>
       </div>
     </div>
