@@ -326,28 +326,33 @@ function tbRow(item, idx, mode){
   
 // Header like tech details page but name is "Services" and pills per your spec
 const header = `
-  <div class="panel techHeaderPanel">
-    <div class="phead">
-      <div class="titleRow techTitleRow">
-        <div class="techTitleLeft">
-          <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+    <div class="panel techHeaderPanel">
+      <div class="phead">
+        <div class="titleRow techTitleRow">
+          <div class="techTitleLeft">
+            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+          </div>
+
+          <div class="techNameWrap">
+            <div class="h2 techH2Big">SERVICES</div>
+            <div class="techTeamLine">${safe(teamLabel)} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
+            <div class="sub"><a href="#/" style="text-decoration:none">← Back to technician dashboard</a></div>
+          </div>
+
+          <div class="overallBlock">
+            <div class="big">${fmtPctPlain(overallAvgReq)}</div>
+            <div class="tag">Avg ASR/RO (All Services)</div>
+          </div>
         </div>
 
-        <div class="techNameWrap">
-          <div class="h2 techH2Big">SERVICES</div>
-          <div class="techTeamLine">${safe(teamLabel)} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
-          <div class="sub"><a href="#/" style="text-decoration:none">← Back to technician dashboard</a></div>
+        <!-- Pills row (matches tech details) -->
+        <div class="pills" style="margin-top:10px">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
         </div>
 
-        <div class="overallBlock">
-          <div class="big">${fmtPctPlain(overallAvgReq)}</div>
-          <div class="tag">Avg ASR/RO (All Services)</div>
-        </div>
-      </div>
-
-      <div class="pills">
-        <div class="pill"><div class="k">ROs</div>
-
+        <!-- Filters at bottom of header box -->
         <div class="filtersRow" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;width:100%;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
           <div class="filter">
             <div class="smallLabel">With/Without Fluids</div>
@@ -357,6 +362,7 @@ const header = `
               <option value="fluids_only" ${filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
             </select>
           </div>
+
           <div class="filter">
             <div class="smallLabel">Compare</div>
             <select class="sel" id="svcCompareBasis">
@@ -364,6 +370,7 @@ const header = `
               <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
             </select>
           </div>
+
           <div class="filter">
             <div class="smallLabel">Focus</div>
             <select class="sel" id="svcFocus">
@@ -372,14 +379,9 @@ const header = `
             </select>
           </div>
         </div>
-<div class="v">${fmtInt(totalRos)}</div></div>
-        <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-        <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
       </div>
     </div>
-  </div>
-`;
-
+  `;\n
 const top5Panel = `
     <div class="panel techPickPanel">
       <div class="phead" style="border-bottom:none;padding:12px">
