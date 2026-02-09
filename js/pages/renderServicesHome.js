@@ -348,7 +348,7 @@ const header = `
       <div class="pills">
         <div class="pill"><div class="k">ROs</div>
 
-        <div class="filtersRow" style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+        <div class="filtersRow" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;width:100%;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
           <div class="filter">
             <div class="smallLabel">With/Without Fluids</div>
             <select class="sel" id="svcFilter">
