@@ -146,9 +146,10 @@ const hash = location.hash || "";
 
   // Filters are always visible (no collapsible toggle)
   const filters = `
-    <div class="techHeadDivider"></div>
-    <div class="ctlPanel open techHeadFilters">
-      <div class="controls" style="margin-top:0">
+    <div class="techFiltersBlock">
+      <div class="techHeadDivider"></div>
+      <div class="ctlPanel open techHeadFilters">
+        <div class="controls" style="margin-top:0">
         <div>
           <label>Summary Filter</label>
           <select id="techFilter">
@@ -171,6 +172,7 @@ const hash = location.hash || "";
             <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
             <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
           </select>
+        </div>
         </div>
       </div>
     </div>

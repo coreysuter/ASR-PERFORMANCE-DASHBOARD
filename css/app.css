@@ -1172,8 +1172,10 @@ body.route-tech .techHeaderWrap > .panel{height:100%;}
 body.route-tech .techHeaderPanel,
 body.route-tech .techPickPanel{height:100%;}
 body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
-/* ensure the pills/filters don't force overflow weirdness */
-body.route-tech .techHeaderPanel .pills{margin-top:auto;}
+/* Keep pills close to name; push filters block to the bottom of the header box */
+body.route-tech .techHeaderPanel .pills{margin-top:10px !important; margin-bottom:6px !important;}
+body.route-tech .techFiltersBlock{margin-top:auto;}
+body.route-tech .techHeadDivider{margin-top:10px;}
 
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
