@@ -1221,6 +1221,7 @@ body.route-tech .catTitle .meta{
 /* Services: category header left area - title on left, mini dials on right */
 .route-services .secLeftTop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
 
-/* Services section header left row layout */
-.route-services .secLeftRow{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap}
-.route-services .secTitleCol{display:flex;flex-direction:column;gap:2px}
+/* Services: ensure category title is inline with the single toggle */
+.route-services .secHeadRow{display:flex;align-items:center;gap:12px}
+.route-services .secHeadRow .secToggle{margin:0}
+

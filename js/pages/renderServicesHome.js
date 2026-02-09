@@ -43,23 +43,47 @@ function renderServicesHome(){
   const allCats = getAllCategoriesSet();
   const allServiceKeys = Array.from(allCats);
 
-  function initServicesSectionToggles(){
-    const panels = Array.from(document.querySelectorAll(".panel"))
-      .filter(p=>p.querySelector(".secToggle") && p.querySelector(".list"));
-    panels.forEach((p, i)=>{
-      const btn = p.querySelector(".secToggle");
-      if(!btn) return;
-      if(i!==0) p.classList.add("secCollapsed");
-      btn.textContent = p.classList.contains("secCollapsed") ? "+" : "−";
-      btn.onclick = (e)=>{
-        e.preventDefault();
-        const collapsed = p.classList.toggle("secCollapsed");
-        btn.textContent = collapsed ? "+" : "−";
-      };
+  const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
+
+
+  function fixServicesHeaderTogglesAndTitle(){
+    // 1) Remove duplicate toggles (keep first within each section header)
+    document.querySelectorAll(".panel").forEach(p=>{
+      const toggles = p.querySelectorAll(".secToggle");
+      if(toggles.length>1){
+        for(let i=1;i<toggles.length;i++) toggles[i].remove();
+      }
+    });
+
+    // 2) Ensure toggle + title sit on the same row (top-left)
+    document.querySelectorAll(".panel .phead .techH2").forEach(h2=>{
+      const phead = h2.closest(".phead");
+      if(!phead) return;
+
+      // Find a toggle near this header (within phead)
+      const tog = phead.querySelector(".secToggle");
+      if(!tog) return;
+
+      // If already wrapped, skip
+      if(tog.closest(".secHeadRow")) return;
+
+      const row = document.createElement("div");
+      row.className = "secHeadRow";
+      // Insert row before the title container's current parent content
+      const titleHost = h2.parentElement;
+      if(!titleHost) return;
+
+      // Move toggle + title into row
+      row.appendChild(tog);
+      row.appendChild(h2);
+
+      // Put row at top of titleHost
+      titleHost.insertBefore(row, titleHost.firstChild);
+
+      // If titleHost contained only h2 previously, ok. Otherwise keep other lines (subtext) below.
     });
   }
 
-  const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
   function bandFromPct(p){
     if(!Number.isFinite(p)) return "neutral";
@@ -357,28 +381,23 @@ function tbRow(item, idx, mode){
           <div class="titleRow" style="justify-content:space-between;align-items:flex-start;position:relative">
             <div>
               <div class="secLeftTop" style="max-width:72%;padding-right:420px">
-              <div class="secLeftRow">
-                <button class="secToggle" type="button" aria-label="Toggle section">−</button>
-
-                <div class="secTitleCol">
-                  <div class="h2 techH2">${safe(sec.name)}</div>
-                  <div class="sub">${safe(appliedParts.join(" • "))}</div>
-                </div>
-
-                <div class="miniDialStack">
-                  <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
-                  <div class="secBadgeUnderMini">
-                    <div class="badgeGroup">
-                      <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
-                      <div class="badgeCap">ASR</div>
-                    </div>
-                    <div class="badgeGroup">
-                      <div class="badgePair">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
-                      <div class="badgeCap">SOLD</div>
-                    </div>
-                  </div>
-                </div>
+                <div class="secTitleLine">
+  <button class="secToggle" type="button" aria-label="Toggle section">−</button>
+  <div>
+    <div class="h2 techH2">${safe(sec.name)}</div>
+    <div class="sub">${safe(appliedParts.join(" • "))}</div>
+  </div>
+                <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
+                <div class="secBadgeUnderMini"><div class="badgeGroup">
+  <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
+  <div class="badgeCap">ASR</div>
+</div>
+<div class="badgeGroup">
+  <div class="badgePair">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
+  <div class="badgeCap">SOLD</div>
+</div></div>
               </div>
+                </div>
             </div>
             <div class="secHdrRight" style="position:absolute;right:0;top:0;margin-left:auto">
               <div class="secFocusDial">
@@ -523,8 +542,11 @@ document.getElementById("app").innerHTML = `
     });
   });
 
-  initServicesSectionToggles();
+  fixServicesHeaderTogglesAndTitle();
+
   try{ window.animateSvcGauges?.(); }catch(e){}
+  try{ window.initSectionToggles?.(); }catch(e){}
+
 // animate gauges + enable section collapse toggles (same as tech details)
   
   const updateHash = ()=>{
@@ -547,5 +569,7 @@ document.getElementById("app").innerHTML = `
   if(compareSel) compareSel.addEventListener('change', updateHash);
 
 try{ window.animateSvcGauges?.(); }catch(e){}
+  try{ window.initSectionToggles?.(); }catch(e){}
+
 }
 window.renderServicesHome = renderServicesHome;
