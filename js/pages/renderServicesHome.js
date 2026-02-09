@@ -356,7 +356,29 @@ function renderServicesHome(){
     </div>
   `;
 
-  const headerWrap = `<div class="techHeaderWrap">${header}${topBottomPanel}</div>`;
+  const topBottomBox = `
+    <div class="panel diagPanel">
+      <div class="phead">
+        <div class="titleRow">
+          <div>
+            <div class="h2 techH2Big">TOP / BOTTOM 5</div>
+            <div class="sub">${safe(teamLabel)} • All Services</div>
+          </div>
+        </div>
+
+        <div class="tbSection">
+          <div class="h2" style="font-size:32px;font-weight:1100;letter-spacing:.4px;margin:6px 0 8px">ASR</div>
+          ${topBottomPanel("req", 5)}
+        </div>
+
+        <div class="tbSection" style="margin-top:18px">
+          <div class="h2" style="font-size:32px;font-weight:1100;letter-spacing:.4px;margin:6px 0 8px">SOLD</div>
+          ${topBottomPanel("close", 5)}
+        </div>
+      </div>
+    </div>
+  `;
+  const headerWrap = `<div class="techHeaderWrap">${header}${topBottomBox}</div>`;
 
   document.getElementById("app").innerHTML = `${headerWrap}${sectionsHtml}`;
 
