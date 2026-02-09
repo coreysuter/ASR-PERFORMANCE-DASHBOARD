@@ -355,34 +355,42 @@ const header = `
 `;
 
 const top5Panel = `
-  <div class="panel techPickPanel">
-    <div class="phead" style="border-bottom:none;padding:12px">
-      <div class="pickHdrRow">
-        <div class="pickHdrLabel">ASR</div>
-        <div class="pickHdrLabel">SOLD</div>
-      </div>
-
-      <div class="pickGrid2">
-        <div class="pickBox">
-          <div class="pickMiniHdr pickMiniHdrTop">TOP 5 MOST RECOMMENDED <span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span></div>
-          <div class="pickList">${topReqTB.map((x,i)=>tbRow(x,i+1,"asr")).join("") || `<div class="notice">—</div>`}</div>
-
-          <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:12px">BOTTOM 5 LEAST RECOMMENDED <span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span></div>
-          <div class="pickList">${botReqTB.map((x,i)=>tbRow(x,i+1,"asr")).join("") || `<div class="notice">—</div>`}</div>
+    <div class="panel techPickPanel">
+      <div class="phead" style="border-bottom:none;padding:12px">
+        <div class="pickHdrRow" style="margin-bottom:10px">
+          <div class="pickHdrLabel">ASR</div>
         </div>
 
-        <div class="pickBox">
-          <div class="pickMiniHdr pickMiniHdrTop">TOP 5 MOST SOLD <span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span></div>
-          <div class="pickList">${topCloseTB.map((x,i)=>tbRow(x,i+1,"sold")).join("") || `<div class="notice">—</div>`}</div>
+        <div class="pickGrid2" style="grid-template-columns:1fr 1fr">
+          <div class="pickBox">
+            <div class="pickMiniHdr pickMiniHdrTop">TOP 5 MOST RECOMMENDED <span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span></div>
+            <div class="pickList">${topReqTB.map((x,i)=>tbRow(x,i+1,"asr")).join("") || `<div class="notice">—</div>`}</div>
+          </div>
 
-          <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:12px">BOTTOM 5 LEAST SOLD <span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span></div>
-          <div class="pickList">${botCloseTB.map((x,i)=>tbRow(x,i+1,"sold")).join("") || `<div class="notice">—</div>`}</div>
+          <div class="pickBox">
+            <div class="pickMiniHdr pickMiniHdrBot">BOTTOM 5 LEAST RECOMMENDED <span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span></div>
+            <div class="pickList">${botReqTB.map((x,i)=>tbRow(x,i+1,"asr")).join("") || `<div class="notice">—</div>`}</div>
+          </div>
+        </div>
+
+        <div class="pickHdrRow" style="margin:18px 0 10px">
+          <div class="pickHdrLabel">SOLD</div>
+        </div>
+
+        <div class="pickGrid2" style="grid-template-columns:1fr 1fr">
+          <div class="pickBox">
+            <div class="pickMiniHdr pickMiniHdrTop">TOP 5 MOST SOLD <span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span></div>
+            <div class="pickList">${topCloseTB.map((x,i)=>tbRow(x,i+1,"sold")).join("") || `<div class="notice">—</div>`}</div>
+          </div>
+
+          <div class="pickBox">
+            <div class="pickMiniHdr pickMiniHdrBot">BOTTOM 5 LEAST SOLD <span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span></div>
+            <div class="pickList">${botCloseTB.map((x,i)=>tbRow(x,i+1,"sold")).join("") || `<div class="notice">—</div>`}</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-`;
-
+  `;\n
 document.getElementById("app").innerHTML = `
   <div class="techHeaderWrap">
     ${header}
