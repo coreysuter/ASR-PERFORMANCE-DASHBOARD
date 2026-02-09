@@ -1,6 +1,50 @@
 function renderMain(){
   const app=document.getElementById('app');
-  app.innerHTML = `<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div>`;
+
+  // ---- Dashboard header (match Technician Details header + pills) ----
+  const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
+    ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA"))
+    : [];
+
+  const totalRos = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
+  const avgOdo = totalRos
+    ? techs.reduce((s,t)=>s+(Number(t.odo)||0)*(Number(t.ros)||0),0)/totalRos
+    : 0;
+  const totalAsr = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
+  const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
+  const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
+  const soldPct = totalAsr ? (totalSold/totalAsr) : null;
+
+  const header = `
+    <div class="panel techHeaderPanel">
+      <div class="phead">
+        <div class="titleRow techTitleRow">
+          <div class="techTitleLeft">
+            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+          </div>
+          <div class="techNameWrap">
+            <div class="h2 techH2Big">Technician Dashboard</div>
+            <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
+          </div>
+          <div class="overallBlock">
+            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
+            <div class="tag">Avg ASR/RO (Store)</div>
+            <div class="overallMetric">${fmtPct(soldPct)}</div>
+            <div class="tag">Sold% (Store)</div>
+          </div>
+        </div>
+
+        <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  app.innerHTML = `${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div>`;
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
     const team=el.getAttribute('data-team');
