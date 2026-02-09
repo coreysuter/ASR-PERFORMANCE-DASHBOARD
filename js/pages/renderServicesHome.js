@@ -131,6 +131,42 @@ function renderServicesHome(){
     return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
   }
 
+  function topBottomPanel(metric, n=5){
+    // metric: "req" (ASR/RO) or "close" (Sold%)
+    const rows = [];
+    for(const cat of allServiceKeys){
+      const a = aggFor(cat, techs);
+      const v = (metric==="close") ? Number(a.closeTot) : Number(a.reqTot);
+      if(!Number.isFinite(v)) continue;
+      rows.push({ key: cat, name: (typeof catLabel==="function") ? catLabel(cat) : String(cat), v });
+    }
+    rows.sort((a,b)=>b.v-a.v);
+    const top = rows.slice(0,n);
+    const bot = rows.slice(-n).reverse();
+
+    function line(r){
+      const href = `#svc-${safeId(r.key)}`;
+      const pct = fmtPct(r.v);
+      return `<a class="tbRow" href="${href}" style="text-decoration:none;color:inherit">
+        <span class="tbName">${safe(r.name)}</span>
+        <span class="tbVal">${pct}</span>
+      </a>`;
+    }
+
+    return `
+      <div class="tbWrap">
+        <div class="tbCol">
+          <div class="tbHdr">Top ${n}</div>
+          <div class="tbList">${top.map(line).join("") || `<div class="sub">—</div>`}</div>
+        </div>
+        <div class="tbCol">
+          <div class="tbHdr">Bottom ${n}</div>
+          <div class="tbList">${bot.map(line).join("") || `<div class="sub">—</div>`}</div>
+        </div>
+      </div>
+    `;
+  }
+
   // Service tile: header like Tech Details tile, body is technician list
   function serviceTile(catKey){
     const name = (typeof catLabel==="function") ? catLabel(catKey) : String(catKey);
