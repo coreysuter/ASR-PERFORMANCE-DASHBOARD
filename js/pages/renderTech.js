@@ -146,7 +146,6 @@ const hash = location.hash || "";
 
   // Filters are always visible (no collapsible toggle)
   const filters = `
-    <div class="appliedInline" style="margin-top:2px">${appliedTextHtml}</div>
     <div class="ctlPanel open" style="margin-top:8px">
       <div class="controls" style="margin-top:0">
         <div>
