@@ -355,7 +355,7 @@ const header = `
 `;
 
 const top5Panel = `
-    <div class="top5ScaleWrap" style="transform:scale(.65);transform-origin:top left;width:154%;max-width:154%;">
+    <div class="top5ScaleWrap" style="transform:scale(.85);transform-origin:top left;width:118%;max-width:118%;">
       <div class="panel techPickPanel">
       <div class="phead" style="border-bottom:none;padding:12px">
         <div class="pickHdrRow" style="margin-bottom:10px">
