@@ -606,7 +606,7 @@ return `
       <div class="techRow pickRowFrame">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
-          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
+          <a href="#" class="jumpLink" data-jump="${safe(item.cat)}">${safe(item.label)}</a>
         </div>
         <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
@@ -681,6 +681,18 @@ return `
   animateSvcGauges();
   initSectionToggles();
 
+  // Make service names clickable (Top/Bottom 3 + warning popup lists)
+  if(!window.__asrJumpLinksBound){
+    window.__asrJumpLinksBound = true;
+    document.addEventListener('click', function(e){
+      const el = e.target && (e.target.closest ? e.target.closest('[data-jump]') : null);
+      if(!el) return;
+      e.preventDefault();
+      const cat = el.getAttribute('data-jump');
+      if(window.jumpToService) window.jumpToService(cat);
+    });
+  }
+
   // === Warning popup (click icons) ===
   (function initWarnPopups(){
     const root = document.getElementById('app');
@@ -715,7 +727,7 @@ return `
         <div class="techRow pickRowFrame">
           <div class="techRowLeft">
             <span class="rankNum">${idx}.</span>
-            <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
+            <a href="#" class="jumpLink" data-jump="${safe(item.cat)}">${safe(item.label)}</a>
           </div>
           <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
         </div>
