@@ -338,9 +338,9 @@ function tbRow(item, idx, mode){
     return `
       <div class="panel">
         <div class="phead">
-          <div class="titleRow" style="justify-content:space-between;align-items:flex-start">
+          <div class="titleRow" style="justify-content:space-between;align-items:flex-start;position:relative">
             <div>
-              <div class="secLeftTop" style="max-width:72%">
+              <div class="secLeftTop" style="max-width:72%;padding-right:420px">
                 <div class="secTitleLine">
   <button class="secToggle" type="button" aria-label="Toggle section">−</button>
   <div>
@@ -359,7 +359,7 @@ function tbRow(item, idx, mode){
               </div>
                 </div>
             </div>
-            <div class="secHdrRight" style="margin-left:auto">
+            <div class="secHdrRight" style="position:absolute;right:0;top:0;margin-left:auto">
               <div class="secFocusDial">
                 ${dialFocus}
                 <div class="focusBadgePair">
