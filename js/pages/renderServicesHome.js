@@ -43,6 +43,26 @@ function renderServicesHome(){
   const allCats = getAllCategoriesSet();
   const allServiceKeys = Array.from(allCats);
 
+  
+  function initServicesSectionToggles(){
+    const panels = Array.from(document.querySelectorAll(".panel"))
+      .filter(p=>p.querySelector(".techH2") && p.querySelector(".list"));
+    if(!panels.length) return;
+
+    panels.forEach((p, i)=>{
+      const btn = p.querySelector(".secToggle");
+      if(!btn) return;
+      // default: first expanded, rest collapsed
+      if(i!==0) p.classList.add("secCollapsed");
+      btn.textContent = p.classList.contains("secCollapsed") ? "+" : "−";
+      btn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        const collapsed = p.classList.toggle("secCollapsed");
+        btn.textContent = collapsed ? "+" : "−";
+      });
+    });
+  }
+
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
   function bandFromPct(p){
@@ -341,16 +361,31 @@ function tbRow(item, idx, mode){
           <div class="titleRow" style="justify-content:space-between;align-items:flex-start;position:relative">
             <div>
               <div class="secLeftTop" style="max-width:72%;padding-right:420px">
-                <div class="secTitleLine">
-    <div>
-    <div class="h2 techH2">${safe(sec.name)}</div>
-    <div class="sub">${safe(appliedParts.join(" • "))}</div>
-  </div>
-                <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
-                <div class="secBadgeUnderMini"><div class="badgeGroup">
-  <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
-  <div class="badgeCap">ASR</div>
-</div>
+              <div class="secHdrLeft">
+                <div class="secHeadRow">
+                  <div class="secToggle" role="button" aria-label="Toggle section"></div>
+                  <div class="h2 techH2">${safe(sec.name)}</div>
+                </div>
+
+                <div class="secSubRow">
+                  <div class="sub">${safe(appliedParts.join(" • "))}</div>
+                </div>
+
+                <div class="miniDialStack">
+                  <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
+                  <div class="secBadgeUnderMini">
+                    <div class="badgeGroup">
+                      <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
+                      <div class="badgeCap">ASR</div>
+                    </div>
+                    <div class="badgeGroup">
+                      <div class="badgePair">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
+                      <div class="badgeCap">SOLD</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 <div class="badgeGroup">
   <div class="badgePair">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
   <div class="badgeCap">SOLD</div>
@@ -365,7 +400,7 @@ function tbRow(item, idx, mode){
   <div class="badgePair big">
     ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
   </div>
-  <div class="badgeCap big">${focus==="sold" ? "SOLD" : "ASR"}</div>
+  <div class="badgeCap big" style="font-size:6px">${focus==="sold" ? "SOLD" : "ASR"}</div>
 </div>
               </div>
               <div class="secHdrStats" style="text-align:right">
@@ -501,9 +536,9 @@ document.getElementById("app").innerHTML = `
     });
   });
 
-  try{ window.animateSvcGauges?.(); }catch(e){}
-  try{ window.initSectionToggles?.(); }catch(e){}
+  initServicesSectionToggles();
 
+  try{ window.animateSvcGauges?.(); }catch(e){}
 // animate gauges + enable section collapse toggles (same as tech details)
   
   const updateHash = ()=>{
@@ -526,7 +561,5 @@ document.getElementById("app").innerHTML = `
   if(compareSel) compareSel.addEventListener('change', updateHash);
 
 try{ window.animateSvcGauges?.(); }catch(e){}
-  try{ window.initSectionToggles?.(); }catch(e){}
-
 }
 window.renderServicesHome = renderServicesHome;
