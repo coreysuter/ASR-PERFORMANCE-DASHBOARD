@@ -396,13 +396,17 @@ const top5Panel = `
 `;
 
 document.getElementById("app").innerHTML = `
-  <div class="techHeaderWrap">
-    ${header}
-    ${top5Panel}
-  </div>
+    <div class="techHeaderWrap" style="display:flex;gap:12px;align-items:stretch;width:100%;max-width:none;margin:0">
+      <div style="flex:1 1 0;min-width:0">
+        ${header}
+      </div>
+      <div style="flex:1 1 0;min-width:0">
+        ${top5Panel}
+      </div>
+    </div>
 
-  ${sectionsHtml}
-`;
+    ${sectionsHtml}
+  `;
   // bind top/bottom jump links
   document.querySelectorAll('[data-jump]').forEach(a=>{
     a.addEventListener('click',(e)=>{
