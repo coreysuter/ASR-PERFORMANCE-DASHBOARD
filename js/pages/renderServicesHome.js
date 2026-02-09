@@ -191,46 +191,7 @@ function renderServicesHome(){
   ];
   const appliedTextHtml = (typeof renderFiltersText==="function") ? renderFiltersText(appliedParts) : appliedParts.join(" • ");
 
-  const controls = `
-    <div class="iconBar">
-      <button class="iconBtn" onclick="toggleGroupFilters('${openKey}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
-      <div class="appliedInline">${appliedTextHtml}</div>
-    </div>
-    <div class="ctlPanel ${open?"open":""}">
-      <div class="controls" style="margin-top:10px">
-        <div>
-          <label>Summary Filter</label>
-          <select id="svcFilter">
-            <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-            <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-            <option value="fluids_only" ${filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-          </select>
-        </div>
-        <div>
-          <label>Comparison</label>
-          <select id="svcCompareBasis">
-            <option value="team" ${compareBasis==="team"?"selected":""}>Team</option>
-            <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
-          </select>
-        </div>
-        <div>
-          <label>Team</label>
-          <select id="svcTeam">
-            <option value="all" ${teamKey==="all"?"selected":""}>All</option>
-            <option value="express" ${teamKey==="express"?"selected":""}>Express</option>
-            <option value="kia" ${teamKey==="kia"?"selected":""}>Kia</option>
-          </select>
-        </div>
-        <div>
-          <label>Focus</label>
-          <select id="svcFocus">
-            <option value="asr" ${focus==="asr"?"selected":""}>ASR/RO</option>
-            <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  `;
+  const controls = ``;
 
   // Section header stats: averages across all technicians (selected team)
   function sectionStatsAllTechs(sec){
@@ -330,7 +291,8 @@ function renderServicesHome(){
   }).join("");
 
   // Header like tech details page but name is "Services" and pills per your spec
-  document.getElementById("app").innerHTML = `
+  
+  const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
@@ -341,7 +303,6 @@ function renderServicesHome(){
           <div class="techNameWrap">
             <div class="h2 techH2Big">SERVICES</div>
             <div class="techTeamLine">${safe(teamLabel)} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
-            <div class="sub"><a href="#/" style="text-decoration:none">← Back to technician dashboard</a></div>
           </div>
 
           <div class="overallBlock">
@@ -355,40 +316,15 @@ function renderServicesHome(){
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
           <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
         </div>
-
-        ${controls}
       </div>
     </div>
-
-    ${sectionsHtml}
   `;
 
-  const updateHash = ()=>{
-    const t = document.getElementById('svcTeam');
-    const f = document.getElementById('svcFocus');
-    const flt = document.getElementById('svcFilter');
-    const cb = document.getElementById('svcCompareBasis');
-    const teamV = t ? t.value : teamKey;
-    const focusV = f ? f.value : focus;
-    const filterV = flt ? flt.value : filterKey;
-    const compareV = cb ? cb.value : compareBasis;
-    UI.servicesFilterKey = filterV;
-    UI.servicesCompareBasis = compareV;
-    location.hash = `#/servicesHome?team=${encodeURIComponent(teamV)}&focus=${encodeURIComponent(focusV)}&filter=${encodeURIComponent(filterV)}&compare=${encodeURIComponent(compareV)}`;
-  };
+  const headerWrap = `<div class="techHeaderWrap">${header}${topBottomPanel}</div>`;
 
-  const teamSel = document.getElementById('svcTeam');
-  const focusSel = document.getElementById('svcFocus');
-  const filterSel = document.getElementById('svcFilter');
-  const compareSel = document.getElementById('svcCompareBasis');
-  if(teamSel) teamSel.addEventListener('change', updateHash);
-  if(focusSel) focusSel.addEventListener('change', updateHash);
-  if(filterSel) filterSel.addEventListener('change', updateHash);
-  if(compareSel) compareSel.addEventListener('change', updateHash);
+  document.getElementById("app").innerHTML = `${headerWrap}${sectionsHtml}`;
 
-  // animate gauges + enable section collapse toggles (same as tech details)
   try{ window.animateSvcGauges?.(); }catch(e){}
   try{ window.initSectionToggles?.(); }catch(e){}
-
 }
 window.renderServicesHome = renderServicesHome;
