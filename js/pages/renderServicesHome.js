@@ -340,14 +340,14 @@ function tbRow(item, idx, mode){
         <div class="phead">
           <div class="titleRow">
             <div>
-              <div class="secTitleLine">
+              <div class="secLeftTop">
+                <div class="secTitleLine">
   <button class="secToggle" type="button" aria-label="Toggle section">−</button>
   <div>
     <div class="h2 techH2">${safe(sec.name)}</div>
     <div class="sub">${safe(appliedParts.join(" • "))}</div>
   </div>
-</div>
-<div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
+                <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
                 <div class="secBadgeUnderMini"><div class="badgeGroup">
   <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
   <div class="badgeCap">ASR</div>

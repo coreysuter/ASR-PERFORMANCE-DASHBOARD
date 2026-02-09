@@ -1213,7 +1213,10 @@ body.route-tech .catTitle .meta{
 .route-services .secTitleLine{display:flex;align-items:center;gap:10px}
 .route-services .secTitleLine .secToggle{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);color:var(--text);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
 
-.route-services .secFocusDial{display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
-.route-services .focusBadgePair{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px}
+.route-services .secFocusDial{display:flex;flex-direction:row;gap:14px;align-items:center;justify-content:flex-end}
+.route-services .focusBadgePair{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:0}
 .route-services .focusBadgePair .badgePair.big .triBadge svg{width:56px;height:50px}
 .route-services .focusBadgePair .badgeCap.big{font-size:13px;color:var(--muted);font-weight:1100}
+
+/* Services: category header left area - title on left, mini dials on right */
+.route-services .secLeftTop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
