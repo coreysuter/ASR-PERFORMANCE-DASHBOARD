@@ -1208,3 +1208,8 @@ body.route-tech .catTitle .meta{
 /* Badge strip layout (4 badges in one row: ASR pair + SOLD pair) */
 .secBadgeStrip{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .badgeGroup{display:flex;gap:8px;align-items:center}
+
+/* Badges directly under mini dials */
+.secBadgeUnderMini{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.secBadgeUnderMini .triBadge svg{width:42px;height:38px} /* smaller badges */
+.secBadgeUnderMini .secBadgeLbl{width:auto;margin-right:2px}
