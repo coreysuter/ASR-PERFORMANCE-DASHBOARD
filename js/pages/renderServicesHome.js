@@ -503,6 +503,7 @@ document.getElementById("app").innerHTML = `
     });
   });
 
+  pruneServicesToggles();
   initServicesToggles();
   try{ window.animateSvcGauges?.(); }catch(e){}
 // animate gauges + enable section collapse toggles (same as tech details)
@@ -529,6 +530,31 @@ document.getElementById("app").innerHTML = `
 initServicesToggles();
   try{ window.animateSvcGauges?.(); }catch(e){}
 }
+
+  function pruneServicesToggles(){
+    // Keep only ONE toggle per section header
+    document.querySelectorAll('.panel .phead').forEach(ph=>{
+      const toggles = ph.querySelectorAll('.secToggle, .secToggleBtn, button[aria-label="Toggle section"], .secCollapseBtn');
+      if(toggles.length>1){
+        for(let i=1;i<toggles.length;i++) toggles[i].remove();
+      }
+      // Ensure title is in the very top-left row next to the toggle
+      const h2 = ph.querySelector('.techH2');
+      const t = ph.querySelector('.secToggle, button[aria-label="Toggle section"], .secToggleBtn, .secCollapseBtn');
+      if(h2 && t){
+        let row = ph.querySelector('.secHeadRow');
+        if(!row){
+          row = document.createElement('div');
+          row.className = 'secHeadRow';
+          // insert at top of left header area if possible
+          const left = ph.querySelector('.secLeftTop') || h2.parentElement;
+          if(left) left.insertBefore(row, left.firstChild);
+        }
+        if(t.parentElement !== row) row.appendChild(t);
+        if(h2.parentElement !== row) row.appendChild(h2);
+      }
+    });
+  }
 
   function initServicesToggles(){
     document.querySelectorAll(".panel .secToggle").forEach(btn=>{
