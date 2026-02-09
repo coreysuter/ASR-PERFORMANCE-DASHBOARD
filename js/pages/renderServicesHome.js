@@ -131,15 +131,75 @@ function renderServicesHome(){
     return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
   }
 
-  function topBottomPanel(metric, n=5){
-    // metric: "req" (ASR/RO) or "close" (Sold%)
+  // Jump helper (same behavior as Tech Details)
+  window.jumpToService = function(cat){
+    const id = `svc-${cat}`;
+    const el = document.getElementById(id);
+    if(!el){ console.warn("jumpToService: not found", id); return false; }
+    const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
+    if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+    if(el.classList){
+      el.classList.add("flashPick");
+      setTimeout(()=>{ const el2=document.getElementById(id); if(el2 && el2.classList) el2.classList.remove("flashPick"); }, 900);
+    }
+    return false;
+  };
+
+  // Inline icons (colored via CSS)
+  const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+    <path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/>
+  </svg>`;
+  const ICON_THUMBS_DOWN = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+    <path fill="currentColor" d="M2 2h4v12H2V2zm20 11c0 1.1-.9 2-2 2h-6.3l.9 4.4.02.2c0 .3-.13.6-.33.8L13 22l-5.4-5.4c-.4-.4-.6-.9-.6-1.4V4c0-1.1.9-2 2-2h7c.8 0 1.5.5 1.8 1.2l3 7c.1.3.2.6.2.8v2z"/>
+  </svg>`;
+
+  function topBottomForAllServices(mode, n=5){
+    // mode: "asr" uses reqTot, "sold" uses closeTot
     const rows = [];
     for(const cat of allServiceKeys){
       const a = aggFor(cat, techs);
-      const v = (metric==="close") ? Number(a.closeTot) : Number(a.reqTot);
+      const v = (mode==="sold") ? Number(a.closeTot) : Number(a.reqTot);
       if(!Number.isFinite(v)) continue;
-      rows.push({ key: cat, name: (typeof catLabel==="function") ? catLabel(cat) : String(cat), v });
+      rows.push({ cat, label: (typeof catLabel==="function") ? catLabel(cat) : String(cat), req: Number(a.reqTot), close: Number(a.closeTot) });
     }
+    // Sort by selected metric descending
+    rows.sort((x,y)=> (mode==="sold" ? (y.close-x.close) : (y.req-x.req)));
+    const top = rows.slice(0,n);
+    const bot = rows.slice(-n).reverse();
+    return { top, bot };
+  }
+
+  function tbRow(item, idx, mode){
+    const metric = mode==="sold" ? item.close : item.req;
+    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
+    return `
+      <div class="techRow pickRowFrame">
+        <div class="techRowLeft">
+          <span class="rankNum">${idx}.</span>
+          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
+        </div>
+        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
+      </div>
+    `;
+  }
+
+  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
+    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+
+    const up = `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
+    const down = `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
+
+    return `
+      <div class="pickBox">
+        <div class="pickMiniHdr pickMiniHdrTop">${safe(titleTop)} ${up}</div>
+        <div class="pickList">${topHtml}</div>
+        <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:10px">${safe(titleBot)} ${down}</div>
+        <div class="pickList">${botHtml}</div>
+      </div>
+    `;
+  }
     rows.sort((a,b)=>b.v-a.v);
     const top = rows.slice(0,n);
     const bot = rows.slice(-n).reverse();
@@ -356,29 +416,27 @@ function renderServicesHome(){
     </div>
   `;
 
-  const topBottomBox = `
-    <div class="panel diagPanel">
-      <div class="phead">
-        <div class="titleRow">
-          <div>
-            <div class="h2 techH2Big">TOP / BOTTOM 5</div>
-            <div class="sub">${safe(teamLabel)} • All Services</div>
-          </div>
-        </div>
+  const topReqTB = topBottomForAllServices('asr', 5).top;
+  const botReqTB = topBottomForAllServices('asr', 5).bot;
+  const topCloseTB = topBottomForAllServices('sold', 5).top;
+  const botCloseTB = topBottomForAllServices('sold', 5).bot;
 
-        <div class="tbSection">
-          <div class="h2" style="font-size:32px;font-weight:1100;letter-spacing:.4px;margin:6px 0 8px">ASR</div>
-          ${topBottomPanel("req", 5)}
+  const top5Panel = `
+    <div class="panel techPickPanel">
+      <div class="phead" style="border-bottom:none;padding:12px">
+        <div class="pickHdrRow">
+          <div class="pickHdrLabel">ASR</div>
+          <div class="pickHdrLabel">SOLD</div>
         </div>
-
-        <div class="tbSection" style="margin-top:18px">
-          <div class="h2" style="font-size:32px;font-weight:1100;letter-spacing:.4px;margin:6px 0 8px">SOLD</div>
-          ${topBottomPanel("close", 5)}
+        <div class="pickGrid2">
+          ${tbBlock("Top 5 Most Recommended","Bottom 5 Least Recommended", topReqTB, botReqTB, "asr")}
+          ${tbBlock("Top 5 Most Sold","Bottom 5 Least Sold", topCloseTB, botCloseTB, "sold")}
         </div>
       </div>
     </div>
   `;
-  const headerWrap = `<div class="techHeaderWrap">${header}${topBottomBox}</div>`;
+
+  const headerWrap = `<div class="techHeaderWrap">${header}${top5Panel}</div>`;
 
   document.getElementById("app").innerHTML = `${headerWrap}${sectionsHtml}`;
 
