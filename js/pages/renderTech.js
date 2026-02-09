@@ -137,7 +137,6 @@ const hash = location.hash || "";
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
-const tfOpen = !!UI.techFilters[techId];
   const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
@@ -145,14 +144,11 @@ const tfOpen = !!UI.techFilters[techId];
   ];
   const appliedTextHtml = renderFiltersText(appliedParts);
 
-
+  // Filters are always visible (no collapsible toggle)
   const filters = `
-    <div class="iconBar" style="margin-top:0">
-      <button class="iconBtn" onclick="toggleTechFilters('${safe(techId)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
-      <div class="appliedInline">${appliedTextHtml}</div>
-    </div>
-    <div class="ctlPanel ${tfOpen?"open":""}">
-      <div class="controls" style="margin-top:10px">
+    <div class="appliedInline" style="margin-top:2px">${appliedTextHtml}</div>
+    <div class="ctlPanel open" style="margin-top:8px">
+      <div class="controls" style="margin-top:0">
         <div>
           <label>Summary Filter</label>
           <select id="techFilter">
