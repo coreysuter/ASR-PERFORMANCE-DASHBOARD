@@ -345,15 +345,13 @@ const header = `
           </div>
         </div>
 
-        <!-- Pills row (matches tech details) -->
         <div class="pills" style="margin-top:10px">
           <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
           <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
         </div>
 
-        <!-- Filters at bottom of header box -->
-        <div class="filtersRow" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;width:100%;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)">
+        <div class="filtersRow" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;width:100%;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)">
           <div class="filter">
             <div class="smallLabel">With/Without Fluids</div>
             <select class="sel" id="svcFilter">
@@ -381,7 +379,8 @@ const header = `
         </div>
       </div>
     </div>
-  `;\n
+  `;
+
 const top5Panel = `
     <div class="panel techPickPanel">
       <div class="phead" style="border-bottom:none;padding:12px">
