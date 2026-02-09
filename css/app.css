@@ -1203,8 +1203,8 @@ body.route-tech .catTitle .meta{
 .route-services .miniDialStack{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
 .route-services .miniDialStack .secMiniDials{display:flex;gap:10px;align-items:center}
 
-.route-services .secBadgeUnderMini{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:8px}
-.route-services .secBadgeUnderMini .triBadge svg{width:42px;height:38px}
+.route-services .secBadgeUnderMini{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap;margin-top:8px}
+.route-services .secBadgeUnderMini .triBadge svg{width:53px;height:48px}
 
 .route-services .badgeGroup{display:flex;flex-direction:column;align-items:center;gap:4px}
 .route-services .badgePair{display:flex;gap:10px;align-items:center;justify-content:center}
@@ -1215,13 +1215,8 @@ body.route-tech .catTitle .meta{
 
 .route-services .secFocusDial{display:flex;flex-direction:row;gap:14px;align-items:center;justify-content:flex-end}
 .route-services .focusBadgePair{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:0}
-.route-services .focusBadgePair .badgePair.big .triBadge svg{width:56px;height:50px}
-.route-services .focusBadgePair .badgeCap.big{font-size:13px;color:var(--muted);font-weight:1100}
+.route-services .focusBadgePair .badgePair.big .triBadge svg{width:70px;height:62px}
+.route-services .focusBadgePair .badgeCap.big{font-size:7px;color:var(--muted);font-weight:1100}
 
 /* Services: category header left area - title on left, mini dials on right */
 .route-services .secLeftTop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
-
-/* Services: keep focus dial/stats pinned to far right in section headers */
-.route-services .titleRow{justify-content:space-between}
-.route-services .secHdrRight{margin-left:auto;display:flex;align-items:flex-start;gap:16px}
-.route-services .secLeftTop{max-width:72%}

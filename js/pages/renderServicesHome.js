@@ -342,8 +342,7 @@ function tbRow(item, idx, mode){
             <div>
               <div class="secLeftTop" style="max-width:72%;padding-right:420px">
                 <div class="secTitleLine">
-  <button class="secToggle" type="button" aria-label="Toggle section">−</button>
-  <div>
+    <div>
     <div class="h2 techH2">${safe(sec.name)}</div>
     <div class="sub">${safe(appliedParts.join(" • "))}</div>
   </div>
