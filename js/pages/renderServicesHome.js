@@ -46,6 +46,57 @@ function renderServicesHome(){
 
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
+  function initServicesSectionToggles(){
+    // One toggle button per section header, placed to the LEFT of the title, and wired to collapse the section list.
+    document.querySelectorAll(".panel").forEach(panel=>{
+      const phead = panel.querySelector(".phead");
+      const list = panel.querySelector(".list");
+      const h2 = phead ? phead.querySelector(".techH2") : null;
+      if(!phead || !list || !h2) return;
+
+      // Ensure we have a head row container
+      let row = phead.querySelector(".secHeadRow");
+      if(!row){
+        row = document.createElement("div");
+        row.className = "secHeadRow";
+        // Insert row at top of the title area (try to use h2's parent)
+        const host = h2.parentElement || phead;
+        host.insertBefore(row, host.firstChild);
+      }
+
+      // Remove any existing toggles inside this phead
+      phead.querySelectorAll("button.secToggle").forEach(b=>b.remove());
+
+      // Create a single toggle button
+      const btn = document.createElement("button");
+      btn.className = "secToggle";
+      btn.type = "button";
+      btn.setAttribute("aria-label","Toggle section");
+
+      // Put toggle BEFORE title
+      row.insertBefore(btn, row.firstChild);
+
+      // Move title into the row right after toggle (keeps it top-left)
+      if(h2.parentElement != row){
+        row.appendChild(h2);
+      }
+
+      // default expanded
+      const sync = ()=>{
+        const collapsed = panel.classList.contains("secCollapsed");
+        btn.textContent = collapsed ? "+" : "−";
+        list.style.display = collapsed ? "none" : "";
+      };
+      sync();
+
+      btn.onclick = (e)=>{
+        e.preventDefault();
+        panel.classList.toggle("secCollapsed");
+        sync();
+      };
+    });
+  }
+
   function bandFromPct(p){
     if(!Number.isFinite(p)) return "neutral";
     if(p < 0.60) return "red";
@@ -504,7 +555,7 @@ document.getElementById("app").innerHTML = `
   });
 
   pruneServicesToggles();
-  initServicesToggles();
+  initServicesSectionToggles();
   try{ window.animateSvcGauges?.(); }catch(e){}
 // animate gauges + enable section collapse toggles (same as tech details)
   
@@ -527,51 +578,9 @@ document.getElementById("app").innerHTML = `
   if(filterSel) filterSel.addEventListener('change', updateHash);
   if(compareSel) compareSel.addEventListener('change', updateHash);
 
-initServicesToggles();
+initServicesSectionToggles();
   try{ window.animateSvcGauges?.(); }catch(e){}
 }
 
-  function pruneServicesToggles(){
-    // Keep only ONE toggle per section header
-    document.querySelectorAll('.panel .phead').forEach(ph=>{
-      const toggles = ph.querySelectorAll('.secToggle, .secToggleBtn, button[aria-label="Toggle section"], .secCollapseBtn');
-      if(toggles.length>1){
-        for(let i=1;i<toggles.length;i++) toggles[i].remove();
-      }
-      // Ensure title is in the very top-left row next to the toggle
-      const h2 = ph.querySelector('.techH2');
-      const t = ph.querySelector('.secToggle, button[aria-label="Toggle section"], .secToggleBtn, .secCollapseBtn');
-      if(h2 && t){
-        let row = ph.querySelector('.secHeadRow');
-        if(!row){
-          row = document.createElement('div');
-          row.className = 'secHeadRow';
-          // insert at top of left header area if possible
-          const left = ph.querySelector('.secLeftTop') || h2.parentElement;
-          if(left) left.insertBefore(row, left.firstChild);
-        }
-        if(t.parentElement !== row) row.appendChild(t);
-        if(h2.parentElement !== row) row.appendChild(h2);
-      }
-    });
-  }
-
-  function initServicesToggles(){
-    document.querySelectorAll(".panel .secToggle").forEach(btn=>{
-      const panel = btn.closest(".panel");
-      if(!panel) return;
-      const list = panel.querySelector(".list");
-      if(!list) return;
-
-      // default expanded
-      btn.textContent = panel.classList.contains("secCollapsed") ? "+" : "−";
-
-      btn.addEventListener("click", (e)=>{
-        e.preventDefault();
-        panel.classList.toggle("secCollapsed");
-        btn.textContent = panel.classList.contains("secCollapsed") ? "+" : "−";
-      });
-    });
-  }
-
+  
 window.renderServicesHome = renderServicesHome;
