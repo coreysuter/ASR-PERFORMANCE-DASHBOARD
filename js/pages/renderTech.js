@@ -146,7 +146,8 @@ const hash = location.hash || "";
 
   // Filters are always visible (no collapsible toggle)
   const filters = `
-    <div class="ctlPanel open" style="margin-top:8px">
+    <div class="techHeadDivider"></div>
+    <div class="ctlPanel open techHeadFilters">
       <div class="controls" style="margin-top:0">
         <div>
           <label>Summary Filter</label>

@@ -1325,3 +1325,25 @@ body.route-tech .diagSection .warnTriNum{
   body.route-tech .diagSection .diagLbl{margin:0;}
   body.route-tech .diagSection .diagIcons{justify-content:flex-end;}
 }
+
+/* --- Tech header spacing tweaks (pills closer + divider above filters) --- */
+.techHeaderPanel .pills{
+  margin-top: 6px !important;
+  padding-top: 2px;
+}
+
+.techHeaderPanel .techHeadDivider{
+  margin-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.14);
+  opacity: .9;
+}
+
+.techHeaderPanel .techHeadFilters{
+  margin-top: 10px !important;
+  padding-top: 0;
+}
+
+/* tighten filter panel vertical rhythm */
+.techHeaderPanel .techHeadFilters .controls{
+  margin-top: 0 !important;
+}
