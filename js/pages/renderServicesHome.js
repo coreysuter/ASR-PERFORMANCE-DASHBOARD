@@ -44,6 +44,34 @@ function renderServicesHome(){
 
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
+const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/></svg>`;
+const ICON_THUMBS_DOWN = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 2h4v12H2V2zm20 11c0 1.1-.9 2-2 2h-6.3l.9 4.4.02.2c0 .3-.13.6-.33.8L13 22l-5.4-5.4c-.4-.4-.6-.9-.6-1.4V4c0-1.1.9-2 2-2h7c.8 0 1.5.5 1.8 1.2l3 7c.1.3.2.6.2.8v2z"/></svg>`;
+
+function topBottomForAllServices(mode, n=5){
+  const rows = [];
+  for(const cat of allServiceKeys){
+    const a = aggFor(cat, techs);
+    const v = (mode==="sold") ? Number(a.closeTot) : Number(a.reqTot);
+    if(!Number.isFinite(v)) continue;
+    rows.push({ cat, label: (typeof catLabel==="function") ? catLabel(cat) : String(cat), v });
+  }
+  rows.sort((a,b)=>b.v-a.v);
+  return { top: rows.slice(0,n), bot: rows.slice(-n).reverse() };
+}
+
+function tbRow(item, idx, mode){
+  const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
+  return `
+    <div class="techRow pickRowFrame">
+      <div class="techRowLeft">
+        <span class="rankNum">${idx}.</span>
+        <a href="#" data-jump="svc-${safeId(item.cat)}">${safe(item.label)}</a>
+      </div>
+      <div class="mini">${metricLbl} ${fmtPct(item.v)}</div>
+    </div>
+  `;
+}
+
   function aggFor(serviceName, scopeTechs){
     const totalRosScope = scopeTechs.reduce((s,t)=>s+(Number(t.ros)||0),0);
     let asr=0, sold=0;
@@ -131,102 +159,6 @@ function renderServicesHome(){
     return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
   }
 
-  // Jump helper (same behavior as Tech Details)
-  window.jumpToService = function(cat){
-    const id = `svc-${cat}`;
-    const el = document.getElementById(id);
-    if(!el){ console.warn("jumpToService: not found", id); return false; }
-    const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
-    if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
-    el.scrollIntoView({behavior:"smooth", block:"start"});
-    if(el.classList){
-      el.classList.add("flashPick");
-      setTimeout(()=>{ const el2=document.getElementById(id); if(el2 && el2.classList) el2.classList.remove("flashPick"); }, 900);
-    }
-    return false;
-  };
-
-  // Inline icons (colored via CSS)
-  const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
-    <path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/>
-  </svg>`;
-  const ICON_THUMBS_DOWN = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
-    <path fill="currentColor" d="M2 2h4v12H2V2zm20 11c0 1.1-.9 2-2 2h-6.3l.9 4.4.02.2c0 .3-.13.6-.33.8L13 22l-5.4-5.4c-.4-.4-.6-.9-.6-1.4V4c0-1.1.9-2 2-2h7c.8 0 1.5.5 1.8 1.2l3 7c.1.3.2.6.2.8v2z"/>
-  </svg>`;
-
-  function topBottomForAllServices(mode, n=5){
-    // mode: "asr" uses reqTot, "sold" uses closeTot
-    const rows = [];
-    for(const cat of allServiceKeys){
-      const a = aggFor(cat, techs);
-      const v = (mode==="sold") ? Number(a.closeTot) : Number(a.reqTot);
-      if(!Number.isFinite(v)) continue;
-      rows.push({ cat, label: (typeof catLabel==="function") ? catLabel(cat) : String(cat), req: Number(a.reqTot), close: Number(a.closeTot) });
-    }
-    // Sort by selected metric descending
-    rows.sort((x,y)=> (mode==="sold" ? (y.close-x.close) : (y.req-x.req)));
-    const top = rows.slice(0,n);
-    const bot = rows.slice(-n).reverse();
-    return { top, bot };
-  }
-
-  function tbRow(item, idx, mode){
-    const metric = mode==="sold" ? item.close : item.req;
-    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
-    return `
-      <div class="techRow pickRowFrame">
-        <div class="techRowLeft">
-          <span class="rankNum">${idx}.</span>
-          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
-        </div>
-        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
-      </div>
-    `;
-  }
-
-  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
-    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-
-    const up = `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
-    const down = `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
-
-    return `
-      <div class="pickBox">
-        <div class="pickMiniHdr pickMiniHdrTop">${safe(titleTop)} ${up}</div>
-        <div class="pickList">${topHtml}</div>
-        <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:10px">${safe(titleBot)} ${down}</div>
-        <div class="pickList">${botHtml}</div>
-      </div>
-    `;
-  }
-    rows.sort((a,b)=>b.v-a.v);
-    const top = rows.slice(0,n);
-    const bot = rows.slice(-n).reverse();
-
-    function line(r){
-      const href = `#svc-${safeId(r.key)}`;
-      const pct = fmtPct(r.v);
-      return `<a class="tbRow" href="${href}" style="text-decoration:none;color:inherit">
-        <span class="tbName">${safe(r.name)}</span>
-        <span class="tbVal">${pct}</span>
-      </a>`;
-    }
-
-    return `
-      <div class="tbWrap">
-        <div class="tbCol">
-          <div class="tbHdr">Top ${n}</div>
-          <div class="tbList">${top.map(line).join("") || `<div class="sub">—</div>`}</div>
-        </div>
-        <div class="tbCol">
-          <div class="tbHdr">Bottom ${n}</div>
-          <div class="tbList">${bot.map(line).join("") || `<div class="sub">—</div>`}</div>
-        </div>
-      </div>
-    `;
-  }
-
   // Service tile: header like Tech Details tile, body is technician list
   function serviceTile(catKey){
     const name = (typeof catLabel==="function") ? catLabel(catKey) : String(catKey);
@@ -309,6 +241,11 @@ function renderServicesHome(){
     };
   }
 
+  const topReqTB = topBottomForAllServices('asr',5).top;
+  const botReqTB = topBottomForAllServices('asr',5).bot;
+  const topCloseTB = topBottomForAllServices('sold',5).top;
+  const botCloseTB = topBottomForAllServices('sold',5).bot;
+
   const sectionsHtml = (DATA.sections||[]).map(sec=>{
     const cats = Array.from(new Set((sec.categories||[]).filter(Boolean))).filter(c=>allCats.has(c));
     if(!cats.length) return "";
@@ -386,61 +323,94 @@ function renderServicesHome(){
     `;
   }).join("");
 
-  // Header like tech details page but name is "Services" and pills per your spec
   
-  const header = `
-    <div class="panel techHeaderPanel">
-      <div class="phead">
-        <div class="titleRow techTitleRow">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-          </div>
-
-          <div class="techNameWrap">
-            <div class="h2 techH2Big">SERVICES</div>
-            <div class="techTeamLine">${safe(teamLabel)} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
-          </div>
-
-          <div class="overallBlock">
-            <div class="big">${fmtPctPlain(overallAvgReq)}</div>
-            <div class="tag">Avg ASR/RO (All Services)</div>
-          </div>
+// Header like tech details page but name is "Services" and pills per your spec
+const header = `
+  <div class="panel techHeaderPanel">
+    <div class="phead">
+      <div class="titleRow techTitleRow">
+        <div class="techTitleLeft">
+          <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
         </div>
 
-        <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
+        <div class="techNameWrap">
+          <div class="h2 techH2Big">SERVICES</div>
+          <div class="techTeamLine">${safe(teamLabel)} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
+          <div class="sub"><a href="#/" style="text-decoration:none">← Back to technician dashboard</a></div>
+        </div>
+
+        <div class="overallBlock">
+          <div class="big">${fmtPctPlain(overallAvgReq)}</div>
+          <div class="tag">Avg ASR/RO (All Services)</div>
+        </div>
+      </div>
+
+      <div class="pills">
+        <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+        <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+        <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmtPctPlain(overallAvgReq)}</div></div>
+      </div>
+    </div>
+  </div>
+`;
+
+const top5Panel = `
+  <div class="panel techPickPanel">
+    <div class="phead" style="border-bottom:none;padding:12px">
+      <div class="pickHdrRow">
+        <div class="pickHdrLabel">ASR</div>
+        <div class="pickHdrLabel">SOLD</div>
+      </div>
+
+      <div class="pickGrid2">
+        <div class="pickBox">
+          <div class="pickMiniHdr pickMiniHdrTop">TOP 5 MOST RECOMMENDED <span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span></div>
+          <div class="pickList">${topReqTB.map((x,i)=>tbRow(x,i+1,"asr")).join("") || `<div class="notice">—</div>`}</div>
+
+          <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:12px">BOTTOM 5 LEAST RECOMMENDED <span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span></div>
+          <div class="pickList">${botReqTB.map((x,i)=>tbRow(x,i+1,"asr")).join("") || `<div class="notice">—</div>`}</div>
+        </div>
+
+        <div class="pickBox">
+          <div class="pickMiniHdr pickMiniHdrTop">TOP 5 MOST SOLD <span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span></div>
+          <div class="pickList">${topCloseTB.map((x,i)=>tbRow(x,i+1,"sold")).join("") || `<div class="notice">—</div>`}</div>
+
+          <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:12px">BOTTOM 5 LEAST SOLD <span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span></div>
+          <div class="pickList">${botCloseTB.map((x,i)=>tbRow(x,i+1,"sold")).join("") || `<div class="notice">—</div>`}</div>
         </div>
       </div>
     </div>
-  `;
+  </div>
+`;
 
-  const topReqTB = topBottomForAllServices('asr', 5).top;
-  const botReqTB = topBottomForAllServices('asr', 5).bot;
-  const topCloseTB = topBottomForAllServices('sold', 5).top;
-  const botCloseTB = topBottomForAllServices('sold', 5).bot;
+document.getElementById("app").innerHTML = `
+  <div class="techHeaderWrap">
+    ${header}
+    ${top5Panel}
+  </div>
 
-  const top5Panel = `
-    <div class="panel techPickPanel">
-      <div class="phead" style="border-bottom:none;padding:12px">
-        <div class="pickHdrRow">
-          <div class="pickHdrLabel">ASR</div>
-          <div class="pickHdrLabel">SOLD</div>
-        </div>
-        <div class="pickGrid2">
-          ${tbBlock("Top 5 Most Recommended","Bottom 5 Least Recommended", topReqTB, botReqTB, "asr")}
-          ${tbBlock("Top 5 Most Sold","Bottom 5 Least Sold", topCloseTB, botCloseTB, "sold")}
-        </div>
-      </div>
-    </div>
-  `;
-
-  const headerWrap = `<div class="techHeaderWrap">${header}${top5Panel}</div>`;
-
-  document.getElementById("app").innerHTML = `${headerWrap}${sectionsHtml}`;
+  ${sectionsHtml}
+`;
+  // bind top/bottom jump links
+  document.querySelectorAll('[data-jump]').forEach(a=>{
+    a.addEventListener('click',(e)=>{
+      e.preventDefault();
+      const id = a.getAttribute('data-jump');
+      const el = document.getElementById(id);
+      if(el){
+        const sec = el.closest('.sectionFrame') || el.closest('.panel');
+        if(sec && sec.classList && sec.classList.contains('secCollapsed')) sec.classList.remove('secCollapsed');
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  });
 
   try{ window.animateSvcGauges?.(); }catch(e){}
   try{ window.initSectionToggles?.(); }catch(e){}
+
+// animate gauges + enable section collapse toggles (same as tech details)
+  try{ window.animateSvcGauges?.(); }catch(e){}
+  try{ window.initSectionToggles?.(); }catch(e){}
+
 }
 window.renderServicesHome = renderServicesHome;
