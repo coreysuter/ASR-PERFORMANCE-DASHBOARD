@@ -2,6 +2,7 @@ function renderServicesHome(){
   // reuse tech-details header sizing/spacing rules
   try{ document.body.classList.add("route-tech"); }catch(e){}
   try{ document.body.classList.add("route-services"); }catch(e){}
+  try{ document.body.classList.add("route-services"); }catch(e){}
   // Route: #/servicesHome?team=all|express|kia&focus=asr|sold&filter=total|without_fluids|fluids_only&compare=team|store
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
@@ -44,46 +45,6 @@ function renderServicesHome(){
   const allServiceKeys = Array.from(allCats);
 
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
-
-
-  function fixServicesHeaderTogglesAndTitle(){
-    // 1) Remove duplicate toggles (keep first within each section header)
-    document.querySelectorAll(".panel").forEach(p=>{
-      const toggles = p.querySelectorAll(".secToggle");
-      if(toggles.length>1){
-        for(let i=1;i<toggles.length;i++) toggles[i].remove();
-      }
-    });
-
-    // 2) Ensure toggle + title sit on the same row (top-left)
-    document.querySelectorAll(".panel .phead .techH2").forEach(h2=>{
-      const phead = h2.closest(".phead");
-      if(!phead) return;
-
-      // Find a toggle near this header (within phead)
-      const tog = phead.querySelector(".secToggle");
-      if(!tog) return;
-
-      // If already wrapped, skip
-      if(tog.closest(".secHeadRow")) return;
-
-      const row = document.createElement("div");
-      row.className = "secHeadRow";
-      // Insert row before the title container's current parent content
-      const titleHost = h2.parentElement;
-      if(!titleHost) return;
-
-      // Move toggle + title into row
-      row.appendChild(tog);
-      row.appendChild(h2);
-
-      // Put row at top of titleHost
-      titleHost.insertBefore(row, titleHost.firstChild);
-
-      // If titleHost contained only h2 previously, ok. Otherwise keep other lines (subtext) below.
-    });
-  }
-
 
   function bandFromPct(p){
     if(!Number.isFinite(p)) return "neutral";
@@ -384,7 +345,7 @@ function tbRow(item, idx, mode){
                 <div class="secTitleLine">
   <button class="secToggle" type="button" aria-label="Toggle section">−</button>
   <div>
-    <div class="h2 techH2">${safe(sec.name)}</div>
+    <div class="secHeadRow"><button class="secToggle" type="button" aria-label="Toggle section">−</button><div class="h2 techH2">${safe(sec.name)}</div></div>
     <div class="sub">${safe(appliedParts.join(" • "))}</div>
   </div>
                 <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
@@ -542,11 +503,8 @@ document.getElementById("app").innerHTML = `
     });
   });
 
-  fixServicesHeaderTogglesAndTitle();
-
+  initServicesToggles();
   try{ window.animateSvcGauges?.(); }catch(e){}
-  try{ window.initSectionToggles?.(); }catch(e){}
-
 // animate gauges + enable section collapse toggles (same as tech details)
   
   const updateHash = ()=>{
@@ -568,8 +526,26 @@ document.getElementById("app").innerHTML = `
   if(filterSel) filterSel.addEventListener('change', updateHash);
   if(compareSel) compareSel.addEventListener('change', updateHash);
 
-try{ window.animateSvcGauges?.(); }catch(e){}
-  try{ window.initSectionToggles?.(); }catch(e){}
-
+initServicesToggles();
+  try{ window.animateSvcGauges?.(); }catch(e){}
 }
+
+  function initServicesToggles(){
+    document.querySelectorAll(".panel .secToggle").forEach(btn=>{
+      const panel = btn.closest(".panel");
+      if(!panel) return;
+      const list = panel.querySelector(".list");
+      if(!list) return;
+
+      // default expanded
+      btn.textContent = panel.classList.contains("secCollapsed") ? "+" : "−";
+
+      btn.addEventListener("click", (e)=>{
+        e.preventDefault();
+        panel.classList.toggle("secCollapsed");
+        btn.textContent = panel.classList.contains("secCollapsed") ? "+" : "−";
+      });
+    });
+  }
+
 window.renderServicesHome = renderServicesHome;
