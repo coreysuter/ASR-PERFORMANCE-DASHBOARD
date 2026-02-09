@@ -1213,3 +1213,7 @@ body.route-tech .catTitle .meta{
 .secBadgeUnderMini{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .secBadgeUnderMini .triBadge svg{width:42px;height:38px} /* smaller badges */
 .secBadgeUnderMini .secBadgeLbl{width:auto;margin-right:2px}
+
+/* Stack mini dials + badge row under them */
+.miniDialStack{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.miniDialStack .secMiniDials{display:flex;gap:10px;align-items:center}

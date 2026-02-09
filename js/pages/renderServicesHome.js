@@ -341,9 +341,10 @@ function tbRow(item, idx, mode){
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
-                <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
+                <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
                 <div class="secBadgeUnderMini"><div class="badgeGroup"><span class="secBadgeLbl">ASR</span>${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div><div class="badgeGroup"><span class="secBadgeLbl">SOLD</span>${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div></div>
               </div>
+                </div>
               </div>
               <div class="sub">${safe(appliedParts.join(" • "))}</div>
             </div>
