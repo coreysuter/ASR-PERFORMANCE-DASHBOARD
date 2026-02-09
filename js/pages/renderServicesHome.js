@@ -390,7 +390,8 @@ const top5Panel = `
         </div>
       </div>
     </div>
-  `;\n
+  `;
+
 document.getElementById("app").innerHTML = `
   <div class="techHeaderWrap">
     ${header}
