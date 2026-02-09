@@ -1252,6 +1252,20 @@ body.route-tech .diagSection .warnTri{
   justify-content:center;
   filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));
 }
+
+/* make warning triangles clickable buttons */
+body.route-tech .diagSection .warnBtn{
+  cursor:pointer;
+  background:transparent;
+  border:0;
+  padding:0;
+}
+body.route-tech .diagSection .warnBtn:focus{outline:none;}
+body.route-tech .diagSection .warnBtn:focus-visible{
+  outline:2px solid rgba(255,255,255,.35);
+  outline-offset:4px;
+  border-radius:12px;
+}
 body.route-tech .diagSection .warnTri svg{width:84px;height:75px;display:block;}
 body.route-tech .diagSection .warnTriNum{
   position:absolute;
@@ -1262,6 +1276,45 @@ body.route-tech .diagSection .warnTriNum{
   color:#fff;
   line-height:1;
   text-shadow:0 2px 6px rgba(0,0,0,.55);
+}
+
+/* Warning popup */
+.warnPop{position:fixed; z-index:3000; width:360px;}
+.warnPop.hidden{display:none;}
+.warnPopCard{
+  border-radius:18px;
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 22px 60px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.warnPopHdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 12px 10px 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.warnPopTitle{display:flex;align-items:center;gap:10px;}
+.warnPopT{font-weight:1000;letter-spacing:.6px;font-size:18px;}
+.warnPopIcon{width:34px;height:30px;display:block;filter: drop-shadow(0 8px 18px rgba(0,0,0,.35));}
+.warnPopClose{
+  appearance:none;
+  border:0;
+  background:rgba(255,255,255,.08);
+  color:rgba(255,255,255,.85);
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  font-size:22px;
+  line-height:28px;
+  cursor:pointer;
+}
+.warnPopClose:hover{background:rgba(255,255,255,.12);}
+.warnPopList{padding:10px 12px 12px 12px; max-height:340px; overflow:auto;}
+
+@media (max-width: 520px){
+  .warnPop{width:min(92vw, 360px);}
 }
 
 @media (max-width: 980px){

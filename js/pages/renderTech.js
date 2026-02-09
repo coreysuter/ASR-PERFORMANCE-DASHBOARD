@@ -546,7 +546,36 @@ return `
     }
     return out;
   }
-  const DIAG = diagCounts();
+  // Build bucket lists (used for popup)
+  function diagBucketLists(){
+    const out = { asr:{red:[],yellow:[]}, sold:{red:[],yellow:[]} };
+    for(const row of svcRowsTB){
+      const cat = row.cat;
+      const basis = (compareBasis==="store") ? (STORE_B?.[cat]||{}) : (TEAM_B?.[cat]||{});
+      const cmpReq = Number(basis.avgReq);
+      const cmpClose = Number(basis.avgClose);
+
+      const pctReq = (Number.isFinite(row.req) && Number.isFinite(cmpReq) && cmpReq>0) ? (row.req/cmpReq) : NaN;
+      const pctClose = (Number.isFinite(row.close) && Number.isFinite(cmpClose) && cmpClose>0) ? (row.close/cmpClose) : NaN;
+
+      const bReq = diagBand(pctReq);
+      if(bReq==="red" || bReq==="yellow") out.asr[bReq].push({cat,row,label:row.label,val:row.req});
+
+      const bClose = diagBand(pctClose);
+      if(bClose==="red" || bClose==="yellow") out.sold[bClose].push({cat,row,label:row.label,val:row.close});
+    }
+    // sort lowest -> highest %
+    out.asr.red.sort((a,b)=>a.val-b.val);
+    out.asr.yellow.sort((a,b)=>a.val-b.val);
+    out.sold.red.sort((a,b)=>a.val-b.val);
+    out.sold.yellow.sort((a,b)=>a.val-b.val);
+    return out;
+  }
+  const DIAG_LISTS = diagBucketLists();
+  const DIAG = {
+    asr:{red:DIAG_LISTS.asr.red.length, yellow:DIAG_LISTS.asr.yellow.length},
+    sold:{red:DIAG_LISTS.sold.red.length, yellow:DIAG_LISTS.sold.yellow.length}
+  };
 
   // Safe jump helper (never throws on null)
   window.jumpToService = function(cat){
@@ -601,20 +630,20 @@ return `
   }
 
   // Warning triangle (SVG) with count in lower-right corner
-  function warnTri(kind, num){
+  function warnTri(kind, num, metric){
     const fill = kind==="red" ? "#EF4444" : "#F59E0B";
     const ink = "rgba(11,16,32,.88)";
     const n = Number(num);
     const show = Number.isFinite(n) ? Math.round(n) : 0;
     return `
-      <div class="warnTri ${kind}">
+      <button type="button" class="warnTri warnBtn ${kind}" data-warn-metric="${safe(metric)}" data-warn-band="${safe(kind)}" aria-label="${safe(metric.toUpperCase())} ${safe(kind)} services">
         <svg viewBox="0 0 64 56" aria-hidden="true" focusable="false">
           <path d="M32 2 L62 54 H2 Z" fill="${fill}"></path>
           <rect x="29" y="17" width="6" height="20" rx="3" fill="${ink}"></rect>
           <circle cx="32" cy="44" r="4" fill="${ink}"></circle>
         </svg>
         <div class="warnTriNum">${fmtInt(show)}</div>
-      </div>
+      </button>
     `;
   }
 
@@ -626,8 +655,8 @@ return `
           <div class="diagSide">
             <div class="diagLbl">ASR</div>
             <div class="diagIcons">
-              ${warnTri("red", DIAG.asr.red)}
-              ${warnTri("yellow", DIAG.asr.yellow)}
+              ${warnTri("red", DIAG.asr.red, "asr")}
+              ${warnTri("yellow", DIAG.asr.yellow, "asr")}
             </div>
           </div>
           <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
@@ -637,8 +666,8 @@ return `
           <div class="diagSide">
             <div class="diagLbl">SOLD</div>
             <div class="diagIcons">
-              ${warnTri("red", DIAG.sold.red)}
-              ${warnTri("yellow", DIAG.sold.yellow)}
+              ${warnTri("red", DIAG.sold.red, "sold")}
+              ${warnTri("yellow", DIAG.sold.yellow, "sold")}
             </div>
           </div>
           <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
@@ -653,6 +682,133 @@ return `
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
+
+  // === Warning popup (click icons) ===
+  (function initWarnPopups(){
+    const root = document.getElementById('app');
+    if(!root) return;
+
+    function ensurePop(){
+      let pop = document.getElementById('warnPop');
+      if(pop) return pop;
+      pop = document.createElement('div');
+      pop.id = 'warnPop';
+      pop.className = 'warnPop hidden';
+      document.body.appendChild(pop);
+      return pop;
+    }
+
+    function iconSvg(kind){
+      const fill = kind==="red" ? "#EF4444" : "#F59E0B";
+      const ink = "rgba(11,16,32,.88)";
+      return `
+        <svg class="warnPopIcon" viewBox="0 0 64 56" aria-hidden="true" focusable="false">
+          <path d="M32 2 L62 54 H2 Z" fill="${fill}"></path>
+          <rect x="29" y="17" width="6" height="20" rx="3" fill="${ink}"></rect>
+          <circle cx="32" cy="44" r="4" fill="${ink}"></circle>
+        </svg>
+      `;
+    }
+
+    function tbRowLike(item, idx, mode){
+      const metric = mode==="sold" ? item.val : item.val;
+      const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
+      return `
+        <div class="techRow pickRowFrame">
+          <div class="techRowLeft">
+            <span class="rankNum">${idx}.</span>
+            <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
+          </div>
+          <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
+        </div>
+      `;
+    }
+
+    function buildList(metric, band){
+      const list = (metric==="sold") ? DIAG_LISTS.sold[band] : DIAG_LISTS.asr[band];
+      const html = list.length ? list.map((x,i)=>tbRowLike(x,i+1,metric)).join('') : `<div class="notice">No services</div>`;
+      return html;
+    }
+
+    function placeNear(btn, pop){
+      const r = btn.getBoundingClientRect();
+      const pad = 12;
+      const w = pop.offsetWidth || 340;
+      const h = pop.offsetHeight || 260;
+      let left = r.right + pad;
+      let top = r.top - 6;
+      if(left + w > window.innerWidth - pad){
+        left = r.left - w - pad;
+      }
+      if(left < pad) left = pad;
+      if(top + h > window.innerHeight - pad){
+        top = window.innerHeight - h - pad;
+      }
+      if(top < pad) top = pad;
+      pop.style.left = `${Math.round(left)}px`;
+      pop.style.top = `${Math.round(top)}px`;
+    }
+
+    function closePop(){
+      const pop = document.getElementById('warnPop');
+      if(!pop) return;
+      pop.classList.add('hidden');
+      pop.innerHTML = '';
+    }
+
+    function openPop(btn){
+      const metric = btn.getAttribute('data-warn-metric') || 'asr';
+      const band = btn.getAttribute('data-warn-band') || 'red';
+      const pop = ensurePop();
+      pop.innerHTML = `
+        <div class="warnPopCard">
+          <div class="warnPopHdr">
+            <div class="warnPopTitle">
+              <span class="warnPopT">${metric.toUpperCase()}</span>
+              ${iconSvg(band)}
+            </div>
+            <button type="button" class="warnPopClose" aria-label="Close">×</button>
+          </div>
+          <div class="warnPopList">
+            ${buildList(metric, band)}
+          </div>
+        </div>
+      `;
+      pop.classList.remove('hidden');
+      // measure then place
+      pop.style.left = '-9999px';
+      pop.style.top = '-9999px';
+      requestAnimationFrame(()=>{
+        placeNear(btn, pop);
+      });
+      const closeBtn = pop.querySelector('.warnPopClose');
+      if(closeBtn) closeBtn.onclick = closePop;
+    }
+
+    // click icons
+    root.querySelectorAll('.warnBtn').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openPop(btn);
+      });
+    });
+
+    // outside click closes
+    document.addEventListener('click', (e)=>{
+      const pop = document.getElementById('warnPop');
+      if(!pop || pop.classList.contains('hidden')) return;
+      if(pop.contains(e.target)) return;
+      // if clicking another warnBtn, let that handler run
+      if(e.target && e.target.closest && e.target.closest('.warnBtn')) return;
+      closePop();
+    }, {capture:true});
+
+    // esc closes
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Escape') closePop();
+    });
+  })();
 
   const sel = document.getElementById('techFilter');
   if(sel){
