@@ -44,29 +44,6 @@ function renderServicesHome(){
 
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
-  function bandFromPct(p){
-    if(!Number.isFinite(p)) return "neutral";
-    if(p < 0.60) return "red";
-    if(p < 0.80) return "yellow";
-    return "green";
-  }
-
-  function triBadgeSvg(color, num){
-    const fill = color==="red" ? "#f04545" : "#f3a91a";
-    const txtFill = "#ffffff";
-    // Slight left bias on number via dx
-    return `
-      <span class="triBadge tri-${color}">
-        <svg viewBox="0 0 120 110" width="56" height="50" aria-hidden="true" focusable="false">
-          <polygon points="60,4 116,104 4,104" fill="${fill}"></polygon>
-          <rect x="54" y="30" width="12" height="44" rx="6" fill="#111"></rect>
-          <circle cx="60" cy="90" r="7" fill="#111"></circle>
-          <text x="90" y="98" font-size="28" font-weight="900" fill="${txtFill}" text-anchor="middle">${num}</text>
-        </svg>
-      </span>
-    `;
-  }
-
 const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/></svg>`;
 const ICON_THUMBS_DOWN = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 2h4v12H2V2zm20 11c0 1.1-.9 2-2 2h-6.3l.9 4.4.02.2c0 .3-.13.6-.33.8L13 22l-5.4-5.4c-.4-.4-.6-.9-.6-1.4V4c0-1.1.9-2 2-2h7c.8 0 1.5.5 1.8 1.2l3 7c.1.3.2.6.2.8v2z"/></svg>`;
 
@@ -295,22 +272,6 @@ function tbRow(item, idx, mode){
     const goalReq = goalReqs.length ? mean(goalReqs) : NaN;
     const goalClose = goalCloses.length ? mean(goalCloses) : NaN;
 
-    // Triangle badge counts (how many services are red/yellow vs GOAL) within this section
-    let redReqCount=0, yellowReqCount=0, redCloseCount=0, yellowCloseCount=0;
-    for(const cat of cats){
-      const a = aggFor(cat, techs);
-      const gReq = Number(getGoal(cat,"req"));
-      const gClose = Number(getGoal(cat,"close"));
-      const pctReq = (Number.isFinite(a.reqTot) && Number.isFinite(gReq) && gReq>0) ? (a.reqTot/gReq) : NaN;
-      const pctClose = (Number.isFinite(a.closeTot) && Number.isFinite(gClose) && gClose>0) ? (a.closeTot/gClose) : NaN;
-      const bReq = bandFromPct(pctReq);
-      const bClose = bandFromPct(pctClose);
-      if(bReq==="red") redReqCount++;
-      if(bReq==="yellow") yellowReqCount++;
-      if(bClose==="red") redCloseCount++;
-      if(bClose==="yellow") yellowCloseCount++;
-    }
-
     const asrVal = Number(secStats.avgReq);
     const soldVal = Number(secStats.avgClose);
 
@@ -326,9 +287,9 @@ function tbRow(item, idx, mode){
     const focusPct = (focus==="sold") ? pctSold : pctAsr;
     const focusLbl = (focus==="sold") ? "Sold" : "ASR";
 
-    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:29px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:29px"></div>`;
-    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:29px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:29px"></div>`;
-    const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:29px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:29px"></div>`;
+    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
     const rows = cats.map(cat=>serviceTile(cat)).join("");
@@ -341,20 +302,12 @@ function tbRow(item, idx, mode){
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
-                <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
-                <div class="secBadgeUnderMini"><div class="badgeGroup"><span class="secBadgeLbl">ASR</span>${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div><div class="badgeGroup"><span class="secBadgeLbl">SOLD</span>${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div></div>
-              </div>
-                </div>
+                <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
               </div>
               <div class="sub">${safe(appliedParts.join(" • "))}</div>
             </div>
             <div class="secHdrRight">
-              <div class="secFocusDial">
-                ${dialFocus}
-                <div class="focusBadgePair">
-                  ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
-                </div>
-              </div>
+              <div class="secFocusDial">${dialFocus}</div>
               <div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
