@@ -43,6 +43,22 @@ function renderServicesHome(){
   const allCats = getAllCategoriesSet();
   const allServiceKeys = Array.from(allCats);
 
+  function initServicesSectionToggles(){
+    const panels = Array.from(document.querySelectorAll(".panel"))
+      .filter(p=>p.querySelector(".secToggle") && p.querySelector(".list"));
+    panels.forEach((p, i)=>{
+      const btn = p.querySelector(".secToggle");
+      if(!btn) return;
+      if(i!==0) p.classList.add("secCollapsed");
+      btn.textContent = p.classList.contains("secCollapsed") ? "+" : "−";
+      btn.onclick = (e)=>{
+        e.preventDefault();
+        const collapsed = p.classList.toggle("secCollapsed");
+        btn.textContent = collapsed ? "+" : "−";
+      };
+    });
+  }
+
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
   function bandFromPct(p){
@@ -341,23 +357,28 @@ function tbRow(item, idx, mode){
           <div class="titleRow" style="justify-content:space-between;align-items:flex-start;position:relative">
             <div>
               <div class="secLeftTop" style="max-width:72%;padding-right:420px">
-                <div class="secTitleLine">
-  <button class="secToggle" type="button" aria-label="Toggle section">−</button>
-  <div>
-    <div class="h2 techH2">${safe(sec.name)}</div>
-    <div class="sub">${safe(appliedParts.join(" • "))}</div>
-  </div>
-                <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
-                <div class="secBadgeUnderMini"><div class="badgeGroup">
-  <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
-  <div class="badgeCap">ASR</div>
-</div>
-<div class="badgeGroup">
-  <div class="badgePair">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
-  <div class="badgeCap">SOLD</div>
-</div></div>
-              </div>
+              <div class="secLeftRow">
+                <button class="secToggle" type="button" aria-label="Toggle section">−</button>
+
+                <div class="secTitleCol">
+                  <div class="h2 techH2">${safe(sec.name)}</div>
+                  <div class="sub">${safe(appliedParts.join(" • "))}</div>
                 </div>
+
+                <div class="miniDialStack">
+                  <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
+                  <div class="secBadgeUnderMini">
+                    <div class="badgeGroup">
+                      <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
+                      <div class="badgeCap">ASR</div>
+                    </div>
+                    <div class="badgeGroup">
+                      <div class="badgePair">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
+                      <div class="badgeCap">SOLD</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="secHdrRight" style="position:absolute;right:0;top:0;margin-left:auto">
               <div class="secFocusDial">
@@ -502,9 +523,8 @@ document.getElementById("app").innerHTML = `
     });
   });
 
+  initServicesSectionToggles();
   try{ window.animateSvcGauges?.(); }catch(e){}
-  try{ window.initSectionToggles?.(); }catch(e){}
-
 // animate gauges + enable section collapse toggles (same as tech details)
   
   const updateHash = ()=>{
@@ -527,7 +547,5 @@ document.getElementById("app").innerHTML = `
   if(compareSel) compareSel.addEventListener('change', updateHash);
 
 try{ window.animateSvcGauges?.(); }catch(e){}
-  try{ window.initSectionToggles?.(); }catch(e){}
-
 }
 window.renderServicesHome = renderServicesHome;
