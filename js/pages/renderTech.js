@@ -76,13 +76,17 @@ const hash = location.hash || "";
   function diagTriBadge(color, num, mode, band){
     const n = Number(num)||0;
     if(!n) return "";
+    const cls = (color==="red") ? "diagRed" : "diagYellow";
     // clickable triangle -> popup of services for this band
     return `
-      <button class="diagTriBtn" onclick="openDiagBandPopup(event,'${mode}','${band}')" aria-label="${mode.toUpperCase()} ${band} services">
-        <div class="diagTriBadge ${color}">
-          <div class="triBang">!</div>
-          <div class="triNum">${fmtInt(n)}</div>
-        </div>
+      <button class="diagTriBtn" onclick="window.openDiagBandPopup(event,'${mode}','${band}')" aria-label="${mode.toUpperCase()} ${band} services">
+        <svg class="diagTriSvg ${cls}" viewBox="0 0 100 87" aria-hidden="true">
+          <polygon class="triFill" points="50,0 0,87 100,87"></polygon>
+          <!-- exclamation mark -->
+          <rect class="triBang" x="46" y="20" width="8" height="34" rx="3"></rect>
+          <circle class="triBang" cx="50" cy="66" r="5"></circle>
+          <text class="triNum" x="92" y="82">${fmtInt(n)}</text>
+        </svg>
       </button>
     `;
   }

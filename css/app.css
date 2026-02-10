@@ -1196,98 +1196,38 @@ body.route-tech .catTitle .meta{
 }
 
 
-/* === Services-only: triangle badges + header layout tweaks === */
-.route-services .triBadge{display:inline-flex;align-items:center;justify-content:center}
-.route-services .triBadge svg{display:block}
 
-.route-services .miniDialStack{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
-.route-services .miniDialStack .secMiniDials{display:flex;gap:10px;align-items:center}
-
-.route-services .secBadgeUnderMini{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap;margin-top:8px}
-.route-services .secBadgeUnderMini .triBadge svg{width:53px;height:48px}
-
-.route-services .badgeGroup{display:flex;flex-direction:column;align-items:center;gap:4px}
-.route-services .badgePair{display:flex;gap:10px;align-items:center;justify-content:center}
-.route-services .badgeCap{font-size:12px;font-weight:1100;letter-spacing:.25px;color:var(--muted);text-transform:uppercase}
-
-.route-services .secTitleLine{display:flex;align-items:center;gap:10px}
-.route-services .secTitleLine .secToggle{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);color:var(--text);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
-
-.route-services .secFocusDial{display:flex;flex-direction:row;gap:14px;align-items:center;justify-content:flex-end}
-.route-services .focusBadgePair{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:0}
-.route-services .focusBadgePair .badgePair.big .triBadge svg{width:70px;height:62px}
-
-
-/* Services: category header left area - title on left, mini dials on right */
-.route-services .secLeftTop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
-
-/* Services: inline title + single toggle */
-.route-services .secHeadRow{display:flex;align-items:center;gap:12px}
-.route-services .secHeadRow .secToggle{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);color:var(--text);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
-.route-services .secCollapsed .list{display:none}
-
-/* Services: badge caption sizing */
-.route-services .badgeCap{font-size:12px;font-weight:1100;letter-spacing:.25px;color:var(--muted);text-transform:uppercase}
-.route-services .focusBadgePair .badgeCap.big{font-size:18px !important;font-weight:1100;letter-spacing:.25px;color:var(--muted);text-transform:uppercase}
-
-/* Triangle badge aspect: wider (Tech Details / non-Services) */
-body:not(.route-services) .triBadge svg{width:70px;height:50px}
-
-
-
-
-/* === DIAG SECTION: force triangle badge visuals (in case other CSS overrides) === */
+/* === DIAG SECTION triangles (SVG, matches Services look, no distortion) === */
 .techPickPanel .diagTriBtn{
-  background:transparent !important;
-  border:none !important;
-  padding:0 !important;
-  cursor:pointer !important;
-  line-height:0 !important;
+  background:transparent;
+  border:none;
+  padding:0;
+  cursor:pointer;
+}
+.techPickPanel .diagTriBtn:focus{outline:none}
+.techPickPanel .diagTriBtn:focus-visible{
+  outline:2px solid rgba(255,255,255,.35);
+  outline-offset:4px;
+  border-radius:10px;
+}
+.techPickPanel .diagTriSvg{
+  width:64px;
+  height:auto;
+  display:block;
+  filter:drop-shadow(0 14px 24px rgba(0,0,0,.40));
+}
+.techPickPanel .diagTriSvg.diagRed .triFill{fill:#ff4b4b}
+.techPickPanel .diagTriSvg.diagYellow .triFill{fill:#ffbf2f}
+.techPickPanel .diagTriSvg .triBang{fill:rgba(0,0,0,.78)}
+.techPickPanel .diagTriSvg .triNum{
+  fill:#fff;
+  font-weight:1000;
+  font-size:22px;
+  text-anchor:end;
+  dominant-baseline:alphabetic;
 }
 
-/* Perfect triangle shape + guaranteed fills */
-.techPickPanel .diagTriBadge{
-  width:64px !important;
-  aspect-ratio: 1.1547 / 1 !important; /* equilateral: w = 2h/√3 */
-  height:auto !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-
-  position:relative !important;
-  clip-path:polygon(50% 0%, 0% 100%, 100% 100%) !important;
-  border-radius:8px !important;
-  box-shadow:0 14px 28px rgba(0,0,0,.40) !important;
-  overflow:hidden !important;
-}
-.techPickPanel .diagTriBadge.red{background:#ff4b4b !important;}
-.techPickPanel .diagTriBadge.yellow{background:#ffbf2f !important;}
-
-/* Exclamation mark */
-.techPickPanel .diagTriBadge .triBang{
-  position:absolute !important;
-  top:12px !important;
-  left:50% !important;
-  transform:translateX(-50%) !important;
-  font-size:26px !important;
-  line-height:1 !important;
-  color:rgba(0,0,0,.78) !important;
-}
-
-/* Number in bottom-right */
-.techPickPanel .diagTriBadge .triNum{
-  position:absolute !important;
-  right:10px !important;
-  bottom:10px !important;
-  left:auto !important;
-  font-size:16px !important;
-  line-height:1 !important;
-  color:#fff !important;
-  text-shadow:0 2px 8px rgba(0,0,0,.40) !important;
-  text-align:right !important;
-}
-
-/* Ensure the left column has enough room for 2 badges horizontally */
+/* Keep the two triangles horizontal and give them enough room */
 .techPickPanel .pickRow{
   grid-template-columns:130px 1fr 1fr !important;
   column-gap:14px !important;
