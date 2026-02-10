@@ -579,44 +579,41 @@ document.getElementById("app").innerHTML = `
 initServicesSectionToggles();
   
   function pinSectionTitlesTopLeft(){
-    // Keep layout untouched: hide the original title (keeps its space) and render an overlay title at top-left.
+    // Keep layout untouched: hide the original title text (keeps its space) and render an overlay *clone*
+    // so it matches Tech Details styling exactly.
     document.querySelectorAll(".panel").forEach(panel=>{
       const phead = panel.querySelector(".phead");
       const h2 = phead ? phead.querySelector(".techH2") : null;
       const toggle = phead ? phead.querySelector("button.secToggle") : null;
       if(!phead || !h2 || !toggle) return;
 
-      // Ensure phead can host absolute overlay
       phead.style.position = "relative";
 
       // Hide original title text but keep its layout box
       h2.style.visibility = "hidden";
 
-      // Create/update overlay
+      // Create/update overlay as a clone of the h2 (inherits all the correct styles)
       let ov = phead.querySelector(".svcTitleOverlay");
       if(!ov){
-        ov = document.createElement("div");
-        ov.className = "svcTitleOverlay";
+        ov = h2.cloneNode(true);
+        ov.classList.add("svcTitleOverlay");
         ov.style.position = "absolute";
         ov.style.zIndex = "5";
         ov.style.pointerEvents = "none";
-        ov.style.fontSize = "48px";
-        ov.style.fontWeight = "1100";
-        ov.style.letterSpacing = ".4px";
-        ov.style.color = "var(--text)";
-        ov.style.lineHeight = "1.05";
+        ov.style.visibility = "visible";
+        ov.style.margin = "0";
         phead.appendChild(ov);
+      }else{
+        ov.textContent = h2.textContent;
       }
-      ov.textContent = h2.textContent;
 
-      // Place it next to the toggle at the very top-left
       const left = toggle.offsetLeft + toggle.offsetWidth + 12;
       ov.style.left = left + "px";
       ov.style.top = "10px";
     });
   }
 
-  try{ window.animateSvcGauges?.(); }catch(e){}
+try{ window.animateSvcGauges?.(); }catch(e){}
 }
 
   
