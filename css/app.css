@@ -1195,7 +1195,5 @@ body.route-tech .catTitle .meta{
   letter-spacing: .15px !important;
 }
 
-
-
-/* === Tech Details: shrink tech header panel to give diag section more room === */
-.techHeaderWrap{grid-template-columns:0.78fr 1.22fr !important;}
+/* Focus badge label = 150% of mini badge label */
+.secFocusDial .focusBadgePair .badgeCap.big{font-size:18px !important;line-height:1.05 !important;letter-spacing:.25px !important;}
