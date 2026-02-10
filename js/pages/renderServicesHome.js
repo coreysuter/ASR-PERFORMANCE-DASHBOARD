@@ -579,8 +579,8 @@ document.getElementById("app").innerHTML = `
 initServicesSectionToggles();
   
   function pinSectionTitlesTopLeft(){
-    // Keep layout untouched: hide the original title text (keeps its space) and render an overlay *clone*
-    // so it matches Tech Details styling exactly.
+    // Keep layout untouched: hide the original title text (keeps its space) and render an overlay clone
+    // so it matches Tech Details styling exactly. Also place the toggle next to the overlay title.
     document.querySelectorAll(".panel").forEach(panel=>{
       const phead = panel.querySelector(".phead");
       const h2 = phead ? phead.querySelector(".techH2") : null;
@@ -598,7 +598,7 @@ initServicesSectionToggles();
         ov = h2.cloneNode(true);
         ov.classList.add("svcTitleOverlay");
         ov.style.position = "absolute";
-        ov.style.zIndex = "5";
+        ov.style.zIndex = "6";
         ov.style.pointerEvents = "none";
         ov.style.visibility = "visible";
         ov.style.margin = "0";
@@ -607,9 +607,17 @@ initServicesSectionToggles();
         ov.textContent = h2.textContent;
       }
 
-      const left = toggle.offsetLeft + toggle.offsetWidth + 12;
-      ov.style.left = left + "px";
-      ov.style.top = "10px";
+      // Place overlay at the top-left
+      const baseLeft = 12;
+      const top = 10;
+      ov.style.left = baseLeft + "px";
+      ov.style.top = top + "px";
+
+      // Move the toggle next to the title (no layout impact)
+      toggle.style.position = "absolute";
+      toggle.style.zIndex = "7";
+      toggle.style.left = (baseLeft + ov.offsetWidth + 14) + "px";
+      toggle.style.top = (top + 6) + "px";
     });
   }
 
