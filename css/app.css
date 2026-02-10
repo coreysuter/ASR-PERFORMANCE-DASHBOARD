@@ -1213,7 +1213,7 @@ body.route-tech .catTitle .meta{
 
   /* Geometry (these 3 are the only “proportion” knobs) */
   --line1f: 0.24;  /* top divider @ ~24% of height */
-  --line2f: 0.70;  /* bottom divider @ ~70% of height */
+  --line2f: 0.73;  /* bottom divider @ ~73% of height */
   --padX: 12px;
 
   width: var(--w);
@@ -1244,7 +1244,7 @@ body.route-tech .catTitle .meta{
 /* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
   position:absolute;
-  top: calc(var(--h) * 0.12);
+  top: calc(var(--h) * 0.095);
   left:0;
   right:0;
   text-align:center;
@@ -1259,12 +1259,12 @@ body.route-tech .catTitle .meta{
 /* main number centered BETWEEN the two divider lines */
 .rankFocusBadge .rfbMain{
   position:absolute;
-  top: calc(var(--h) * 0.47); /* midpoint of 0.24 and 0.70 */
+  top: calc(var(--h) * ((var(--line1f) + var(--line2f)) / 2));
   left:0;
   right:0;
   transform:translateY(-50%);
   text-align:center;
-  font-size: calc(var(--h) * 0.56);
+  font-size: calc(var(--h) * 0.52);
   font-weight:1200;
   line-height:1;
   color:rgba(234,240,255,.96);
@@ -1277,10 +1277,10 @@ body.route-tech .catTitle .meta{
 /* # pinned left of the big number, aligned to the same midline */
 .rankFocusBadge .rfbHash{
   position:absolute;
-  top: calc(var(--h) * 0.47);
+  top: calc(var(--h) * ((var(--line1f) + var(--line2f)) / 2));
   left: calc(var(--w) * 0.30);
   transform:translate(-50%,-35%);
-  font-size: calc(var(--h) * 0.18);
+  font-size: calc(var(--h) * 0.14);
   font-weight:1100;
   line-height:1;
   color:rgba(234,240,255,.90);
@@ -1289,7 +1289,7 @@ body.route-tech .catTitle .meta{
 /* of 5 centered between bottom divider and bottom edge */
 .rankFocusBadge .rfbOf{
   position:absolute;
-  top: calc(var(--h) * 0.85); /* midpoint of 0.70 and 1.00 */
+  top: calc(var(--h) * ((var(--line2f) + 1) / 2));
   left:0;
   right:0;
   transform:translateY(-50%);
@@ -1306,7 +1306,7 @@ body.route-tech .catTitle .meta{
   color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size: calc(var(--h) * 0.18);
+  font-size: calc(var(--h) * 0.14);
   font-weight:1100;
   color:rgba(234,240,255,.92);
 }
