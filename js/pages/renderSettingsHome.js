@@ -1,5 +1,4 @@
-console.log("renderSettingsHome loaded");
-// ROUTERFIX v5: safe tech route fallback (no throw)
+// ROUTERFIX v4 (2026-02-09): tech route uses window.renderTech fallback
 function renderSettingsHome(){
   document.getElementById("app").innerHTML = `
     <div class="panel">
@@ -72,10 +71,11 @@ function router(){
   if(h.startsWith("#/tech/")){
     const rest = h.slice("#/tech/".length);
     const id = decodeURIComponent(rest.split("?")[0] || "");
-    if(typeof window.renderTech==="function"){ window.renderTech(id); return; }
-if(typeof renderTech==="function"){ renderTech(id); return; }
-document.getElementById("app").innerHTML = `<div class="panel"><div class="phead"><div class="h2">Tech page not loaded</div><div class="sub">renderTech is not available. Make sure js/pages/renderTech.js is deployed and loaded before Settings.</div><div class="sub"><a href="#/">← Back</a></div></div></div>`;
-return;
+    // ROUTERFIX v4: renderTech may be attached to window depending on bundling
+    if(typeof window.renderTech === "function") { window.renderTech(id); return; }
+    if(typeof renderTech === "function") { renderTech(id); return; }
+    throw new ReferenceError("renderTech is not available. Check js/pages/renderTech.js.");
+    return;
   }
   renderMain();
 }
