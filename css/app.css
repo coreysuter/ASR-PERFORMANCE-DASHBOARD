@@ -1206,3 +1206,46 @@ body.route-tech .catTitle .meta{
   letter-spacing:.25px !important;
 }
 
+
+
+
+/* =====================================================================================
+   TECH DETAILS (route-tech) LAYOUT FIXES
+   - Shrink Tech Name header column, give DIAG SECTION more room
+   - Prevent triangle badges from overlapping "Top 3" headings
+   ===================================================================================== */
+
+/* 1) Give DIAG SECTION more width than Tech header (fix badge overlap) */
+body.route-tech .techHeaderWrap{
+  grid-template-columns: 0.92fr 2.08fr !important;
+}
+
+/* 2) Ensure Tech header panel can shrink within its column */
+body.route-tech .techHeaderPanel{
+  min-width:0 !important;
+}
+
+/* 3) DIAG SECTION row: reserve a wider left column for ASR/SOLD + 2 triangle badges */
+body.route-tech .techPickPanel .pickRow{
+  grid-template-columns: 130px 1fr 1fr !important;
+  gap:14px !important;
+}
+
+/* Keep badges horizontal and aligned */
+body.route-tech .techPickPanel .diagBadgeRow{
+  display:flex !important;
+  flex-direction:row !important;
+  gap:10px !important;
+  align-items:flex-start !important;
+  margin-top:10px !important;
+}
+
+/* Prevent the ASR/SOLD label column from collapsing */
+body.route-tech .techPickPanel .diagLabelCol{
+  width:auto !important;
+  min-width:130px !important;
+}
+
+/* Popup should always be above and clickable */
+.diagPopup{position:fixed !important; z-index:9999 !important; pointer-events:auto !important;}
+.diagPopup *{pointer-events:auto !important;}
