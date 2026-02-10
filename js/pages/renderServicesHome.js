@@ -418,7 +418,7 @@ function tbRow(item, idx, mode){
               </div>
             </div>
 
-            <div class="secHdrRight" style="align-items:flex-start"" style="position:absolute;right:0;top:0;margin-left:auto">
+            <div class="secHdrRight" style="position:absolute;right:0;top:0;display:flex;align-items:flex-start;gap:16px" style="align-items:flex-start"" style="position:absolute;right:0;top:0;margin-left:auto">
               <div class="secFocusDial" style="display:flex;flex-direction:row;align-items:flex-start;gap:14px;justify-content:flex-end">
                 <div class="focusBadgePair" style="display:flex;flex-direction:row;align-items:center;gap:10px">
   <div class="badgePair big">
