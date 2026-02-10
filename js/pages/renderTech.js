@@ -743,18 +743,28 @@ return `
       const el = document.getElementById(id);
       if(!el) return false;
 
-      // Expand the category section/panel first (required for correct scroll target)
-      const panel = el.closest(".panel");
-      if(panel && panel.classList && panel.classList.contains("secCollapsed")){
+      // Expand the correct collapsed category panel (the one that actually has the toggle)
+      let panel = el.closest(".panel.secCollapsed");
+      if(!panel){
+        // walk up to find any ancestor panel that is collapsed
+        let p = el.parentElement;
+        while(p){
+          if(p.classList && p.classList.contains("panel") && p.classList.contains("secCollapsed")){ panel = p; break; }
+          p = p.parentElement;
+        }
+      }
+      if(panel){
         panel.classList.remove("secCollapsed");
         const tog = panel.querySelector(".secToggle");
         if(tog) tog.textContent = "−";
       }
 
-      // Allow layout to expand before scrolling
+      // Wait for layout to expand before scrolling
       requestAnimationFrame(()=>{
         requestAnimationFrame(()=>{
+          // scroll to the service card
           el.scrollIntoView({behavior:"smooth", block:"start"});
+          // highlight
           if(el.classList){
             el.classList.add("flashPick");
             setTimeout(()=>{ try{ el.classList.remove("flashPick"); }catch(e){} }, 900);
