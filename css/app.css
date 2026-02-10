@@ -1486,3 +1486,57 @@ body.route-tech .techPickPanel .diagLabelCol{
   top:24px !important;
   box-shadow:0 34px 0 rgba(255,255,255,.10) !important;
 }
+
+
+
+/* === Rank badge v6: header badge layout geometry (center #1 between lines; "of 5" below bottom line) === */
+.techHeaderPanel .rankFocusBadge{
+  width:66px !important;
+  height:58px !important;
+  border-radius:16px !important;
+  --lt:18px;   /* top divider y */
+  --lg:20px;   /* distance to bottom divider */
+}
+
+/* divider lines */
+.techHeaderPanel .rankFocusBadge:after{
+  top:var(--lt) !important;
+  box-shadow:0 var(--lg) 0 rgba(255,255,255,.10) !important;
+}
+
+/* ASR% label: keep same offset above top line as "of 5" is below bottom line */
+.techHeaderPanel .rankFocusBadge .rfbFocus{
+  top:4px !important;                 /* gap = --lt - 4px = 14px */
+  font-size:10px !important;
+}
+
+/* Center "#1" exactly between the two divider lines */
+.techHeaderPanel .rankFocusBadge .rfbMain{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  top:calc(var(--lt) + 2px) !important;
+  height:calc(var(--lg) - 4px) !important;
+  margin-top:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:24px !important;
+  gap:5px !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbHash{
+  font-size:13px !important;
+  margin-top:0 !important;
+}
+
+/* Put "of 5" centered BELOW the bottom line with same spacing (14px) */
+.techHeaderPanel .rankFocusBadge .rfbOf{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  top:calc(var(--lt) + var(--lg) + 14px) !important;
+  bottom:auto !important;
+  justify-content:center !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
+.techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:11px !important;}
