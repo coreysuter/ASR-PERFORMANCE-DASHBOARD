@@ -393,24 +393,31 @@ function tbRow(item, idx, mode){
           <div class="titleRow" style="justify-content:space-between;align-items:flex-start;position:relative">
             <div>
               <div class="secLeftTop" style="max-width:72%;padding-right:420px">
-                <div class="secTitleLine">
-  <button class="secToggle" type="button" aria-label="Toggle section">−</button>
-  <div>
-    <div class="secHeadRow"><button class="secToggle" type="button" aria-label="Toggle section">−</button><div class="h2 techH2">${safe(sec.name)}</div></div>
-    <div class="sub">${safe(appliedParts.join(" • "))}</div>
-  </div>
-                <div class="miniDialStack"><div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
-                <div class="secBadgeUnderMini"><div class="badgeGroup">
-  <div class="badgePair">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
-  <div class="badgeCap">ASR</div>
-</div>
-<div class="badgeGroup">
-  <div class="badgePair">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
-  <div class="badgeCap">SOLD</div>
-</div></div>
-              </div>
+              <div class="secLeftRow" style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
+                <div class="secTitleBlock">
+                  <div class="secHeadRow" style="display:flex;align-items:center;gap:12px">
+                    <button class="secToggle" type="button" aria-label="Toggle section">−</button>
+                    <div class="h2 techH2">${safe(sec.name)}</div>
+                  </div>
+                  <div class="sub">${safe(appliedParts.join(" • "))}</div>
                 </div>
+
+                <div class="miniDialStack" style="display:flex;flex-direction:column;gap:8px;align-items:center">
+                  <div class="secMiniDials" style="display:flex;gap:10px;align-items:center">${dialASR}${dialSold}${dialGoal}</div>
+                  <div class="secBadgeUnderMini" style="display:flex;gap:34px;align-items:flex-start">
+                    <div class="badgeGroup" style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                      <div class="badgePair" style="display:flex;gap:10px;align-items:center">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
+                      <div class="badgeCap">ASR</div>
+                    </div>
+                    <div class="badgeGroup" style="display:flex;flex-direction:column;align-items:center;gap:4px">
+                      <div class="badgePair" style="display:flex;gap:10px;align-items:center">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
+                      <div class="badgeCap">SOLD</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
             <div class="secHdrRight" style="position:absolute;right:0;top:0;margin-left:auto">
               <div class="secFocusDial">
                 ${dialFocus}
