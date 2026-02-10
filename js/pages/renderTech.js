@@ -458,12 +458,18 @@ const header = `
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
           <div class="techNameWrap">
-            <div class="h2 techH2Big">${safe(t.name)}</div>
-            <div class="techTeamLine">${safe(team)}</div>
+            <div class="techNameTopRow" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+              <div class="techNameBlock" style="display:flex;flex-direction:column">
+                <div class="h2 techH2Big">${safe(t.name)}</div>
+                <div class="techTeamLine">${safe(team)}</div>
+              </div>
+              <div class="techNameBadge" style="flex:0 0 auto">
+                ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "sm")}
+              </div>
+            </div>
           </div>
           <div class="overallBlock">
-            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-<div class="overallMetric">${focusVal}</div>
+            <div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
           </div>
         </div>
