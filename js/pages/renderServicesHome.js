@@ -400,7 +400,7 @@ function tbRow(item, idx, mode){
     const techListHtml = `<div class="techList">${techListFor(agg) || '<div class="sub">No technicians found.</div>'}</div>`;
 
     return `
-      <div class="catCard" id="svc-${safeId(catKey)}">
+      <div class="catCard" id="svc-${safeId(catKey)}" id="svc-${safeId(catKey)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${gauge}</div>
           <div>
