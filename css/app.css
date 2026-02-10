@@ -1228,7 +1228,6 @@ body.route-tech .catTitle .meta{
 
 /* Services: badge caption sizing */
 .route-services .badgeCap{font-size:12px;font-weight:1100;letter-spacing:.25px;color:var(--muted);text-transform:uppercase}
-.route-services .focusBadgePair .badgeCap.big{font-size:18px !important;font-weight:1100;letter-spacing:.25px;color:var(--muted);text-transform:uppercase}
 
 /* Triangle badge aspect: wider (Tech Details / non-Services) */
 body:not(.route-services) .triBadge svg{width:70px;height:50px}
@@ -1236,6 +1235,53 @@ body:not(.route-services) .triBadge svg{width:70px;height:50px}
 /* Services: force focus badges bigger + label below */
 .route-services .secFocusDial{display:flex !important; align-items:flex-start !important; gap:14px !important; justify-content:flex-end !important}
 .route-services .focusBadgePair{display:flex !important; flex-direction:column !important; align-items:center !important; gap:6px !important; margin-top:0 !important}
-.route-services .focusBadgePair .badgePair.big{transform:scale(1.5) !important; transform-origin:top left !important; margin-bottom:6px !important}
-.route-services .focusBadgePair .badgeCap.big{font-size:18px !important; letter-spacing:.25px; color:var(--muted); font-weight:1100; text-transform:uppercase}
+
+
+/* === Services: clean focus cluster layout (badges + dial + stats on one row) === */
+.route-services .secHdrRight{
+  position:absolute;
+  right:0;
+  top:0;
+  display:flex;
+  align-items:flex-start;
+  gap:18px;
+}
+
+.route-services .secFocusDial{
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:flex-start !important;
+  gap:14px !important;
+  justify-content:flex-end !important;
+}
+
+/* Focus badges: EXACTLY 50% larger than mini badges */
+.route-services .focusBadgePair{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin-top:0 !important;
+}
+
+/* Mini badge reference (services): 53x48, label 12px
+   Focus badge = 1.5x => 80x72, label 18px */
+.route-services .focusBadgePair .triBadge svg{
+  width:80px !important;
+  height:72px !important;
+}
+
+.route-services .focusBadgePair .badgeCap.big{
+  font-size:18px !important;
+  letter-spacing:.25px;
+  color:var(--muted);
+  font-weight:1100;
+  text-transform:uppercase;
+  margin-top:4px;
+}
+
+/* Keep stats pinned to top right */
+.route-services .secHdrStats{
+  align-self:flex-start;
+}
 
