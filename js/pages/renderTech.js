@@ -364,7 +364,6 @@ const s = t.summary?.[filterKey] || {};
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
-const tfOpen = !!UI.techFilters[techId];
   const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
@@ -374,39 +373,33 @@ const tfOpen = !!UI.techFilters[techId];
 
 
   const filters = `
-    <div class="iconBar" style="margin-top:0">
-      <button class="iconBtn" onclick="toggleTechFilters('${safe(techId)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
-      <div class="appliedInline">${appliedTextHtml}</div>
-    </div>
-    <div class="ctlPanel ${tfOpen?"open":""}">
-      <div class="controls" style="margin-top:10px">
-        <div>
-          <label>Summary Filter</label>
-          <select id="techFilter">
-            <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-            <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-            <option value="fluids_only" ${filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-          </select>
-        </div>
-        <div>
-          <label>Comparison</label>
-          <select id="compareBasis">
-            <option value="team" ${compareBasis==="team"?"selected":""}>Team</option>
-            <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
-          </select>
-        </div>
-        <div>
-          <label>Focus</label>
-          <select id="techFocus">
-            <option value="asr" ${focus==="asr"?"selected":""}>ASR/RO</option>
-            <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
-            <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
-          </select>
-        </div>
+    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
+    <div class="controls" style="margin-top:10px">
+      <div>
+        <label>Summary Filter</label>
+        <select id="techFilter">
+          <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+          <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+          <option value="fluids_only" ${filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+        </select>
+      </div>
+      <div>
+        <label>Comparison</label>
+        <select id="compareBasis">
+          <option value="team" ${compareBasis==="team"?"selected":""}>Team</option>
+          <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
+        </select>
+      </div>
+      <div>
+        <label>Focus</label>
+        <select id="techFocus">
+          <option value="asr" ${focus==="asr"?"selected":""}>ASR/RO</option>
+          <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
+          <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
+        </select>
       </div>
     </div>
-  `;
-
+  `;\n
   const scopeTechs = (compareBasis==="team") ? byTeam(team) : allTechs();
   function techGoalScore(x){
     let sum=0, n=0;
@@ -773,7 +766,7 @@ return `
       <div class="techRow pickRowFrame">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
-          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
+          <a href="javascript:void(0)" onclick="return window.jumpToService ? window.jumpToService(${JSON.stringify(item.cat)}) : false">${safe(item.label)}</a>
         </div>
         <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
