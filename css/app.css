@@ -1236,42 +1236,34 @@ body:not(.route-services) .triBadge svg{width:70px;height:50px}
 
 
 
-/* === DIAG SECTION triangle badges (scoped to techPickPanel so Services can't affect) === */
-.techPickPanel .diagBadgeRow{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
-.techPickPanel .diagLabelCol{width:56px}
+/* === DIAG SECTION badges: keep HORIZONTAL (no stacking) and prevent overlap === */
 
-/* Force proper triangle aspect (width was getting squeezed) */
+/* Give diag section a bit more room */
+.techHeaderWrap{grid-template-columns:0.90fr 1.10fr !important;}
+
+/* Widen the left label/badge column inside the diag section rows (overrides inline style) */
+.techPickPanel .pickRow{
+  grid-template-columns:130px 1fr 1fr !important; /* label+2 badges | top3 | bottom3 */
+  column-gap:14px !important;
+}
+
+/* Label + badge row */
+.techPickPanel .diagLabelCol{width:auto !important;}
+.techPickPanel .diagBadgeRow{
+  display:flex !important;
+  flex-direction:row !important;  /* keep horizontal */
+  gap:10px !important;
+  align-items:flex-start !important;
+  margin-top:10px !important;
+}
+
+/* Triangle size tuned to fit within the widened column */
 .techPickPanel .diagTriBadge{
-  width:90px !important;
-  min-width:90px !important;
-  max-width:90px !important;
-  height:64px !important;
-  flex:0 0 90px !important;
-
-  position:relative;
-  clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
-  border-radius:8px;
-  box-shadow:0 14px 28px rgba(0,0,0,.40);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:1000;
+  width:58px !important;
+  min-width:58px !important;
+  max-width:58px !important;
+  height:56px !important;
+  flex:0 0 58px !important;
 }
-.techPickPanel .diagTriBadge.red{background:#ff4b4b}
-.techPickPanel .diagTriBadge.yellow{background:#ffbf2f}
-
-.techPickPanel .diagTriBadge .triBang{
-  position:absolute;
-  top:14px;
-  font-size:32px;
-  line-height:1;
-  color:rgba(0,0,0,.78);
-}
-.techPickPanel .diagTriBadge .triNum{
-  position:absolute;
-  bottom:10px;
-  font-size:18px;
-  line-height:1;
-  color:#fff;
-  text-shadow:0 2px 8px rgba(0,0,0,.40);
-}
+.techPickPanel .diagTriBadge .triBang{top:12px !important;font-size:26px !important;}
+.techPickPanel .diagTriBadge .triNum{bottom:9px !important;font-size:16px !important;}
