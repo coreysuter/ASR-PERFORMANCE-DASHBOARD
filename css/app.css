@@ -1598,3 +1598,10 @@ body.route-tech .techPickPanel .diagLabelCol{
 }
 .techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
 .techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:10px !important;}
+
+
+
+/* === DEBUG MARKER: Rank badge v7 (header geometry) === */
+.techHeaderPanel .rankFocusBadge{
+  outline:2px solid rgba(255,0,255,.55) !important; /* temporary debug */
+}
