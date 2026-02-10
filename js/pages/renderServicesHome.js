@@ -28,6 +28,7 @@ function renderServicesHome(){
 
   const teamLabel = (teamKey==="all") ? "ALL" : teamKey.toUpperCase();
   const techs = getTechsByTeam(teamKey);
+  const svcSectionCats = {};
   const storeTechs = getTechsByTeam("all");
   const compareTechs = (compareBasis==="store") ? storeTechs : techs;
 
