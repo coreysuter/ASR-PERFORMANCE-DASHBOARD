@@ -1204,19 +1204,19 @@ body.route-tech .catTitle .meta{
 }
 
 
-/* === Rank badge (PROPORTION-LOCKED) === */
+/* === Rank badge (PROPORTION-LOCKED — matches Paint proportions) === */
 .rankFocusBadge{
-  /* single source of truth */
-  --w: 80px;                 /* badge width  */
-  --h: 80px;                 /* badge height */
-  --u: min(var(--w), var(--h));
-  --r: 18px;                 /* radius */
-  --pad: 14%;                /* inner padding (of --u) */
-  --line1: 33%;              /* top divider (from top) */
-  --line2: 68%;              /* bottom divider (from top) */
+  /* One source of truth */
+  --sz: 80px;
+  --r: 18px;
 
-  width: var(--w);
-  height: var(--h);
+  /* Inner geometry (tune only these if needed) */
+  --padX: 12px;      /* left/right padding for divider lines */
+  --line1: 33%;      /* top divider position */
+  --line2: 68%;      /* bottom divider position */
+
+  width: var(--sz);
+  height: var(--sz);
   border-radius: var(--r);
   border:1px solid rgba(255,255,255,.22);
   background:rgba(6,10,28,.88);
@@ -1226,13 +1226,13 @@ body.route-tech .catTitle .meta{
   overflow:hidden;
 }
 
-/* divider lines (proportional) */
+/* Divider lines */
 .rankFocusBadge::before,
 .rankFocusBadge::after{
   content:"";
   position:absolute;
-  left: calc(var(--u) * var(--pad));
-  right: calc(var(--u) * var(--pad));
+  left: var(--padX);
+  right: var(--padX);
   height:1px;
   background:rgba(255,255,255,.16);
   pointer-events:none;
@@ -1243,11 +1243,11 @@ body.route-tech .catTitle .meta{
 /* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
   position:absolute;
-  top: 12%;
+  top: 14%;
   left:0;
   right:0;
   text-align:center;
-  font-size: 14%;
+  font-size: 11px;
   font-weight:1100;
   letter-spacing:.35px;
   text-transform:uppercase;
@@ -1255,30 +1255,34 @@ body.route-tech .catTitle .meta{
   line-height:1;
 }
 
-/* # + main number centered BETWEEN the divider lines */
+/* Big number — always centered BETWEEN the two lines */
 .rankFocusBadge .rfbMain{
   position:absolute;
   top: calc((var(--line1) + var(--line2)) / 2);
   left:0;
   right:0;
   transform:translateY(-50%);
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  gap: 10%;
-  font-size: 58%;
+  text-align:center;
+  font-size: 44px;
   font-weight:1200;
   line-height:1;
   color:rgba(234,240,255,.96);
 }
+
+/* # — pinned left of the big number and vertically aligned to it
+   (works whether .rfbHash is a sibling OR nested inside .rfbMain) */
 .rankFocusBadge .rfbHash{
-  font-size: 26%;
+  position:absolute;
+  top: calc((var(--line1) + var(--line2)) / 2);
+  left: 26%;
+  transform:translate(-50%,-35%);
+  font-size: 14px;
   font-weight:1100;
-  margin-top: 18%;
+  line-height:1;
   color:rgba(234,240,255,.90);
 }
 
-/* "of 5" centered BETWEEN the bottom line and the bottom edge */
+/* of 5 — centered between the bottom line and the bottom edge */
 .rankFocusBadge .rfbOf{
   position:absolute;
   top: calc((var(--line2) + 100%) / 2);
@@ -1288,28 +1292,33 @@ body.route-tech .catTitle .meta{
   display:flex;
   justify-content:center;
   align-items:baseline;
-  gap: 4%;
+  gap:3px;
   line-height:1;
   color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size: 18%;
+  font-size:10px;
   font-weight:1000;
   color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size: 26%;
+  font-size:14px;
   font-weight:1100;
   color:rgba(234,240,255,.92);
 }
 
-/* small version for service tiles (keeps your existing 74x68 footprint) */
+/* Small version for service tiles */
 .rankFocusBadge.sm{
-  --w: 74px;
-  --h: 68px;
-  --r: 16px;
-  /* keep the same divider proportions unless you want to override these too */
+  --sz: 74px;
+  height: 68px;          /* keep your existing non-square small badge */
+  border-radius:16px;
+  --line1: 38%;
+  --line2: 74%;
 }
+.rankFocusBadge.sm .rfbFocus{ top: 12%; font-size:11px; }
+.rankFocusBadge.sm .rfbMain{ font-size:44px; }
+.rankFocusBadge.sm .rfbHash{ font-size:15px; left: 25%; }
+
 
 /* prevent legacy x/x line from overlapping if present */
 .overallBlock .big{ display:none !important; }
