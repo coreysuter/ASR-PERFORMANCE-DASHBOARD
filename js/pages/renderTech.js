@@ -227,7 +227,7 @@ const hash = location.hash || "";
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
     return `
-      <div class="${cls}" style="position:relative">
+      <div class="${cls}">
         <div class="rfbFocus">${top}</div>
         <div class="rfbMain"><span class="rfbHash">#</span>${r}</div>
         <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
@@ -457,15 +457,13 @@ const header = `
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
-          <div class="techNameWrap" style="padding-right:18px">
-            <div class="techNameBadgeRow" style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
-              <div class="h2 techH2Big" style="flex:1 1 auto;min-width:240px;word-break:break-word">${safe(t.name)}</div>
-              ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "sm")}
-            </div>
+          <div class="techNameWrap">
+            <div class="h2 techH2Big">${safe(t.name)}</div>
             <div class="techTeamLine">${safe(team)}</div>
           </div>
           <div class="overallBlock">
-            <div class="overallMetric">${focusVal}</div>
+            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+<div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
           </div>
         </div>
