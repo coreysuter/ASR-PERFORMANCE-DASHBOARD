@@ -38,8 +38,7 @@ const hash = location.hash || "";
     for(const x of (DATA.techs||[])){
       for(const k of Object.keys(x.categories||{})) cats.add(k);
     }
-
-  function renderRankBadge(rank, total, focus){
+  window.renderRankBadge = function renderRankBadge(rank, total, focus){
     const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
     const r = (rank===null || rank===undefined) ? "—" : rank;
     const t = (total===null || total===undefined) ? "—" : total;
@@ -162,7 +161,7 @@ const tfOpen = !!UI.techFilters[techId];
 
   const filters = `
     <div class="iconBar" style="margin-top:0">
-      <button class="iconBtn" onclick="toggleTechFilters('${safe(techId)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
+      <button class="iconBtn" onclick="toggleTechFilters('${safe(techId)})" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
       <div class="appliedInline">${appliedTextHtml}</div>
     </div>
     <div class="ctlPanel ${tfOpen?"open":""}">
@@ -239,7 +238,7 @@ const header = `
             <div class="techTeamLine">${safe(team)}</div>
           </div>
           <div class="overallBlock">
-            ${renderRankBadge(overall.rank ?? "—", overall.total ?? "—", focus)}
+            ${window.renderRankBadge(overall.rank ?? "—", overall.total ?? "—", focus)}
             <div class="tag">${focus==="sold" ? "Overall Sold Rank" : "Overall ASR Rank"}</div>
             <div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
