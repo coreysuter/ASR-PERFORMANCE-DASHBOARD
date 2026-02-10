@@ -105,7 +105,11 @@ const hash = location.hash || "";
       if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow};function bandOfPct(pct){
+    return {red, yellow};
+
+  var openDiagBandPopup;
+
+  function bandOfPct(pct){
     if(!Number.isFinite(pct)) return null;
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
