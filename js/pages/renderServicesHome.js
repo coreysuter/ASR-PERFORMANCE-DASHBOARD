@@ -180,7 +180,7 @@ function renderServicesHome(){
       const metric = btn.getAttribute("data-metric") || "asr"; // "asr" or "sold"
       const color = btn.getAttribute("data-color") || "red";
 
-      const cats = (window.__svcSectionCats && window.__svcSectionCats[secId]) ? window.__svcSectionCats[secId] : [];
+      const cats = (svcSectionCats && svcSectionCats[secId]) ? svcSectionCats[secId] : [];
       const rows = [];
       for(const cat of cats){
         const a = aggFor(cat, techs);
@@ -450,7 +450,7 @@ function tbRow(item, idx, mode){
   const sectionsHtml = (DATA.sections||[]).map(sec=>{
     const cats = Array.from(new Set((sec.categories||[]).filter(Boolean))).filter(c=>allCats.has(c));
     const secId = safeId(sec.name||'section');
-    window.__svcSectionCats[secId] = cats;
+    svcSectionCats[secId] = cats;
     if(!cats.length) return "";
 
     const secStats = sectionStatsAllTechs(sec);
