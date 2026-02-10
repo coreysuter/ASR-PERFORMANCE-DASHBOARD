@@ -8,6 +8,14 @@
     if(!Number.isFinite(n)) return "—";
     return (n*100).toFixed(1) + "%";
   }
+
+  function safeSvcIdLocal(cat){
+    return "svc-" + String(cat||"").toLowerCase()
+      .replace(/&/g,"and")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+  }
+
   function catList(){
     const set = new Set();
     (DATA.sections||[]).forEach(s=>(s.categories||[]).forEach(c=>c && set.add(c)));
@@ -82,7 +90,7 @@
     const lbl = (mode==="sold") ? "Sold%" : "ASR%";
 
     const rows = items.length ? items.map((it, i)=>{
-            const id = safeSvcId(it.cat);
+            const id = safeSvcIdLocal(it.cat);
       const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
       const nm = (typeof window.catLabel==="function") ? window.catLabel(it.cat) : it.cat;
       return `
@@ -272,7 +280,7 @@ const s = t.summary?.[filterKey] || {};
     `;
   }
 
-  function countBandsFor(mode){
+    function countBandsFor(mode){
     let red=0, yellow=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
@@ -286,124 +294,12 @@ const s = t.summary?.[filterKey] || {};
       if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow};function bandOfPct(pct){
-    if(!Number.isFinite(pct)) return null;
-    if(pct < 0.60) return "red";
-    if(pct < 0.80) return "yellow";
-    return null;
+    return {red, yellow};
   }
 
-  function bandItems(mode, band){
-    const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
-    const items = [];
-    for(const cat of CAT_LIST){
-      const mine = t?.categories?.[cat];
-      if(!mine) continue;
-      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
-      const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
-      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
-      const pct = val/base;
-      const b = bandOfPct(pct);
-      if(b !== band) continue;
-      items.push({cat, val, pct});
-    }
-    // list sorted lowest -> highest %
-    items.sort((a,b)=>a.pct-b.pct);
-    return items;
-  }
-
-  function closeDiagPopup(){
-    const el = document.getElementById("diagBandPopup");
-    if(el) el.remove();
-    document.removeEventListener("keydown", _diagEsc, true);
-  }
-  function _diagEsc(e){
-    if(e.key==="Escape") closeDiagPopup();
-  }
-
-  function openDiagBandPopup(ev, mode, band){
-    ev.preventDefault();
-    ev.stopPropagation();
-    closeDiagPopup();
-
-    const items = bandItems(mode, band);
-    const title = (mode==="sold") ? "SOLD" : "ASR";
-    const colorClass = (band==="red") ? "red" : "yellow";
-
-    const rows = items.length ? items.map((it, i)=>{
-            const id = safeSvcId(it.cat);
-      const onClick = `event.preventDefault(); closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
-      const lbl = (mode==="sold") ? "Sold%" : "ASR%";
-      return `
-        <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer">
-          <span class="rankNum">${i+1}.</span>
-          <span class="tbName" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(nm)}</span>
-          <span class="tbVal" style="margin-left:auto;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${lbl} ${fmtPctLocal(it.val)}</span>
-        </button>
-      `;
-    }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
-
-    const pop = document.createElement("div");
-    pop.id = "diagBandPopup";
-    pop.className = "diagPopup";
-    pop.innerHTML = `
-      <div class="diagPopHead">
-        <div class="diagPopTitle">${title}</div>
-        <div class="diagPopIcon">
-          <div class="diagTriBadge ${colorClass} noNum">
-            <div class="triBang">!</div>
-          </div>
-        </div>
-        <button class="diagPopClose" onclick="closeDiagPopup()" aria-label="Close">×</button>
-      </div>
-      <div class="diagPopList">${rows}</div>
-    `;
-    document.body.appendChild(pop);
-
-    // Row clicks: jump to service and close popup
-    pop.addEventListener("click", (e)=> {
-      const btn = e.target && e.target.closest ? e.target.closest(".diagPopRowBtn") : null;
-      if(!btn) return;
-      const targetId = btn.getAttribute("data-target");
-      if(targetId){
-        const el = document.getElementById(targetId);
-        if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
-      }
-      window.closeDiagPopup && window.closeDiagPopup();
-    }, true);
-
-
-    // position next to the clicked triangle
-    const r = ev.currentTarget.getBoundingClientRect();
-    const pr = pop.getBoundingClientRect();
-    const pad = 10;
-    let left = r.right + pad;
-    let top = r.top - 6;
-
-    // keep on-screen
-    const vw = window.innerWidth, vh = window.innerHeight;
-    if(left + pr.width > vw - 8) left = r.left - pr.width - pad;
-    if(top + pr.height > vh - 8) top = Math.max(8, vh - pr.height - 8);
-    if(top < 8) top = 8;
-
-    pop.style.left = `${left}px`;
-    pop.style.top = `${top}px`;
-
-    // click outside closes
-    setTimeout(()=>{
-      const onDoc = (e)=>{
-        if(!pop.contains(e.target)) { document.removeEventListener("mousedown", onDoc, true); closeDiagPopup(); }
-      };
-      document.addEventListener("mousedown", onDoc, true);
-    }, 0);
-
-    document.addEventListener("keydown", _diagEsc, true);
-  }
-
-  }
-
-
-
+  // NOTE: Badge popups are handled by the global diag popup handler at the top of this file
+  // (window.openDiagBandPopup via event delegation on .diagTriBtn). We intentionally keep
+  // the Tech page free of additional popup logic here.
   // Benchmarks helpers (tech detail)
   // TEAM_B / STORE_B are computed above from the current comparison team and full store tech list.
   function getTeamBenchmarks(cat, _team){
