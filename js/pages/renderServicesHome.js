@@ -118,6 +118,22 @@ function renderServicesHome(){
         </svg>
       </span>
     `;
+
+  // Safer nudge: move ONLY the category title inside the header row (no layout reflow)
+  (function(){
+    let st = document.getElementById("svcTitleNudge");
+    if(!st){
+      st = document.createElement("style");
+      st.id = "svcTitleNudge";
+      st.textContent = `
+        .route-services .secHeadRow .techH2{
+          transform: translateY(-14px) !important;
+        }
+      `;
+      document.head.appendChild(st);
+    }
+  })();
+
   }
 
 const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/></svg>`;
@@ -540,24 +556,6 @@ document.getElementById("app").innerHTML = `
 
   ${sectionsHtml}
 `;
-
-  // CSS nudge: move category titles up into the exact top-left spot (no other layout changes)
-  (function(){
-    let st = document.getElementById("svcTitleNudge");
-    if(!st){
-      st = document.createElement("style");
-      st.id = "svcTitleNudge";
-      st.textContent = `
-        .route-services .techH2{
-          position: relative !important;
-          top: -14px !important;
-          margin-top: 0 !important;
-        }
-      `;
-      document.head.appendChild(st);
-    }
-  })();
-
   // bind top/bottom jump links
   document.querySelectorAll('[data-jump]').forEach(a=>{
     a.addEventListener('click',(e)=>{
