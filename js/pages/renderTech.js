@@ -137,6 +137,7 @@ const hash = location.hash || "";
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
+const tfOpen = !!UI.techFilters[techId];
   const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
@@ -144,12 +145,14 @@ const hash = location.hash || "";
   ];
   const appliedTextHtml = renderFiltersText(appliedParts);
 
-  // Filters are always visible (no collapsible toggle)
+
   const filters = `
-    <div class="techFiltersBlock">
-      <div class="techHeadDivider"></div>
-      <div class="ctlPanel open techHeadFilters">
-        <div class="controls" style="margin-top:0">
+    <div class="iconBar" style="margin-top:0">
+      <button class="iconBtn" onclick="toggleTechFilters('${safe(techId)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
+      <div class="appliedInline">${appliedTextHtml}</div>
+    </div>
+    <div class="ctlPanel ${tfOpen?"open":""}">
+      <div class="controls" style="margin-top:10px">
         <div>
           <label>Summary Filter</label>
           <select id="techFilter">
@@ -172,7 +175,6 @@ const hash = location.hash || "";
             <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
             <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
           </select>
-        </div>
         </div>
       </div>
     </div>
@@ -513,68 +515,6 @@ return `
   const topCloseTB = byCloseTB.slice(0,3);
   const botCloseTB = byCloseTB.slice(-3).reverse();
 
-  // === Diag section (Top/Bottom 3) warning counts ===
-  // Use the SAME dial band thresholds as service dials:
-  //   >= 80%  => green
-  //   >= 60%  => yellow
-  //   else:      red
-  // And compare against the currently selected comparison basis (Team/Store).
-  function diagBand(pct){
-    if(!Number.isFinite(pct)) return null;
-    if(pct>=0.80) return "green";
-    if(pct>=0.60) return "yellow";
-    return "red";
-  }
-  function diagCounts(){
-    const out = { asr:{red:0,yellow:0}, sold:{red:0,yellow:0} };
-    for(const row of svcRowsTB){
-      const cat = row.cat;
-      const basis = (compareBasis==="store") ? (STORE_B?.[cat]||{}) : (TEAM_B?.[cat]||{});
-      const cmpReq = Number(basis.avgReq);
-      const cmpClose = Number(basis.avgClose);
-
-      const pctReq = (Number.isFinite(row.req) && Number.isFinite(cmpReq) && cmpReq>0) ? (row.req/cmpReq) : NaN;
-      const pctClose = (Number.isFinite(row.close) && Number.isFinite(cmpClose) && cmpClose>0) ? (row.close/cmpClose) : NaN;
-
-      const bReq = diagBand(pctReq);
-      if(bReq==="red") out.asr.red++; else if(bReq==="yellow") out.asr.yellow++;
-
-      const bClose = diagBand(pctClose);
-      if(bClose==="red") out.sold.red++; else if(bClose==="yellow") out.sold.yellow++;
-    }
-    return out;
-  }
-  // Build bucket lists (used for popup)
-  function diagBucketLists(){
-    const out = { asr:{red:[],yellow:[]}, sold:{red:[],yellow:[]} };
-    for(const row of svcRowsTB){
-      const cat = row.cat;
-      const basis = (compareBasis==="store") ? (STORE_B?.[cat]||{}) : (TEAM_B?.[cat]||{});
-      const cmpReq = Number(basis.avgReq);
-      const cmpClose = Number(basis.avgClose);
-
-      const pctReq = (Number.isFinite(row.req) && Number.isFinite(cmpReq) && cmpReq>0) ? (row.req/cmpReq) : NaN;
-      const pctClose = (Number.isFinite(row.close) && Number.isFinite(cmpClose) && cmpClose>0) ? (row.close/cmpClose) : NaN;
-
-      const bReq = diagBand(pctReq);
-      if(bReq==="red" || bReq==="yellow") out.asr[bReq].push({cat,row,label:row.label,val:row.req});
-
-      const bClose = diagBand(pctClose);
-      if(bClose==="red" || bClose==="yellow") out.sold[bClose].push({cat,row,label:row.label,val:row.close});
-    }
-    // sort lowest -> highest %
-    out.asr.red.sort((a,b)=>a.val-b.val);
-    out.asr.yellow.sort((a,b)=>a.val-b.val);
-    out.sold.red.sort((a,b)=>a.val-b.val);
-    out.sold.yellow.sort((a,b)=>a.val-b.val);
-    return out;
-  }
-  const DIAG_LISTS = diagBucketLists();
-  const DIAG = {
-    asr:{red:DIAG_LISTS.asr.red.length, yellow:DIAG_LISTS.asr.yellow.length},
-    sold:{red:DIAG_LISTS.sold.red.length, yellow:DIAG_LISTS.sold.yellow.length}
-  };
-
   // Safe jump helper (never throws on null)
   window.jumpToService = function(cat){
     const id = `svc-${cat}`;
@@ -606,7 +546,7 @@ return `
       <div class="techRow pickRowFrame">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
-          <a href="#" class="jumpLink" data-jump="${safe(item.cat)}">${safe(item.label)}</a>
+          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
         </div>
         <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
@@ -627,47 +567,19 @@ return `
     `;
   }
 
-  // Warning triangle (SVG) with count in lower-right corner
-  function warnTri(kind, num, metric){
-    const fill = kind==="red" ? "#EF4444" : "#F59E0B";
-    const ink = "rgba(11,16,32,.88)";
-    const n = Number(num);
-    const show = Number.isFinite(n) ? Math.round(n) : 0;
-    return `
-      <button type="button" class="warnTri warnBtn ${kind}" data-warn-metric="${safe(metric)}" data-warn-band="${safe(kind)}" aria-label="${safe(metric.toUpperCase())} ${safe(kind)} services">
-        <svg viewBox="0 0 64 56" aria-hidden="true" focusable="false">
-          <path d="M32 2 L62 54 H2 Z" fill="${fill}"></path>
-          <rect x="29" y="17" width="6" height="20" rx="3" fill="${ink}"></rect>
-          <circle cx="32" cy="44" r="4" fill="${ink}"></circle>
-        </svg>
-        <div class="warnTriNum">${fmtInt(show)}</div>
-      </button>
-    `;
-  }
-
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
-        <div class="diagGrid">
-          <!-- ASR row: labels + icons live in the blank spacer area on the left -->
-          <div class="diagSide">
-            <div class="diagLbl">ASR</div>
-            <div class="diagIcons">
-              ${warnTri("red", DIAG.asr.red, "asr")}
-              ${warnTri("yellow", DIAG.asr.yellow, "asr")}
-            </div>
-          </div>
+        <!-- ASR row -->
+        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start">
+          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
           <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
           <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
+        </div>
 
-          <!-- SOLD row -->
-          <div class="diagSide">
-            <div class="diagLbl">SOLD</div>
-            <div class="diagIcons">
-              ${warnTri("red", DIAG.sold.red, "sold")}
-              ${warnTri("yellow", DIAG.sold.yellow, "sold")}
-            </div>
-          </div>
+        <!-- SOLD row -->
+        <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
+          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
           <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
           <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>
@@ -680,145 +592,6 @@ return `
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
-
-  // Make service names clickable (Top/Bottom 3 + warning popup lists)
-  if(!window.__asrJumpLinksBound){
-    window.__asrJumpLinksBound = true;
-    document.addEventListener('click', function(e){
-      const el = e.target && (e.target.closest ? e.target.closest('[data-jump]') : null);
-      if(!el) return;
-      e.preventDefault();
-      const cat = el.getAttribute('data-jump');
-      if(window.jumpToService) window.jumpToService(cat);
-    });
-  }
-
-  // === Warning popup (click icons) ===
-  (function initWarnPopups(){
-    const root = document.getElementById('app');
-    if(!root) return;
-
-    function ensurePop(){
-      let pop = document.getElementById('warnPop');
-      if(pop) return pop;
-      pop = document.createElement('div');
-      pop.id = 'warnPop';
-      pop.className = 'warnPop hidden';
-      document.body.appendChild(pop);
-      return pop;
-    }
-
-    function iconSvg(kind){
-      const fill = kind==="red" ? "#EF4444" : "#F59E0B";
-      const ink = "rgba(11,16,32,.88)";
-      return `
-        <svg class="warnPopIcon" viewBox="0 0 64 56" aria-hidden="true" focusable="false">
-          <path d="M32 2 L62 54 H2 Z" fill="${fill}"></path>
-          <rect x="29" y="17" width="6" height="20" rx="3" fill="${ink}"></rect>
-          <circle cx="32" cy="44" r="4" fill="${ink}"></circle>
-        </svg>
-      `;
-    }
-
-    function tbRowLike(item, idx, mode){
-      const metric = mode==="sold" ? item.val : item.val;
-      const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
-      return `
-        <div class="techRow pickRowFrame">
-          <div class="techRowLeft">
-            <span class="rankNum">${idx}.</span>
-            <a href="#" class="jumpLink" data-jump="${safe(item.cat)}">${safe(item.label)}</a>
-          </div>
-          <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
-        </div>
-      `;
-    }
-
-    function buildList(metric, band){
-      const list = (metric==="sold") ? DIAG_LISTS.sold[band] : DIAG_LISTS.asr[band];
-      const html = list.length ? list.map((x,i)=>tbRowLike(x,i+1,metric)).join('') : `<div class="notice">No services</div>`;
-      return html;
-    }
-
-    function placeNear(btn, pop){
-      const r = btn.getBoundingClientRect();
-      const pad = 12;
-      const w = pop.offsetWidth || 340;
-      const h = pop.offsetHeight || 260;
-      let left = r.right + pad;
-      let top = r.top - 6;
-      if(left + w > window.innerWidth - pad){
-        left = r.left - w - pad;
-      }
-      if(left < pad) left = pad;
-      if(top + h > window.innerHeight - pad){
-        top = window.innerHeight - h - pad;
-      }
-      if(top < pad) top = pad;
-      pop.style.left = `${Math.round(left)}px`;
-      pop.style.top = `${Math.round(top)}px`;
-    }
-
-    function closePop(){
-      const pop = document.getElementById('warnPop');
-      if(!pop) return;
-      pop.classList.add('hidden');
-      pop.innerHTML = '';
-    }
-
-    function openPop(btn){
-      const metric = btn.getAttribute('data-warn-metric') || 'asr';
-      const band = btn.getAttribute('data-warn-band') || 'red';
-      const pop = ensurePop();
-      pop.innerHTML = `
-        <div class="warnPopCard">
-          <div class="warnPopHdr">
-            <div class="warnPopTitle">
-              <span class="warnPopT">${metric.toUpperCase()}</span>
-              ${iconSvg(band)}
-            </div>
-            <button type="button" class="warnPopClose" aria-label="Close">×</button>
-          </div>
-          <div class="warnPopList">
-            ${buildList(metric, band)}
-          </div>
-        </div>
-      `;
-      pop.classList.remove('hidden');
-      // measure then place
-      pop.style.left = '-9999px';
-      pop.style.top = '-9999px';
-      requestAnimationFrame(()=>{
-        placeNear(btn, pop);
-      });
-      const closeBtn = pop.querySelector('.warnPopClose');
-      if(closeBtn) closeBtn.onclick = closePop;
-    }
-
-    // click icons
-    root.querySelectorAll('.warnBtn').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{
-        e.preventDefault();
-        e.stopPropagation();
-        openPop(btn);
-      });
-    });
-
-    // outside click closes
-    document.addEventListener('click', (e)=>{
-      const pop = document.getElementById('warnPop');
-      if(!pop || pop.classList.contains('hidden')) return;
-      if(pop.contains(e.target)) return;
-      // if clicking another warnBtn, let that handler run
-      if(e.target && e.target.closest && e.target.closest('.warnBtn')) return;
-      closePop();
-    }, {capture:true});
-
-    // esc closes
-    document.addEventListener('keydown', (e)=>{
-      if(e.key==='Escape') closePop();
-    });
-  })();
 
   const sel = document.getElementById('techFilter');
   if(sel){
