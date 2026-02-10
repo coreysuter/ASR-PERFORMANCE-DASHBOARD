@@ -160,6 +160,7 @@ function renderServicesHome(){
         text-decoration:none;color:inherit;
       }
       .svcBadgePopupItem:hover{background:rgba(255,255,255,.06)}
+      .flashPick{outline:2px solid rgba(255,255,255,.18);outline-offset:6px;border-radius:16px}
       .svcBadgePopupName{font-weight:1000;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .svcBadgePopupVal{font-weight:1000;color:rgba(255,255,255,.86);white-space:nowrap}
     `;
