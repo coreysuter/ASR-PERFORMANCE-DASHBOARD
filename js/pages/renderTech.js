@@ -86,10 +86,10 @@
       const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
       const nm = (typeof window.catLabel==="function") ? window.catLabel(it.cat) : it.cat;
       return `
-        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);flex-wrap:wrap">
+        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);cursor:pointer;pointer-events:auto">
           <span class="rankNum">${i+1}.</span>
-          <span class="tbName" style="flex:1;min-width:180px">${escHtml(nm)}</span>
-          <span class="tbVal" style="margin-left:auto;color:rgba(255,255,255,.75);font-weight:900">${lbl} ${fmtPctLocal(it.val)}</span>
+          <span class="tbName" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(nm)}</span>
+          <span class="tbVal" style="margin-left:auto;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${lbl} ${fmtPctLocal(it.val)}</span>
         </a>
       `;
     }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
@@ -313,7 +313,7 @@ const hash = location.hash || "";
       const onClick = `event.preventDefault(); closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
       const lbl = (mode==="sold") ? "Sold%" : "ASR%";
       return `
-        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);flex-wrap:wrap">
+        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);cursor:pointer;pointer-events:auto">
           <span class="rankNum">${i+1}.</span>
           <span class="tbName">${safe(catLabel ? catLabel(it.cat) : it.cat)}</span>
           <span class="tbVal">${lbl} ${fmtPct(it.val)}</span>
@@ -873,7 +873,7 @@ return `
         <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start">
           <div class="diagLabelCol">
             <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
-            <div class="diagBadgeRow">
+            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
               ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
               ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
             </div>
@@ -886,7 +886,7 @@ return `
         <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
           <div class="diagLabelCol">
             <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
-            <div class="diagBadgeRow">
+            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
               ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
               ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
             </div>
