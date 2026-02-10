@@ -230,7 +230,7 @@ function renderServicesHome(){
         el.addEventListener('click', ()=>{
           const id = el.getAttribute('data-jump');
           window.closeSvcBadgePopup();
-          if(window.jumpToService) window.jumpToService(id);
+          setTimeout(()=>{ if(window.jumpToService) window.jumpToService(id); }, 10);
         });
       });
 

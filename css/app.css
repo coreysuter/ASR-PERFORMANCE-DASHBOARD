@@ -1195,57 +1195,23 @@ body.route-tech .catTitle .meta{
   letter-spacing: .15px !important;
 }
 
-/* === Services: focus badges are EXACTLY 150% of mini badges === */
-.secFocusDial .focusBadgePair .triBadge svg{
-  width:80px !important;
-  height:72px !important;
+
+/* === Badge buttons reset (prevents white button backgrounds) === */
+.svcBadgeBtn, .svcBadgeBtnFocus{
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
 }
-.secFocusDial .focusBadgePair .badgeCap.big{
-  font-size:18px !important;
-  line-height:1.05 !important;
-  letter-spacing:.25px !important;
+.svcBadgeBtn:focus, .svcBadgeBtnFocus:focus{
+  outline: 2px solid rgba(255,255,255,.18);
+  outline-offset: 4px;
+  border-radius: 10px;
 }
-
-
-
-
-/* =====================================================================================
-   TECH DETAILS (route-tech) LAYOUT FIXES
-   - Shrink Tech Name header column, give DIAG SECTION more room
-   - Prevent triangle badges from overlapping "Top 3" headings
-   ===================================================================================== */
-
-/* 1) Give DIAG SECTION more width than Tech header (fix badge overlap) */
-body.route-tech .techHeaderWrap{
-  grid-template-columns: 0.92fr 2.08fr !important;
+.svcBadgeBtn svg, .svcBadgeBtnFocus svg{
+  display:block;
 }
 
-/* 2) Ensure Tech header panel can shrink within its column */
-body.route-tech .techHeaderPanel{
-  min-width:0 !important;
-}
-
-/* 3) DIAG SECTION row: reserve a wider left column for ASR/SOLD + 2 triangle badges */
-body.route-tech .techPickPanel .pickRow{
-  grid-template-columns: 130px 1fr 1fr !important;
-  gap:14px !important;
-}
-
-/* Keep badges horizontal and aligned */
-body.route-tech .techPickPanel .diagBadgeRow{
-  display:flex !important;
-  flex-direction:row !important;
-  gap:10px !important;
-  align-items:flex-start !important;
-  margin-top:10px !important;
-}
-
-/* Prevent the ASR/SOLD label column from collapsing */
-body.route-tech .techPickPanel .diagLabelCol{
-  width:auto !important;
-  min-width:130px !important;
-}
-
-/* Popup should always be above and clickable */
-.diagPopup{position:fixed !important; z-index:9999 !important; pointer-events:auto !important;}
-.diagPopup *{pointer-events:auto !important;}
