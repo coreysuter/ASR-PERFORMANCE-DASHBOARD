@@ -418,9 +418,9 @@ function tbRow(item, idx, mode){
               </div>
             </div>
 
-            <div class="secHdrRight" style="position:absolute;right:0;top:0;margin-left:auto">
-              <div class="secFocusDial" style="display:flex;flex-direction:row;align-items:center;gap:14px;justify-content:flex-end">
-                <div class="focusBadgePair">
+            <div class="secHdrRight" style="align-items:flex-start"" style="position:absolute;right:0;top:0;margin-left:auto">
+              <div class="secFocusDial" style="display:flex;flex-direction:row;align-items:flex-start;gap:14px;justify-content:flex-end">
+                <div class="focusBadgePair" style="display:flex;flex-direction:row;align-items:center;gap:10px">
   <div class="badgePair big">
     ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
   </div>
@@ -428,7 +428,7 @@ function tbRow(item, idx, mode){
                 ${dialFocus}
               </div>
               </div>
-              <div class="secHdrStats" style="text-align:right">
+              <div class="secHdrStats" style="text-align:right;align-self:flex-start">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">
