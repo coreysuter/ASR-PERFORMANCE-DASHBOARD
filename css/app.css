@@ -1601,7 +1601,91 @@ body.route-tech .techPickPanel .diagLabelCol{
 
 
 
-/* === DEBUG MARKER: Rank badge v7 (header geometry) === */
+
+
+
+/* === Rank badge v8: match approved spacing (like reference image) === */
 .techHeaderPanel .rankFocusBadge{
-  outline:2px solid rgba(255,0,255,.55) !important; /* temporary debug */
+  width:72px !important;
+  height:72px !important;
+  border-radius:18px !important;
+
+  background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(0,0,0,.40)) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  box-shadow:0 24px 56px rgba(0,0,0,.55) !important;
+
+  --lineTop:26px;
+  --lineBot:52px;
+}
+
+/* inner outline */
+.techHeaderPanel .rankFocusBadge:before{
+  content:"";
+  position:absolute;
+  inset:2px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.12);
+  pointer-events:none;
+}
+
+/* divider lines */
+.techHeaderPanel .rankFocusBadge:after{
+  content:"";
+  position:absolute;
+  left:10px;
+  right:10px;
+  top:var(--lineTop);
+  height:1px;
+  background:rgba(255,255,255,.14);
+  box-shadow:0 calc(var(--lineBot) - var(--lineTop)) 0 rgba(255,255,255,.14);
+  pointer-events:none;
+}
+
+/* Focus label: centered above top line */
+.techHeaderPanel .rankFocusBadge .rfbFocus{
+  top:8px !important;
+  font-size:12px !important;
+  font-weight:1100 !important;
+  color:rgba(234,240,255,.84) !important;
+}
+
+/* Center # + number between lines */
+.techHeaderPanel .rankFocusBadge .rfbMain{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  top:calc((var(--lineTop) + var(--lineBot))/2) !important;
+  transform:translateY(-50%) !important;
+
+  margin:0 !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+  gap:6px !important;
+
+  font-size:40px !important;
+  font-weight:1200 !important;
+  line-height:1 !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbHash{
+  font-size:18px !important;
+  margin-top:10px !important;
+  color:rgba(234,240,255,.82) !important;
+}
+
+/* "of 5" centered below bottom line */
+.techHeaderPanel .rankFocusBadge .rfbOf{
+  left:0 !important;
+  right:0 !important;
+  bottom:10px !important;
+  justify-content:center !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbOfWord{
+  font-size:12px !important;
+  color:rgba(234,240,255,.70) !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbOfNum{
+  font-size:18px !important;
+  font-weight:1100 !important;
+  color:rgba(234,240,255,.92) !important;
 }
