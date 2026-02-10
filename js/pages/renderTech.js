@@ -1,3 +1,115 @@
+// === Global diag popup handlers (used by clickable triangle badges) ===
+(function(){
+  function ctx(){ return window.__diagCtx || null; }
+
+  function closeDiagPopup(){
+    const el = document.getElementById("diagBandPopup");
+    if(el) el.remove();
+    document.removeEventListener("keydown", onEsc, true);
+  }
+  function onEsc(e){ if(e.key==="Escape") closeDiagPopup(); }
+
+  function bandOfPct(pct){
+    if(!Number.isFinite(pct)) return null;
+    if(pct < 0.60) return "red";
+    if(pct < 0.80) return "yellow";
+    return null;
+  }
+
+  function bandItems(mode, band){
+    const C = ctx();
+    if(!C) return [];
+    const { t, CAT_LIST, TEAM_B, STORE_B, compareBasis } = C;
+    const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
+
+    const items = [];
+    for(const cat of CAT_LIST){
+      const mine = t?.categories?.[cat];
+      if(!mine) continue;
+      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
+      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
+      const pct = val/base;
+      const b = bandOfPct(pct);
+      if(b !== band) continue;
+      items.push({cat, val, pct});
+    }
+    items.sort((a,b)=>a.pct-b.pct);
+    return items;
+  }
+
+  window.closeDiagPopup = closeDiagPopup;
+
+  window.openDiagBandPopup = function(ev, mode, band){
+    ev.preventDefault();
+    ev.stopPropagation();
+    closeDiagPopup();
+
+    const C = ctx();
+    if(!C) return;
+    const { catLabel } = C;
+
+    const items = bandItems(mode, band);
+    const title = (mode==="sold") ? "SOLD" : "ASR";
+    const colorClass = (band==="red") ? "red" : "yellow";
+
+    const rows = items.length ? items.map((it, i)=>{
+      const id = "svc-" + String(it.cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+      const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
+      const lbl = (mode==="sold") ? "Sold%" : "ASR%";
+      return `
+        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit">
+          <span class="rankNum">${i+1}.</span>
+          <span class="tbName">${safe(catLabel ? catLabel(it.cat) : it.cat)}</span>
+          <span class="tbVal">${lbl} ${fmtPct(it.val)}</span>
+        </a>
+      `;
+    }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
+
+    const pop = document.createElement("div");
+    pop.id = "diagBandPopup";
+    pop.className = "diagPopup";
+    pop.innerHTML = `
+      <div class="diagPopHead">
+        <div class="diagPopTitle">${title}</div>
+        <div class="diagPopIcon">
+          <svg class="diagTriSvg ${band==="red"?"diagRed":"diagYellow"}" viewBox="0 0 100 87" aria-hidden="true">
+            <polygon class="triFill" points="50,0 0,87 100,87"></polygon>
+            <rect class="triBang" x="46" y="20" width="8" height="34" rx="3"></rect>
+            <circle class="triBang" cx="50" cy="66" r="5"></circle>
+          </svg>
+        </div>
+        <button class="diagPopClose" onclick="window.closeDiagPopup()" aria-label="Close">×</button>
+      </div>
+      <div class="diagPopList">${rows}</div>
+    `;
+    document.body.appendChild(pop);
+
+    const r = ev.currentTarget.getBoundingClientRect();
+    const pr = pop.getBoundingClientRect();
+    const pad = 10;
+    let left = r.right + pad;
+    let top = r.top - 6;
+
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if(left + pr.width > vw - 8) left = r.left - pr.width - pad;
+    if(top + pr.height > vh - 8) top = Math.max(8, vh - pr.height - 8);
+    if(top < 8) top = 8;
+
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+
+    setTimeout(()=>{
+      const onDoc = (e)=>{
+        if(!pop.contains(e.target)) { document.removeEventListener("mousedown", onDoc, true); closeDiagPopup(); }
+      };
+      document.addEventListener("mousedown", onDoc, true);
+    }, 0);
+
+    document.addEventListener("keydown", onEsc, true);
+  };
+})();
+
 function renderTech(techId){
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
@@ -73,6 +185,10 @@ const hash = location.hash || "";
   const TEAM_B = buildBench(TEAM_TECHS);
   const STORE_B = buildBench(STORE_TECHS);
 
+  // expose context for diag badge popups
+  window.__diagCtx = { t, CAT_LIST, TEAM_B, STORE_B, compareBasis, catLabel };
+
+
   function diagTriBadge(color, num, mode, band){
     const n = Number(num)||0;
     if(!n) return "";
@@ -105,11 +221,7 @@ const hash = location.hash || "";
       if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow};
-
-  var openDiagBandPopup;
-
-  function bandOfPct(pct){
+    return {red, yellow};function bandOfPct(pct){
     if(!Number.isFinite(pct)) return null;
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
@@ -144,7 +256,7 @@ const hash = location.hash || "";
     if(e.key==="Escape") closeDiagPopup();
   }
 
-  openDiagBandPopup = function(ev, mode, band){
+  function openDiagBandPopup(ev, mode, band){
     ev.preventDefault();
     ev.stopPropagation();
     closeDiagPopup();
@@ -745,12 +857,7 @@ return `
 
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
-  
-  // ensure popup handlers are globally accessible for inline onclick
-  window.openDiagBandPopup = openDiagBandPopup;
-  window.closeDiagPopup = closeDiagPopup;
-
-document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+  document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
 
