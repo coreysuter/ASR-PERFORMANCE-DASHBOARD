@@ -124,8 +124,7 @@ function renderServicesHome(){
   function badgeButton(secId, metric, color, num, size="mini"){
     const cls = (size==="focus") ? "svcBadgeBtn svcBadgeBtnFocus" : "svcBadgeBtn";
     return `
-      <button class="${cls}" type="button"
-        data-sec="${safe(secId)}" data-metric="${metric}" data-color="${color}"
+      <button class="${cls}" type="button" style="background:transparent;border:0;padding:0;margin:0;appearance:none;-webkit-appearance:none;cursor:pointer" data-sec="${safe(secId)}" data-metric="${metric}" data-color="${color}"
         onclick="return window.openSvcBadgePopup && window.openSvcBadgePopup(event)">
         ${triBadgeSvg(color, num)}
       </button>
