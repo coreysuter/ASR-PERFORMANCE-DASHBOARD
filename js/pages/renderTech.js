@@ -73,10 +73,10 @@ const hash = location.hash || "";
   const TEAM_B = buildBench(TEAM_TECHS);
   const STORE_B = buildBench(STORE_TECHS);
 
-  function triBadge(color, num){
+  function diagTriBadge(color, num){
     const n = Number(num)||0;
     if(!n) return "";
-    return `<div class="triBadge ${color}"><div class="triBang">!</div><div class="triNum">${fmtInt(n)}</div></div>`;
+    return `<div class="diagTriBadge ${color}"><div class="triBang">!</div><div class="triNum">${fmtInt(n)}</div></div>`;
   }
 
   function countBandsFor(mode){
@@ -603,8 +603,8 @@ return `
           <div class="diagLabelCol">
             <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
             <div class="diagBadgeRow">
-              ${triBadge("red", bandCounts_asr.red)}
-              ${triBadge("yellow", bandCounts_asr.yellow)}
+              ${diagTriBadge("red", bandCounts_asr.red)}
+              ${diagTriBadge("yellow", bandCounts_asr.yellow)}
             </div>
           </div>
           <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
@@ -616,8 +616,8 @@ return `
           <div class="diagLabelCol">
             <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
             <div class="diagBadgeRow">
-              ${triBadge("red", bandCounts_sold.red)}
-              ${triBadge("yellow", bandCounts_sold.yellow)}
+              ${diagTriBadge("red", bandCounts_sold.red)}
+              ${diagTriBadge("yellow", bandCounts_sold.yellow)}
             </div>
           </div>
           <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
