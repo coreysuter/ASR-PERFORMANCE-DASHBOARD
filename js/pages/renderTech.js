@@ -140,7 +140,7 @@ const hash = location.hash || "";
     if(e.key==="Escape") closeDiagPopup();
   }
 
-  function openDiagBandPopup(ev, mode, band){
+  openDiagBandPopup = function(ev, mode, band){
     ev.preventDefault();
     ev.stopPropagation();
     closeDiagPopup();
