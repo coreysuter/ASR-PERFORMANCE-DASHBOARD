@@ -1,6 +1,27 @@
 // === Global diag popup handlers (used by clickable triangle badges) ===
 (function(){
-  function ctx(){ return window.__diagCtx || null; }
+  function catList(){
+    const set = new Set();
+    (DATA.sections||[]).forEach(s=>(s.categories||[]).forEach(c=>c && set.add(c)));
+    return Array.from(set);
+  }
+  function buildBench(scopeTechs, cats){
+    const bench = {};
+    for(const cat of cats){
+      const reqs=[], closes=[];
+      for(const x of scopeTechs){
+        const c = x.categories?.[cat];
+        const req = Number(c?.req);
+        const close = Number(c?.close);
+        if(Number.isFinite(req)) reqs.push(req);
+        if(Number.isFinite(close)) closes.push(close);
+      }
+      const avgReq = reqs.length ? (reqs.reduce((a,b)=>a+b,0)/reqs.length) : NaN;
+      const avgClose = closes.length ? (closes.reduce((a,b)=>a+b,0)/closes.length) : NaN;
+      bench[cat] = {avgReq, avgClose};
+    }
+    return bench;
+  }
 
   function closeDiagPopup(){
     const el = document.getElementById("diagBandPopup");
@@ -16,15 +37,27 @@
     return null;
   }
 
-  function bandItems(mode, band){
-    const C = ctx();
-    if(!C) return [];
-    const { t, CAT_LIST, TEAM_B, STORE_B, compareBasis } = C;
-    const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
+  window.closeDiagPopup = closeDiagPopup;
+
+  window.openDiagBandPopup = function(ev, techId, mode, band, compareBasis){
+    ev.preventDefault();
+    ev.stopPropagation();
+    closeDiagPopup();
+
+    const t = (DATA.techs||[]).find(x=>String(x.id)===String(techId));
+    if(!t) return;
+
+    const cats = catList();
+    const team = t.team || t.group || t.teamKey || "";
+    const scope = (String(compareBasis)==="team")
+      ? (DATA.techs||[]).filter(x=>(x.team||x.group||x.teamKey||"")===team)
+      : (DATA.techs||[]);
+
+    const bench = buildBench(scope, cats);
 
     const items = [];
-    for(const cat of CAT_LIST){
-      const mine = t?.categories?.[cat];
+    for(const cat of cats){
+      const mine = t.categories?.[cat];
       if(!mine) continue;
       const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
       const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
@@ -35,32 +68,19 @@
       items.push({cat, val, pct});
     }
     items.sort((a,b)=>a.pct-b.pct);
-    return items;
-  }
 
-  window.closeDiagPopup = closeDiagPopup;
-
-  window.openDiagBandPopup = function(ev, mode, band){
-    ev.preventDefault();
-    ev.stopPropagation();
-    closeDiagPopup();
-
-    const C = ctx();
-    if(!C) return;
-    const { catLabel } = C;
-
-    const items = bandItems(mode, band);
     const title = (mode==="sold") ? "SOLD" : "ASR";
-    const colorClass = (band==="red") ? "red" : "yellow";
+    const colorClass = (band==="red") ? "diagRed" : "diagYellow";
 
     const rows = items.length ? items.map((it, i)=>{
       const id = "svc-" + String(it.cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
       const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
       const lbl = (mode==="sold") ? "Sold%" : "ASR%";
+      const nm = (window.catLabel ? window.catLabel(it.cat) : it.cat);
       return `
         <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit">
           <span class="rankNum">${i+1}.</span>
-          <span class="tbName">${safe(catLabel ? catLabel(it.cat) : it.cat)}</span>
+          <span class="tbName">${safe(nm)}</span>
           <span class="tbVal">${lbl} ${fmtPct(it.val)}</span>
         </a>
       `;
@@ -73,7 +93,7 @@
       <div class="diagPopHead">
         <div class="diagPopTitle">${title}</div>
         <div class="diagPopIcon">
-          <svg class="diagTriSvg ${band==="red"?"diagRed":"diagYellow"}" viewBox="0 0 100 87" aria-hidden="true">
+          <svg class="diagTriSvg ${colorClass}" viewBox="0 0 100 87" aria-hidden="true">
             <polygon class="triFill" points="50,0 0,87 100,87"></polygon>
             <rect class="triBang" x="46" y="20" width="8" height="34" rx="3"></rect>
             <circle class="triBang" cx="50" cy="66" r="5"></circle>
@@ -185,9 +205,6 @@ const hash = location.hash || "";
   const TEAM_B = buildBench(TEAM_TECHS);
   const STORE_B = buildBench(STORE_TECHS);
 
-  // expose context for diag badge popups
-  window.__diagCtx = { t, CAT_LIST, TEAM_B, STORE_B, compareBasis, catLabel };
-
 
   function diagTriBadge(color, num, mode, band){
     const n = Number(num)||0;
@@ -195,7 +212,7 @@ const hash = location.hash || "";
     const cls = (color==="red") ? "diagRed" : "diagYellow";
     // clickable triangle -> popup of services for this band
     return `
-      <button class="diagTriBtn" onclick="window.openDiagBandPopup(event,'${mode}','${band}')" aria-label="${mode.toUpperCase()} ${band} services">
+      <button class="diagTriBtn" onclick="window.openDiagBandPopup(event,'${t.id}','${mode}','${band}','${compareBasis}')" aria-label="${mode.toUpperCase()} ${band} services">
         <svg class="diagTriSvg ${cls}" viewBox="0 0 100 87" aria-hidden="true">
           <polygon class="triFill" points="50,0 0,87 100,87"></polygon>
           <!-- exclamation mark -->
