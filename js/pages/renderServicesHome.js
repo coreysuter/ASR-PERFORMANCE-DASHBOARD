@@ -425,7 +425,7 @@ function tbRow(item, idx, mode){
                   <div class="badgePair big" style="display:flex;gap:10px;align-items:center">
                     ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
                   </div>
-                  <div class="badgeCap big" style="font-size:15px;letter-spacing:.25px;color:var(--muted);font-weight:1100;text-transform:uppercase">
+                  <div class="badgeCap big focusCap" style="font-size:15px;letter-spacing:.25px;color:var(--muted);font-weight:1100;text-transform:uppercase">
                     ${focus==="sold" ? "SOLD" : "ASR"}
                   </div>
                 </div>

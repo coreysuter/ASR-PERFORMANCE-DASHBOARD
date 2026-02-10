@@ -1196,8 +1196,9 @@ body.route-tech .catTitle .meta{
 }
 
 
-
-/* === Tech Details: shrink tech header panel to give diag section more room === */
-body.route-tech .techHeaderWrap{
-  grid-template-columns:0.78fr 1.22fr !important;
+/* FORCE: focus badge label under focus badges should be ~50% larger than mini badge labels */
+.secFocusDial .focusBadgePair .badgeCap.big{
+  font-size:15px !important;
+  line-height:1.05 !important;
 }
+.secFocusDial .focusCap{font-size:15px !important;}
