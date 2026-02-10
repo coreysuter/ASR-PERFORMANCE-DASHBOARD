@@ -1,7 +1,15 @@
 function renderMain(){
   const app=document.getElementById('app');
 
-  // ---- Dashboard header (match Technician Details header + pills) ----
+  // Main header owns the team filters now
+  if(typeof UI !== 'undefined' && UI.mainFiltersOpen===undefined) UI.mainFiltersOpen=false;
+
+  // keep Express/Kia in sync
+  if(state && state.EXPRESS && state.KIA){
+    state.KIA.filterKey = state.EXPRESS.filterKey;
+    state.KIA.sortBy = state.EXPRESS.sortBy;
+  }
+
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA"))
     : [];
@@ -14,6 +22,11 @@ function renderMain(){
   const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPct = totalAsr ? (totalSold/totalAsr) : null;
+
+  const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro"};
+  const filterLabel = st.filterKey==="without_fluids" ? "Without Fluids" : (st.filterKey==="fluids_only" ? "Fluids Only" : "With Fluids (Total)");
+  const focusLabel = (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO");
+  const appliedTextHtml = (typeof renderFiltersText === 'function') ? renderFiltersText([filterLabel, focusLabel]) : "";
 
   const header = `
     <div class="panel techHeaderPanel">
@@ -40,6 +53,32 @@ function renderMain(){
           <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
           <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
         </div>
+
+        <div class="iconBar">
+          <button class="iconBtn" onclick="toggleMainFilters()" aria-label="Filters" title="Filters">${typeof ICON_FILTER!=='undefined' ? ICON_FILTER : '⏷'}</button>
+          <div class="appliedInline">${appliedTextHtml}</div>
+          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
+        </div>
+
+        <div class="ctlPanel ${(typeof UI!=='undefined' && UI.mainFiltersOpen)?"open":""}">
+          <div class="controls">
+            <div>
+              <label>Filter</label>
+              <select data-scope="main" data-ctl="filter">
+                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+              </select>
+            </div>
+            <div>
+              <label>Focus</label>
+              <select data-scope="main" data-ctl="sort">
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -47,19 +86,34 @@ function renderMain(){
   app.innerHTML = `${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div>`;
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
-    const team=el.getAttribute('data-team');
     const ctl=el.getAttribute('data-ctl');
-    const st=state[team];
+    const scope=el.getAttribute('data-scope');
+    const team=el.getAttribute('data-team');
+
     const apply=()=>{
-      if(ctl==="filter") st.filterKey=el.value;
-      if(ctl==="sort") st.sortBy=el.value;
-      if(ctl==="search") st.search=el.value;
+      if(scope==="main"){
+        if(ctl==="filter"){ state.EXPRESS.filterKey=el.value; state.KIA.filterKey=el.value; }
+        if(ctl==="sort"){ state.EXPRESS.sortBy=el.value; state.KIA.sortBy=el.value; }
+      } else if(team && state[team]){
+        const st=state[team];
+        if(ctl==="filter") st.filterKey=el.value;
+        if(ctl==="sort") st.sortBy=el.value;
+        if(ctl==="search") st.search=el.value;
+      }
       renderMain();
     };
     el.addEventListener('change', apply);
     el.addEventListener('input', apply);
   });
 }
+
+function toggleMainFilters(){
+  if(typeof UI==='undefined') return;
+  UI.mainFiltersOpen = !UI.mainFiltersOpen;
+  renderMain();
+}
+
+window.toggleMainFilters = toggleMainFilters;
 
 function buildTeamCategoryStats(team){
   const techs = byTeam(team);

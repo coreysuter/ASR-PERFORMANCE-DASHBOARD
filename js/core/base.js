@@ -378,12 +378,7 @@ function renderTeam(team, st){
   }).join("");
 
   const filterLabel = st.filterKey==="without_fluids" ? "Without Fluids" : (st.filterKey==="fluids_only" ? "Fluids Only" : "With Fluids (Total)");
-
-  const appliedParts = [
-    `${filterLabel}`,
-    (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO")
-  ];
-  const appliedTextHtml = renderFiltersText(appliedParts);
+  const focusLabel = (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO");
 
 
   return `
@@ -392,7 +387,7 @@ function renderTeam(team, st){
         <div class="titleRow">
           <div>
             <div class="h2 teamTitle">${safe(team)}</div>
-            <div class="sub"></div>
+            <div class="sub">${safe(filterLabel)} <span class="teamDot">•</span> ${safe(focusLabel)}</div>
           </div>
           <div class="teamStat">
             <div class="num">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
@@ -407,29 +402,7 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
         </div>
         <div class="iconBar">
-          <button class="iconBtn" onclick="toggleTeamFilters('${safe(team)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
-          <div class="appliedInline">${appliedTextHtml}</div>
-          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${ICON_SEARCH}</button>
-        </div>
-
-        <div class="ctlPanel ${st.filtersOpen?"open":""}">
-          <div class="controls">
-            <div>
-              <label>Filter</label>
-              <select data-team="${safe(team)}" data-ctl="filter">
-                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-              </select>
-            </div>
-            <div>
-              <label>Focus</label>
-              <select data-team="${safe(team)}" data-ctl="sort">
-                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
-              </select>
-            </div>
-          </div>
+          <button class="iconBtn" onclick="openTechSearch()" aria-label="Search" title="Search">${ICON_SEARCH}</button>
         </div>
       </div>
       <div class="list">${rows || `<div class="notice">No technicians found.</div>`}</div>
@@ -441,12 +414,6 @@ const state = {
   EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
   KIA: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
 };
-
-function toggleTeamFilters(team){
-  if(!state[team]) return;
-  state[team].filtersOpen = !state[team].filtersOpen;
-  renderMain();
-}
 
 function toggleGroupFilters(groupKey){
   UI.groupFilters[groupKey] = !UI.groupFilters[groupKey];
