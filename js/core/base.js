@@ -378,7 +378,12 @@ function renderTeam(team, st){
   }).join("");
 
   const filterLabel = st.filterKey==="without_fluids" ? "Without Fluids" : (st.filterKey==="fluids_only" ? "Fluids Only" : "With Fluids (Total)");
-  const focusLabel = (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO");
+
+  const appliedParts = [
+    `${filterLabel}`,
+    (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO")
+  ];
+  const appliedTextHtml = renderFiltersText(appliedParts);
 
 
   return `
@@ -387,11 +392,11 @@ function renderTeam(team, st){
         <div class="titleRow">
           <div>
             <div class="h2 teamTitle">${safe(team)}</div>
-            <div class="sub">${safe(filterLabel)} <span class="teamDot">•</span> ${safe(focusLabel)}</div>
+            <div class="sub">${appliedTextHtml}</div>
           </div>
-          <div class="teamStat">
-            <div class="num">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
-            <div class="lbl">${st.sortBy==="sold_pct" ? "Sold%" : "Avg ASR/RO (Summary)"}</div>
+          <div class="overallBlock">
+            <div class="big">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
+            <div class="tag">${st.sortBy==="sold_pct" ? "Sold%" : "ASRs/RO"}</div>
           </div>
         </div>
 
@@ -400,9 +405,6 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
           <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
           <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
-        </div>
-        <div class="iconBar">
-          <button class="iconBtn" onclick="openTechSearch()" aria-label="Search" title="Search">${ICON_SEARCH}</button>
         </div>
       </div>
       <div class="list">${rows || `<div class="notice">No technicians found.</div>`}</div>
@@ -414,6 +416,12 @@ const state = {
   EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
   KIA: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
 };
+
+function toggleTeamFilters(team){
+  if(!state[team]) return;
+  state[team].filtersOpen = !state[team].filtersOpen;
+  renderMain();
+}
 
 function toggleGroupFilters(groupKey){
   UI.groupFilters[groupKey] = !UI.groupFilters[groupKey];
