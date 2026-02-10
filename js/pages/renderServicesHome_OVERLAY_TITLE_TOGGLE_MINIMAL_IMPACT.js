@@ -579,25 +579,28 @@ document.getElementById("app").innerHTML = `
 initServicesSectionToggles();
   
   function pinSectionTitlesTopLeft(){
-    // EXACTLY ONE toggle, placed to the LEFT of the title.
-    // Hide any existing toggles and use one overlay toggle that directly collapses/expands the section.
+    // Minimal-impact overlay:
+    // - Keep existing layout/dials/badges untouched.
+    // - Hide the *text* of the original title (keeps its space).
+    // - Keep the original toggle in-place for layout, but make it invisible and non-interactive.
+    // - Render an overlay title (clone of .techH2 to match Tech Details styling).
+    // - Render an overlay toggle placed to the LEFT of the overlay title; clicks proxy to the real toggle.
     document.querySelectorAll(".panel").forEach(panel=>{
       const phead = panel.querySelector(".phead");
-      const list = panel.querySelector(".list");
       const h2 = phead ? phead.querySelector(".techH2") : null;
-      if(!phead || !h2 || !list) return;
+      const realToggle = phead ? phead.querySelector("button.secToggle") : null;
+      if(!phead || !h2 || !realToggle) return;
 
       phead.style.position = "relative";
 
-      // Hide any existing toggles in this header (prevents duplicates)
-      phead.querySelectorAll("button.secToggle, .secToggle, .svcToggleOverlay, .svcToggleLeft").forEach(b=>{
-        b.style.display = "none";
-      });
-
-      // Hide original title text but keep its layout box (so nothing shifts)
+      // Keep layout space but hide the original title text
       h2.style.visibility = "hidden";
 
-      // Overlay title: clone of the h2 so styling matches Tech Details
+      // Keep layout space for the real toggle, but hide it and disable pointer events
+      realToggle.style.opacity = "0";
+      realToggle.style.pointerEvents = "none";
+
+      // Overlay title (clone so styles match exactly)
       let titleOv = phead.querySelector(".svcTitleOverlay");
       if(!titleOv){
         titleOv = h2.cloneNode(true);
@@ -612,12 +615,17 @@ initServicesSectionToggles();
         titleOv.textContent = h2.textContent;
       }
 
-      // Overlay SINGLE toggle button (left of title)
-      let togOv = phead.querySelector(".svcToggleLeft");
+      const baseLeft = 12;
+      const top = 10;
+      titleOv.style.left = (baseLeft + 42 + 14) + "px"; // leave room for toggle on left
+      titleOv.style.top = top + "px";
+
+      // Overlay toggle (does not affect layout)
+      let togOv = phead.querySelector(".svcToggleOverlay");
       if(!togOv){
         togOv = document.createElement("button");
         togOv.type = "button";
-        togOv.className = "svcToggleLeft";
+        togOv.className = "svcToggleOverlay";
         togOv.style.position = "absolute";
         togOv.style.zIndex = "7";
         togOv.style.pointerEvents = "auto";
@@ -637,27 +645,21 @@ initServicesSectionToggles();
 
         togOv.addEventListener("click", (e)=>{
           e.preventDefault();
-          panel.classList.toggle("secCollapsed");
-          const collapsed = panel.classList.contains("secCollapsed");
-          list.style.display = collapsed ? "none" : "";
-          togOv.textContent = collapsed ? "+" : "−";
+          // proxy to the real toggle (which should still collapse/expand via existing handlers)
+          realToggle.click();
+          // sync symbol next frame
+          requestAnimationFrame(()=>{ togOv.textContent = realToggle.textContent || togOv.textContent; });
         });
       }
 
-      const baseLeft = 12;
-      const top = 10;
-
-      // Sync list display with current state
-      const collapsed = panel.classList.contains("secCollapsed");
-      list.style.display = collapsed ? "none" : "";
-      togOv.textContent = collapsed ? "+" : "−";
-
-      togOv.style.left = baseLeft + "px";
-      togOv.style.top = (top + 8) + "px";
-
-      // Title sits next to toggle
-      titleOv.style.left = (baseLeft + 42 + 14) + "px";
-      titleOv.style.top = top + "px";
+      // Position overlay toggle left of title, vertically centered on title line
+      requestAnimationFrame(()=>{
+        togOv.style.left = baseLeft + "px";
+        const midY = top + (titleOv.offsetHeight/2);
+        togOv.style.top = midY + "px";
+        togOv.style.transform = "translateY(-50%)";
+        togOv.textContent = realToggle.textContent || "−";
+      });
     });
   }
 
