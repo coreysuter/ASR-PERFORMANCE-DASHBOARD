@@ -118,22 +118,6 @@ function renderServicesHome(){
         </svg>
       </span>
     `;
-
-  // Safer nudge: move ONLY the category title inside the header row (no layout reflow)
-  (function(){
-    let st = document.getElementById("svcTitleNudge");
-    if(!st){
-      st = document.createElement("style");
-      st.id = "svcTitleNudge";
-      st.textContent = `
-        .route-services .secHeadRow .techH2{
-          transform: translateY(-14px) !important;
-        }
-      `;
-      document.head.appendChild(st);
-    }
-  })();
-
   }
 
 const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/></svg>`;
@@ -569,6 +553,7 @@ document.getElementById("app").innerHTML = `
       }
     });
   });  initServicesSectionToggles();
+  pinSectionTitlesTopLeft();
   try{ window.animateSvcGauges?.(); }catch(e){}
 // animate gauges + enable section collapse toggles (same as tech details)
   
@@ -592,6 +577,45 @@ document.getElementById("app").innerHTML = `
   if(compareSel) compareSel.addEventListener('change', updateHash);
 
 initServicesSectionToggles();
+  
+  function pinSectionTitlesTopLeft(){
+    // Keep layout untouched: hide the original title (keeps its space) and render an overlay title at top-left.
+    document.querySelectorAll(".panel").forEach(panel=>{
+      const phead = panel.querySelector(".phead");
+      const h2 = phead ? phead.querySelector(".techH2") : null;
+      const toggle = phead ? phead.querySelector("button.secToggle") : null;
+      if(!phead || !h2 || !toggle) return;
+
+      // Ensure phead can host absolute overlay
+      phead.style.position = "relative";
+
+      // Hide original title text but keep its layout box
+      h2.style.visibility = "hidden";
+
+      // Create/update overlay
+      let ov = phead.querySelector(".svcTitleOverlay");
+      if(!ov){
+        ov = document.createElement("div");
+        ov.className = "svcTitleOverlay";
+        ov.style.position = "absolute";
+        ov.style.zIndex = "5";
+        ov.style.pointerEvents = "none";
+        ov.style.fontSize = "48px";
+        ov.style.fontWeight = "1100";
+        ov.style.letterSpacing = ".4px";
+        ov.style.color = "var(--text)";
+        ov.style.lineHeight = "1.05";
+        phead.appendChild(ov);
+      }
+      ov.textContent = h2.textContent;
+
+      // Place it next to the toggle at the very top-left
+      const left = toggle.offsetLeft + toggle.offsetWidth + 12;
+      ov.style.left = left + "px";
+      ov.style.top = "10px";
+    });
+  }
+
   try{ window.animateSvcGauges?.(); }catch(e){}
 }
 
