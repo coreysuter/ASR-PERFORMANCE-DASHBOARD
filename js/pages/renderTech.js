@@ -83,7 +83,7 @@ const hash = location.hash || "";
     let red=0, yellow=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
-      const mine = tech?.categories?.[cat];
+      const mine = t?.categories?.[cat];
       if(!mine) continue;
       const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
       const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
