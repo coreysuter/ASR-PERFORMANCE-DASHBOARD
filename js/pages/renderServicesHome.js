@@ -213,7 +213,7 @@ function renderServicesHome(){
         </div>
         <div class="svcBadgePopupList">
           ${rows.length ? rows.map((r, i)=>`
-            <a class="svcBadgePopupItem" href="#svc-${safeId(r.key)}" onclick="window.closeSvcBadgePopup(); return window.jumpToService ? window.jumpToService('${safeId(r.key)}') : true;">
+            <a class="svcBadgePopupItem" href="javascript:void(0)" onclick="window.closeSvcBadgePopup(); return (window.jumpToService ? window.jumpToService('${safeId(r.key)}') : false);">
               <div class="svcBadgePopupName">${(i+1)+'. '} ${safe(r.name)}</div>
               <div class="svcBadgePopupVal">${(metric==='sold'?'Sold% ':'ASR% ')}${fmtPct(r.val)}</div>
             </a>
