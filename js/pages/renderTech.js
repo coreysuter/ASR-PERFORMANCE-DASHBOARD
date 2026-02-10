@@ -82,15 +82,15 @@
     const lbl = (mode==="sold") ? "Sold%" : "ASR%";
 
     const rows = items.length ? items.map((it, i)=>{
-      const id = "svc-" + String(it.cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+            const id = safeSvcId(it.cat);
       const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
       const nm = (typeof window.catLabel==="function") ? window.catLabel(it.cat) : it.cat;
       return `
-        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);cursor:pointer;pointer-events:auto">
+        <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer">
           <span class="rankNum">${i+1}.</span>
           <span class="tbName" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(nm)}</span>
           <span class="tbVal" style="margin-left:auto;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${lbl} ${fmtPctLocal(it.val)}</span>
-        </a>
+        </button>
       `;
     }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
 
@@ -119,6 +119,19 @@
       </div>
     `;
     document.body.appendChild(pop);
+
+    // Row clicks: jump to service and close popup
+    pop.addEventListener("click", (e)=> {
+      const btn = e.target && e.target.closest ? e.target.closest(".diagPopRowBtn") : null;
+      if(!btn) return;
+      const targetId = btn.getAttribute("data-target");
+      if(targetId){
+        const el = document.getElementById(targetId);
+        if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+      window.closeDiagPopup && window.closeDiagPopup();
+    }, true);
+
 
     const r = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect() : ((ev && ev.target && ev.target.getBoundingClientRect) ? ev.target.getBoundingClientRect() : {left:20,top:20,right:20});
     const pr = pop.getBoundingClientRect();
@@ -189,7 +202,15 @@ const hash = location.hash || "";
   }
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
-  const s = t.summary?.[filterKey] || {};
+  
+
+  function safeSvcId(cat){
+    return "svc-" + String(cat||"").toLowerCase()
+      .replace(/&/g,"and")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+  }
+const s = t.summary?.[filterKey] || {};
 
   function allTechs(){ return (DATA.techs||[]).filter(x=>x.team==="EXPRESS" || x.team==="KIA"); }
   function categoryUniverse(){
@@ -310,15 +331,15 @@ const hash = location.hash || "";
     const colorClass = (band==="red") ? "red" : "yellow";
 
     const rows = items.length ? items.map((it, i)=>{
-      const id = "svc-" + String(it.cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+            const id = safeSvcId(it.cat);
       const onClick = `event.preventDefault(); closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
       const lbl = (mode==="sold") ? "Sold%" : "ASR%";
       return `
-        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);cursor:pointer;pointer-events:auto">
+        <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer">
           <span class="rankNum">${i+1}.</span>
-          <span class="tbName">${safe(catLabel ? catLabel(it.cat) : it.cat)}</span>
-          <span class="tbVal">${lbl} ${fmtPct(it.val)}</span>
-        </a>
+          <span class="tbName" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(nm)}</span>
+          <span class="tbVal" style="margin-left:auto;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${lbl} ${fmtPctLocal(it.val)}</span>
+        </button>
       `;
     }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
 
@@ -338,6 +359,19 @@ const hash = location.hash || "";
       <div class="diagPopList">${rows}</div>
     `;
     document.body.appendChild(pop);
+
+    // Row clicks: jump to service and close popup
+    pop.addEventListener("click", (e)=> {
+      const btn = e.target && e.target.closest ? e.target.closest(".diagPopRowBtn") : null;
+      if(!btn) return;
+      const targetId = btn.getAttribute("data-target");
+      if(targetId){
+        const el = document.getElementById(targetId);
+        if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+      window.closeDiagPopup && window.closeDiagPopup();
+    }, true);
+
 
     // position next to the clicked triangle
     const r = ev.currentTarget.getBoundingClientRect();
@@ -690,7 +724,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard" id="svc-${cat}">
+      <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
@@ -814,7 +848,7 @@ return `
 
   // Safe jump helper (never throws on null)
   window.jumpToService = function(cat){
-    const id = `svc-${cat}`;
+    const id = safeSvcId(cat);
     const el = document.getElementById(id);
     if(!el){ console.warn("jumpToService: not found", id); return false; }
     const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
