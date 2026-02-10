@@ -1,3 +1,183 @@
+// === Global diag popup handlers (used by clickable triangle badges) ===
+(function(){
+  function escHtml(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+  }
+  function fmtPctLocal(v){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return "—";
+    return (n*100).toFixed(1) + "%";
+  }
+
+  function safeSvcIdLocal(cat){
+    return "svc-" + String(cat||"").toLowerCase()
+      .replace(/&/g,"and")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+  }
+
+  function catList(){
+    const set = new Set();
+    (DATA.sections||[]).forEach(s=>(s.categories||[]).forEach(c=>c && set.add(c)));
+    return Array.from(set);
+  }
+  function buildBench(scopeTechs, cats){
+    const bench = {};
+    for(const cat of cats){
+      const reqs=[], closes=[];
+      for(const x of scopeTechs){
+        const c = x.categories?.[cat];
+        const req = Number(c?.req);
+        const close = Number(c?.close);
+        if(Number.isFinite(req)) reqs.push(req);
+        if(Number.isFinite(close)) closes.push(close);
+      }
+      const avgReq = reqs.length ? (reqs.reduce((a,b)=>a+b,0)/reqs.length) : NaN;
+      const avgClose = closes.length ? (closes.reduce((a,b)=>a+b,0)/closes.length) : NaN;
+      bench[cat] = {avgReq, avgClose};
+    }
+    return bench;
+  }
+
+  function closeDiagPopup(){
+    const el = document.getElementById("diagBandPopup");
+    if(el) el.remove();
+    document.removeEventListener("keydown", onEsc, true);
+  }
+  function onEsc(e){ if(e.key==="Escape") closeDiagPopup(); }
+
+  function bandOfPct(pct){
+    if(!Number.isFinite(pct)) return null;
+    if(pct < 0.60) return "red";
+    if(pct < 0.80) return "yellow";
+    return null;
+  }
+
+  window.closeDiagPopup = closeDiagPopup;
+
+  window.openDiagBandPopup = function(ev, techId, mode, band, compareBasis, anchorEl){
+    if(ev){ ev.preventDefault(); ev.stopPropagation(); }
+    closeDiagPopup();
+
+    const t = (DATA.techs||[]).find(x=>String(x.id)===String(techId));
+    if(!t) return;
+
+    const cats = catList();
+    const team = t.team || t.group || t.teamKey || "";
+    const scope = (String(compareBasis)==="team")
+      ? (DATA.techs||[]).filter(x=>(x.team||x.group||x.teamKey||"")===team)
+      : (DATA.techs||[]);
+
+    const bench = buildBench(scope, cats);
+
+    const items = [];
+    for(const cat of cats){
+      const mine = t.categories?.[cat];
+      if(!mine) continue;
+      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
+      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
+      const pct = val/base;
+      const b = bandOfPct(pct);
+      if(b !== band) continue;
+      items.push({cat, val, pct});
+    }
+    items.sort((a,b)=>a.pct-b.pct);
+
+    const title = (mode==="sold") ? "SOLD" : "ASR";
+    const colorClass = (band==="red") ? "diagRed" : "diagYellow";
+    const popFill = (band==="red") ? "#ff4b4b" : "#ffbf2f";
+    const lbl = (mode==="sold") ? "Sold%" : "ASR%";
+
+    const rows = items.length ? items.map((it, i)=>{
+            const id = safeSvcIdLocal(it.cat);
+      const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
+      const nm = (typeof window.catLabel==="function") ? window.catLabel(it.cat) : it.cat;
+      return `
+        <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer">
+          <span class="rankNum">${i+1}.</span>
+          <span class="tbName" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(nm)}</span>
+          <span class="tbVal" style="margin-left:auto;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${lbl} ${fmtPctLocal(it.val)}</span>
+        </button>
+      `;
+    }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
+
+    const pop = document.createElement("div");
+    pop.id = "diagBandPopup";
+    pop.className = "diagPopup";
+    pop.style.position = "fixed";
+    pop.style.zIndex = "9999";
+    pop.style.width = "520px";
+    pop.style.maxWidth = "calc(100vw - 24px)";
+    pop.style.background = "linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98))";
+    pop.style.border = "1px solid rgba(255,255,255,.10)";
+    pop.style.borderRadius = "16px";
+    pop.style.boxShadow = "0 22px 60px rgba(0,0,0,.55)";
+    pop.style.overflow = "hidden";
+    pop.style.overflowX = "hidden";
+
+    pop.innerHTML = `
+      <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}<svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))"><polygon points="50,0 0,87 100,87" fill="${popFill}"></polygon><rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect><circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle></svg></div>
+        <button class="diagPopClose" onclick="window.closeDiagPopup()" aria-label="Close"
+          style="margin-left:6px;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div class="diagPopList" style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
+        ${rows}
+      </div>
+    `;
+    document.body.appendChild(pop);
+
+    // Row clicks: jump to service and close popup
+    pop.addEventListener("click", (e)=> {
+      const btn = e.target && e.target.closest ? e.target.closest(".diagPopRowBtn") : null;
+      if(!btn) return;
+      const targetId = btn.getAttribute("data-target");
+      if(targetId){
+        const el = document.getElementById(targetId);
+        if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+      window.closeDiagPopup && window.closeDiagPopup();
+    }, true);
+
+
+    const r = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect() : ((ev && ev.target && ev.target.getBoundingClientRect) ? ev.target.getBoundingClientRect() : {left:20,top:20,right:20});
+    const pr = pop.getBoundingClientRect();
+    const pad = 10;
+
+    let left = r.right + pad;
+    let top = r.top - 6;
+
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if(left + pr.width > vw - 8) left = r.left - pr.width - pad;
+    if(top + pr.height > vh - 8) top = Math.max(8, vh - pr.height - 8);
+    if(top < 8) top = 8;
+
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+
+    setTimeout(()=>{
+      const onDoc = (e)=>{
+        if(!pop.contains(e.target)) { document.removeEventListener("mousedown", onDoc, true); closeDiagPopup(); }
+      };
+      document.addEventListener("mousedown", onDoc, true);
+    }, 0);
+
+    document.addEventListener("keydown", onEsc, true);
+  };
+
+  // Event delegation so clicks work even if inline onclick is blocked/stripped
+  document.addEventListener("click", (e)=>{
+    const btn = e.target && e.target.closest ? e.target.closest(".diagTriBtn") : null;
+    if(!btn) return;
+    const techId = btn.getAttribute("data-tech");
+    const mode = btn.getAttribute("data-mode");
+    const band = btn.getAttribute("data-band");
+    const compare = btn.getAttribute("data-compare") || "team";
+    window.openDiagBandPopup(e, techId, mode, band, compare, btn);
+  }, true);
+})();
+
 function renderTech(techId){
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
@@ -30,7 +210,31 @@ const hash = location.hash || "";
   }
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
-  const s = t.summary?.[filterKey] || {};
+  
+
+  function safeSvcId(cat){
+    return "svc-" + String(cat||"").toLowerCase()
+      .replace(/&/g,"and")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+  }
+
+
+  // Focus Rank Badge (replaces x/x rankings)
+  function rankBadgeHtml(rank, total, focus, size="lg"){
+    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
+    const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+    const t = (total===null || total===undefined || total==="") ? "—" : total;
+    const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+    return `
+      <div class="${cls}">
+        <div class="rfbFocus">${top}</div>
+        <div class="rfbMain"><span class="rfbHash">#</span>${r}</div>
+        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
+      </div>
+    `;
+  }
+const s = t.summary?.[filterKey] || {};
 
   function allTechs(){ return (DATA.techs||[]).filter(x=>x.team==="EXPRESS" || x.team==="KIA"); }
   function categoryUniverse(){
@@ -38,19 +242,6 @@ const hash = location.hash || "";
     for(const x of (DATA.techs||[])){
       for(const k of Object.keys(x.categories||{})) cats.add(k);
     }
-  window.renderRankBadge = function renderRankBadge(rank, total, focus){
-    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
-    const r = (rank===null || rank===undefined) ? "—" : rank;
-    const t = (total===null || total===undefined) ? "—" : total;
-    return `
-      <div class="rankFocusBadge">
-        <div class="rfbFocus">${top}</div>
-        <div class="rfbMain"><span class="rfbHash">#</span>${r}</div>
-        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
-      </div>
-    `;
-  }
-
     return Array.from(cats);
   }
   const CAT_LIST = categoryUniverse();
@@ -86,6 +277,45 @@ const hash = location.hash || "";
   const TEAM_B = buildBench(TEAM_TECHS);
   const STORE_B = buildBench(STORE_TECHS);
 
+
+  function diagTriBadge(color, num, mode, band){
+    const n = Number(num)||0;
+    if(!n) return "";
+    const fill = (color==="red") ? "#ff4b4b" : "#ffbf2f";
+    const textX = 86; // keep numbers inside
+    return `
+      <button class="diagTriBtn" data-tech="${t.id}" data-mode="${mode}" data-band="${band}" data-compare="${compareBasis}" aria-label="${mode.toUpperCase()} ${band} services"
+        style="background:transparent;border:none;padding:0;cursor:pointer">
+        <svg class="diagTriSvg" viewBox="0 0 100 87" aria-hidden="true" style="width:64px;height:auto;display:block;filter:drop-shadow(0 14px 24px rgba(0,0,0,.40))">
+          <polygon points="50,0 0,87 100,87" fill="${fill}"></polygon>
+          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
+          <text x="${textX}" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
+        </svg>
+      </button>
+    `;
+  }
+
+    function countBandsFor(mode){
+    let red=0, yellow=0;
+    const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
+    for(const cat of CAT_LIST){
+      const mine = t?.categories?.[cat];
+      if(!mine) continue;
+      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
+      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
+      const pct = val/base;
+      if(pct >= 0.80) continue;
+      if(pct >= 0.60) yellow++;
+      else red++;
+    }
+    return {red, yellow};
+  }
+
+  // NOTE: Badge popups are handled by the global diag popup handler at the top of this file
+  // (window.openDiagBandPopup via event delegation on .diagTriBtn). We intentionally keep
+  // the Tech page free of additional popup logic here.
   // Benchmarks helpers (tech detail)
   // TEAM_B / STORE_B are computed above from the current comparison team and full store tech list.
   function getTeamBenchmarks(cat, _team){
@@ -150,7 +380,6 @@ const hash = location.hash || "";
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
-const tfOpen = !!UI.techFilters[techId];
   const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
@@ -160,35 +389,30 @@ const tfOpen = !!UI.techFilters[techId];
 
 
   const filters = `
-    <div class="iconBar" style="margin-top:0">
-      <button class="iconBtn" onclick="toggleTechFilters('${safe(techId)})" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
-      <div class="appliedInline">${appliedTextHtml}</div>
-    </div>
-    <div class="ctlPanel ${tfOpen?"open":""}">
-      <div class="controls" style="margin-top:10px">
-        <div>
-          <label>Summary Filter</label>
-          <select id="techFilter">
-            <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-            <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-            <option value="fluids_only" ${filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-          </select>
-        </div>
-        <div>
-          <label>Comparison</label>
-          <select id="compareBasis">
-            <option value="team" ${compareBasis==="team"?"selected":""}>Team</option>
-            <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
-          </select>
-        </div>
-        <div>
-          <label>Focus</label>
-          <select id="techFocus">
-            <option value="asr" ${focus==="asr"?"selected":""}>ASR/RO</option>
-            <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
-            <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
-          </select>
-        </div>
+    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
+    <div class="controls" style="margin-top:10px">
+      <div>
+        <label>Summary Filter</label>
+        <select id="techFilter">
+          <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+          <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+          <option value="fluids_only" ${filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+        </select>
+      </div>
+      <div>
+        <label>Comparison</label>
+        <select id="compareBasis">
+          <option value="team" ${compareBasis==="team"?"selected":""}>Team</option>
+          <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
+        </select>
+      </div>
+      <div>
+        <label>Focus</label>
+        <select id="techFocus">
+          <option value="asr" ${focus==="asr"?"selected":""}>ASR/RO</option>
+          <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
+          <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
+        </select>
       </div>
     </div>
   `;
@@ -238,9 +462,8 @@ const header = `
             <div class="techTeamLine">${safe(team)}</div>
           </div>
           <div class="overallBlock">
-            ${window.renderRankBadge(overall.rank ?? "—", overall.total ?? "—", focus)}
-            <div class="tag">${focus==="sold" ? "Overall Sold Rank" : "Overall ASR Rank"}</div>
-            <div class="overallMetric">${focusVal}</div>
+            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+<div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
           </div>
         </div>
@@ -406,7 +629,7 @@ const soldBlock = `
     `;
 
 return `
-      <div class="catCard" id="svc-${cat}">
+      <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
@@ -415,10 +638,7 @@ return `
               ${fmt1(asrCount,0)} ASR · ${fmt1(soldCount,0)} Sold · ${fmt1(techRos,0)} ROs
             </div>
           </div>
-          <div class="catRank">
-            <div class="rankNum">${rk && rk.rank ? rk.rank : "—"}${rk && rk.total ? `<span class="rankDen">/${rk.total}</span>`:""}</div>
-            <div class="rankLbl">${focus==="sold"?"SOLD%":(focus==="goal"?"GOAL%":"ASR%")}</div>
-          </div>
+          <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
         </div>
 
         <div class="metricStack">
@@ -530,7 +750,7 @@ return `
 
   // Safe jump helper (never throws on null)
   window.jumpToService = function(cat){
-    const id = `svc-${cat}`;
+    const id = safeSvcId(cat);
     const el = document.getElementById(id);
     if(!el){ console.warn("jumpToService: not found", id); return false; }
     const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
@@ -559,40 +779,57 @@ return `
       <div class="techRow pickRowFrame">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
-          <a href="javascript:void(0)" onclick="return window.jumpToService && window.jumpToService(${JSON.stringify(item.cat)})">${safe(item.label)}</a>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left">${safe(item.label)}</button>
         </div>
         <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
     `;
   }
 
-  function tbBlock(titleTop, titleBot, topArr, botArr, mode){
-    const topHtml = topArr.length ? topArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-    const botHtml = botArr.length ? botArr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-
-    const up = `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
-    const down = `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`;
-
+  
+  function tbMiniBox(title, arr, mode, iconDir){
+    const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
+    const icon = iconDir==="down"
+      ? `<span class="thumbIcon down" aria-hidden="true">${ICON_THUMBS_DOWN}</span>`
+      : `<span class="thumbIcon up" aria-hidden="true">${ICON_THUMBS_UP}</span>`;
     return `
       <div class="pickBox">
-        <div class="pickMiniHdr pickMiniHdrTop">${safe(titleTop)} ${up}</div>
-        <div class="pickList">${topHtml}</div>
-        <div class="pickMiniHdr pickMiniHdrBot" style="margin-top:10px">${safe(titleBot)} ${down}</div>
-        <div class="pickList">${botHtml}</div>
+        <div class="pickMiniHdr">${safe(title)} ${icon}</div>
+        <div class="pickList">${html}</div>
       </div>
     `;
   }
+  const bandCounts_asr = countBandsFor('asr');
+  const bandCounts_sold = countBandsFor('sold');
+
 
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
-        <div class="pickHdrRow">
-          <div class="pickHdrLabel">ASR</div>
-          <div class="pickHdrLabel">SOLD</div>
+        <!-- ASR row -->
+        <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start">
+          <div class="diagLabelCol">
+            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
+            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
+              ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
+              ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+            </div>
+          </div>
+          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
         </div>
-        <div class="pickGrid2">
-          ${tbBlock("Top 3 Most Recommended","Bottom 3 Least Recommended", topReqTB, botReqTB, "asr")}
-          ${tbBlock("Top 3 Most Sold","Bottom 3 Least Sold", topCloseTB, botCloseTB, "sold")}
+
+        <!-- SOLD row -->
+        <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
+          <div class="diagLabelCol">
+            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
+            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
+              ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+              ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+            </div>
+          </div>
+          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>
       </div>
     </div>
@@ -601,6 +838,20 @@ return `
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+  // Top/Bottom 3 clicks: jump to service card reliably
+  const tp = document.querySelector('.techPickPanel');
+  if(tp){
+    tp.addEventListener('click', (e)=>{
+      const b = e.target && e.target.closest ? e.target.closest('.tbJump') : null;
+      if(!b) return;
+      e.preventDefault();
+      const id = b.getAttribute('data-cat');
+      if(!id) return;
+      const el = document.getElementById(id);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, true);
+  }
+
   animateSvcGauges();
   initSectionToggles();
 
