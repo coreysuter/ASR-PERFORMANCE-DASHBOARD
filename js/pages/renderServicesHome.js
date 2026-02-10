@@ -552,10 +552,7 @@ document.getElementById("app").innerHTML = `
         el.scrollIntoView({behavior:'smooth', block:'start'});
       }
     });
-  });
-
-  pruneServicesToggles();
-  initServicesSectionToggles();
+  });  initServicesSectionToggles();
   try{ window.animateSvcGauges?.(); }catch(e){}
 // animate gauges + enable section collapse toggles (same as tech details)
   
