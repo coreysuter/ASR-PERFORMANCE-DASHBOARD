@@ -579,53 +579,68 @@ document.getElementById("app").innerHTML = `
 initServicesSectionToggles();
   
   function pinSectionTitlesTopLeft(){
-    // Keep layout untouched: hide the original title text (keeps its space) and render an overlay clone
-    // so it matches Tech Details styling exactly. Also place the toggle next to the overlay title.
+    // Keep layout untouched: hide original title text (keeps its space) and render an overlay clone
+    // so it matches Tech Details styling exactly. Also render an OVERLAY toggle button next to the title
+    // (we do NOT try to move the real toggle, which is often styled/positioned elsewhere).
     document.querySelectorAll(".panel").forEach(panel=>{
       const phead = panel.querySelector(".phead");
       const h2 = phead ? phead.querySelector(".techH2") : null;
-      const toggle = phead ? phead.querySelector("button.secToggle") : null;
-      if(!phead || !h2 || !toggle) return;
+      const realToggle = phead ? phead.querySelector("button.secToggle") : null;
+      if(!phead || !h2 || !realToggle) return;
 
       phead.style.position = "relative";
 
       // Hide original title text but keep its layout box
       h2.style.visibility = "hidden";
 
-      // Create/update overlay as a clone of the h2 (inherits all the correct styles)
-      let ov = phead.querySelector(".svcTitleOverlay");
-      if(!ov){
-        ov = h2.cloneNode(true);
-        ov.classList.add("svcTitleOverlay");
-        ov.style.position = "absolute";
-        ov.style.zIndex = "6";
-        ov.style.pointerEvents = "none";
-        ov.style.visibility = "visible";
-        ov.style.margin = "0";
-        phead.appendChild(ov);
+      // Hide the real toggle visually (but keep it clickable programmatically)
+      realToggle.style.visibility = "hidden";
+
+      // Overlay title: clone of the h2 so styling matches Tech Details
+      let titleOv = phead.querySelector(".svcTitleOverlay");
+      if(!titleOv){
+        titleOv = h2.cloneNode(true);
+        titleOv.classList.add("svcTitleOverlay");
+        titleOv.style.position = "absolute";
+        titleOv.style.zIndex = "6";
+        titleOv.style.pointerEvents = "none";
+        titleOv.style.visibility = "visible";
+        titleOv.style.margin = "0";
+        phead.appendChild(titleOv);
       }else{
-        ov.textContent = h2.textContent;
+        titleOv.textContent = h2.textContent;
       }
 
-      // Place overlay at the top-left
       const baseLeft = 12;
       const top = 10;
-      ov.style.left = baseLeft + "px";
-      ov.style.top = top + "px";
+      titleOv.style.left = baseLeft + "px";
+      titleOv.style.top = top + "px";
 
-      // Move the toggle next to the title (no layout impact)
-      // Use rAF so measurements are correct, and force absolute positioning.
+      // Overlay toggle button placed next to title (click proxies to real toggle)
+      let togOv = phead.querySelector(".svcToggleOverlay");
+      if(!togOv){
+        togOv = document.createElement("button");
+        togOv.type = "button";
+        togOv.className = "secToggle svcToggleOverlay";
+        togOv.style.position = "absolute";
+        togOv.style.zIndex = "7";
+        togOv.style.pointerEvents = "auto";
+        phead.appendChild(togOv);
+
+        togOv.addEventListener("click", (e)=>{
+          e.preventDefault();
+          realToggle.click();
+          togOv.textContent = realToggle.textContent || togOv.textContent;
+        });
+      }
+
       requestAnimationFrame(()=>{
-        toggle.style.setProperty("position","absolute","important");
-        toggle.style.zIndex = "7";
-
-        const leftPx = (baseLeft + ov.offsetWidth + 14);
-        toggle.style.left = leftPx + "px";
-
-        // Vertically center relative to the title line
-        const midY = top + (ov.offsetHeight/2);
-        toggle.style.top = midY + "px";
-        toggle.style.transform = "translateY(-50%)";
+        const leftPx = baseLeft + titleOv.offsetWidth + 14;
+        const midY = top + (titleOv.offsetHeight/2);
+        togOv.style.left = leftPx + "px";
+        togOv.style.top = midY + "px";
+        togOv.style.transform = "translateY(-50%)";
+        togOv.textContent = realToggle.textContent || "−";
       });
     });
   }
