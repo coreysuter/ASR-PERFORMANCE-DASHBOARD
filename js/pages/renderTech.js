@@ -1,5 +1,13 @@
 // === Global diag popup handlers (used by clickable triangle badges) ===
 (function(){
+  function escHtml(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+  }
+  function fmtPctLocal(v){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return "—";
+    return (n*100).toFixed(1) + "%";
+  }
   function catList(){
     const set = new Set();
     (DATA.sections||[]).forEach(s=>(s.categories||[]).forEach(c=>c && set.add(c)));
@@ -40,8 +48,7 @@
   window.closeDiagPopup = closeDiagPopup;
 
   window.openDiagBandPopup = function(ev, techId, mode, band, compareBasis){
-    ev.preventDefault();
-    ev.stopPropagation();
+    if(ev){ ev.preventDefault(); ev.stopPropagation(); }
     closeDiagPopup();
 
     const t = (DATA.techs||[]).find(x=>String(x.id)===String(techId));
@@ -71,17 +78,17 @@
 
     const title = (mode==="sold") ? "SOLD" : "ASR";
     const colorClass = (band==="red") ? "diagRed" : "diagYellow";
+    const lbl = (mode==="sold") ? "Sold%" : "ASR%";
 
     const rows = items.length ? items.map((it, i)=>{
       const id = "svc-" + String(it.cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
       const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
-      const lbl = (mode==="sold") ? "Sold%" : "ASR%";
-      const nm = (window.catLabel ? window.catLabel(it.cat) : it.cat);
+      const nm = (typeof window.catLabel==="function") ? window.catLabel(it.cat) : it.cat;
       return `
         <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit">
           <span class="rankNum">${i+1}.</span>
-          <span class="tbName">${safe(nm)}</span>
-          <span class="tbVal">${lbl} ${fmtPct(it.val)}</span>
+          <span class="tbName">${escHtml(nm)}</span>
+          <span class="tbVal">${lbl} ${fmtPctLocal(it.val)}</span>
         </a>
       `;
     }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
@@ -105,9 +112,10 @@
     `;
     document.body.appendChild(pop);
 
-    const r = ev.currentTarget.getBoundingClientRect();
+    const r = (ev && ev.currentTarget && ev.currentTarget.getBoundingClientRect) ? ev.currentTarget.getBoundingClientRect() : {left:20,top:20,right:20};
     const pr = pop.getBoundingClientRect();
     const pad = 10;
+
     let left = r.right + pad;
     let top = r.top - 6;
 
@@ -128,6 +136,17 @@
 
     document.addEventListener("keydown", onEsc, true);
   };
+
+  // Event delegation so clicks work even if inline onclick is blocked/stripped
+  document.addEventListener("click", (e)=>{
+    const btn = e.target && e.target.closest ? e.target.closest(".diagTriBtn") : null;
+    if(!btn) return;
+    const techId = btn.getAttribute("data-tech");
+    const mode = btn.getAttribute("data-mode");
+    const band = btn.getAttribute("data-band");
+    const compare = btn.getAttribute("data-compare") || "team";
+    window.openDiagBandPopup(e, techId, mode, band, compare);
+  }, true);
 })();
 
 function renderTech(techId){
@@ -212,7 +231,7 @@ const hash = location.hash || "";
     const cls = (color==="red") ? "diagRed" : "diagYellow";
     // clickable triangle -> popup of services for this band
     return `
-      <button class="diagTriBtn" onclick="window.openDiagBandPopup(event,'${t.id}','${mode}','${band}','${compareBasis}')" aria-label="${mode.toUpperCase()} ${band} services">
+      <button class="diagTriBtn" data-tech="${t.id}" data-mode="${mode}" data-band="${band}" data-compare="${compareBasis}" aria-label="${mode.toUpperCase()} ${band} services">
         <svg class="diagTriSvg ${cls}" viewBox="0 0 100 87" aria-hidden="true">
           <polygon class="triFill" points="50,0 0,87 100,87"></polygon>
           <!-- exclamation mark -->
