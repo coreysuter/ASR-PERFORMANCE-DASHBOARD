@@ -1239,3 +1239,7 @@ body.route-tech .catTitle .meta{
   align-items:flex-start !important;
   margin-top:10px !important;
 }
+
+
+/* tweak number to fit */
+.techPickPanel .diagTriSvg .triNum{font-size:20px !important;}

@@ -85,7 +85,7 @@ const hash = location.hash || "";
           <!-- exclamation mark -->
           <rect class="triBang" x="46" y="20" width="8" height="34" rx="3"></rect>
           <circle class="triBang" cx="50" cy="66" r="5"></circle>
-          <text class="triNum" x="92" y="82">${fmtInt(n)}</text>
+          <text class="triNum" x="88" y="82">${fmtInt(n)}</text>
         </svg>
       </button>
     `;
@@ -741,7 +741,12 @@ return `
 
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
-  document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+  
+  // ensure popup handlers are globally accessible for inline onclick
+  window.openDiagBandPopup = openDiagBandPopup;
+  window.closeDiagPopup = closeDiagPopup;
+
+document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   animateSvcGauges();
   initSectionToggles();
 
