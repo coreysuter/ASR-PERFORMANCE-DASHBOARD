@@ -1236,59 +1236,81 @@ body:not(.route-services) .triBadge svg{width:70px;height:50px}
 
 
 
-/* === DIAG SECTION triangle badges (Tech Details only; independent of Services) === */
-
-/* Widen the left column inside each ASR/SOLD row so 2 triangles fit (overrides inline grid) */
-.techPickPanel .pickRow{
-  grid-template-columns:130px 1fr 1fr !important;
-  column-gap:14px !important;
+/* === DIAG SECTION: perfect equilateral triangles + number bottom-right + clickable === */
+.techPickPanel .diagTriBtn{
+  background:transparent;
+  border:none;
+  padding:0;
+  cursor:pointer;
 }
+.techPickPanel .diagTriBtn:focus{outline:none}
+.techPickPanel .diagTriBtn:focus-visible{outline:2px solid rgba(255,255,255,.35);outline-offset:4px;border-radius:10px}
 
-.techPickPanel .diagLabelCol{width:auto !important;}
-.techPickPanel .diagBadgeRow{
-  display:flex !important;
-  flex-direction:row !important; /* keep horizontal */
-  gap:10px !important;
-  align-items:flex-start !important;
-  margin-top:10px !important;
-}
-
-/* Triangle look + size */
+/* Equilateral-ish using aspect-ratio so it can't distort */
 .techPickPanel .diagTriBadge{
-  width:58px !important;
-  height:56px !important;
-  flex:0 0 58px !important;
-  min-width:58px !important;
-  max-width:58px !important;
-
+  width:64px !important;
+  aspect-ratio: 1.1547 / 1; /* width / height for equilateral triangle */
+  height:auto !important;
   position:relative !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-
   clip-path:polygon(50% 0%, 0% 100%, 100% 100%) !important;
-  border-radius:8px !important;
-  box-shadow:0 14px 28px rgba(0,0,0,.40) !important;
-  font-weight:1000 !important;
 }
-.techPickPanel .diagTriBadge.red{background:#ff4b4b !important;}
-.techPickPanel .diagTriBadge.yellow{background:#ffbf2f !important;}
 
+/* icon & number placement */
 .techPickPanel .diagTriBadge .triBang{
-  position:absolute !important;
   top:12px !important;
   font-size:26px !important;
-  line-height:1 !important;
-  color:rgba(0,0,0,.78) !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
 }
 .techPickPanel .diagTriBadge .triNum{
-  position:absolute !important;
-  bottom:9px !important;
+  right:10px !important;
+  left:auto !important;
+  bottom:10px !important;
   font-size:16px !important;
-  line-height:1 !important;
-  color:#fff !important;
-  text-shadow:0 2px 8px rgba(0,0,0,.40) !important;
+  text-align:right !important;
 }
 
-/* Give diag section a hair more room (optional, small) */
-.techHeaderWrap{grid-template-columns:0.90fr 1.10fr !important;}
+/* popup */
+.diagPopup{
+  position:fixed;
+  z-index:9999;
+  width:360px;
+  max-width:min(360px, calc(100vw - 24px));
+  background:linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98));
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:16px;
+  box-shadow:0 22px 60px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.diagPopHead{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.diagPopTitle{
+  font-weight:1000;
+  letter-spacing:.4px;
+}
+.diagPopIcon{margin-left:auto}
+.diagPopClose{
+  margin-left:6px;
+  background:transparent;
+  border:none;
+  color:rgba(255,255,255,.75);
+  font-size:22px;
+  cursor:pointer;
+}
+.diagPopList{padding:10px 12px;display:grid;gap:8px;max-height:340px;overflow:auto}
+.diagPopRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.07);
+}
+.diagPopRow:hover{background:rgba(255,255,255,.085)}
+.diagTriBadge.noNum .triNum{display:none}

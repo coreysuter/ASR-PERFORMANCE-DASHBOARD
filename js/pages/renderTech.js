@@ -73,10 +73,18 @@ const hash = location.hash || "";
   const TEAM_B = buildBench(TEAM_TECHS);
   const STORE_B = buildBench(STORE_TECHS);
 
-  function diagTriBadge(color, num){
+  function diagTriBadge(color, num, mode, band){
     const n = Number(num)||0;
     if(!n) return "";
-    return `<div class="diagTriBadge ${color}"><div class="triBang">!</div><div class="triNum">${fmtInt(n)}</div></div>`;
+    // clickable triangle -> popup of services for this band
+    return `
+      <button class="diagTriBtn" onclick="openDiagBandPopup(event,'${mode}','${band}')" aria-label="${mode.toUpperCase()} ${band} services">
+        <div class="diagTriBadge ${color}">
+          <div class="triBang">!</div>
+          <div class="triNum">${fmtInt(n)}</div>
+        </div>
+      </button>
+    `;
   }
 
   function countBandsFor(mode){
@@ -93,7 +101,107 @@ const hash = location.hash || "";
       if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow};
+    return {red, yellow};function bandOfPct(pct){
+    if(!Number.isFinite(pct)) return null;
+    if(pct < 0.60) return "red";
+    if(pct < 0.80) return "yellow";
+    return null;
+  }
+
+  function bandItems(mode, band){
+    const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
+    const items = [];
+    for(const cat of CAT_LIST){
+      const mine = t?.categories?.[cat];
+      if(!mine) continue;
+      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
+      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
+      const pct = val/base;
+      const b = bandOfPct(pct);
+      if(b !== band) continue;
+      items.push({cat, val, pct});
+    }
+    // list sorted lowest -> highest %
+    items.sort((a,b)=>a.pct-b.pct);
+    return items;
+  }
+
+  function closeDiagPopup(){
+    const el = document.getElementById("diagBandPopup");
+    if(el) el.remove();
+    document.removeEventListener("keydown", _diagEsc, true);
+  }
+  function _diagEsc(e){
+    if(e.key==="Escape") closeDiagPopup();
+  }
+
+  function openDiagBandPopup(ev, mode, band){
+    ev.preventDefault();
+    ev.stopPropagation();
+    closeDiagPopup();
+
+    const items = bandItems(mode, band);
+    const title = (mode==="sold") ? "SOLD" : "ASR";
+    const colorClass = (band==="red") ? "red" : "yellow";
+
+    const rows = items.length ? items.map((it, i)=>{
+      const id = "svc-" + String(it.cat||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+      const onClick = `event.preventDefault(); closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
+      const lbl = (mode==="sold") ? "Sold%" : "ASR%";
+      return `
+        <a class="diagPopRow" href="#${id}" onclick="${onClick}" style="text-decoration:none;color:inherit">
+          <span class="rankNum">${i+1}.</span>
+          <span class="tbName">${safe(catLabel ? catLabel(it.cat) : it.cat)}</span>
+          <span class="tbVal">${lbl} ${fmtPct(it.val)}</span>
+        </a>
+      `;
+    }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
+
+    const pop = document.createElement("div");
+    pop.id = "diagBandPopup";
+    pop.className = "diagPopup";
+    pop.innerHTML = `
+      <div class="diagPopHead">
+        <div class="diagPopTitle">${title}</div>
+        <div class="diagPopIcon">
+          <div class="diagTriBadge ${colorClass} noNum">
+            <div class="triBang">!</div>
+          </div>
+        </div>
+        <button class="diagPopClose" onclick="closeDiagPopup()" aria-label="Close">×</button>
+      </div>
+      <div class="diagPopList">${rows}</div>
+    `;
+    document.body.appendChild(pop);
+
+    // position next to the clicked triangle
+    const r = ev.currentTarget.getBoundingClientRect();
+    const pr = pop.getBoundingClientRect();
+    const pad = 10;
+    let left = r.right + pad;
+    let top = r.top - 6;
+
+    // keep on-screen
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if(left + pr.width > vw - 8) left = r.left - pr.width - pad;
+    if(top + pr.height > vh - 8) top = Math.max(8, vh - pr.height - 8);
+    if(top < 8) top = 8;
+
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+
+    // click outside closes
+    setTimeout(()=>{
+      const onDoc = (e)=>{
+        if(!pop.contains(e.target)) { document.removeEventListener("mousedown", onDoc, true); closeDiagPopup(); }
+      };
+      document.addEventListener("mousedown", onDoc, true);
+    }, 0);
+
+    document.addEventListener("keydown", _diagEsc, true);
+  }
+
   }
 
 
@@ -603,8 +711,8 @@ return `
           <div class="diagLabelCol">
             <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
             <div class="diagBadgeRow">
-              ${diagTriBadge("red", bandCounts_asr.red)}
-              ${diagTriBadge("yellow", bandCounts_asr.yellow)}
+              ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
+              ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
             </div>
           </div>
           <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
@@ -616,8 +724,8 @@ return `
           <div class="diagLabelCol">
             <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
             <div class="diagBadgeRow">
-              ${diagTriBadge("red", bandCounts_sold.red)}
-              ${diagTriBadge("yellow", bandCounts_sold.yellow)}
+              ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+              ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
             </div>
           </div>
           <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
