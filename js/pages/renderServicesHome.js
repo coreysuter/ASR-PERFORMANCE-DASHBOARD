@@ -594,7 +594,8 @@ initServicesSectionToggles();
       h2.style.visibility = "hidden";
 
       // Hide the real toggle visually (but keep it clickable programmatically)
-      realToggle.style.visibility = "hidden";
+      realToggle.style.opacity = "0";
+      realToggle.style.pointerEvents = "none";
 
       // Overlay title: clone of the h2 so styling matches Tech Details
       let titleOv = phead.querySelector(".svcTitleOverlay");
@@ -621,10 +622,22 @@ initServicesSectionToggles();
       if(!togOv){
         togOv = document.createElement("button");
         togOv.type = "button";
-        togOv.className = "secToggle svcToggleOverlay";
+        togOv.className = "svcToggleOverlay";
         togOv.style.position = "absolute";
         togOv.style.zIndex = "7";
         togOv.style.pointerEvents = "auto";
+        togOv.style.width = "42px";
+        togOv.style.height = "42px";
+        togOv.style.borderRadius = "14px";
+        togOv.style.border = "1px solid rgba(255,255,255,.10)";
+        togOv.style.background = "rgba(0,0,0,.22)";
+        togOv.style.color = "var(--text)";
+        togOv.style.fontSize = "22px";
+        togOv.style.fontWeight = "900";
+        togOv.style.lineHeight = "1";
+        togOv.style.display = "flex";
+        togOv.style.alignItems = "center";
+        togOv.style.justifyContent = "center";
         phead.appendChild(togOv);
 
         togOv.addEventListener("click", (e)=>{
