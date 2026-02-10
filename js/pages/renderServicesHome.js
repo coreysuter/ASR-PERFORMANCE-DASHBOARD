@@ -393,8 +393,8 @@ function tbRow(item, idx, mode){
           <div class="titleRow" style="justify-content:space-between;align-items:flex-start;position:relative">
             <div>
               <div class="secLeftTop" style="max-width:72%;padding-right:420px">
-              <div class="secLeftRow" style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap">
-                <div class="secTitleBlock">
+              <div class="secLeftRow" style="display:grid;grid-template-columns:auto auto;column-gap:22px;align-items:start">
+                <div class="secTitleBlock" style="min-width:320px">
                   <div class="secHeadRow" style="display:flex;align-items:center;gap:12px">
                     <button class="secToggle" type="button" aria-label="Toggle section">−</button>
                     <div class="h2 techH2">${safe(sec.name)}</div>
@@ -419,14 +419,14 @@ function tbRow(item, idx, mode){
             </div>
 
             <div class="secHdrRight" style="position:absolute;right:0;top:0;margin-left:auto">
-              <div class="secFocusDial">
-                ${dialFocus}
+              <div class="secFocusDial" style="display:flex;flex-direction:row;align-items:center;gap:14px;justify-content:flex-end">
                 <div class="focusBadgePair">
   <div class="badgePair big">
     ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
   </div>
   <div class="badgeCap big">${focus==="sold" ? "SOLD" : "ASR"}</div>
-</div>
+                ${dialFocus}
+              </div>
               </div>
               <div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
