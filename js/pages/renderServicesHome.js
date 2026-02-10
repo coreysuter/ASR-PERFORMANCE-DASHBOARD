@@ -420,8 +420,8 @@ function tbRow(item, idx, mode){
 
             <div class="secHdrRight" style="position:absolute;right:0;top:0;display:flex;align-items:flex-start;gap:16px" style="align-items:flex-start"" style="position:absolute;right:0;top:0;margin-left:auto">
               <div class="secFocusDial" style="display:flex;flex-direction:row;align-items:flex-start;gap:14px;justify-content:flex-end">
-                <div class="focusBadgePair" style="display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:flex-start" style="display:flex;flex-direction:row;align-items:center;gap:10px">
-  <div class="badgePair big" style="display:flex;gap:12px;align-items:center;transform:scale(1.5);transform-origin:top left;margin-bottom:6px">
+                <div class="focusBadgePair" style="display:flex;flex-direction:row;align-items:center;gap:10px">
+  <div class="badgePair big">
     ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
   </div>
   <div class="badgeCap big">${focus==="sold" ? "SOLD" : "ASR"}</div>
