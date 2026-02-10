@@ -57,9 +57,9 @@ function router(){
     renderSettingsHome();
     return;
   }
-  if(h==="#/services" || h.startsWith("#/services?") || h==="#/servicesHome" || h.startsWith("#/servicesHome?")){
-    // Services main page
-    window.renderServicesHome?.();
+  if(h==="#/services" || h.startsWith("#/services?")){
+    // Services Overview removed
+    location.hash = "#/";
     return;
   }
   if(h.startsWith("#/goals")){
@@ -70,7 +70,9 @@ function router(){
   if(h.startsWith("#/tech/")){
     const rest = h.slice("#/tech/".length);
     const id = decodeURIComponent(rest.split("?")[0] || "");
-    renderTech(id);
+    if(typeof window.renderTech === 'function'){ window.renderTech(id); return; }
+    if(typeof renderTech === 'function'){ renderTech(id); return; }
+    throw new ReferenceError('renderTech is not defined');
     return;
   }
   renderMain();
