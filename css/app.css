@@ -1228,8 +1228,8 @@ body.route-tech .catTitle .meta{
   background:rgba(255,255,255,.16);
   pointer-events:none;
 }
-.rankFocusBadge::before{ top:30px; }
-.rankFocusBadge::after{ top:58px; }
+.rankFocusBadge::before{ top:26px; }
+.rankFocusBadge::after{ top:52px; }
 
 /* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
@@ -1249,7 +1249,7 @@ body.route-tech .catTitle .meta{
 /* # + main number centered between the lines */
 .rankFocusBadge .rfbMain{
   position:absolute;
-  top:44px;              /* centered between the divider lines */
+  top:39px;              /* centered between the divider lines */
   left:0;
   right:0;
   transform:translateY(-50%);
@@ -1272,7 +1272,7 @@ body.route-tech .catTitle .meta{
 /* of 5 centered below the bottom line */
 .rankFocusBadge .rfbOf{
   position:absolute;
-  top:69px;              /* centered between bottom line and badge bottom */
+  top:66px;              /* centered between bottom line and badge bottom */
   transform:translateY(-50%);
   left:0;
   right:0;
