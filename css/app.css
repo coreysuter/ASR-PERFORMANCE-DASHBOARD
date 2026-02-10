@@ -1213,7 +1213,7 @@ body.route-tech .catTitle .meta{
 
   /* Geometry (these 3 are the only “proportion” knobs) */
   --line1f: 0.24;  /* top divider @ ~24% of height */
-  --line2f: 0.73;  /* bottom divider @ ~73% of height */
+  --line2f: 0.74;  /* bottom divider @ ~74% of height */
   --padX: 12px;
 
   width: var(--w);
@@ -1244,7 +1244,7 @@ body.route-tech .catTitle .meta{
 /* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
   position:absolute;
-  top: calc(var(--h) * 0.095);
+  top: calc(var(--h) * 0.05);
   left:0;
   right:0;
   text-align:center;
@@ -1256,7 +1256,7 @@ body.route-tech .catTitle .meta{
   line-height:1;
 }
 
-/* main number centered BETWEEN the two divider lines */
+/* # next to the big number (always rendered via pseudo-element to avoid stacking issues) */
 .rankFocusBadge .rfbMain{
   position:absolute;
   top: calc(var(--h) * ((var(--line1f) + var(--line2f)) / 2));
@@ -1269,22 +1269,19 @@ body.route-tech .catTitle .meta{
   line-height:1;
   color:rgba(234,240,255,.96);
 }
-
-/* If your markup nests .rfbHash inside .rfbMain, hide that one
-   and use the pinned absolute version below (prevents stacking). */
-.rankFocusBadge .rfbMain .rfbHash{ display:none; }
-
-/* # pinned left of the big number, aligned to the same midline */
-.rankFocusBadge .rfbHash{
+.rankFocusBadge .rfbMain::before{
+  content:"#";
   position:absolute;
-  top: calc(var(--h) * ((var(--line1f) + var(--line2f)) / 2));
-  left: calc(var(--w) * 0.30);
-  transform:translate(-50%,-35%);
+  left: calc(50% - (var(--w) * 0.22));
+  top: 50%;
+  transform: translate(-50%,-35%);
   font-size: calc(var(--h) * 0.14);
   font-weight:1100;
   line-height:1;
   color:rgba(234,240,255,.90);
 }
+/* hide any legacy hash nodes if they exist in markup */
+.rankFocusBadge .rfbHash{ display:none !important; }
 
 /* of 5 centered between bottom divider and bottom edge */
 .rankFocusBadge .rfbOf{
