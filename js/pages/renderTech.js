@@ -47,7 +47,7 @@
 
   window.closeDiagPopup = closeDiagPopup;
 
-  window.openDiagBandPopup = function(ev, techId, mode, band, compareBasis){
+  window.openDiagBandPopup = function(ev, techId, mode, band, compareBasis, anchorEl){
     if(ev){ ev.preventDefault(); ev.stopPropagation(); }
     closeDiagPopup();
 
@@ -78,6 +78,7 @@
 
     const title = (mode==="sold") ? "SOLD" : "ASR";
     const colorClass = (band==="red") ? "diagRed" : "diagYellow";
+    const popFill = (band==="red") ? "#ff4b4b" : "#ffbf2f";
     const lbl = (mode==="sold") ? "Sold%" : "ASR%";
 
     const rows = items.length ? items.map((it, i)=>{
@@ -108,14 +109,7 @@
 
     pop.innerHTML = `
       <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px">${title}</div>
-        <div class="diagPopIcon" style="margin-left:auto">
-          <svg class="diagTriSvg ${colorClass}" viewBox="0 0 100 87" aria-hidden="true" style="width:40px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
-            <polygon class="triFill" points="50,0 0,87 100,87"></polygon>
-            <rect class="triBang" x="46" y="20" width="8" height="34" rx="3"></rect>
-            <circle class="triBang" cx="50" cy="66" r="5"></circle>
-          </svg>
-        </div>
+        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}<svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))"><polygon points="50,0 0,87 100,87" fill="${popFill}"></polygon><rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect><circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle></svg></div>
         <button class="diagPopClose" onclick="window.closeDiagPopup()" aria-label="Close"
           style="margin-left:6px;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
@@ -125,7 +119,7 @@
     `;
     document.body.appendChild(pop);
 
-    const r = (ev && ev.currentTarget && ev.currentTarget.getBoundingClientRect) ? ev.currentTarget.getBoundingClientRect() : {left:20,top:20,right:20};
+    const r = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect() : ((ev && ev.target && ev.target.getBoundingClientRect) ? ev.target.getBoundingClientRect() : {left:20,top:20,right:20});
     const pr = pop.getBoundingClientRect();
     const pad = 10;
 
@@ -158,7 +152,7 @@
     const mode = btn.getAttribute("data-mode");
     const band = btn.getAttribute("data-band");
     const compare = btn.getAttribute("data-compare") || "team";
-    window.openDiagBandPopup(e, techId, mode, band, compare);
+    window.openDiagBandPopup(e, techId, mode, band, compare, btn);
   }, true);
 })();
 
@@ -241,16 +235,16 @@ const hash = location.hash || "";
   function diagTriBadge(color, num, mode, band){
     const n = Number(num)||0;
     if(!n) return "";
-    const cls = (color==="red") ? "diagRed" : "diagYellow";
-    // clickable triangle -> popup of services for this band
+    const fill = (color==="red") ? "#ff4b4b" : "#ffbf2f";
+    const textX = 86; // keep numbers inside
     return `
-      <button class="diagTriBtn" data-tech="${t.id}" data-mode="${mode}" data-band="${band}" data-compare="${compareBasis}" aria-label="${mode.toUpperCase()} ${band} services">
-        <svg class="diagTriSvg ${cls}" viewBox="0 0 100 87" aria-hidden="true">
-          <polygon class="triFill" points="50,0 0,87 100,87"></polygon>
-          <!-- exclamation mark -->
-          <rect class="triBang" x="46" y="20" width="8" height="34" rx="3"></rect>
-          <circle class="triBang" cx="50" cy="66" r="5"></circle>
-          <text class="triNum" x="88" y="82">${fmtInt(n)}</text>
+      <button class="diagTriBtn" data-tech="${t.id}" data-mode="${mode}" data-band="${band}" data-compare="${compareBasis}" aria-label="${mode.toUpperCase()} ${band} services"
+        style="background:transparent;border:none;padding:0;cursor:pointer">
+        <svg class="diagTriSvg" viewBox="0 0 100 87" aria-hidden="true" style="width:64px;height:auto;display:block;filter:drop-shadow(0 14px 24px rgba(0,0,0,.40))">
+          <polygon points="50,0 0,87 100,87" fill="${fill}"></polygon>
+          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
+          <text x="${textX}" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
         </svg>
       </button>
     `;
