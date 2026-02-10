@@ -418,15 +418,18 @@ function tbRow(item, idx, mode){
               </div>
             </div>
 
-            <div class="secHdrRight" style="position:absolute;right:0;top:0;display:flex;align-items:flex-start;gap:16px" style="align-items:flex-start"" style="position:absolute;right:0;top:0;margin-left:auto">
+            
+<div class="secHdrRight" style="position:absolute;right:0;top:0;display:flex;align-items:flex-start;gap:18px">
               <div class="secFocusDial" style="display:flex;flex-direction:row;align-items:flex-start;gap:14px;justify-content:flex-end">
-                <div class="focusBadgePair" style="display:flex;flex-direction:row;align-items:center;gap:10px">
-  <div class="badgePair big">
-    ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
-  </div>
-  <div class="badgeCap big">${focus==="sold" ? "SOLD" : "ASR"}</div>
+                <div class="focusBadgePair" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+                  <div class="badgePair big" style="display:flex;gap:10px;align-items:center">
+                    ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
+                  </div>
+                  <div class="badgeCap big" style="font-size:18px;letter-spacing:.25px;color:var(--muted);font-weight:1100;text-transform:uppercase">
+                    ${focus==="sold" ? "SOLD" : "ASR"}
+                  </div>
+                </div>
                 ${dialFocus}
-              </div>
               </div>
               <div class="secHdrStats" style="text-align:right;align-self:flex-start">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
