@@ -212,6 +212,12 @@ const tfOpen = !!UI.techFilters[techId];
   const focusLbl = focus==="sold" ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
+  // --- Tech name wrapping (header only) ---
+  // Always show first name on top and the remaining part(s) directly below.
+  const __nameParts = String(t.name||"").trim().split(/\s+/).filter(Boolean);
+  const __firstName = __nameParts[0] || "";
+  const __lastName = __nameParts.slice(1).join(" ");
+
   
 const header = `
     <div class="panel techHeaderPanel">
