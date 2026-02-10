@@ -394,11 +394,13 @@ function brakeRowHtml(key,label,mappedCat){
   app.innerHTML = `
     <div class="panel goalsBig halfPage">
       <div class="goalsBigTop">
-        <div>
-          <div class="goalsH1">GOALS</div>
-          <div class="sub" style="margin-top:4px">Set goals for each service. Values populate the “Goal:” lines throughout the dashboard.</div>
+        <div class="goalsTitleRow">
+          <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
+          <div>
+            <div class="goalsH1">GOALS</div>
+            <div class="sub" style="margin-top:4px">Set goals for each service. Values populate the “Goal:” lines throughout the dashboard.</div>
+          </div>
         </div>
-        <button class="btn" id="saveGoalsAll" type="button">Save</button>
       </div>
 
       <div class="goalsQuads">
