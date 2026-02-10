@@ -1204,33 +1204,14 @@ body.route-tech .catTitle .meta{
 }
 
 
-/* === Rank badge (PROPORTION-LOCKED to your Paint mock) === */
+/* === Rank badge (approved reference style) === */
 .rankFocusBadge{
-  /* Size */
-  --w: 80px;
-  --h: 80px;
-  --r: 18px;
-
-  /* Geometry (these 3 are the only “proportion” knobs) */
-  --line1f: 0.24;  /* top divider @ ~24% of height */
-  --line2f: 0.74;  /* bottom divider @ ~74% of height */
-  --padX: 12px;
-
-  width: var(--w);
-  height: var(--h);
-  border-radius: var(--r);
-  border:1px solid rgba(255,255,255,.34);
-  background:
-    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.14), rgba(0,0,0,0) 55%),
-    radial-gradient(140% 140% at 70% 85%, rgba(0,0,0,.62), rgba(0,0,0,0) 60%),
-    linear-gradient(180deg, rgba(18,30,58,.96), rgba(7,10,24,.97));
-  box-shadow:
-    0 34px 90px rgba(0,0,0,.78),
-    0 0 0 1px rgba(255,255,255,.10),
-    0 0 28px rgba(120,180,255,.12),
-    inset 0 0 0 1px rgba(255,255,255,.20),
-    inset 0 0 30px rgba(255,255,255,.10),
-    inset 0 -26px 34px rgba(0,0,0,.48);
+  width:80px;
+  height:80px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(6,10,28,.88);
+  box-shadow:0 26px 66px rgba(0,0,0,.65);
   position:relative;
   display:block;
   overflow:hidden;
@@ -1241,92 +1222,106 @@ body.route-tech .catTitle .meta{
 .rankFocusBadge::after{
   content:"";
   position:absolute;
-  left: var(--padX);
-  right: var(--padX);
+  left:12px;
+  right:12px;
   height:1px;
   background:rgba(255,255,255,.16);
   pointer-events:none;
 }
-.rankFocusBadge::before{ top: calc(var(--h) * var(--line1f)); }
-.rankFocusBadge::after{  top: calc(var(--h) * var(--line2f)); }
+.rankFocusBadge::before{ top:26px; }
+.rankFocusBadge::after{ top:54px; }
 
 /* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
   position:absolute;
-  top: calc(var(--h) * 0.05);
+  top:10px;
   left:0;
   right:0;
   text-align:center;
-  font-size: calc(var(--h) * 0.14);
-  font-weight:1200;
+  font-size:11px;
+  font-weight:1100;
   letter-spacing:.35px;
   text-transform:uppercase;
   color:rgba(234,240,255,.90);
   line-height:1;
 }
 
-/* # next to the big number (always rendered via pseudo-element to avoid stacking issues) */
+/* # + main number centered between the lines */
 .rankFocusBadge .rfbMain{
   position:absolute;
-  top: calc(var(--h) * ((var(--line1f) + var(--line2f)) / 2));
-  left:0;
-  right:0;
-  transform:translateY(-50%);
-  text-align:center;
-  font-size: calc(var(--h) * 0.52);
-  font-weight:1200;
-  line-height:1;
-  color:rgba(234,240,255,.96);
-}
-.rankFocusBadge .rfbMain::before{
-  content:"#";
-  position:absolute;
-  left: calc(50% - (var(--w) * 0.22));
-  top: 50%;
-  transform: translate(-50%,-35%);
-  font-size: calc(var(--h) * 0.14);
-  font-weight:1200;
-  line-height:1;
-  color:rgba(234,240,255,.90);
-}
-/* hide any legacy hash nodes if they exist in markup */
-.rankFocusBadge .rfbHash{ display:none !important; }
-
-/* of 5 centered between bottom divider and bottom edge */
-.rankFocusBadge .rfbOf{
-  position:absolute;
-  top: calc(var(--h) * ((var(--line2f) + 1) / 2));
+  top:40px;              /* centered between the divider lines */
   left:0;
   right:0;
   transform:translateY(-50%);
   display:flex;
   justify-content:center;
+  align-items:flex-start;
+  gap:8px;
+  font-size:34px;
+  font-weight:1200;
+  line-height:1;
+  color:rgba(234,240,255,.96);
+}
+.rankFocusBadge .rfbHash{
+  font-size:14px;
+  font-weight:1100;
+  margin-top:10px;       /* drop the # like reference */
+  color:rgba(234,240,255,.90);
+}
+
+/* of 5 centered below the bottom line */
+.rankFocusBadge .rfbOf{
+  position:absolute;
+  top:67px;              /* centered between bottom line and badge bottom */
+  transform:translateY(-50%);
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
   align-items:baseline;
-  gap: calc(var(--w) * 0.03);
+  gap:3px;
   line-height:1;
   color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size: calc(var(--h) * 0.155);
-  font-weight:1200;
-  color:rgba(234,240,255,.92);
+  font-size:10px;
+  font-weight:1000;
+  color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size: calc(var(--h) * 0.175);
-  font-weight:1200;
-  color:rgba(234,240,255,.98);
+  font-size:14px;
+  font-weight:1100;
+  color:rgba(234,240,255,.92);
 }
 
 /* small version for service tiles */
 .rankFocusBadge.sm{
-  --w: 74px;
-  --h: 68px;
-  --r: 16px;
-
-  /* keep same relative divider proportions */
-  --padX: 12px;
+  width:74px;
+  height:68px;
+  border-radius:16px;
 }
+.rankFocusBadge.sm::before{ top:26px; }
+.rankFocusBadge.sm::after{ top:50px; }
+.rankFocusBadge.sm .rfbFocus{ top:8px; font-size:11px; }
+.rankFocusBadge.sm .rfbMain{ top:38px; font-size:34px; gap:7px; }
+.rankFocusBadge.sm .rfbHash{ font-size:15px; margin-top:10px; }
+.rankFocusBadge.sm .rfbOf{ top:54px; }
+.rankFocusBadge.sm .rfbOfWord{ font-size:10px; }
+.rankFocusBadge.sm .rfbOfNum{ font-size:14px; }
 
+
+
+/* === Rank badge: FORCE ALL TEXT BOLD (override) === */
+.rankFocusBadge,
+.rankFocusBadge *{
+  font-weight: 1000 !important;
+  -webkit-text-stroke: 0px transparent;
+}
+.rankFocusBadge .rfbFocus{ font-weight:1100 !important; }
+.rankFocusBadge .rfbMain{ font-weight:1200 !important; }
+.rankFocusBadge .rfbMain::before{ font-weight:1100 !important; }
+.rankFocusBadge .rfbOfWord,
+.rankFocusBadge .rfbOfNum{ font-weight:1100 !important; }
 
 /* prevent legacy x/x line from overlapping if present */
 .overallBlock .big{ display:none !important; }
