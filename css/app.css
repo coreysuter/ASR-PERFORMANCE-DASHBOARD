@@ -1103,15 +1103,15 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 @media (max-width: 980px){ .techHeaderWrap{grid-template-columns:1fr;} }
 
 .techPickPanel{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:18px;overflow:hidden}
-.techPickPanel .phead{padding:12px}
+.techPickPanel .phead{padding:15px}
 
 .pickHdrRow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
-.pickHdrLabel{font-size:18px;font-weight:1000;letter-spacing:.2px;opacity:.92}
+.pickHdrLabel{font-size:23px;font-weight:1000;letter-spacing:.2px;opacity:.92}
 
 .pickGrid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width: 680px){ .pickGrid2{grid-template-columns:1fr;} }
 
-.pickBox{background:rgba(0,0,0,.33);border:1px solid rgba(234,240,255,.14);border-radius:14px;padding:10px}
+.pickBox{background:rgba(0,0,0,.33);border:1px solid rgba(234,240,255,.14);border-radius:14px;padding:13px}
 .pickMiniHdr{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.2px;text-transform:uppercase;margin:0 0 8px 0}
 .pickList{display:flex;flex-direction:column;gap:6px}
 
@@ -1134,8 +1134,12 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
+  grid-template-columns: 0.75fr 0.25fr 1.25fr; /* header -25%, spacer blank, Top/Bottom +25% */
 }
+/* place panels in col 1 and col 3 so col 2 stays blank */
+body.route-tech .techHeaderPanel{grid-column:1;}
+body.route-tech .techPickPanel{grid-column:3;}
+
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
 body.route-tech .techHeaderPanel{
@@ -1146,7 +1150,7 @@ body.route-tech .techHeaderPanel{
 
 /* Make the tech header box feel larger */
 body.route-tech .techHeaderPanel .phead{
-  padding:18px 18px 12px !important;
+  padding:14px 14px 10px !important;
 }
 
 /* Slightly larger tech name on desktop */
@@ -1197,49 +1201,5 @@ body.route-tech .catTitle .meta{
 
 
 
-/* === DIAG SECTION triangles (SVG, matches Services look, no distortion) === */
-.techPickPanel .diagTriBtn{
-  background:transparent;
-  border:none;
-  padding:0;
-  cursor:pointer;
-}
-.techPickPanel .diagTriBtn:focus{outline:none}
-.techPickPanel .diagTriBtn:focus-visible{
-  outline:2px solid rgba(255,255,255,.35);
-  outline-offset:4px;
-  border-radius:10px;
-}
-.techPickPanel .diagTriSvg{
-  width:64px;
-  height:auto;
-  display:block;
-  filter:drop-shadow(0 14px 24px rgba(0,0,0,.40));
-}
-.techPickPanel .diagTriSvg.diagRed .triFill{fill:#ff4b4b}
-.techPickPanel .diagTriSvg.diagYellow .triFill{fill:#ffbf2f}
-.techPickPanel .diagTriSvg .triBang{fill:rgba(0,0,0,.78)}
-.techPickPanel .diagTriSvg .triNum{
-  fill:#fff;
-  font-weight:1000;
-  font-size:22px;
-  text-anchor:end;
-  dominant-baseline:alphabetic;
-}
-
-/* Keep the two triangles horizontal and give them enough room */
-.techPickPanel .pickRow{
-  grid-template-columns:130px 1fr 1fr !important;
-  column-gap:14px !important;
-}
-.techPickPanel .diagBadgeRow{
-  display:flex !important;
-  flex-direction:row !important;
-  gap:10px !important;
-  align-items:flex-start !important;
-  margin-top:10px !important;
-}
-
-
-/* tweak number to fit */
-.techPickPanel .diagTriSvg .triNum{font-size:20px !important;}
+/* === DIAG POPUP: harden positioning so it never renders at page bottom === */
+.diagPopup{position:fixed !important; z-index:9999 !important;}
