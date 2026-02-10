@@ -44,6 +44,17 @@ function renderServicesHome(){
   const allCats = getAllCategoriesSet();
   const allServiceKeys = Array.from(allCats);
 
+  
+  function nudgeSectionTitlesUp(){
+    // Move the category title up to align with the toggle (without moving anything else)
+    document.querySelectorAll('.panel .phead .secHeadRow').forEach(row=>{
+      const h2 = row.querySelector('.techH2');
+      if(!h2) return;
+      h2.style.position = 'relative';
+      h2.style.top = '-8px';
+    });
+  }
+
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
   function initServicesSectionToggles(){
@@ -553,6 +564,7 @@ document.getElementById("app").innerHTML = `
       }
     });
   });  initServicesSectionToggles();
+  nudgeSectionTitlesUp();
   try{ window.animateSvcGauges?.(); }catch(e){}
 // animate gauges + enable section collapse toggles (same as tech details)
   
