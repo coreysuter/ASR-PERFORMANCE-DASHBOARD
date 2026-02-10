@@ -15,7 +15,6 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .big{font-size:22px;font-weight:var(--HB);text-align:right}
 
 .overallBlock{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
-.overallBlock .big{font-size:21px;font-weight:var(--HB);text-align:right}
 .overallBlock .overallMetric{margin-top:6px;font-size:21px;font-weight:1200;text-align:right}
 
 .tag{font-size:11px;color:var(--muted);text-align:right;margin-top:2px}
@@ -841,7 +840,6 @@ h3{font-size:var(--H3);font-weight:var(--HB);letter-spacing:.2px}
 .svcName{font-size:var(--H2)!important;font-weight:var(--HB)!important;letter-spacing:.25px;line-height:1.08}
 
 /* Rankings: always bold; size matches the context (category rank uses H2) */
-.rankNum,.catRank,.overallBlock .big,.overallBlock .overallMetric{font-weight:var(--HB)!important}
 .catRank{font-size:var(--H2)!important}
 
 
@@ -875,7 +873,6 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .svcName,.serviceName,.svcTitle{font-size:var(--H2)!important;font-weight:var(--HB)!important;line-height:1.08}
 
 /* Rankings: bold; size follows the header level they sit with */
-.overallBlock .big{font-size:var(--H1)!important;font-weight:var(--HB);font-weight:var(--HB)!important}
 .rankNum{font-weight:var(--HB)!important}
 
 .catCounts b{font-weight:var(--HB)}
@@ -1207,683 +1204,109 @@ body.route-tech .catTitle .meta{
 }
 
 
-
-
-/* =====================================================================================
-   TECH DETAILS (route-tech) LAYOUT FIXES
-   - Shrink Tech Name header column, give DIAG SECTION more room
-   - Prevent triangle badges from overlapping "Top 3" headings
-   ===================================================================================== */
-
-/* 1) Give DIAG SECTION more width than Tech header (fix badge overlap) */
-body.route-tech .techHeaderWrap{
-  grid-template-columns: 0.92fr 2.08fr !important;
-}
-
-/* 2) Ensure Tech header panel can shrink within its column */
-body.route-tech .techHeaderPanel{
-  min-width:0 !important;
-}
-
-/* 3) DIAG SECTION row: reserve a wider left column for ASR/SOLD + 2 triangle badges */
-body.route-tech .techPickPanel .pickRow{
-  grid-template-columns: 130px 1fr 1fr !important;
-  gap:14px !important;
-}
-
-/* Keep badges horizontal and aligned */
-body.route-tech .techPickPanel .diagBadgeRow{
-  display:flex !important;
-  flex-direction:row !important;
-  gap:10px !important;
-  align-items:flex-start !important;
-  margin-top:10px !important;
-}
-
-/* Prevent the ASR/SOLD label column from collapsing */
-body.route-tech .techPickPanel .diagLabelCol{
-  width:auto !important;
-  min-width:130px !important;
-}
-
-/* Popup should always be above and clickable */
-.diagPopup{position:fixed !important; z-index:9999 !important; pointer-events:auto !important;}
-.diagPopup *{pointer-events:auto !important;}
-
-
-
-
-
-
-/* === Focus Rank Badge v2 (match approved mock) === */
+/* === Rank badge (approved reference style) === */
 .rankFocusBadge{
-  width:92px;
-  height:72px;
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,.14);
-  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.18));
-  box-shadow:0 18px 38px rgba(0,0,0,.35);
+  width:80px;
+  height:80px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(10,16,40,.70);
+  box-shadow:0 22px 52px rgba(0,0,0,.55);
   position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex:0 0 92px;
+  display:block;
   overflow:hidden;
 }
-/* subtle inner outline + make it stand out from the header */
-.rankFocusBadge:before{
-  content:"";
-  position:absolute;
-  inset:3px;
-  border-radius:18px;
-  border:1px solid rgba(255,255,255,.08);
-  pointer-events:none;
-}
-/* divider lines like the mock */
-.rankFocusBadge:after{
-  content:"";
-  position:absolute;
-  left:10px;
-  right:10px;
-  top:26px;
-  height:1px;
-  background:rgba(255,255,255,.08);
-  box-shadow:0 38px 0 rgba(255,255,255,.08);
-  pointer-events:none;
-}
 
+/* divider lines */
+.rankFocusBadge::before,
+.rankFocusBadge::after{
+  content:"";
+  position:absolute;
+  left:12px;
+  right:12px;
+  height:1px;
+  background:rgba(255,255,255,.16);
+  pointer-events:none;
+}
+.rankFocusBadge::before{ top:30px; }
+.rankFocusBadge::after{ top:58px; }
+
+/* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
   position:absolute;
-  top:8px;
-  left:0; right:0;
+  top:10px;
+  left:0;
+  right:0;
   text-align:center;
   font-size:12px;
   font-weight:1100;
   letter-spacing:.35px;
   text-transform:uppercase;
-  color:rgba(234,240,255,.78);
-}
-
-.rankFocusBadge .rfbMain{
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  gap:6px;
-  margin-top:6px;
-  font-size:34px;
-  font-weight:1200;
+  color:rgba(234,240,255,.90);
   line-height:1;
 }
-.rankFocusBadge .rfbHash{
-  font-size:16px;
-  font-weight:1100;
-  color:rgba(234,240,255,.82);
-  margin-top:8px;
-}
 
-/* Bottom "of 5" centered (matches approved mock) */
-.rankFocusBadge .rfbOf{
+/* # + main number centered between the lines */
+.rankFocusBadge .rfbMain{
   position:absolute;
+  top:44px;              /* midway between 30 and 58 */
   left:0;
   right:0;
-  bottom:10px;
+  transform:translateY(-50%);
   display:flex;
-  align-items:baseline;
   justify-content:center;
+  align-items:flex-start;
+  gap:8px;
+  font-size:44px;
+  font-weight:1200;
+  line-height:1;
+  color:rgba(234,240,255,.96);
+}
+.rankFocusBadge .rfbHash{
+  font-size:18px;
+  font-weight:1100;
+  margin-top:12px;       /* drop the # like reference */
+  color:rgba(234,240,255,.90);
+}
+
+/* of 5 centered below the bottom line */
+.rankFocusBadge .rfbOf{
+  position:absolute;
+  top:63px;              /* just below line at 58 */
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:center;
+  align-items:baseline;
   gap:3px;
   line-height:1;
+  color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size:11px;
+  font-size:12px;
   font-weight:1000;
-  color:rgba(234,240,255,.68);
+  color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size:16px;
+  font-size:18px;
   font-weight:1100;
-  color:rgba(234,240,255,.88);
+  color:rgba(234,240,255,.92);
 }
 
 /* small version for service tiles */
 .rankFocusBadge.sm{
-  width:78px;
-  height:60px;
-  border-radius:18px;
-  box-shadow:0 14px 30px rgba(0,0,0,.30);
-}
-.rankFocusBadge.sm:after{
-  top:22px;
-  left:9px;
-  right:9px;
-  box-shadow:0 32px 0 rgba(255,255,255,.08);
-}
-.rankFocusBadge.sm .rfbFocus{top:7px;font-size:11px}
-.rankFocusBadge.sm .rfbMain{margin-top:6px;font-size:26px;gap:5px}
-.rankFocusBadge.sm .rfbHash{font-size:13px;margin-top:7px}
-.rankFocusBadge.sm .rfbOf{bottom:8px}
-.rankFocusBadge.sm .rfbOfWord{font-size:10px}
-.rankFocusBadge.sm .rfbOfNum{font-size:14px}
-
-/* Safety: prevent any legacy overall x/x from overlapping */
-.overallBlock .big{display:none !important;}
-
-
-
-/* === Rank badge tweaks (more contrast + better spacing + small badge legible) === */
-.rankFocusBadge{
-  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.28)) !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-  box-shadow:0 22px 46px rgba(0,0,0,.45) !important;
-}
-.rankFocusBadge:before{
-  inset:2px !important;
-  border:1px solid rgba(255,255,255,.10) !important;
-}
-.rankFocusBadge:after{
-  /* push divider lines down a bit */
-  top:28px !important;
-  box-shadow:0 40px 0 rgba(255,255,255,.09) !important;
-}
-
-/* move "of 5" lower + slightly smaller */
-.rankFocusBadge .rfbOf{
-  bottom:8px !important;
-}
-.rankFocusBadge .rfbOfWord{
-  font-size:10px !important;
-}
-.rankFocusBadge .rfbOfNum{
-  font-size:14px !important;
-}
-
-/* Small badge: less condensed + clearer text */
-.rankFocusBadge.sm{
-  width:92px !important;
-  height:68px !important;
-  border-radius:18px !important;
-}
-.rankFocusBadge.sm:after{
-  top:26px !important;
-  left:10px !important;
-  right:10px !important;
-  box-shadow:0 40px 0 rgba(255,255,255,.09) !important;
-}
-.rankFocusBadge.sm .rfbFocus{top:8px !important;font-size:12px !important;}
-.rankFocusBadge.sm .rfbMain{font-size:30px !important;gap:6px !important;margin-top:6px !important;}
-.rankFocusBadge.sm .rfbHash{font-size:16px !important;margin-top:8px !important;}
-.rankFocusBadge.sm .rfbOf{bottom:8px !important;}
-.rankFocusBadge.sm .rfbOfWord{font-size:10px !important;}
-.rankFocusBadge.sm .rfbOfNum{font-size:14px !important;}
-
-
-
-/* === Rank badge v4: more contrast + slightly smaller + small "of 5" smaller === */
-.rankFocusBadge{
-  width:86px !important;
-  height:64px !important;
-  border-radius:18px !important;
-  background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(0,0,0,.34)) !important;
-  border:1px solid rgba(255,255,255,.22) !important;
-  box-shadow:0 24px 52px rgba(0,0,0,.55) !important;
-}
-.rankFocusBadge:before{
-  inset:2px !important;
-  border:1px solid rgba(255,255,255,.12) !important;
-}
-.rankFocusBadge:after{
-  top:27px !important;
-  box-shadow:0 38px 0 rgba(255,255,255,.10) !important;
-}
-.rankFocusBadge .rfbFocus{font-size:11px !important; top:8px !important;}
-.rankFocusBadge .rfbMain{font-size:30px !important; margin-top:6px !important; gap:6px !important;}
-.rankFocusBadge .rfbHash{font-size:15px !important; margin-top:8px !important;}
-.rankFocusBadge .rfbOf{bottom:7px !important;}
-.rankFocusBadge .rfbOfWord{font-size:9px !important;}
-.rankFocusBadge .rfbOfNum{font-size:13px !important;}
-
-/* Small badge: keep roomy, but reduce "of 5" */
-.rankFocusBadge.sm{
-  width:86px !important;
-  height:62px !important;
-  border-radius:18px !important;
-}
-.rankFocusBadge.sm:after{
-  top:25px !important;
-  box-shadow:0 36px 0 rgba(255,255,255,.10) !important;
-}
-.rankFocusBadge.sm .rfbFocus{font-size:11px !important;}
-.rankFocusBadge.sm .rfbMain{font-size:28px !important;}
-.rankFocusBadge.sm .rfbHash{font-size:14px !important;}
-.rankFocusBadge.sm .rfbOfWord{font-size:8px !important;}
-.rankFocusBadge.sm .rfbOfNum{font-size:11px !important;}
-
-
-
-/* === Rank badge v5: header badge 20% smaller + small badge number smaller + "of" lower === */
-
-/* Header (tech name header) badge: scale down ~20% */
-.techHeaderPanel .rankFocusBadge{
-  width:69px !important;   /* 86 * 0.8 */
-  height:51px !important;  /* 64 * 0.8 */
-  border-radius:16px !important;
-}
-.techHeaderPanel .rankFocusBadge:after{
-  top:22px !important;
-  box-shadow:0 30px 0 rgba(255,255,255,.10) !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbFocus{top:6px !important;font-size:10px !important;}
-.techHeaderPanel .rankFocusBadge .rfbMain{font-size:24px !important;margin-top:4px !important;gap:5px !important;}
-.techHeaderPanel .rankFocusBadge .rfbHash{font-size:13px !important;margin-top:7px !important;}
-.techHeaderPanel .rankFocusBadge .rfbOf{bottom:6px !important;}
-.techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
-.techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:11px !important;}
-
-/* Small badge (service tiles): reduce ranking number + push "of" down */
-.rankFocusBadge.sm .rfbMain{font-size:26px !important;}
-.rankFocusBadge.sm .rfbHash{font-size:13px !important;margin-top:7px !important;}
-.rankFocusBadge.sm .rfbOf{bottom:6px !important;}
-.rankFocusBadge.sm:after{
-  top:24px !important;
-  box-shadow:0 34px 0 rgba(255,255,255,.10) !important;
-}
-
-
-
-/* === Rank badge v6: header badge layout geometry (center #1 between lines; "of 5" below bottom line) === */
-.techHeaderPanel .rankFocusBadge{
-  width:66px !important;
-  height:58px !important;
-  border-radius:16px !important;
-  --lt:18px;   /* top divider y */
-  --lg:20px;   /* distance to bottom divider */
-}
-
-/* divider lines */
-.techHeaderPanel .rankFocusBadge:after{
-  top:var(--lt) !important;
-  box-shadow:0 var(--lg) 0 rgba(255,255,255,.10) !important;
-}
-
-/* ASR% label: keep same offset above top line as "of 5" is below bottom line */
-.techHeaderPanel .rankFocusBadge .rfbFocus{
-  top:4px !important;                 /* gap = --lt - 4px = 14px */
-  font-size:10px !important;
-}
-
-/* Center "#1" exactly between the two divider lines */
-.techHeaderPanel .rankFocusBadge .rfbMain{
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  top:calc(var(--lt) + 2px) !important;
-  height:calc(var(--lg) - 4px) !important;
-  margin-top:0 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  font-size:24px !important;
-  gap:5px !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbHash{
-  font-size:13px !important;
-  margin-top:0 !important;
-}
-
-/* Put "of 5" centered BELOW the bottom line with same spacing (14px) */
-.techHeaderPanel .rankFocusBadge .rfbOf{
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  top:calc(var(--lt) + var(--lg) + 14px) !important;
-  bottom:auto !important;
-  justify-content:center !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
-.techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:11px !important;}
-
-
-
-/* === Rank badge v7: actually match requested geometry === */
-.techHeaderPanel .rankFocusBadge{
-  width:64px !important;
-  height:54px !important;          /* crop bottom: more proportional + smaller */
-  border-radius:16px !important;
-
-  --lineTop:18px;                  /* y of top divider */
-  --lineGap:18px;                  /* distance to bottom divider */
-  --padSym:12px;                   /* desired symmetric spacing */
-}
-
-/* two divider lines */
-.techHeaderPanel .rankFocusBadge:after{
-  top:var(--lineTop) !important;
-  box-shadow:0 var(--lineGap) 0 rgba(255,255,255,.12) !important;
-}
-
-/* ASR% sits --padSym above top line */
-.techHeaderPanel .rankFocusBadge .rfbFocus{
-  top:calc(var(--lineTop) - var(--padSym)) !important;
-  font-size:10px !important;
-}
-
-/* #1 centered between the two lines */
-.techHeaderPanel .rankFocusBadge .rfbMain{
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  top:calc(var(--lineTop) + 2px) !important;
-  height:calc(var(--lineGap) - 4px) !important;
-  margin:0 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  font-size:24px !important;
-  gap:4px !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbHash{
-  font-size:13px !important;
-  margin:0 !important;
-  transform:translateY(1px) !important;
-}
-
-/* "of 5" sits --padSym below bottom line, centered */
-.techHeaderPanel .rankFocusBadge .rfbOf{
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  top:calc(var(--lineTop) + var(--lineGap) + var(--padSym)) !important;
-  bottom:auto !important;
-  justify-content:center !important;
-  gap:2px !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
-.techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:10px !important;}
-
-
-
-
-
-
-/* === Rank badge v8: match approved spacing (like reference image) === */
-.techHeaderPanel .rankFocusBadge{
-  width:72px !important;
-  height:72px !important;
-  border-radius:18px !important;
-
-  background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(0,0,0,.40)) !important;
-  border:1px solid rgba(255,255,255,.22) !important;
-  box-shadow:0 24px 56px rgba(0,0,0,.55) !important;
-
-  --lineTop:26px;
-  --lineBot:52px;
-}
-
-/* inner outline */
-.techHeaderPanel .rankFocusBadge:before{
-  content:"";
-  position:absolute;
-  inset:2px;
+  width:74px;
+  height:68px;
   border-radius:16px;
-  border:1px solid rgba(255,255,255,.12);
-  pointer-events:none;
 }
+.rankFocusBadge.sm::before{ top:26px; }
+.rankFocusBadge.sm::after{ top:50px; }
+.rankFocusBadge.sm .rfbFocus{ top:8px; font-size:11px; }
+.rankFocusBadge.sm .rfbMain{ top:38px; font-size:34px; gap:7px; }
+.rankFocusBadge.sm .rfbHash{ font-size:15px; margin-top:10px; }
+.rankFocusBadge.sm .rfbOf{ top:54px; }
+.rankFocusBadge.sm .rfbOfWord{ font-size:10px; }
+.rankFocusBadge.sm .rfbOfNum{ font-size:14px; }
 
-/* divider lines */
-.techHeaderPanel .rankFocusBadge:after{
-  content:"";
-  position:absolute;
-  left:10px;
-  right:10px;
-  top:var(--lineTop);
-  height:1px;
-  background:rgba(255,255,255,.14);
-  box-shadow:0 calc(var(--lineBot) - var(--lineTop)) 0 rgba(255,255,255,.14);
-  pointer-events:none;
-}
-
-/* Focus label: centered above top line */
-.techHeaderPanel .rankFocusBadge .rfbFocus{
-  top:8px !important;
-  font-size:12px !important;
-  font-weight:1100 !important;
-  color:rgba(234,240,255,.84) !important;
-}
-
-/* Center # + number between lines */
-.techHeaderPanel .rankFocusBadge .rfbMain{
-  position:absolute !important;
-  left:0 !important;
-  right:0 !important;
-  top:calc((var(--lineTop) + var(--lineBot))/2) !important;
-  transform:translateY(-50%) !important;
-
-  margin:0 !important;
-  display:flex !important;
-  align-items:flex-start !important;
-  justify-content:center !important;
-  gap:6px !important;
-
-  font-size:40px !important;
-  font-weight:1200 !important;
-  line-height:1 !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbHash{
-  font-size:18px !important;
-  margin-top:10px !important;
-  color:rgba(234,240,255,.82) !important;
-}
-
-/* "of 5" centered below bottom line */
-.techHeaderPanel .rankFocusBadge .rfbOf{
-  left:0 !important;
-  right:0 !important;
-  bottom:10px !important;
-  justify-content:center !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbOfWord{
-  font-size:12px !important;
-  color:rgba(234,240,255,.70) !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbOfNum{
-  font-size:18px !important;
-  font-weight:1100 !important;
-  color:rgba(234,240,255,.92) !important;
-}
-
-
-
-/* === Rank badge v9: simplest layout (grid), no overlaps === */
-.techHeaderPanel .rankFocusBadge{
-  width:72px !important;
-  height:72px !important;
-  border-radius:18px !important;
-
-  /* stand-out contrast */
-  background:linear-gradient(180deg, rgba(255,255,255,.24), rgba(0,0,0,.44)) !important;
-  border:1px solid rgba(255,255,255,.22) !important;
-  box-shadow:0 24px 56px rgba(0,0,0,.55) !important;
-
-  /* layout */
-  display:grid !important;
-  grid-template-rows: 24px 1fr 24px !important;
-  align-items:center !important;
-  justify-items:center !important;
-  padding:6px 10px !important;
-}
-
-/* remove old pseudo lines that were fighting layout */
-.techHeaderPanel .rankFocusBadge:after,
-.techHeaderPanel .rankFocusBadge:before{
-  content:none !important;
-}
-
-/* top label */
-.techHeaderPanel .rankFocusBadge .rfbFocus{
-  position:static !important;
-  top:auto !important;
-  left:auto !important;
-  right:auto !important;
-  transform:none !important;
-  font-size:12px !important;
-  font-weight:1100 !important;
-  letter-spacing:.35px !important;
-}
-
-/* middle: #1 between the two lines */
-.techHeaderPanel .rankFocusBadge .rfbMain{
-  position:static !important;
-  top:auto !important;
-  left:auto !important;
-  right:auto !important;
-  transform:none !important;
-  margin:0 !important;
-
-  width:100% !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  gap:6px !important;
-
-  border-top:1px solid rgba(255,255,255,.14) !important;
-  padding-top:10px !important;
-}
-
-.techHeaderPanel .rankFocusBadge .rfbHash{
-  font-size:18px !important;
-  margin:0 !important;
-  transform:none !important;
-  color:rgba(234,240,255,.82) !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbMain{
-  font-size:40px !important;
-  font-weight:1200 !important;
-  line-height:1 !important;
-}
-
-/* bottom: "of 5" below the second line */
-.techHeaderPanel .rankFocusBadge .rfbOf{
-  position:static !important;
-  bottom:auto !important;
-  left:auto !important;
-  right:auto !important;
-
-  width:100% !important;
-  display:flex !important;
-  align-items:baseline !important;
-  justify-content:center !important;
-  gap:3px !important;
-
-  border-top:1px solid rgba(255,255,255,.14) !important;
-  padding-top:8px !important;
-  margin-top:0 !important;
-}
-
-.techHeaderPanel .rankFocusBadge .rfbOfWord{
-  font-size:12px !important;
-  font-weight:1000 !important;
-  color:rgba(234,240,255,.70) !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbOfNum{
-  font-size:18px !important;
-  font-weight:1100 !important;
-  color:rgba(234,240,255,.92) !important;
-}
-
-
-
-/* === Rank badge v10: match reference layout (no overlap) === */
-.techHeaderPanel .rankFocusBadge{
-  width:78px !important;
-  height:78px !important;
-  border-radius:18px !important;
-
-  background:rgba(8,14,32,.78) !important; /* slightly different shade to stand out */
-  border:1px solid rgba(255,255,255,.18) !important;
-  box-shadow:0 22px 52px rgba(0,0,0,.55) !important;
-
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  padding:10px 10px 12px !important;
-  gap:0 !important;
-
-  position:relative !important;
-}
-
-/* lines: fixed positions like your reference */
-.techHeaderPanel .rankFocusBadge::before,
-.techHeaderPanel .rankFocusBadge::after{
-  content:"" !important;
-  position:absolute !important;
-  left:12px !important;
-  right:12px !important;
-  height:1px !important;
-  background:rgba(255,255,255,.14) !important;
-  pointer-events:none !important;
-}
-.techHeaderPanel .rankFocusBadge::before{ top:30px !important; }
-.techHeaderPanel .rankFocusBadge::after{ top:58px !important; }
-
-/* Top label */
-.techHeaderPanel .rankFocusBadge .rfbFocus{
-  position:static !important;
-  font-size:12px !important;
-  font-weight:1100 !important;
-  letter-spacing:.35px !important;
-  color:rgba(234,240,255,.88) !important;
-  margin:0 !important;
-  line-height:1 !important;
-}
-
-/* Middle number block centered between lines */
-.techHeaderPanel .rankFocusBadge .rfbMain{
-  position:absolute !important;
-  top:34px !important;              /* between 30 and 58 */
-  left:0 !important;
-  right:0 !important;
-  transform:translateY(-50%) !important;
-  display:flex !important;
-  align-items:flex-start !important;
-  justify-content:center !important;
-  gap:8px !important;
-  margin:0 !important;
-  line-height:1 !important;
-  font-size:44px !important;
-  font-weight:1200 !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbHash{
-  font-size:18px !important;
-  margin-top:12px !important;       /* drop hash like reference */
-  color:rgba(234,240,255,.88) !important;
-}
-
-/* Bottom "of 5" centered under second line */
-.techHeaderPanel .rankFocusBadge .rfbOf{
-  position:absolute !important;
-  top:62px !important;              /* just below bottom line (58) */
-  left:0 !important;
-  right:0 !important;
-  display:flex !important;
-  justify-content:center !important;
-  gap:3px !important;
-  margin:0 !important;
-  line-height:1 !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbOfWord{
-  font-size:12px !important;
-  font-weight:1000 !important;
-  color:rgba(234,240,255,.78) !important;
-}
-.techHeaderPanel .rankFocusBadge .rfbOfNum{
-  font-size:18px !important;
-  font-weight:1100 !important;
-  color:rgba(234,240,255,.92) !important;
-}
-
-/* Remove any v9 grid/border artifacts */
-.techHeaderPanel .rankFocusBadge .rfbMain,
-.techHeaderPanel .rankFocusBadge .rfbOf{
-  border-top:none !important;
-  padding-top:0 !important;
-}
+/* prevent legacy x/x line from overlapping if present */
+.overallBlock .big{ display:none !important; }
