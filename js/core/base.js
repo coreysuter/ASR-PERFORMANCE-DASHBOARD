@@ -392,7 +392,7 @@ function renderTeam(team, st){
         <div class="titleRow">
           <div>
             <div class="h2 teamTitle">${safe(team)}</div>
-            <div class="sub">${appliedTextHtml}</div>
+            <div class="sub"></div>
           </div>
           <div class="overallBlock">
             <div class="big">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
@@ -406,6 +406,11 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
           <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
         </div>
+        <div class="iconBar">
+          <div class="iconBtn" aria-hidden="true" title="Filters" style="pointer-events:none;opacity:.9">${ICON_FILTER}</div>
+          <div class="appliedInline">${appliedTextHtml}</div>
+        </div>
+
       </div>
       <div class="list">${rows || `<div class="notice">No technicians found.</div>`}</div>
     </div>
