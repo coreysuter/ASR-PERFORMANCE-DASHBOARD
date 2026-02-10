@@ -1456,3 +1456,33 @@ body.route-tech .techPickPanel .diagLabelCol{
 .rankFocusBadge.sm .rfbHash{font-size:14px !important;}
 .rankFocusBadge.sm .rfbOfWord{font-size:8px !important;}
 .rankFocusBadge.sm .rfbOfNum{font-size:11px !important;}
+
+
+
+/* === Rank badge v5: header badge 20% smaller + small badge number smaller + "of" lower === */
+
+/* Header (tech name header) badge: scale down ~20% */
+.techHeaderPanel .rankFocusBadge{
+  width:69px !important;   /* 86 * 0.8 */
+  height:51px !important;  /* 64 * 0.8 */
+  border-radius:16px !important;
+}
+.techHeaderPanel .rankFocusBadge:after{
+  top:22px !important;
+  box-shadow:0 30px 0 rgba(255,255,255,.10) !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbFocus{top:6px !important;font-size:10px !important;}
+.techHeaderPanel .rankFocusBadge .rfbMain{font-size:24px !important;margin-top:4px !important;gap:5px !important;}
+.techHeaderPanel .rankFocusBadge .rfbHash{font-size:13px !important;margin-top:7px !important;}
+.techHeaderPanel .rankFocusBadge .rfbOf{bottom:6px !important;}
+.techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
+.techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:11px !important;}
+
+/* Small badge (service tiles): reduce ranking number + push "of" down */
+.rankFocusBadge.sm .rfbMain{font-size:26px !important;}
+.rankFocusBadge.sm .rfbHash{font-size:13px !important;margin-top:7px !important;}
+.rankFocusBadge.sm .rfbOf{bottom:6px !important;}
+.rankFocusBadge.sm:after{
+  top:24px !important;
+  box-shadow:0 34px 0 rgba(255,255,255,.10) !important;
+}
