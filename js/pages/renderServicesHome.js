@@ -70,7 +70,11 @@ function renderServicesHome(){
       if(!row){
         row = document.createElement("div");
         row.className = "secHeadRow";
-        // Insert row at top of the title area (try to use h2's parent)
+        
+        row.style.display = "flex";
+        row.style.alignItems = "flex-start";
+        row.style.gap = "12px";
+// Insert row at top of the title area (try to use h2's parent)
         const host = h2.parentElement || phead;
         host.insertBefore(row, host.firstChild);
       }
@@ -92,7 +96,12 @@ function renderServicesHome(){
         row.appendChild(h2);
       }
 
-      // default expanded
+      
+      // Nudge the title up into the exact top-left spot (without moving anything else)
+      h2.style.position = "relative";
+      h2.style.top = "-14px";
+      h2.style.margin = "0";
+// default expanded
       const sync = ()=>{
         const collapsed = panel.classList.contains("secCollapsed");
         btn.textContent = collapsed ? "+" : "−";
