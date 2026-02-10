@@ -1540,3 +1540,61 @@ body.route-tech .techPickPanel .diagLabelCol{
 }
 .techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
 .techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:11px !important;}
+
+
+
+/* === Rank badge v7: actually match requested geometry === */
+.techHeaderPanel .rankFocusBadge{
+  width:64px !important;
+  height:54px !important;          /* crop bottom: more proportional + smaller */
+  border-radius:16px !important;
+
+  --lineTop:18px;                  /* y of top divider */
+  --lineGap:18px;                  /* distance to bottom divider */
+  --padSym:12px;                   /* desired symmetric spacing */
+}
+
+/* two divider lines */
+.techHeaderPanel .rankFocusBadge:after{
+  top:var(--lineTop) !important;
+  box-shadow:0 var(--lineGap) 0 rgba(255,255,255,.12) !important;
+}
+
+/* ASR% sits --padSym above top line */
+.techHeaderPanel .rankFocusBadge .rfbFocus{
+  top:calc(var(--lineTop) - var(--padSym)) !important;
+  font-size:10px !important;
+}
+
+/* #1 centered between the two lines */
+.techHeaderPanel .rankFocusBadge .rfbMain{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  top:calc(var(--lineTop) + 2px) !important;
+  height:calc(var(--lineGap) - 4px) !important;
+  margin:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  font-size:24px !important;
+  gap:4px !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbHash{
+  font-size:13px !important;
+  margin:0 !important;
+  transform:translateY(1px) !important;
+}
+
+/* "of 5" sits --padSym below bottom line, centered */
+.techHeaderPanel .rankFocusBadge .rfbOf{
+  position:absolute !important;
+  left:0 !important;
+  right:0 !important;
+  top:calc(var(--lineTop) + var(--lineGap) + var(--padSym)) !important;
+  bottom:auto !important;
+  justify-content:center !important;
+  gap:2px !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbOfWord{font-size:8px !important;}
+.techHeaderPanel .rankFocusBadge .rfbOfNum{font-size:10px !important;}
