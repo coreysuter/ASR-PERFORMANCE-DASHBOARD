@@ -1200,18 +1200,20 @@ body.route-tech .catTitle .meta{
 }
 
 
-/* === Focus Rank Badge (replaces X/Y rankings) === */
+
+/* === Focus Rank Badge: replaces X/Y rank text === */
 .rankFocusBadge{
-  width:92px;
-  height:66px;
+  width:88px;
+  height:68px;
   border-radius:18px;
   border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.22);
+  background:rgba(0,0,0,.20);
   box-shadow:0 14px 30px rgba(0,0,0,.28);
   position:relative;
   display:flex;
   align-items:center;
   justify-content:center;
+  flex:0 0 88px;
 }
 .rankFocusBadge .rfbFocus{
   position:absolute;
@@ -1221,39 +1223,47 @@ body.route-tech .catTitle .meta{
   text-align:center;
   font-size:11px;
   font-weight:1100;
-  letter-spacing:.3px;
+  letter-spacing:.35px;
   text-transform:uppercase;
   color:rgba(234,240,255,.75);
 }
 .rankFocusBadge .rfbMain{
-  font-size:28px;
-  font-weight:1200;
-  line-height:1;
-  letter-spacing:.2px;
   display:flex;
   align-items:flex-start;
+  justify-content:center;
   gap:4px;
+  margin-top:4px;
+  font-weight:1200;
+  line-height:1;
 }
 .rankFocusBadge .rfbHash{
   font-size:14px;
   font-weight:1100;
   color:rgba(234,240,255,.80);
-  margin-top:3px;
+  margin-top:6px;
+}
+.rankFocusBadge .rfbMain{
+  font-size:30px;
 }
 .rankFocusBadge .rfbOf{
   position:absolute;
   right:10px;
   bottom:8px;
-  font-size:12px;
-  font-weight:1100;
+  display:flex;
+  align-items:baseline;
+  gap:2px;
   line-height:1;
-  color:rgba(234,240,255,.85);
 }
 .rankFocusBadge .rfbOfWord{
   font-size:9px;
   font-weight:1000;
-  letter-spacing:.2px;
-  text-transform:lowercase;
   color:rgba(234,240,255,.65);
-  margin-right:2px;
 }
+.rankFocusBadge .rfbOfNum{
+  font-size:12px;
+  font-weight:1100;
+  color:rgba(234,240,255,.85);
+}
+
+/* make sure the block that contains the badge doesn't also apply big-number styles */
+.overallBlock .big{display:none !important;}

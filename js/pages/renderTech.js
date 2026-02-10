@@ -38,6 +38,20 @@ const hash = location.hash || "";
     for(const x of (DATA.techs||[])){
       for(const k of Object.keys(x.categories||{})) cats.add(k);
     }
+
+  function renderRankBadge(rank, total, focus){
+    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
+    const r = (rank===null || rank===undefined) ? "—" : rank;
+    const t = (total===null || total===undefined) ? "—" : total;
+    return `
+      <div class="rankFocusBadge">
+        <div class="rfbFocus">${top}</div>
+        <div class="rfbMain"><span class="rfbHash">#</span>${r}</div>
+        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
+      </div>
+    `;
+  }
+
     return Array.from(cats);
   }
   const CAT_LIST = categoryUniverse();
@@ -225,11 +239,7 @@ const header = `
             <div class="techTeamLine">${safe(team)}</div>
           </div>
           <div class="overallBlock">
-            <div class="rankFocusBadge">
-              <div class="rfbFocus">${focus==="sold"?"SOLD%":(focus==="goal"?"GOAL%":"ASR%")}</div>
-              <div class="rfbMain"><span class="rfbHash">#</span>${overall.rank ?? "—"}</div>
-              <div class="rfbOf"><span class="rfbOfWord">of</span> ${overall.total ?? "—"}</div>
-            </div>
+            ${renderRankBadge(overall.rank ?? "—", overall.total ?? "—", focus)}
             <div class="tag">${focus==="sold" ? "Overall Sold Rank" : "Overall ASR Rank"}</div>
             <div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
