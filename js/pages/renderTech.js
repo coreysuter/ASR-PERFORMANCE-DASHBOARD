@@ -373,7 +373,8 @@ const s = t.summary?.[filterKey] || {};
 
 
   const filters = `
-        <div class="controls" style="margin-top:10px">
+    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
+    <div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
         <select id="techFilter">
@@ -826,6 +827,7 @@ return `
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   // Top/Bottom 3 clicks: jump to service card reliably
+  const tp = document.querySelector('.techPickPanel');
   if(tp){
     tp.addEventListener('click', (e)=>{
       const b = e.target && e.target.closest ? e.target.closest('.tbJump') : null;
@@ -834,10 +836,7 @@ return `
       const id = b.getAttribute('data-cat');
       if(!id) return;
       const el = document.getElementById(id);
-      if(!el) return;
-      const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
-      if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
-      el.scrollIntoView({behavior:'smooth', block:'start'});
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
     }, true);
   }
 
