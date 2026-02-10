@@ -614,10 +614,19 @@ initServicesSectionToggles();
       ov.style.top = top + "px";
 
       // Move the toggle next to the title (no layout impact)
-      toggle.style.position = "absolute";
-      toggle.style.zIndex = "7";
-      toggle.style.left = (baseLeft + ov.offsetWidth + 14) + "px";
-      toggle.style.top = (top + Math.max(0, (ov.offsetHeight - toggle.offsetHeight)/2)) + "px";
+      // Use rAF so measurements are correct, and force absolute positioning.
+      requestAnimationFrame(()=>{
+        toggle.style.setProperty("position","absolute","important");
+        toggle.style.zIndex = "7";
+
+        const leftPx = (baseLeft + ov.offsetWidth + 14);
+        toggle.style.left = leftPx + "px";
+
+        // Vertically center relative to the title line
+        const midY = top + (ov.offsetHeight/2);
+        toggle.style.top = midY + "px";
+        toggle.style.transform = "translateY(-50%)";
+      });
     });
   }
 
