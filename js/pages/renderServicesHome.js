@@ -153,6 +153,8 @@ function renderServicesHome(){
       .svcBadgePopupClose{margin-left:auto;width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer}
       .svcBadgePopupList{padding:12px;display:grid;gap:10px}
       .svcBadgePopupItem{
+        appearance:none;-webkit-appearance:none;
+        text-align:left;
         display:flex;align-items:center;justify-content:space-between;gap:14px;
         padding:10px 12px;border-radius:14px;
         background:rgba(255,255,255,.04);
@@ -214,14 +216,23 @@ function renderServicesHome(){
         </div>
         <div class="svcBadgePopupList">
           ${rows.length ? rows.map((r, i)=>`
-            <a class="svcBadgePopupItem" href="javascript:void(0)" onclick="window.closeSvcBadgePopup(); return (window.jumpToService ? window.jumpToService('${safeId(r.key)}') : false);">
+            <button class="svcBadgePopupItem" type="button" data-jump="${safeId(r.key)}">
               <div class="svcBadgePopupName">${(i+1)+'. '} ${safe(r.name)}</div>
               <div class="svcBadgePopupVal">${(metric==='sold'?'Sold% ':'ASR% ')}${fmtPct(r.val)}</div>
-            </a>
+            </button>
           `).join("") : `<div class="sub">No services in this band.</div>`}
         </div>
       `;
       document.body.appendChild(popup);
+
+      // Bind jump handlers (no hash changes)
+      popup.querySelectorAll('[data-jump]').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          const id = el.getAttribute('data-jump');
+          window.closeSvcBadgePopup();
+          if(window.jumpToService) window.jumpToService(id);
+        });
+      });
 
       const r = btn.getBoundingClientRect();
       const pad = 12;
