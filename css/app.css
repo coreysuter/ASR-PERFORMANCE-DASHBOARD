@@ -1258,7 +1258,7 @@ body.route-tech .catTitle .meta{
   right:0;
   text-align:center;
   font-size: calc(var(--h) * 0.14);
-  font-weight:1100;
+  font-weight:1200;
   letter-spacing:.35px;
   text-transform:uppercase;
   color:rgba(234,240,255,.90);
@@ -1285,7 +1285,7 @@ body.route-tech .catTitle .meta{
   top: 50%;
   transform: translate(-50%,-35%);
   font-size: calc(var(--h) * 0.14);
-  font-weight:1100;
+  font-weight:1200;
   line-height:1;
   color:rgba(234,240,255,.90);
 }
@@ -1307,14 +1307,14 @@ body.route-tech .catTitle .meta{
   color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size: calc(var(--h) * 0.145);
-  font-weight:1000;
-  color:rgba(234,240,255,.78);
+  font-size: calc(var(--h) * 0.155);
+  font-weight:1200;
+  color:rgba(234,240,255,.92);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size: calc(var(--h) * 0.165);
-  font-weight:1100;
-  color:rgba(234,240,255,.92);
+  font-size: calc(var(--h) * 0.175);
+  font-weight:1200;
+  color:rgba(234,240,255,.98);
 }
 
 /* small version for service tiles */
