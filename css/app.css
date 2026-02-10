@@ -1204,19 +1204,20 @@ body.route-tech .catTitle .meta{
 }
 
 
-/* === Rank badge (PROPORTION-LOCKED — matches Paint proportions) === */
+/* === Rank badge (PROPORTION-LOCKED to your Paint mock) === */
 .rankFocusBadge{
-  /* One source of truth */
-  --sz: 80px;
+  /* Size */
+  --w: 80px;
+  --h: 80px;
   --r: 18px;
 
-  /* Inner geometry (tune only these if needed) */
-  --padX: 12px;      /* left/right padding for divider lines */
-  \124%;      /* top divider position */
-  \170%;      /* bottom divider position */
+  /* Geometry (these 3 are the only “proportion” knobs) */
+  --line1f: 0.24;  /* top divider @ ~24% of height */
+  --line2f: 0.70;  /* bottom divider @ ~70% of height */
+  --padX: 12px;
 
-  width: var(--sz);
-  height: var(--sz);
+  width: var(--w);
+  height: var(--h);
   border-radius: var(--r);
   border:1px solid rgba(255,255,255,.22);
   background:rgba(6,10,28,.88);
@@ -1226,7 +1227,7 @@ body.route-tech .catTitle .meta{
   overflow:hidden;
 }
 
-/* Divider lines */
+/* divider lines */
 .rankFocusBadge::before,
 .rankFocusBadge::after{
   content:"";
@@ -1237,17 +1238,17 @@ body.route-tech .catTitle .meta{
   background:rgba(255,255,255,.16);
   pointer-events:none;
 }
-.rankFocusBadge::before{ top: var(--line1); }
-.rankFocusBadge::after{  top: var(--line2); }
+.rankFocusBadge::before{ top: calc(var(--h) * var(--line1f)); }
+.rankFocusBadge::after{  top: calc(var(--h) * var(--line2f)); }
 
 /* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
   position:absolute;
-  top: 14%;
+  top: calc(var(--h) * 0.12);
   left:0;
   right:0;
   text-align:center;
-  font-size: 11px;
+  font-size: calc(var(--h) * 0.14);
   font-weight:1100;
   letter-spacing:.35px;
   text-transform:uppercase;
@@ -1255,69 +1256,70 @@ body.route-tech .catTitle .meta{
   line-height:1;
 }
 
-/* Big number — always centered BETWEEN the two lines */
+/* main number centered BETWEEN the two divider lines */
 .rankFocusBadge .rfbMain{
   position:absolute;
-  top: calc((var(--line1) + var(--line2)) / 2);
+  top: calc(var(--h) * 0.47); /* midpoint of 0.24 and 0.70 */
   left:0;
   right:0;
   transform:translateY(-50%);
   text-align:center;
-  font-size: 44px;
+  font-size: calc(var(--h) * 0.56);
   font-weight:1200;
   line-height:1;
   color:rgba(234,240,255,.96);
 }
 
-/* # — pinned left of the big number and vertically aligned to it
-   (works whether .rfbHash is a sibling OR nested inside .rfbMain) */
+/* If your markup nests .rfbHash inside .rfbMain, hide that one
+   and use the pinned absolute version below (prevents stacking). */
+.rankFocusBadge .rfbMain .rfbHash{ display:none; }
+
+/* # pinned left of the big number, aligned to the same midline */
 .rankFocusBadge .rfbHash{
   position:absolute;
-  top: calc((var(--line1) + var(--line2)) / 2);
-  left: 26%;
+  top: calc(var(--h) * 0.47);
+  left: calc(var(--w) * 0.30);
   transform:translate(-50%,-35%);
-  font-size: 14px;
+  font-size: calc(var(--h) * 0.18);
   font-weight:1100;
   line-height:1;
   color:rgba(234,240,255,.90);
 }
 
-/* of 5 — centered between the bottom line and the bottom edge */
+/* of 5 centered between bottom divider and bottom edge */
 .rankFocusBadge .rfbOf{
   position:absolute;
-  top: calc((var(--line2) + 100%) / 2);
+  top: calc(var(--h) * 0.85); /* midpoint of 0.70 and 1.00 */
   left:0;
   right:0;
   transform:translateY(-50%);
   display:flex;
   justify-content:center;
   align-items:baseline;
-  gap:3px;
+  gap: calc(var(--w) * 0.03);
   line-height:1;
   color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size:10px;
+  font-size: calc(var(--h) * 0.13);
   font-weight:1000;
   color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size:14px;
+  font-size: calc(var(--h) * 0.18);
   font-weight:1100;
   color:rgba(234,240,255,.92);
 }
 
-/* Small version for service tiles */
+/* small version for service tiles */
 .rankFocusBadge.sm{
-  --sz: 74px;
-  height: 68px;          /* keep your existing non-square small badge */
-  border-radius:16px;
-  --line1: 38%;
-  --line2: 74%;
+  --w: 74px;
+  --h: 68px;
+  --r: 16px;
+
+  /* keep same relative divider proportions */
+  --padX: 12px;
 }
-.rankFocusBadge.sm .rfbFocus{ top: 10%; font-size:11px; }
-.rankFocusBadge.sm .rfbMain{ font-size:44px; }
-.rankFocusBadge.sm .rfbHash{ font-size:15px; left: 25%; }
 
 
 /* prevent legacy x/x line from overlapping if present */
