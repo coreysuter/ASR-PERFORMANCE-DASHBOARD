@@ -1788,3 +1788,102 @@ body.route-tech .techPickPanel .diagLabelCol{
   font-weight:1100 !important;
   color:rgba(234,240,255,.92) !important;
 }
+
+
+
+/* === Rank badge v10: match reference layout (no overlap) === */
+.techHeaderPanel .rankFocusBadge{
+  width:78px !important;
+  height:78px !important;
+  border-radius:18px !important;
+
+  background:rgba(8,14,32,.78) !important; /* slightly different shade to stand out */
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 22px 52px rgba(0,0,0,.55) !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  padding:10px 10px 12px !important;
+  gap:0 !important;
+
+  position:relative !important;
+}
+
+/* lines: fixed positions like your reference */
+.techHeaderPanel .rankFocusBadge::before,
+.techHeaderPanel .rankFocusBadge::after{
+  content:"" !important;
+  position:absolute !important;
+  left:12px !important;
+  right:12px !important;
+  height:1px !important;
+  background:rgba(255,255,255,.14) !important;
+  pointer-events:none !important;
+}
+.techHeaderPanel .rankFocusBadge::before{ top:30px !important; }
+.techHeaderPanel .rankFocusBadge::after{ top:58px !important; }
+
+/* Top label */
+.techHeaderPanel .rankFocusBadge .rfbFocus{
+  position:static !important;
+  font-size:12px !important;
+  font-weight:1100 !important;
+  letter-spacing:.35px !important;
+  color:rgba(234,240,255,.88) !important;
+  margin:0 !important;
+  line-height:1 !important;
+}
+
+/* Middle number block centered between lines */
+.techHeaderPanel .rankFocusBadge .rfbMain{
+  position:absolute !important;
+  top:34px !important;              /* between 30 and 58 */
+  left:0 !important;
+  right:0 !important;
+  transform:translateY(-50%) !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+  gap:8px !important;
+  margin:0 !important;
+  line-height:1 !important;
+  font-size:44px !important;
+  font-weight:1200 !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbHash{
+  font-size:18px !important;
+  margin-top:12px !important;       /* drop hash like reference */
+  color:rgba(234,240,255,.88) !important;
+}
+
+/* Bottom "of 5" centered under second line */
+.techHeaderPanel .rankFocusBadge .rfbOf{
+  position:absolute !important;
+  top:62px !important;              /* just below bottom line (58) */
+  left:0 !important;
+  right:0 !important;
+  display:flex !important;
+  justify-content:center !important;
+  gap:3px !important;
+  margin:0 !important;
+  line-height:1 !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbOfWord{
+  font-size:12px !important;
+  font-weight:1000 !important;
+  color:rgba(234,240,255,.78) !important;
+}
+.techHeaderPanel .rankFocusBadge .rfbOfNum{
+  font-size:18px !important;
+  font-weight:1100 !important;
+  color:rgba(234,240,255,.92) !important;
+}
+
+/* Remove any v9 grid/border artifacts */
+.techHeaderPanel .rankFocusBadge .rfbMain,
+.techHeaderPanel .rankFocusBadge .rfbOf{
+  border-top:none !important;
+  padding-top:0 !important;
+}
