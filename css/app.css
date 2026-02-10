@@ -1195,93 +1195,43 @@ body.route-tech .catTitle .meta{
   letter-spacing: .15px !important;
 }
 
-
-/* === Services-only: triangle badges + header layout tweaks === */
-.route-services .triBadge{display:inline-flex;align-items:center;justify-content:center}
-.route-services .triBadge svg{display:block}
-
-.route-services .miniDialStack{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
-.route-services .miniDialStack .secMiniDials{display:flex;gap:10px;align-items:center}
-
-.route-services .secBadgeUnderMini{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap;margin-top:8px}
-.route-services .secBadgeUnderMini .triBadge svg{width:53px;height:48px}
-
-.route-services .badgeGroup{display:flex;flex-direction:column;align-items:center;gap:4px}
-.route-services .badgePair{display:flex;gap:10px;align-items:center;justify-content:center}
-.route-services .badgeCap{font-size:12px;font-weight:1100;letter-spacing:.25px;color:var(--muted);text-transform:uppercase}
-
-.route-services .secTitleLine{display:flex;align-items:center;gap:10px}
-.route-services .secTitleLine .secToggle{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);color:var(--text);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
-
-.route-services .secFocusDial{display:flex;flex-direction:row;gap:14px;align-items:center;justify-content:flex-end}
-.route-services .focusBadgePair{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:0}
-.route-services .focusBadgePair .badgePair.big .triBadge svg{width:70px;height:62px}
-
-
-/* Services: category header left area - title on left, mini dials on right */
-.route-services .secLeftTop{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap}
-
-/* Services: inline title + single toggle */
-.route-services .secHeadRow{display:flex;align-items:center;gap:12px}
-.route-services .secHeadRow .secToggle{width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.22);color:var(--text);font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center}
-.route-services .secCollapsed .list{display:none}
-
-/* Services: badge caption sizing */
-.route-services .badgeCap{font-size:12px;font-weight:1100;letter-spacing:.25px;color:var(--muted);text-transform:uppercase}
-
-/* Triangle badge aspect: wider (Tech Details / non-Services) */
-body:not(.route-services) .triBadge svg{width:70px;height:50px}
-
-/* Services: force focus badges bigger + label below */
-.route-services .secFocusDial{display:flex !important; align-items:flex-start !important; gap:14px !important; justify-content:flex-end !important}
-.route-services .focusBadgePair{display:flex !important; flex-direction:column !important; align-items:center !important; gap:6px !important; margin-top:0 !important}
-
-
-/* === Services: clean focus cluster layout (badges + dial + stats on one row) === */
-.route-services .secHdrRight{
-  position:absolute;
-  right:0;
-  top:0;
-  display:flex;
-  align-items:flex-start;
-  gap:18px;
+/* === FORCE: Focus cluster layout (badges + dial + stats on ONE ROW) ===
+   This is scoped to section headers (secHdrRight) so it won't affect other UI.
+   Focus badges are 50% larger than mini badges:
+   - Mini badges: 53x48, label 12px
+   - Focus badges: 80x72, label 18px
+*/
+.secHdrRight{
+  display:flex !important;
+  align-items:flex-start !important;
+  gap:18px !important;
 }
-
-.route-services .secFocusDial{
+.secFocusDial{
   display:flex !important;
   flex-direction:row !important;
   align-items:flex-start !important;
   gap:14px !important;
   justify-content:flex-end !important;
 }
-
-/* Focus badges: EXACTLY 50% larger than mini badges */
-.route-services .focusBadgePair{
+.secFocusDial .focusBadgePair{
   display:flex !important;
   flex-direction:column !important;
   align-items:center !important;
   gap:6px !important;
   margin-top:0 !important;
 }
-
-/* Mini badge reference (services): 53x48, label 12px
-   Focus badge = 1.5x => 80x72, label 18px */
-.route-services .focusBadgePair .triBadge svg{
+.secFocusDial .focusBadgePair .triBadge svg{
   width:80px !important;
   height:72px !important;
 }
-
-.route-services .focusBadgePair .badgeCap.big{
+.secFocusDial .focusBadgePair .badgeCap.big{
   font-size:18px !important;
-  letter-spacing:.25px;
-  color:var(--muted);
-  font-weight:1100;
-  text-transform:uppercase;
-  margin-top:4px;
+  letter-spacing:.25px !important;
+  color:var(--muted) !important;
+  font-weight:1100 !important;
+  text-transform:uppercase !important;
+  margin-top:4px !important;
 }
-
-/* Keep stats pinned to top right */
-.route-services .secHdrStats{
-  align-self:flex-start;
+.secHdrStats{
+  align-self:flex-start !important;
 }
-
