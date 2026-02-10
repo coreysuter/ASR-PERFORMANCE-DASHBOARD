@@ -99,13 +99,14 @@
     pop.className = "diagPopup";
     pop.style.position = "fixed";
     pop.style.zIndex = "9999";
-    pop.style.width = "360px";
+    pop.style.width = "520px";
     pop.style.maxWidth = "calc(100vw - 24px)";
     pop.style.background = "linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98))";
     pop.style.border = "1px solid rgba(255,255,255,.10)";
     pop.style.borderRadius = "16px";
     pop.style.boxShadow = "0 22px 60px rgba(0,0,0,.55)";
     pop.style.overflow = "hidden";
+    pop.style.overflowX = "hidden";
 
     pop.innerHTML = `
       <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
@@ -113,7 +114,7 @@
         <button class="diagPopClose" onclick="window.closeDiagPopup()" aria-label="Close"
           style="margin-left:6px;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
-      <div class="diagPopList" style="padding:10px 12px;display:grid;gap:8px;max-height:340px;overflow:auto">
+      <div class="diagPopList" style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
         ${rows}
       </div>
     `;

@@ -1195,43 +1195,9 @@ body.route-tech .catTitle .meta{
   letter-spacing: .15px !important;
 }
 
-/* === FORCE: Focus cluster layout (badges + dial + stats on ONE ROW) ===
-   This is scoped to section headers (secHdrRight) so it won't affect other UI.
-   Focus badges are 50% larger than mini badges:
-   - Mini badges: 53x48, label 12px
-   - Focus badges: 80x72, label 18px
-*/
-.secHdrRight{
-  display:flex !important;
-  align-items:flex-start !important;
-  gap:18px !important;
-}
-.secFocusDial{
-  display:flex !important;
-  flex-direction:row !important;
-  align-items:flex-start !important;
-  gap:14px !important;
-  justify-content:flex-end !important;
-}
-.secFocusDial .focusBadgePair{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  gap:6px !important;
-  margin-top:0 !important;
-}
-.secFocusDial .focusBadgePair .triBadge svg{
-  width:80px !important;
-  height:72px !important;
-}
-.secFocusDial .focusBadgePair .badgeCap.big{
-  font-size:18px !important;
-  letter-spacing:.25px !important;
-  color:var(--muted) !important;
-  font-weight:1100 !important;
-  text-transform:uppercase !important;
-  margin-top:4px !important;
-}
-.secHdrStats{
-  align-self:flex-start !important;
+
+
+/* === Tech Details: give diag section more room (shrink tech name header) === */
+body.route-tech .techHeaderWrap{
+  grid-template-columns:0.82fr 1.18fr !important;
 }
