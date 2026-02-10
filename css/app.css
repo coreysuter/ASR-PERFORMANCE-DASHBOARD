@@ -1233,3 +1233,42 @@ body.route-tech .catTitle .meta{
 /* Triangle badge aspect: wider (Tech Details / non-Services) */
 body:not(.route-services) .triBadge svg{width:70px;height:50px}
 
+
+
+
+/* === TECH DETAILS ONLY: diag section triangle badges (isolated; will NOT affect Services page) === */
+body.route-tech .diagBadgeRow{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
+body.route-tech .diagLabelCol{width:56px}
+
+/* Bigger triangles + numbers */
+body.route-tech .diagTriBadge{
+  width:72px;
+  height:64px;
+  position:relative;
+  clip-path:polygon(50% 0%, 0% 100%, 100% 100%);
+  border-radius:8px;
+  box-shadow:0 14px 28px rgba(0,0,0,.40);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:1000;
+}
+body.route-tech .diagTriBadge.red{background:#ff4b4b}
+body.route-tech .diagTriBadge.yellow{background:#ffbf2f}
+
+/* Exclamation + number placement/size */
+body.route-tech .diagTriBadge .triBang{
+  position:absolute;
+  top:14px;
+  font-size:32px;
+  line-height:1;
+  color:rgba(0,0,0,.78);
+}
+body.route-tech .diagTriBadge .triNum{
+  position:absolute;
+  bottom:10px;
+  font-size:18px;
+  line-height:1;
+  color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,.40);
+}
