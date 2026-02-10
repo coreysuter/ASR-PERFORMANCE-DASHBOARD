@@ -621,7 +621,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .brRYTop{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px}
 .brRYLeft{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
 .brRYRight{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
-.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.18); font-size:11px; line-height:1}
+.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.22); font-size:11px; line-height:1}
 .switch.sm{width:34px; height:18px}
 .switch.sm .slider:before{height:14px; width:14px; left:2px; bottom:2px}
 .switch.sm input:checked + .slider:before{transform:translateX(16px)}
@@ -1209,9 +1209,9 @@ body.route-tech .catTitle .meta{
   width:80px;
   height:80px;
   border-radius:18px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(10,16,40,.70);
-  box-shadow:0 22px 52px rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(6,10,28,.88);
+  box-shadow:0 26px 66px rgba(0,0,0,.65);
   position:relative;
   display:block;
   overflow:hidden;
@@ -1238,7 +1238,7 @@ body.route-tech .catTitle .meta{
   left:0;
   right:0;
   text-align:center;
-  font-size:12px;
+  font-size:11px;
   font-weight:1100;
   letter-spacing:.35px;
   text-transform:uppercase;
@@ -1249,7 +1249,7 @@ body.route-tech .catTitle .meta{
 /* # + main number centered between the lines */
 .rankFocusBadge .rfbMain{
   position:absolute;
-  top:44px;              /* midway between 30 and 58 */
+  top:44px;              /* centered between the divider lines */
   left:0;
   right:0;
   transform:translateY(-50%);
@@ -1257,22 +1257,23 @@ body.route-tech .catTitle .meta{
   justify-content:center;
   align-items:flex-start;
   gap:8px;
-  font-size:44px;
+  font-size:34px;
   font-weight:1200;
   line-height:1;
   color:rgba(234,240,255,.96);
 }
 .rankFocusBadge .rfbHash{
-  font-size:18px;
+  font-size:14px;
   font-weight:1100;
-  margin-top:12px;       /* drop the # like reference */
+  margin-top:10px;       /* drop the # like reference */
   color:rgba(234,240,255,.90);
 }
 
 /* of 5 centered below the bottom line */
 .rankFocusBadge .rfbOf{
   position:absolute;
-  top:63px;              /* just below line at 58 */
+  top:69px;              /* centered between bottom line and badge bottom */
+  transform:translateY(-50%);
   left:0;
   right:0;
   display:flex;
@@ -1283,12 +1284,12 @@ body.route-tech .catTitle .meta{
   color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size:12px;
+  font-size:10px;
   font-weight:1000;
   color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size:18px;
+  font-size:14px;
   font-weight:1100;
   color:rgba(234,240,255,.92);
 }
