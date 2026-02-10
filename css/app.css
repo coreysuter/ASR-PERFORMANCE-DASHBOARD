@@ -1196,22 +1196,6 @@ body.route-tech .catTitle .meta{
 }
 
 
-/* === Badge buttons reset (prevents white button backgrounds) === */
-.svcBadgeBtn, .svcBadgeBtnFocus{
-  background: transparent !important;
-  border: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  cursor: pointer !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-}
-.svcBadgeBtn:focus, .svcBadgeBtnFocus:focus{
-  outline: 2px solid rgba(255,255,255,.18);
-  outline-offset: 4px;
-  border-radius: 10px;
-}
-.svcBadgeBtn svg, .svcBadgeBtnFocus svg{
-  display:block;
-}
 
+/* === Tech Details: shrink tech header panel to give diag section more room === */
+.techHeaderWrap{grid-template-columns:0.78fr 1.22fr !important;}
