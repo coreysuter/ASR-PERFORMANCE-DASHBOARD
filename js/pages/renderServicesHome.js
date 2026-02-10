@@ -120,6 +120,131 @@ function renderServicesHome(){
     `;
   }
 
+  function badgeButton(secId, metric, color, num, size="mini"){
+    const cls = (size==="focus") ? "svcBadgeBtn svcBadgeBtnFocus" : "svcBadgeBtn";
+    return `
+      <button class="${cls}" type="button"
+        data-sec="${safe(secId)}" data-metric="${metric}" data-color="${color}"
+        onclick="return window.openSvcBadgePopup && window.openSvcBadgePopup(event)">
+        ${triBadgeSvg(color, num)}
+      </button>
+    `;
+  }
+
+  function ensureBadgePopupCss(){
+    if(document.getElementById("svcBadgePopupCss")) return;
+    const st = document.createElement("style");
+    st.id = "svcBadgePopupCss";
+    st.textContent = `
+      .svcBadgeBtn{background:transparent;border:0;padding:0;margin:0;cursor:pointer}
+      .svcBadgeBtn:focus{outline:2px solid rgba(255,255,255,.18);outline-offset:4px;border-radius:10px}
+      .svcBadgePopup{
+        position:fixed;z-index:9999;
+        width:420px;max-width:calc(100vw - 24px);
+        max-height:60vh;overflow:auto;
+        border-radius:18px;
+        background:linear-gradient(180deg,rgba(20,27,45,.98),rgba(10,14,26,.98));
+        border:1px solid rgba(255,255,255,.12);
+        box-shadow:0 24px 80px rgba(0,0,0,.55);
+      }
+      .svcBadgePopupHead{display:flex;align-items:center;gap:12px;padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.10)}
+      .svcBadgePopupTitle{font-size:26px;font-weight:1100;letter-spacing:.3px}
+      .svcBadgePopupClose{margin-left:auto;width:34px;height:34px;border-radius:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer}
+      .svcBadgePopupList{padding:12px;display:grid;gap:10px}
+      .svcBadgePopupItem{
+        display:flex;align-items:center;justify-content:space-between;gap:14px;
+        padding:10px 12px;border-radius:14px;
+        background:rgba(255,255,255,.04);
+        border:1px solid rgba(255,255,255,.08);
+        text-decoration:none;color:inherit;
+      }
+      .svcBadgePopupItem:hover{background:rgba(255,255,255,.06)}
+      .svcBadgePopupName{font-weight:1000;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .svcBadgePopupVal{font-weight:1000;color:rgba(255,255,255,.86);white-space:nowrap}
+    `;
+    document.head.appendChild(st);
+  }
+
+  window.closeSvcBadgePopup = function(){
+    const ex = document.getElementById("svcBadgePopup");
+    if(ex) ex.remove();
+  };
+
+  window.openSvcBadgePopup = function(e){
+    try{
+      ensureBadgePopupCss();
+      window.closeSvcBadgePopup();
+
+      const btn = e.currentTarget;
+      const secId = btn.getAttribute("data-sec") || "";
+      const metric = btn.getAttribute("data-metric") || "asr"; // "asr" or "sold"
+      const color = btn.getAttribute("data-color") || "red";
+
+      const cats = (window.__svcSectionCats && window.__svcSectionCats[secId]) ? window.__svcSectionCats[secId] : [];
+      const rows = [];
+      for(const cat of cats){
+        const a = aggFor(cat, techs);
+        const gReq = Number(getGoal(cat,"req"));
+        const gClose = Number(getGoal(cat,"close"));
+        const pctReq = (Number.isFinite(a.reqTot) && Number.isFinite(gReq) && gReq>0) ? (a.reqTot/gReq) : NaN;
+        const pctClose = (Number.isFinite(a.closeTot) && Number.isFinite(gClose) && gClose>0) ? (a.closeTot/gClose) : NaN;
+        const band = (metric==="sold") ? bandFromPct(pctClose) : bandFromPct(pctReq);
+        if(band !== color) continue;
+        rows.push({
+          key: cat,
+          name: (typeof catLabel==="function") ? catLabel(cat) : String(cat),
+          val: (metric==="sold") ? a.closeTot : a.reqTot
+        });
+      }
+      // Sort high-to-low for readability
+      rows.sort((x,y)=>(y.val||0)-(x.val||0));
+
+      const title = (metric==="sold") ? "SOLD" : "ASR";
+      const icon = triBadgeSvg(color, "");
+      const popup = document.createElement("div");
+      popup.id = "svcBadgePopup";
+      popup.className = "svcBadgePopup";
+      popup.innerHTML = `
+        <div class="svcBadgePopupHead">
+          <div class="svcBadgePopupTitle">${title}</div>
+          <div>${icon}</div>
+          <button class="svcBadgePopupClose" type="button" onclick="window.closeSvcBadgePopup()">✕</button>
+        </div>
+        <div class="svcBadgePopupList">
+          ${rows.length ? rows.map((r, i)=>`
+            <a class="svcBadgePopupItem" href="#svc-${safeId(r.key)}" onclick="window.closeSvcBadgePopup(); return window.jumpToService ? window.jumpToService('${safeId(r.key)}') : true;">
+              <div class="svcBadgePopupName">${(i+1)+'. '} ${safe(r.name)}</div>
+              <div class="svcBadgePopupVal">${(metric==='sold'?'Sold% ':'ASR% ')}${fmtPct(r.val)}</div>
+            </a>
+          `).join("") : `<div class="sub">No services in this band.</div>`}
+        </div>
+      `;
+      document.body.appendChild(popup);
+
+      const r = btn.getBoundingClientRect();
+      const pad = 12;
+      const pw = popup.offsetWidth;
+      const ph = popup.offsetHeight;
+      let left = Math.min(window.innerWidth - pw - pad, Math.max(pad, r.left));
+      let top = Math.min(window.innerHeight - ph - pad, Math.max(pad, r.bottom + 8));
+      popup.style.left = left + "px";
+      popup.style.top = top + "px";
+
+      // click outside closes
+      setTimeout(()=>{
+        const onDoc = (ev)=>{
+          if(!popup.contains(ev.target)) window.closeSvcBadgePopup();
+        };
+        document.addEventListener("mousedown", onDoc, { once:true });
+      }, 0);
+
+      return false;
+    }catch(err){
+      console.error(err);
+      return false;
+    }
+  };
+
 const ICON_THUMBS_UP = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 10h4v12H2V10zm20 1c0-1.1-.9-2-2-2h-6.3l.9-4.4.02-.2c0-.3-.13-.6-.33-.8L13 2 7.6 7.4c-.4.4-.6.9-.6 1.4V20c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l3-7c.1-.3.2-.6.2-.8v-2z"/></svg>`;
 const ICON_THUMBS_DOWN = `<svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true"><path fill="currentColor" d="M2 2h4v12H2V2zm20 11c0 1.1-.9 2-2 2h-6.3l.9 4.4.02.2c0 .3-.13.6-.33.8L13 22l-5.4-5.4c-.4-.4-.6-.9-.6-1.4V4c0-1.1.9-2 2-2h7c.8 0 1.5.5 1.8 1.2l3 7c.1.3.2.6.2.8v2z"/></svg>`;
 
@@ -324,6 +449,8 @@ function tbRow(item, idx, mode){
 
   const sectionsHtml = (DATA.sections||[]).map(sec=>{
     const cats = Array.from(new Set((sec.categories||[]).filter(Boolean))).filter(c=>allCats.has(c));
+    const secId = safeId(sec.name||'section');
+    window.__svcSectionCats[secId] = cats;
     if(!cats.length) return "";
 
     const secStats = sectionStatsAllTechs(sec);
@@ -406,11 +533,11 @@ function tbRow(item, idx, mode){
                   <div class="secMiniDials" style="display:flex;gap:10px;align-items:center">${dialASR}${dialSold}${dialGoal}</div>
                   <div class="secBadgeUnderMini" style="display:flex;gap:34px;align-items:flex-start">
                     <div class="badgeGroup" style="display:flex;flex-direction:column;align-items:center;gap:4px">
-                      <div class="badgePair" style="display:flex;gap:10px;align-items:center">${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}</div>
+                      <div class="badgePair" style="display:flex;gap:10px;align-items:center">${badgeButton(secId,"asr","red", redReqCount)}${badgeButton(secId,"asr","yellow", yellowReqCount)}</div>
                       <div class="badgeCap">ASR</div>
                     </div>
                     <div class="badgeGroup" style="display:flex;flex-direction:column;align-items:center;gap:4px">
-                      <div class="badgePair" style="display:flex;gap:10px;align-items:center">${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}</div>
+                      <div class="badgePair" style="display:flex;gap:10px;align-items:center">${badgeButton(secId,"sold","red", redCloseCount)}${badgeButton(secId,"sold","yellow", yellowCloseCount)}</div>
                       <div class="badgeCap">SOLD</div>
                     </div>
                   </div>
@@ -423,7 +550,7 @@ function tbRow(item, idx, mode){
               <div class="secFocusDial" style="display:flex;flex-direction:row;align-items:flex-start;gap:14px;justify-content:flex-end">
                 <div class="focusBadgePair" style="display:flex;flex-direction:column;align-items:center;gap:6px">
                   <div class="badgePair big" style="display:flex;gap:10px;align-items:center">
-                    ${(focus==="sold") ? `${triBadgeSvg("red", redCloseCount)}${triBadgeSvg("yellow", yellowCloseCount)}` : `${triBadgeSvg("red", redReqCount)}${triBadgeSvg("yellow", yellowReqCount)}`}
+                    ${(focus==="sold") ? `${badgeButton(secId,"sold","red", redCloseCount)}${badgeButton(secId,"sold","yellow", yellowCloseCount)}` : `${badgeButton(secId,"asr","red", redReqCount)}${badgeButton(secId,"asr","yellow", yellowReqCount)}`}
                   </div>
                   <div class="badgeCap big focusCap" style="font-size:15px;letter-spacing:.25px;color:var(--muted);font-weight:1100;text-transform:uppercase">
                     ${focus==="sold" ? "SOLD" : "ASR"}
