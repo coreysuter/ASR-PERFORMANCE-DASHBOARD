@@ -399,7 +399,8 @@ const s = t.summary?.[filterKey] || {};
         </select>
       </div>
     </div>
-  `;\n
+  `;
+
   const scopeTechs = (compareBasis==="team") ? byTeam(team) : allTechs();
   function techGoalScore(x){
     let sum=0, n=0;
@@ -766,7 +767,7 @@ return `
       <div class="techRow pickRowFrame">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
-          <a href="javascript:void(0)" onclick="return window.jumpToService ? window.jumpToService(${JSON.stringify(item.cat)}) : false">${safe(item.label)}</a>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left">${safe(item.label)}</button>
         </div>
         <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
@@ -825,6 +826,20 @@ return `
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+  // Top/Bottom 3 clicks: jump to service card reliably
+  const tp = document.querySelector('.techPickPanel');
+  if(tp){
+    tp.addEventListener('click', (e)=>{
+      const b = e.target && e.target.closest ? e.target.closest('.tbJump') : null;
+      if(!b) return;
+      e.preventDefault();
+      const id = b.getAttribute('data-cat');
+      if(!id) return;
+      const el = document.getElementById(id);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }, true);
+  }
+
   animateSvcGauges();
   initSectionToggles();
 
