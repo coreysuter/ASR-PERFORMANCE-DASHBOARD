@@ -1220,8 +1220,15 @@ body.route-tech .catTitle .meta{
   height: var(--h);
   border-radius: var(--r);
   border:1px solid rgba(255,255,255,.22);
-  background:rgba(6,10,28,.88);
-  box-shadow:0 26px 66px rgba(0,0,0,.65);
+  background:
+    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.10), rgba(0,0,0,0) 55%),
+    radial-gradient(140% 140% at 70% 85%, rgba(0,0,0,.55), rgba(0,0,0,0) 60%),
+    rgba(6,10,28,.88);
+  box-shadow:
+    0 26px 66px rgba(0,0,0,.65),
+    inset 0 0 0 1px rgba(255,255,255,.12),
+    inset 0 0 22px rgba(255,255,255,.06),
+    inset 0 -18px 26px rgba(0,0,0,.35);
   position:relative;
   display:block;
   overflow:hidden;
@@ -1298,12 +1305,12 @@ body.route-tech .catTitle .meta{
   color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size: calc(var(--h) * 0.13);
+  font-size: calc(var(--h) * 0.145);
   font-weight:1000;
   color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size: calc(var(--h) * 0.14);
+  font-size: calc(var(--h) * 0.165);
   font-weight:1100;
   color:rgba(234,240,255,.92);
 }
