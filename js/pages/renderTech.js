@@ -737,17 +737,42 @@ return `
 
   // Safe jump helper (never throws on null)
   window.jumpToService = function(cat){
-    const id = safeSvcId(cat);
-    const el = document.getElementById(id);
-    if(!el){ console.warn("jumpToService: not found", id); return false; }
-    const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
-    if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
-    el.scrollIntoView({behavior:"smooth", block:"start"});
-    if(el.classList){
-      el.classList.add("flashPick");
-      setTimeout(()=>{ const el2=document.getElementById(id); if(el2 && el2.classList) el2.classList.remove("flashPick"); }, 900);
+    try{
+      const ids = [];
+      // primary key
+      ids.push(safeSvcId(cat));
+
+      // common fallbacks (label vs key differences)
+      try{
+        const lbl = (typeof catLabel==="function") ? catLabel(cat) : cat;
+        ids.push(safeSvcId(lbl));
+      }catch(e){}
+
+      // find first existing element
+      let el = null;
+      for(const id of ids){
+        el = document.getElementById(id);
+        if(el) break;
+        el = document.querySelector(`[id="${id}"]`);
+        if(el) break;
+        el = document.querySelector(`[id^="${id}"]`);
+        if(el) break;
+      }
+      if(!el) return false;
+
+      // expand collapsed section if needed
+      const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
+      if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
+
+      el.scrollIntoView({behavior:"smooth", block:"start"});
+      if(el.classList){
+        el.classList.add("flashPick");
+        setTimeout(()=>{ try{ el.classList.remove("flashPick"); }catch(e){} }, 900);
+      }
+      return false;
+    }catch(e){
+      return false;
     }
-    return false;
   };
 
   // Inline icons (colored via CSS)
@@ -825,6 +850,18 @@ return `
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+  // Top/Bottom 3 click handling (delegated) so jumps work reliably
+  const diag = document.querySelector('.techPickPanel');
+  if(diag){
+    diag.addEventListener('click', (e)=>{
+      const a = e.target && e.target.closest ? e.target.closest('.tbJumpLink') : null;
+      if(!a) return;
+      e.preventDefault();
+      const cat = a.getAttribute('data-cat');
+      if(cat) window.jumpToService && window.jumpToService(cat);
+    }, true);
+  }
+
   // Top/Bottom 3 clicks: jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){
