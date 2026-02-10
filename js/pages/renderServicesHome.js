@@ -44,17 +44,6 @@ function renderServicesHome(){
   const allCats = getAllCategoriesSet();
   const allServiceKeys = Array.from(allCats);
 
-  
-  function nudgeSectionTitlesUp(){
-    // Move the category title up to align with the toggle (without moving anything else)
-    document.querySelectorAll('.panel .phead .secHeadRow').forEach(row=>{
-      const h2 = row.querySelector('.techH2');
-      if(!h2) return;
-      h2.style.position = 'relative';
-      h2.style.top = '-8px';
-    });
-  }
-
   const mean = (arr)=> arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length) : NaN;
 
   function initServicesSectionToggles(){
@@ -70,11 +59,7 @@ function renderServicesHome(){
       if(!row){
         row = document.createElement("div");
         row.className = "secHeadRow";
-        
-        row.style.display = "flex";
-        row.style.alignItems = "flex-start";
-        row.style.gap = "12px";
-// Insert row at top of the title area (try to use h2's parent)
+        // Insert row at top of the title area (try to use h2's parent)
         const host = h2.parentElement || phead;
         host.insertBefore(row, host.firstChild);
       }
@@ -96,12 +81,7 @@ function renderServicesHome(){
         row.appendChild(h2);
       }
 
-      
-      // Nudge the title up into the exact top-left spot (without moving anything else)
-      h2.style.position = "relative";
-      h2.style.top = "-14px";
-      h2.style.margin = "0";
-// default expanded
+      // default expanded
       const sync = ()=>{
         const collapsed = panel.classList.contains("secCollapsed");
         btn.textContent = collapsed ? "+" : "−";
@@ -560,6 +540,24 @@ document.getElementById("app").innerHTML = `
 
   ${sectionsHtml}
 `;
+
+  // CSS nudge: move category titles up into the exact top-left spot (no other layout changes)
+  (function(){
+    let st = document.getElementById("svcTitleNudge");
+    if(!st){
+      st = document.createElement("style");
+      st.id = "svcTitleNudge";
+      st.textContent = `
+        .route-services .techH2{
+          position: relative !important;
+          top: -14px !important;
+          margin-top: 0 !important;
+        }
+      `;
+      document.head.appendChild(st);
+    }
+  })();
+
   // bind top/bottom jump links
   document.querySelectorAll('[data-jump]').forEach(a=>{
     a.addEventListener('click',(e)=>{
@@ -573,7 +571,6 @@ document.getElementById("app").innerHTML = `
       }
     });
   });  initServicesSectionToggles();
-  nudgeSectionTitlesUp();
   try{ window.animateSvcGauges?.(); }catch(e){}
 // animate gauges + enable section collapse toggles (same as tech details)
   
