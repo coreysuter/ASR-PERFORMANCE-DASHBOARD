@@ -1212,8 +1212,8 @@ body.route-tech .catTitle .meta{
 
   /* Inner geometry (tune only these if needed) */
   --padX: 12px;      /* left/right padding for divider lines */
-  --line1: 33%;      /* top divider position */
-  --line2: 68%;      /* bottom divider position */
+  \124%;      /* top divider position */
+  \170%;      /* bottom divider position */
 
   width: var(--sz);
   height: var(--sz);
@@ -1315,7 +1315,7 @@ body.route-tech .catTitle .meta{
   --line1: 38%;
   --line2: 74%;
 }
-.rankFocusBadge.sm .rfbFocus{ top: 12%; font-size:11px; }
+.rankFocusBadge.sm .rfbFocus{ top: 10%; font-size:11px; }
 .rankFocusBadge.sm .rfbMain{ font-size:44px; }
 .rankFocusBadge.sm .rfbHash{ font-size:15px; left: 25%; }
 
