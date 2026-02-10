@@ -366,12 +366,12 @@ function renderTeam(team, st){
 
         </div>
 
-        <div class="techTiles">
-          <div class="techTile tE"><div class="tLbl">ROs</div><div class="tVal">${fmtInt(t.ros)}</div></div>
-          <div class="techTile tA"><div class="tLbl">Avg ODO</div><div class="tVal">${fmtInt(t.odo)}</div></div>
-          <div class="techTile tC"><div class="tLbl">Total ASR</div><div class="tVal">${fmtInt(s.asr)}</div></div>
-          <div class="techTile tB"><div class="tLbl">Sold</div><div class="tVal">${fmtInt(s.sold)}</div></div>
-          <div class="techTile tD"><div class="tLbl">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="tVal">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
+        <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
+          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(s.asr)}</div></div>
+          <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
+          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="v">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
         </div>
       </div>
     `;
@@ -387,16 +387,16 @@ function renderTeam(team, st){
 
 
   return `
-    <div class="panel techHeaderPanel">
+    <div class="panel">
       <div class="phead">
-        <div class="titleRow">
+        <div class="catHeader">
           <div>
-            <div class="h2 teamTitle">${safe(team)}</div>
-            <div class="sub"></div>
+            <div class="catTitle">${safe(team)}</div>
+            <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
           </div>
-          <div class="overallBlock">
-            <div class="big">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
-            <div class="tag">${st.sortBy==="sold_pct" ? "Sold%" : "ASRs/RO"}</div>
+          <div class="catRank">
+            <div class="rankNum">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
+            <div class="rankLbl">${st.sortBy==="sold_pct" ? "SOLD%" : "ASRs/RO"}</div>
           </div>
         </div>
 
@@ -407,10 +407,30 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
         </div>
         <div class="iconBar">
-          <div class="iconBtn" aria-hidden="true" title="Filters" style="pointer-events:none;opacity:.9">${ICON_FILTER}</div>
+          <button class="iconBtn" onclick="toggleTeamFilters('${safe(team)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
           <div class="appliedInline">${appliedTextHtml}</div>
+          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${ICON_SEARCH}</button>
         </div>
 
+        <div class="ctlPanel ${st.filtersOpen?"open":""}">
+          <div class="controls">
+            <div>
+              <label>Filter</label>
+              <select data-team="${safe(team)}" data-ctl="filter">
+                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+              </select>
+            </div>
+            <div>
+              <label>Focus</label>
+              <select data-team="${safe(team)}" data-ctl="sort">
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="list">${rows || `<div class="notice">No technicians found.</div>`}</div>
     </div>
