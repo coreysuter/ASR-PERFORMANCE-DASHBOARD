@@ -70,7 +70,9 @@ function router(){
   if(h.startsWith("#/tech/")){
     const rest = h.slice("#/tech/".length);
     const id = decodeURIComponent(rest.split("?")[0] || "");
-    renderTech(id);
+    if(typeof window.renderTech === "function") { window.renderTech(id); return; }
+    if(typeof renderTech === "function") { renderTech(id); return; }
+    throw new ReferenceError("renderTech is not available. Check js/pages/renderTech.js.");
     return;
   }
   renderMain();
