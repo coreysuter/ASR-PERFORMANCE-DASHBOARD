@@ -1236,81 +1236,66 @@ body:not(.route-services) .triBadge svg{width:70px;height:50px}
 
 
 
-/* === DIAG SECTION: perfect equilateral triangles + number bottom-right + clickable === */
+/* === DIAG SECTION: force triangle badge visuals (in case other CSS overrides) === */
 .techPickPanel .diagTriBtn{
-  background:transparent;
-  border:none;
-  padding:0;
-  cursor:pointer;
+  background:transparent !important;
+  border:none !important;
+  padding:0 !important;
+  cursor:pointer !important;
+  line-height:0 !important;
 }
-.techPickPanel .diagTriBtn:focus{outline:none}
-.techPickPanel .diagTriBtn:focus-visible{outline:2px solid rgba(255,255,255,.35);outline-offset:4px;border-radius:10px}
 
-/* Equilateral-ish using aspect-ratio so it can't distort */
+/* Perfect triangle shape + guaranteed fills */
 .techPickPanel .diagTriBadge{
   width:64px !important;
-  aspect-ratio: 1.1547 / 1; /* width / height for equilateral triangle */
+  aspect-ratio: 1.1547 / 1 !important; /* equilateral: w = 2h/√3 */
   height:auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
   position:relative !important;
   clip-path:polygon(50% 0%, 0% 100%, 100% 100%) !important;
+  border-radius:8px !important;
+  box-shadow:0 14px 28px rgba(0,0,0,.40) !important;
+  overflow:hidden !important;
 }
+.techPickPanel .diagTriBadge.red{background:#ff4b4b !important;}
+.techPickPanel .diagTriBadge.yellow{background:#ffbf2f !important;}
 
-/* icon & number placement */
+/* Exclamation mark */
 .techPickPanel .diagTriBadge .triBang{
+  position:absolute !important;
   top:12px !important;
-  font-size:26px !important;
   left:50% !important;
   transform:translateX(-50%) !important;
+  font-size:26px !important;
+  line-height:1 !important;
+  color:rgba(0,0,0,.78) !important;
 }
+
+/* Number in bottom-right */
 .techPickPanel .diagTriBadge .triNum{
+  position:absolute !important;
   right:10px !important;
-  left:auto !important;
   bottom:10px !important;
+  left:auto !important;
   font-size:16px !important;
+  line-height:1 !important;
+  color:#fff !important;
+  text-shadow:0 2px 8px rgba(0,0,0,.40) !important;
   text-align:right !important;
 }
 
-/* popup */
-.diagPopup{
-  position:fixed;
-  z-index:9999;
-  width:360px;
-  max-width:min(360px, calc(100vw - 24px));
-  background:linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98));
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:16px;
-  box-shadow:0 22px 60px rgba(0,0,0,.55);
-  overflow:hidden;
+/* Ensure the left column has enough room for 2 badges horizontally */
+.techPickPanel .pickRow{
+  grid-template-columns:130px 1fr 1fr !important;
+  column-gap:14px !important;
 }
-.diagPopHead{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 12px;
-  border-bottom:1px solid rgba(255,255,255,.08);
+.techPickPanel .diagBadgeRow{
+  display:flex !important;
+  flex-direction:row !important;
+  gap:10px !important;
+  align-items:flex-start !important;
+  margin-top:10px !important;
 }
-.diagPopTitle{
-  font-weight:1000;
-  letter-spacing:.4px;
-}
-.diagPopIcon{margin-left:auto}
-.diagPopClose{
-  margin-left:6px;
-  background:transparent;
-  border:none;
-  color:rgba(255,255,255,.75);
-  font-size:22px;
-  cursor:pointer;
-}
-.diagPopList{padding:10px 12px;display:grid;gap:8px;max-height:340px;overflow:auto}
-.diagPopRow{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 12px;
-  border-radius:14px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.07);
-}
-.diagPopRow:hover{background:rgba(255,255,255,.085)}
-.diagTriBadge.noNum .triNum{display:none}
