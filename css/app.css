@@ -1195,10 +1195,14 @@ body.route-tech .catTitle .meta{
   letter-spacing: .15px !important;
 }
 
-
-/* FORCE: focus badge label under focus badges should be ~50% larger than mini badge labels */
-.secFocusDial .focusBadgePair .badgeCap.big{
-  font-size:15px !important;
-  line-height:1.05 !important;
+/* === Services: focus badges are EXACTLY 150% of mini badges === */
+.secFocusDial .focusBadgePair .triBadge svg{
+  width:80px !important;
+  height:72px !important;
 }
-.secFocusDial .focusCap{font-size:15px !important;}
+.secFocusDial .focusBadgePair .badgeCap.big{
+  font-size:18px !important;
+  line-height:1.05 !important;
+  letter-spacing:.25px !important;
+}
+
