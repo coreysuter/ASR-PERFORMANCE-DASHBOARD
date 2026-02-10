@@ -617,7 +617,7 @@ initServicesSectionToggles();
       toggle.style.position = "absolute";
       toggle.style.zIndex = "7";
       toggle.style.left = (baseLeft + ov.offsetWidth + 14) + "px";
-      toggle.style.top = (top + 6) + "px";
+      toggle.style.top = (top + Math.max(0, (ov.offsetHeight - toggle.offsetHeight)/2)) + "px";
     });
   }
 
