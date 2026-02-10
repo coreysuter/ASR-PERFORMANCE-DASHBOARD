@@ -1199,7 +1199,9 @@ body.route-tech .catTitle .meta{
 .secFocusDial .focusBadgePair .badgeCap.big{font-size:18px !important;line-height:1.05 !important;letter-spacing:.25px !important;}
 
 /* Focus badge icons = 150% bigger (keep focus label size unchanged) */
+
+/* Focus badge icons shrunk by 25% */
 .secFocusDial .focusBadgePair .triBadge svg{
-  width:120px !important;
-  height:108px !important;
+  width:90px !important;
+  height:81px !important;
 }
