@@ -1366,3 +1366,51 @@ body.route-tech .techPickPanel .diagLabelCol{
 
 /* Safety: prevent any legacy overall x/x from overlapping */
 .overallBlock .big{display:none !important;}
+
+
+
+/* === Rank badge tweaks (more contrast + better spacing + small badge legible) === */
+.rankFocusBadge{
+  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.28)) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 22px 46px rgba(0,0,0,.45) !important;
+}
+.rankFocusBadge:before{
+  inset:2px !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+}
+.rankFocusBadge:after{
+  /* push divider lines down a bit */
+  top:28px !important;
+  box-shadow:0 40px 0 rgba(255,255,255,.09) !important;
+}
+
+/* move "of 5" lower + slightly smaller */
+.rankFocusBadge .rfbOf{
+  bottom:8px !important;
+}
+.rankFocusBadge .rfbOfWord{
+  font-size:10px !important;
+}
+.rankFocusBadge .rfbOfNum{
+  font-size:14px !important;
+}
+
+/* Small badge: less condensed + clearer text */
+.rankFocusBadge.sm{
+  width:92px !important;
+  height:68px !important;
+  border-radius:18px !important;
+}
+.rankFocusBadge.sm:after{
+  top:26px !important;
+  left:10px !important;
+  right:10px !important;
+  box-shadow:0 40px 0 rgba(255,255,255,.09) !important;
+}
+.rankFocusBadge.sm .rfbFocus{top:8px !important;font-size:12px !important;}
+.rankFocusBadge.sm .rfbMain{font-size:30px !important;gap:6px !important;margin-top:6px !important;}
+.rankFocusBadge.sm .rfbHash{font-size:16px !important;margin-top:8px !important;}
+.rankFocusBadge.sm .rfbOf{bottom:8px !important;}
+.rankFocusBadge.sm .rfbOfWord{font-size:10px !important;}
+.rankFocusBadge.sm .rfbOfNum{font-size:14px !important;}
