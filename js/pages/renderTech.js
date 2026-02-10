@@ -373,10 +373,9 @@ const s = t.summary?.[filterKey] || {};
 
 
   const filters = `
-    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
-    <div class="controls" style="margin-top:10px">
+        <div class="controls" style="margin-top:10px">
       <div>
-        <label>Summary Filter</label>
+        
         <select id="techFilter">
           <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
           <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
@@ -738,44 +737,17 @@ return `
 
   // Safe jump helper (never throws on null)
   window.jumpToService = function(cat){
-    try{
-      const id = safeSvcId(cat);
-      const el = document.getElementById(id);
-      if(!el) return false;
-
-      // Expand the correct collapsed category panel (the one that actually has the toggle)
-      let panel = el.closest(".panel.secCollapsed");
-      if(!panel){
-        // walk up to find any ancestor panel that is collapsed
-        let p = el.parentElement;
-        while(p){
-          if(p.classList && p.classList.contains("panel") && p.classList.contains("secCollapsed")){ panel = p; break; }
-          p = p.parentElement;
-        }
-      }
-      if(panel){
-        panel.classList.remove("secCollapsed");
-        const tog = panel.querySelector(".secToggle");
-        if(tog) tog.textContent = "−";
-      }
-
-      // Wait for layout to expand before scrolling
-      requestAnimationFrame(()=>{
-        requestAnimationFrame(()=>{
-          // scroll to the service card
-          el.scrollIntoView({behavior:"smooth", block:"start"});
-          // highlight
-          if(el.classList){
-            el.classList.add("flashPick");
-            setTimeout(()=>{ try{ el.classList.remove("flashPick"); }catch(e){} }, 900);
-          }
-        });
-      });
-
-      return false;
-    }catch(e){
-      return false;
+    const id = safeSvcId(cat);
+    const el = document.getElementById(id);
+    if(!el){ console.warn("jumpToService: not found", id); return false; }
+    const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
+    if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+    if(el.classList){
+      el.classList.add("flashPick");
+      setTimeout(()=>{ const el2=document.getElementById(id); if(el2 && el2.classList) el2.classList.remove("flashPick"); }, 900);
     }
+    return false;
   };
 
   // Inline icons (colored via CSS)
