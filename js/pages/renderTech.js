@@ -1,3 +1,4 @@
+console.log("renderTech loaded");
 // === Global diag popup handlers (used by clickable triangle badges) ===
 (function(){
   function escHtml(s){

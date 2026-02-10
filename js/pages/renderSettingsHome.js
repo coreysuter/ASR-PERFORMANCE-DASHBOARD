@@ -1,3 +1,4 @@
+console.log("renderSettingsHome loaded");
 // ROUTERFIX v5: safe tech route fallback (no throw)
 function renderSettingsHome(){
   document.getElementById("app").innerHTML = `
