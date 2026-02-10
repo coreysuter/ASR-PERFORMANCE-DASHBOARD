@@ -73,6 +73,31 @@ const hash = location.hash || "";
   const TEAM_B = buildBench(TEAM_TECHS);
   const STORE_B = buildBench(STORE_TECHS);
 
+  function triBadge(color, num){
+    const n = Number(num)||0;
+    if(!n) return "";
+    return `<div class="triBadge ${color}"><div class="triBang">!</div><div class="triNum">${fmtInt(n)}</div></div>`;
+  }
+
+  function countBandsFor(mode){
+    let red=0, yellow=0;
+    const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
+    for(const cat of CAT_LIST){
+      const mine = tech?.categories?.[cat];
+      if(!mine) continue;
+      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
+      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
+      const pct = val/base;
+      if(pct >= 0.80) continue;
+      if(pct >= 0.60) yellow++;
+      else red++;
+    }
+    return {red, yellow};
+  }
+
+
+
   // Benchmarks helpers (tech detail)
   // TEAM_B / STORE_B are computed above from the current comparison team and full store tech list.
   function getTeamBenchmarks(cat, _team){
@@ -566,20 +591,35 @@ return `
       </div>
     `;
   }
+  const bandCounts_asr = countBandsFor('asr');
+  const bandCounts_sold = countBandsFor('sold');
+
 
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px">
         <!-- ASR row -->
         <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start">
-          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
+          <div class="diagLabelCol">
+            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
+            <div class="diagBadgeRow">
+              ${triBadge("red", bandCounts_asr.red)}
+              ${triBadge("yellow", bandCounts_asr.yellow)}
+            </div>
+          </div>
           <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
           <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
         </div>
 
         <!-- SOLD row -->
         <div class="pickRow" style="display:grid;grid-template-columns:52px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
-          <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
+          <div class="diagLabelCol">
+            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
+            <div class="diagBadgeRow">
+              ${triBadge("red", bandCounts_sold.red)}
+              ${triBadge("yellow", bandCounts_sold.yellow)}
+            </div>
+          </div>
           <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
           <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>
