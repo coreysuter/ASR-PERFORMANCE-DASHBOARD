@@ -1204,11 +1204,20 @@ body.route-tech .catTitle .meta{
 }
 
 
-/* === Rank badge (approved reference style) === */
+/* === Rank badge (PROPORTION-LOCKED) === */
 .rankFocusBadge{
-  width:80px;
-  height:80px;
-  border-radius:18px;
+  /* single source of truth */
+  --w: 80px;                 /* badge width  */
+  --h: 80px;                 /* badge height */
+  --u: min(var(--w), var(--h));
+  --r: 18px;                 /* radius */
+  --pad: 14%;                /* inner padding (of --u) */
+  --line1: 33%;              /* top divider (from top) */
+  --line2: 68%;              /* bottom divider (from top) */
+
+  width: var(--w);
+  height: var(--h);
+  border-radius: var(--r);
   border:1px solid rgba(255,255,255,.22);
   background:rgba(6,10,28,.88);
   box-shadow:0 26px 66px rgba(0,0,0,.65);
@@ -1217,28 +1226,28 @@ body.route-tech .catTitle .meta{
   overflow:hidden;
 }
 
-/* divider lines */
+/* divider lines (proportional) */
 .rankFocusBadge::before,
 .rankFocusBadge::after{
   content:"";
   position:absolute;
-  left:12px;
-  right:12px;
+  left: calc(var(--u) * var(--pad));
+  right: calc(var(--u) * var(--pad));
   height:1px;
   background:rgba(255,255,255,.16);
   pointer-events:none;
 }
-.rankFocusBadge::before{ top:26px; }
-.rankFocusBadge::after{ top:54px; }
+.rankFocusBadge::before{ top: var(--line1); }
+.rankFocusBadge::after{  top: var(--line2); }
 
 /* ASR% / SOLD% / GOAL% */
 .rankFocusBadge .rfbFocus{
   position:absolute;
-  top:10px;
+  top: 12%;
   left:0;
   right:0;
   text-align:center;
-  font-size:11px;
+  font-size: 14%;
   font-weight:1100;
   letter-spacing:.35px;
   text-transform:uppercase;
@@ -1246,68 +1255,61 @@ body.route-tech .catTitle .meta{
   line-height:1;
 }
 
-/* # + main number centered between the lines */
+/* # + main number centered BETWEEN the divider lines */
 .rankFocusBadge .rfbMain{
   position:absolute;
-  top:40px;              /* centered between the divider lines */
+  top: calc((var(--line1) + var(--line2)) / 2);
   left:0;
   right:0;
   transform:translateY(-50%);
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  gap:8px;
-  font-size:34px;
+  gap: 10%;
+  font-size: 58%;
   font-weight:1200;
   line-height:1;
   color:rgba(234,240,255,.96);
 }
 .rankFocusBadge .rfbHash{
-  font-size:14px;
+  font-size: 26%;
   font-weight:1100;
-  margin-top:10px;       /* drop the # like reference */
+  margin-top: 18%;
   color:rgba(234,240,255,.90);
 }
 
-/* of 5 centered below the bottom line */
+/* "of 5" centered BETWEEN the bottom line and the bottom edge */
 .rankFocusBadge .rfbOf{
   position:absolute;
-  top:67px;              /* centered between bottom line and badge bottom */
-  transform:translateY(-50%);
+  top: calc((var(--line2) + 100%) / 2);
   left:0;
   right:0;
+  transform:translateY(-50%);
   display:flex;
   justify-content:center;
   align-items:baseline;
-  gap:3px;
+  gap: 4%;
   line-height:1;
   color:rgba(234,240,255,.90);
 }
 .rankFocusBadge .rfbOfWord{
-  font-size:10px;
+  font-size: 18%;
   font-weight:1000;
   color:rgba(234,240,255,.78);
 }
 .rankFocusBadge .rfbOfNum{
-  font-size:14px;
+  font-size: 26%;
   font-weight:1100;
   color:rgba(234,240,255,.92);
 }
 
-/* small version for service tiles */
+/* small version for service tiles (keeps your existing 74x68 footprint) */
 .rankFocusBadge.sm{
-  width:74px;
-  height:68px;
-  border-radius:16px;
+  --w: 74px;
+  --h: 68px;
+  --r: 16px;
+  /* keep the same divider proportions unless you want to override these too */
 }
-.rankFocusBadge.sm::before{ top:26px; }
-.rankFocusBadge.sm::after{ top:50px; }
-.rankFocusBadge.sm .rfbFocus{ top:8px; font-size:11px; }
-.rankFocusBadge.sm .rfbMain{ top:38px; font-size:34px; gap:7px; }
-.rankFocusBadge.sm .rfbHash{ font-size:15px; margin-top:10px; }
-.rankFocusBadge.sm .rfbOf{ top:54px; }
-.rankFocusBadge.sm .rfbOfWord{ font-size:10px; }
-.rankFocusBadge.sm .rfbOfNum{ font-size:14px; }
 
 /* prevent legacy x/x line from overlapping if present */
 .overallBlock .big{ display:none !important; }
