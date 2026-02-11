@@ -284,6 +284,48 @@ function ensureDashTypographyOverrides(){
   .techRow .pills{padding-right:86px;}
 }
 
+function applyDashRowInlineLayout(){
+  try{
+    // Only on Technician Dashboard (home) where tech rows are listed
+    const rows = Array.from(document.querySelectorAll(".techRow"));
+    if(!rows.length) return;
+    // If we are on a tech details page, there will also be .diag section etc; avoid touching those
+    const isDashboard = !!document.querySelector(".techH2Big") && /Technician Dashboard/i.test(document.querySelector(".techH2Big").textContent||"");
+    if(!isDashboard) return;
+
+    const isSmall = window.matchMedia && window.matchMedia("(max-width: 700px)").matches;
+    const leftPx = isSmall ? 300 : 360; // hard safe start after Avg ODO pill
+    const rightPx = isSmall ? 104 : 118; // space for rank badge
+
+    rows.forEach(r=>{
+      const pills = r.querySelector(".pills");
+      const metaRight = r.querySelector(".techMetaRight");
+      if(metaRight){
+        metaRight.style.position = "absolute";
+        metaRight.style.right = (isSmall?14:18) + "px";
+        metaRight.style.top = "50%";
+        metaRight.style.transform = "translateY(-50%)";
+        metaRight.style.zIndex = "2";
+      }
+      if(pills){
+        pills.style.position = "absolute";
+        pills.style.left = leftPx + "px";
+        pills.style.right = rightPx + "px";
+        pills.style.top = "50%";
+        pills.style.transform = "translateY(-50%)";
+        pills.style.display = "flex";
+        pills.style.flexWrap = "nowrap";
+        pills.style.alignItems = "center";
+        pills.style.justifyContent = "center";
+        pills.style.gap = (isSmall?9:10) + "px";
+        pills.style.overflow = "hidden";
+      }
+    });
+  }catch(e){}
+}
+
+
+
 /* Dashboard tech-row layout tweaks (Technician Dashboard list) */
 .techRow{
   position:relative;
@@ -718,8 +760,14 @@ function toggleTechFilters(techId){
 // --- Split-repo glue: keep left menu populated ---
 function __refreshSideMenu(){
   ensureDashTypographyOverrides();
+  setTimeout(applyDashRowInlineLayout, 0);
   try { renderMenuTechLists(); } catch(e) { /* ignore */ }
   try { populateAsrMenuLinks(); } catch(e) { /* ignore */ }
 }
 window.addEventListener("DOMContentLoaded", __refreshSideMenu);
 window.addEventListener("hashchange", __refreshSideMenu);
+
+
+try{ window.addEventListener('resize', ()=>setTimeout(applyDashRowInlineLayout,0)); }catch(e){}
+try{ window.addEventListener('hashchange', ()=>setTimeout(applyDashRowInlineLayout,0)); }catch(e){}
+try{ document.addEventListener('DOMContentLoaded', ()=>setTimeout(applyDashRowInlineLayout,0)); }catch(e){}
