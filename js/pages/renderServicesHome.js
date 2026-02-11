@@ -384,21 +384,21 @@ function tbRow(item, idx, mode){
       const rank = idx + 1;
 
       if(focus==="sold"){
-        return `<div class="techRow pickRowFrame">
+        return `<div class="techRow">
           <div class="techRowLeft">
             <span class="rankNum">${rank}.</span>
             <a href="#/tech/${encodeURIComponent(r.id)}">${safe(r.name)}</a>
           </div>
-          <div class="mini">ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • Sold ${fmtInt(r.sold)} • <b>${fmtPct(r.close)}</b></div>
+          <span class="mini">ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • Sold ${fmtInt(r.sold)} • <b>${fmtPct(r.close)}</b></span>
         </div>`;
       }
 
-      return `<div class="techRow pickRowFrame">
+      return `<div class="techRow">
         <div class="techRowLeft">
           <span class="rankNum">${rank}.</span>
           <a href="#/tech/${encodeURIComponent(r.id)}">${safe(r.name)}</a>
         </div>
-        <div class="mini">ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • <b>${fmtPctPlain(r.req)}</b></div>
+        <span class="mini">ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • <b>${fmtPctPlain(r.req)}</b></span>
       </div>`;
     }).join("");
   }
