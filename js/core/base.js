@@ -260,8 +260,8 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    const existing = document.getElementById("dashTypographyOverrides");
-    if(existing){ existing.textContent = css; return; }
+    // force-replace any previous dashboard override styles
+    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{const el=document.getElementById(id); if(el) el.remove();});
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
@@ -554,7 +554,7 @@ function ensureDashTypographyOverrides(){
 }
 `;
     const style = document.createElement("style");
-    style.id = "dashTypographyOverrides";
+    style.id = "dashTypographyOverrides_v2_ODO2PILLS";
     style.textContent = css;
     document.head.appendChild(style);
   }catch(e){}
