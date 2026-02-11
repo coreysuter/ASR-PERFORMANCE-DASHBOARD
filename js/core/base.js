@@ -260,7 +260,8 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    if(document.getElementById("dashTypographyOverrides")) return;
+    const existing = document.getElementById("dashTypographyOverrides");
+    if(existing){ existing.textContent = css; return; }
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
@@ -485,6 +486,35 @@ function ensureDashTypographyOverrides(){
   .techRow .pill .k{font-size:11px !important;}
   .techRow .pill .v{font-size:18px !important;}
 }
+
+
+/* Dashboard tech-row middle pills container */
+.techRow{position:relative !important;}
+.techRow .midPills{
+  position:absolute !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  /* left edge: after the Avg ODO pill area; right edge: before rank badge */
+  left: 280px !important;
+  right: 130px !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  pointer-events:none !important; /* avoids accidental overlay clicks */
+}
+.techRow .midPills .pills{
+  position:static !important;
+  transform:none !important;
+  left:auto !important;
+  right:auto !important;
+  width:auto !important;
+  justify-content:center !important;
+  overflow:visible !important;
+}
+
+@media (max-width: 700px){
+  .techRow .midPills{left: 250px !important; right: 118px !important;}
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides";
@@ -624,11 +654,13 @@ function renderTeam(team, st){
 
         </div>
 
+        <div class="midPills">
         <div class="pills">
           <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
           <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
           <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+        </div>
         </div>
       </div>
     `;
