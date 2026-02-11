@@ -285,39 +285,42 @@ function ensureDashTypographyOverrides(){
 
 /* Dashboard tech-row layout tweaks (Technician Dashboard list) */
 .techRow{position:relative; padding-top:44px !important;}
+
+/* Tech name pinned top-left */
 .techRow .val.name{
   position:absolute !important;
   top:12px !important;
-  right:18px !important;
-  left:auto !important;
+  left:18px !important;
+  right:auto !important;
   margin:0 !important;
-  text-align:right !important;
+  text-align:left !important;
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
   max-width:55% !important;
 }
 
-/* Pills: smaller, single row, starts under name */
+/* Pills: smaller than rank badge, single row, starts under name */
 .techRow .pills{
   display:flex !important;
   flex-wrap:nowrap !important;
-  gap:10px !important;
+  gap:8px !important;
   align-items:stretch !important;
-  justify-content:flex-end !important;
+  justify-content:flex-start !important;
   margin-top:0 !important;
-  padding-right:110px !important; /* keep clear of right-anchored rank badge */
+  padding-left:18px !important;
+  padding-right:118px !important; /* keep clear of right-anchored rank badge */
 }
 .techRow .pill{
-  width:80px !important;
-  height:80px !important;
-  min-width:80px !important;
-  padding:8px 8px !important;
+  width:72px !important;
+  height:72px !important;
+  min-width:72px !important;
+  padding:7px 7px !important;
   display:flex !important;
   flex-direction:column !important;
   justify-content:space-between !important;
   align-items:center !important;
-  border-radius:14px !important;
+  border-radius:12px !important;
 }
 .techRow .pill .k{
   width:100% !important;
@@ -325,21 +328,28 @@ function ensureDashTypographyOverrides(){
   margin:0 !important;
   padding:0 !important;
   font-weight:1000 !important;
-  letter-spacing:.25px !important;
+  letter-spacing:.2px !important;
   line-height:1.05 !important;
-  font-size:12px !important;
+  font-size:11px !important;
 }
 .techRow .pill .v{
   width:100% !important;
   text-align:center !important;
-  margin-top:4px !important;
+  margin-top:3px !important;
   font-weight:1000 !important;
   line-height:1 !important;
-  font-size:22px !important;
+  font-size:20px !important;
 }
 
 @media (max-width: 700px){
   .techRow{padding-top:38px !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .pills{gap:7px !important; padding-left:14px !important; padding-right:104px !important;}
+  .techRow .pill{width:62px !important;height:62px !important;min-width:62px !important;border-radius:11px !important;padding:6px 6px !important;}
+  .techRow .pill .k{font-size:10px !important;}
+  .techRow .pill .v{font-size:17px !important;}
+}
+
   .techRow .val.name{top:10px !important; right:14px !important; font-size:20px !important; max-width:60% !important;}
   .techRow .pills{gap:8px !important; padding-right:96px !important;}
   .techRow .pill{width:68px !important;height:68px !important;min-width:68px !important;border-radius:12px !important;padding:7px 7px !important;}
@@ -483,11 +493,11 @@ function renderTeam(team, st){
         </div>
 
         <div class="pills">
+          <div class="pill"><div class="k">Avg Odo</div><div class="v">${fmtInt(t.odo)}</div></div>
           <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
-          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(s.asr)}</div></div>
+          <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
           <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
-          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="v">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
+          <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
         </div>
       </div>
     `;
