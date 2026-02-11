@@ -1589,3 +1589,43 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   white-space:nowrap !important;
 }
 .serviceCard .techList .techRow .mini *{white-space:nowrap !important;}
+
+
+/* ===== ServicesHome ONLY: keep technician row truly one-line (prevent inner wrapping) ===== */
+.serviceCard .techList .techRow{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  min-width:0 !important;            /* allow children to shrink/ellipsis */
+}
+.serviceCard .techList .techRowLeft{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+.serviceCard .techList .techRowLeft .rankNum{
+  flex:0 0 auto !important;
+}
+.serviceCard .techList .techRowLeft a{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+/* The right-side meta MUST NOT wrap to a second line */
+.serviceCard .techList .techRow .mini{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  text-align:right !important;
+}
+/* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
+.serviceCard .techList .techRow .mini br{display:none !important;}
+
