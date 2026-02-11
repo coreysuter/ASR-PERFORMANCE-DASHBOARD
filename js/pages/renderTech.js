@@ -548,7 +548,7 @@ const header = `
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div>
           <div class="overallBlock">
-<div class="overallMetric" style="font-size:34px;font-weight:1200;line-height:1;">${focusVal}</div>
+<div class="overallMetric" style="font-size:30px;font-weight:1200;line-height:1;">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
           </div>
         </div>
