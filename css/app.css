@@ -1383,59 +1383,159 @@ body.route-tech .catTitle .meta{
 /* Keep everything clipped inside the tile (prevents badge from floating outside) */
 .catCard{overflow:hidden;}
 
+/* ===============================
+   FIX: Tech Details header spacing + restore Top/Bottom 3 layout
+   - Remove equal-height stretching (it created blank space under filters)
+   - Ensure Top/Bottom panel uses original stacked ASR + SOLD layout
+   =============================== */
 
-/* =========================================================
-   ServicesHome ONLY: technician list rows must be single-line
+/* Stop forcing equal-height columns in the tech header row */
+body.route-tech .techHeaderWrap{
+  align-items:flex-start !important;
+}
+body.route-tech .techHeaderWrap > .panel{
+  height:auto !important;
+}
+body.route-tech .techHeaderPanel,
+body.route-tech .techPickPanel{
+  height:auto !important;
+}
+
+/* Let the tech header content size naturally (no giant empty area below filters) */
+body.route-tech .techHeaderPanel .phead{
+  height:auto !important;
+  display:block !important;
+}
+body.route-tech .techHeaderPanel .pills{
+  margin-top:12px !important;
+}
+
+/* Restore Top/Bottom panel to the original behavior (ASR row over SOLD row) */
+body.route-tech .techPickPanel .phead{
+  display:block !important;
+  grid-template-columns:unset !important;
+  gap:unset !important;
+  align-items:unset !important;
+}
+body.route-tech .techPickPanel .pickRow{
+  margin-top:14px !important;
+}
+body.route-tech .techPickPanel .pickRow:first-child{
+  margin-top:0 !important;
+}
+
+/* === FIX: Top/Bottom 3 rows too tall (force compact rows like reference) === */
+body.route-tech .techPickPanel .pickBox{
+  height:auto !important;
+  min-height:0 !important;
+}
+body.route-tech .techPickPanel .pickList{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:6px !important;
+  height:auto !important;
+}
+body.route-tech .techPickPanel .pickList > .techRow{
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:unset !important;
+  align-items:center !important;
+}
+body.route-tech .techPickPanel .techRow{
+  padding:6px 12px !important;
+}
+
+
+/* ===========================
+   ServicesHome list row fix
+   - Keep service name + metric on ONE row
    - Do NOT affect Technician Dashboard lists
-   - Do NOT affect Tech Details / Top-Bottom 3 (route-tech)
-   ========================================================= */
+   =========================== */
 
+/* Service cards: prevent the left column from stacking name + mini on separate lines */
 .serviceCard .techList .techRow{
+  align-items:center;
+  flex-wrap:nowrap;
+}
+
+/* If ServicesHome rows use a left wrapper (first child div) that stacks name + mini,
+   force it into a single-line row. */
+.serviceCard .techList .techRow > div:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0; /* allow ellipsis */
+}
+
+/* Make sure the "mini" metric doesn't drop to a new line */
+.serviceCard .techList .techRow > div:first-child .mini{
+  margin:0;
+  white-space:nowrap;
+}
+
+/* Keep the main label single-line (ellipsis if needed) */
+.serviceCard .techList .techRow > div:first-child a,
+.serviceCard .techList .techRow > div:first-child button,
+.serviceCard .techList .techRow > div:first-child span,
+.serviceCard .techList .techRow > div:first-child div{
+  white-space:nowrap;
+}
+
+/* Ellipsis for long service names */
+.serviceCard .techList .techRow .tbJump,
+.serviceCard .techList .techRow a{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+
+/* Right side metric: never wrap */
+.serviceCard .techList .techRow > .mini,
+.serviceCard .techList .techRow > div:last-child{
+  white-space:nowrap;
+}
+
+/* ===========================
+   RenderTech Top/Bottom 3: keep each row on ONE line
+   - Scope tightly to Tech Details Top/Bottom panel only
+   =========================== */
+
+/* Ensure the left side (rank + service name + %) stays on a single horizontal line */
+body.route-tech .techPickPanel .pickList .techRow{
   display:flex !important;
   align-items:center !important;
   justify-content:space-between !important;
-  gap:12px !important;
   flex-wrap:nowrap !important;
 }
 
-/* Left cluster (rank + name + left meta) stays on one line */
-.serviceCard .techList .techRowLeft{
+/* Left cluster: rank + name + mini metric inline */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child{
   display:flex !important;
-  flex-direction:row !important;
   align-items:center !important;
   gap:10px !important;
-  min-width:0 !important;
-  flex:1 1 auto !important;
+  min-width:0 !important; /* enable ellipsis */
 }
 
-/* Rank stays fixed */
-.serviceCard .techList .techRowLeft .rankNum{
-  flex:0 0 auto !important;
-  margin-right:6px !important;
+/* Prevent the mini metric (ASR%/Sold%) from dropping to a 2nd line */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child .mini{
+  margin:0 !important;
+  white-space:nowrap !important;
 }
 
-/* Name: single line + ellipsis */
-.serviceCard .techList .techRowLeft a{
+/* Keep the service name to one line (ellipsis if too long) */
+body.route-tech .techPickPanel .pickList .techRow a,
+body.route-tech .techPickPanel .pickList .techRow .tbJump,
+body.route-tech .techPickPanel .pickList .techRow .nm,
+body.route-tech .techPickPanel .pickList .techRow span,
+body.route-tech .techPickPanel .pickList .techRow button{
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
-  min-width:0 !important;
   max-width:100% !important;
 }
 
-/* The "ROs • ASR • x.x%" (or similar) should NOT drop to a 2nd line */
-.serviceCard .techList .techRowLeft .mini{
-  display:inline-flex !important;
-  align-items:baseline !important;
-  gap:6px !important;
-  margin:0 !important;
+/* Right-side metric: never wrap */
+body.route-tech .techPickPanel .pickList .techRow > .mini,
+body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   white-space:nowrap !important;
-  flex:0 0 auto !important;
-}
-
-/* Right-side metric (if present) never wraps */
-.serviceCard .techList .techRow > .mini,
-.serviceCard .techList .techRow > div:last-child{
-  white-space:nowrap !important;
-  flex:0 0 auto !important;
 }
