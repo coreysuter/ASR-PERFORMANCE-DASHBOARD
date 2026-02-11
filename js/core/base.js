@@ -282,6 +282,49 @@ function ensureDashTypographyOverrides(){
   .techRow .techMetaRight{right:12px;top:12px;}
   .techRow .pills{padding-right:86px;}
 }
+
+
+/* Dashboard tech-row pill squares (Technician Dashboard list) */
+.techRow{position:relative;}
+.techRow .pills{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:10px !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+}
+.techRow .pill{
+  width:110px !important;
+  height:110px !important;
+  min-width:110px !important;
+  padding:10px 10px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  border-radius:18px !important;
+}
+.techRow .pill .k{
+  width:100% !important;
+  text-align:center !important;
+  margin:0 !important;
+  padding:0 !important;
+  font-weight:1000 !important;
+  letter-spacing:.3px !important;
+  line-height:1.05 !important;
+}
+.techRow .pill .v{
+  width:100% !important;
+  text-align:center !important;
+  margin-top:6px !important;
+  font-weight:1000 !important;
+  line-height:1 !important;
+  font-size:24px !important;
+}
+@media (max-width: 700px){
+  .techRow .pill{width:90px !important;height:90px !important;min-width:90px !important;border-radius:16px !important;padding:8px 8px !important;}
+  .techRow .pill .v{font-size:20px !important;}
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides";
