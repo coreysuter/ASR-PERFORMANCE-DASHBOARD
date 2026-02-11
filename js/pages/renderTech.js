@@ -448,7 +448,16 @@ const s = t.summary?.[filterKey] || {};
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
+  const appliedParts = [
+    `${filterLabel(filterKey)}`,
+    (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
+    (focus==="sold" ? "Focus: Sold" : (focus==="goal" ? "Focus: Goal" : "Focus: ASR/RO"))
+  ];
+  const appliedTextHtml = renderFiltersText(appliedParts);
+
+
   const filters = `
+    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
     <div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
@@ -539,7 +548,7 @@ const header = `
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div>
           <div class="overallBlock">
-<div class="overallMetric" style="font-size:34px;font-weight:1200;line-height:1;">${focusVal}</div>
+<div class="overallMetric" style="font-size:30px;font-weight:1200;line-height:1;">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
           </div>
         </div>
@@ -561,7 +570,7 @@ const header = `
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:27px;font-weight:1000;color:inherit;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:rgba(255,255,255,.65);margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
