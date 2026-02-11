@@ -1340,53 +1340,95 @@ body.route-tech .catTitle .meta{
 
 
 /* =====================================================================================
-   PIN RANK BADGES TO SERVICE TILE HEADERS
+   SERVICE TILE (SMALL) RANK BADGE FIX
+   - Smaller size
+   - Guarantee # + number render (no clipping)
+   - Remove bottom "notch" artifacts by avoiding pseudo-element lines on the small version
    ===================================================================================== */
 
-/* Keep header as the containing layout row */
-.catHeader{
-  display:flex !important;
-  align-items:flex-start !important;
-  gap:10px !important;
-  flex-wrap:nowrap !important;
-  min-width:0 !important;
-}
+/* Keep pinned in header (from previous) */
+.catHeader{display:flex !important;align-items:flex-start !important;gap:10px !important;flex-wrap:nowrap !important;min-width:0 !important;}
+.catHeader > div:nth-child(2){min-width:0 !important;flex:1 1 auto !important;}
+.catHeader .catRank{flex:0 0 auto !important;display:flex !important;align-items:flex-start !important;justify-content:flex-end !important;}
 
-/* Title block can shrink without pushing the badge out */
-.catHeader > div:nth-child(2){
-  min-width:0 !important;
-  flex:1 1 auto !important;
-}
-
-/* Rank container pinned to header row */
-.catHeader .catRank{
-  flex:0 0 auto !important;
-  display:flex !important;
-  align-items:flex-start !important;
-  justify-content:flex-end !important;
-  min-width:0 !important;
-}
-
-/* Badge scales with tile (em-based sizing) */
+/* Small badge: explicit grid layout, no pseudo-lines (prevents notch + missing number) */
 .catHeader .rankFocusBadge.sm{
-  --w: 4.6em;
-  --h: 4.2em;
-  --r: 1em;
-  --padX: 0.75em;
-  width: var(--w) !important;
-  height: var(--h) !important;
-  border-radius: var(--r) !important;
+  width:66px !important;
+  height:58px !important;
+  border-radius:16px !important;
+  background:rgba(6,10,28,.88) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  box-shadow:0 16px 34px rgba(0,0,0,.55) !important;
+
+  display:grid !important;
+  grid-template-rows: 18px 1fr 18px !important;
+  justify-items:center !important;
+  align-items:center !important;
+  padding:6px 8px !important;
+  overflow:hidden !important;
+  position:relative !important;
 }
 
-/* Prevent overflow */
-.catCard{overflow:hidden;}
-.catHeader .rankFocusBadge{max-width:100% !important;}
-
-/* Narrow layouts: shrink a bit more */
-@media (max-width: 760px){
-  .catHeader .rankFocusBadge.sm{
-    --w: 4.0em;
-    --h: 3.7em;
-    --padX: 0.65em;
-  }
+/* Remove any earlier pseudo-elements on the small badge */
+.catHeader .rankFocusBadge.sm::before,
+.catHeader .rankFocusBadge.sm::after{
+  content:none !important;
 }
+
+/* Draw divider lines with a background gradient (no notch) */
+.catHeader .rankFocusBadge.sm{
+  background-image:
+    linear-gradient(to bottom,
+      transparent 18px,
+      rgba(255,255,255,.14) 18px,
+      rgba(255,255,255,.14) 19px,
+      transparent 19px,
+      transparent calc(100% - 18px - 1px),
+      rgba(255,255,255,.14) calc(100% - 18px - 1px),
+      rgba(255,255,255,.14) calc(100% - 18px),
+      transparent calc(100% - 18px)
+    );
+  background-color:rgba(6,10,28,.88);
+}
+
+/* Top label */
+.catHeader .rankFocusBadge.sm .rfbFocus{
+  position:static !important;
+  font-size:10px !important;
+  font-weight:1100 !important;
+  letter-spacing:.3px !important;
+  color:rgba(234,240,255,.90) !important;
+  line-height:1 !important;
+}
+
+/* Middle: # + rank */
+.catHeader .rankFocusBadge.sm .rfbMain{
+  position:static !important;
+  transform:none !important;
+  margin:0 !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  justify-content:center !important;
+  gap:4px !important;
+  font-size:26px !important;
+  font-weight:1200 !important;
+  line-height:1 !important;
+}
+.catHeader .rankFocusBadge.sm .rfbHash{
+  font-size:13px !important;
+  margin-top:8px !important;
+  color:rgba(234,240,255,.88) !important;
+}
+
+/* Bottom: "of 5" smaller so it never collides */
+.catHeader .rankFocusBadge.sm .rfbOf{
+  position:static !important;
+  margin:0 !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:baseline !important;
+  gap:2px !important;
+  line-height:1 !important;
+}
+.catHeader .rankFocusBadge.sm .rfbOfWord{font-size:8px !important;color:rgba(234,240,255,.74) !important;}
+.catHeader .rankFocusBadge.sm .rfbOfNum{font-size:11px !important;font-weight:1100 !important;color:rgba(234,240,255,.92) !important;}
