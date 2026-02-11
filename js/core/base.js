@@ -283,26 +283,41 @@ function ensureDashTypographyOverrides(){
   .techRow .pills{padding-right:86px;}
 }
 
+/* Dashboard tech-row layout tweaks (Technician Dashboard list) */
+.techRow{position:relative; padding-top:44px !important;}
+.techRow .val.name{
+  position:absolute !important;
+  top:12px !important;
+  right:18px !important;
+  left:auto !important;
+  margin:0 !important;
+  text-align:right !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:55% !important;
+}
 
-/* Dashboard tech-row pill squares (Technician Dashboard list) */
-.techRow{position:relative;}
+/* Pills: smaller, single row, starts under name */
 .techRow .pills{
   display:flex !important;
   flex-wrap:nowrap !important;
   gap:10px !important;
   align-items:stretch !important;
-  justify-content:flex-start !important;
+  justify-content:flex-end !important;
+  margin-top:0 !important;
+  padding-right:110px !important; /* keep clear of right-anchored rank badge */
 }
 .techRow .pill{
-  width:110px !important;
-  height:110px !important;
-  min-width:110px !important;
-  padding:10px 10px !important;
+  width:80px !important;
+  height:80px !important;
+  min-width:80px !important;
+  padding:8px 8px !important;
   display:flex !important;
   flex-direction:column !important;
   justify-content:space-between !important;
   align-items:center !important;
-  border-radius:18px !important;
+  border-radius:14px !important;
 }
 .techRow .pill .k{
   width:100% !important;
@@ -310,20 +325,26 @@ function ensureDashTypographyOverrides(){
   margin:0 !important;
   padding:0 !important;
   font-weight:1000 !important;
-  letter-spacing:.3px !important;
+  letter-spacing:.25px !important;
   line-height:1.05 !important;
+  font-size:12px !important;
 }
 .techRow .pill .v{
   width:100% !important;
   text-align:center !important;
-  margin-top:6px !important;
+  margin-top:4px !important;
   font-weight:1000 !important;
   line-height:1 !important;
-  font-size:24px !important;
+  font-size:22px !important;
 }
+
 @media (max-width: 700px){
-  .techRow .pill{width:90px !important;height:90px !important;min-width:90px !important;border-radius:16px !important;padding:8px 8px !important;}
-  .techRow .pill .v{font-size:20px !important;}
+  .techRow{padding-top:38px !important;}
+  .techRow .val.name{top:10px !important; right:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .pills{gap:8px !important; padding-right:96px !important;}
+  .techRow .pill{width:68px !important;height:68px !important;min-width:68px !important;border-radius:12px !important;padding:7px 7px !important;}
+  .techRow .pill .k{font-size:11px !important;}
+  .techRow .pill .v{font-size:18px !important;}
 }
 `;
     const style = document.createElement("style");
