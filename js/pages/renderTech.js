@@ -459,20 +459,24 @@ const s = t.summary?.[filterKey] || {};
     ? `<span style="display:block;line-height:1.02">${safe(__first)}</span><span style="display:block;line-height:1.02">${safe(__rest)}</span>`
     : `${safe(__first)}`;
 
-  const header = `
+	  const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="titleRow techTitleRow">
+	        <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
-          <div class="techNameWrap">
+	          <!-- Name: do NOT let this flex-fill the row, so the rank badge can sit in the middle "blank" area -->
+	          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
             <div class="h2 techH2Big">${__nameHtml}</div>
             <div class="techTeamLine">${safe(team)}</div>
           </div>
-          <div class="overallBlock">
-            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-<div class="overallMetric">${focusVal}</div>
+	          <!-- Rank badge: centered between the name block and the right-side stats -->
+	          <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
+	            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+	          </div>
+	          <div class="overallBlock">
+	<div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
           </div>
         </div>
