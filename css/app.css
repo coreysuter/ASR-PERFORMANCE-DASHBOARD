@@ -552,10 +552,18 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .miniFoot{display:flex;justify-content:flex-end;margin-top:8px}
 
 
+
 .serviceCard .techList{margin-top:10px;border-top:1px dashed rgba(255,255,255,.12);padding-top:8px}
-.techRow{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:12px;color:var(--text)}
-.techRow a{color:var(--text);text-decoration:underline}
-.techRow .mini{color:var(--muted);font-weight:900}
+.serviceCard .techList .techRow{display:flex;justify-content:space-between;gap:8px;padding:5px 0;font-size:12px;color:var(--text)}
+.serviceCard .techList .techRow a{color:var(--text);text-decoration:underline}
+.serviceCard .techList .techRow .mini{color:var(--muted);font-weight:900}
+
+/* ServicesHome technician list: keep name + stats on ONE line */
+.serviceCard .techList .techRow{align-items:center;flex-wrap:nowrap;min-width:0}
+.serviceCard .techList .techRowLeft{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto}
+.serviceCard .techList .techRowLeft a{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto}
+.serviceCard .techList .techRow .mini{white-space:nowrap;flex:0 0 auto}
+
 
 /* === Tile legibility fix (labels above values) === */
 .statTile{display:flex;flex-direction:column;justify-content:center}
