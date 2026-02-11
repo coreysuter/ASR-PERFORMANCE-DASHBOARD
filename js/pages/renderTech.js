@@ -87,8 +87,6 @@
     const title = (mode==="sold") ? "SOLD" : "ASR";
     const colorClass = (band==="red") ? "diagRed" : "diagYellow";
     const popFill = (band==="red") ? "#ff4b4b" : "#ffbf2f";
-    const fillA = (band==="red") ? "#ff8b8b" : "#ffd978";
-    const fillB = (band==="red") ? "#d61f2a" : "#f2a21a";
     const lbl = (mode==="sold") ? "Sold%" : "ASR%";
 
     const rows = items.length ? items.map((it, i)=>{
@@ -121,24 +119,38 @@
     pop.innerHTML = `
       <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
         <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}<svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
-            <defs>
-              <linearGradient id="triGradPop-${mode}-${band}-${techId}" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="${fillA}"></stop>
-                <stop offset="100%" stop-color="${fillB}"></stop>
-              </linearGradient>
-              <radialGradient id="triHiPop-${mode}-${band}-${techId}" cx="35%" cy="20%" r="75%">
-                <stop offset="0%" stop-color="rgba(255,255,255,.55)"></stop>
-                <stop offset="55%" stop-color="rgba(255,255,255,.10)"></stop>
-                <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
-              </radialGradient>
-            </defs>
-            <path d="M50 0 C53 0 55 2 57 5 L100 87 C102 90 99 93 95 93 L5 93 C1 93 -2 90 0 87 L43 5 C45 2 47 0 50 0Z"
-                  fill="url(#triGradPop-${mode}-${band}-${techId})"></path>
-            <path d="M50 6 C52 6 54 7 55 10 L92 80 C94 83 92 86 88 86 L12 86 C8 86 6 83 8 80 L45 10 C46 7 48 6 50 6Z"
-                  fill="url(#triHiPop-${mode}-${band}-${techId})"></path>
-            <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
-            <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
-          </svg></div>
+  <defs>
+    <linearGradient id="popTriGrad-${mode}-${band}-${techId}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${(band==="red") ? "#ff8b8b" : "#ffd978"}"></stop>
+      <stop offset="100%" stop-color="${popFill}"></stop>
+    </linearGradient>
+    <radialGradient id="popTriHi-${mode}-${band}-${techId}" cx="35%" cy="20%" r="75%">
+      <stop offset="0%" stop-color="rgba(255,255,255,.55)"></stop>
+      <stop offset="55%" stop-color="rgba(255,255,255,.10)"></stop>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
+    </radialGradient>
+  </defs>
+  <path d="M50 0
+           C53 0 55 2 56.5 4.5
+           L99 85
+           C101 88 99 91 95 91
+           L5 91
+           C1 91 -1 88 1 85
+           L43.5 4.5
+           C45 2 47 0 50 0Z"
+        fill="url(#popTriGrad-${mode}-${band}-${techId})"></path>
+  <path d="M50 6
+           C52 6 54 7.2 55.2 9.6
+           L92 80
+           C94 83 92.2 86 88.4 86
+           L11.6 86
+           C7.8 86 6 83 8 80
+           L44.8 9.6
+           C46 7.2 48 6 50 6Z"
+        fill="url(#popTriHi-${mode}-${band}-${techId})"></path>
+  <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
+  <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
+</svg></div>
         <button class="diagPopClose" onclick="window.closeDiagPopup()" aria-label="Close"
           style="margin-left:6px;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
@@ -246,14 +258,16 @@ const hash = location.hash || "";
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+    // NOTE: We set font-weight inline so the header (lg) badge text matches the in-card (sm) badge text.
     return `
       <div class="${cls}">
-        <div class="rfbFocus">${top}</div>
-        <div class="rfbMain"><span class="rfbHash">#</span>${r}</div>
-        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
+        <div class="rfbFocus" style="font-weight:1000">${top}</div>
+        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
+        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
       </div>
     `;
   }
+
 const s = t.summary?.[filterKey] || {};
 
   function allTechs(){ return (DATA.techs||[]).filter(x=>x.team==="EXPRESS" || x.team==="KIA"); }
@@ -301,51 +315,56 @@ const s = t.summary?.[filterKey] || {};
   function diagTriBadge(color, num, mode, band){
     const n = Number(num)||0;
     if(!n) return "";
-    const isRed = (color==="red");
-    const fillA = isRed ? "#ff8b8b" : "#ffd978";
-    const fillB = isRed ? "#d61f2a" : "#f2a21a";
+    const fill = (color==="red") ? "#ff4b4b" : "#ffbf2f";
     const textX = 86; // keep numbers inside
-
-    // Unique IDs so multiple SVGs don’t conflict
-    const uid = `${t.id}-${mode}-${band}-${color}`;
-
     return `
       <button class="diagTriBtn" data-tech="${t.id}" data-mode="${mode}" data-band="${band}" data-compare="${compareBasis}" aria-label="${mode.toUpperCase()} ${band} services"
         style="background:transparent;border:none;padding:0;cursor:pointer">
-        <svg class="diagTriSvg" viewBox="0 0 100 87" aria-hidden="true"
-          style="width:64px;height:auto;display:block;filter:drop-shadow(0 14px 24px rgba(0,0,0,.40))">
+        <svg class="diagTriSvg" viewBox="0 0 100 87" aria-hidden="true" style="width:64px;height:auto;display:block;filter:drop-shadow(0 14px 24px rgba(0,0,0,.40))">
+          
           <defs>
-            <linearGradient id="triGrad-${uid}" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="${fillA}"></stop>
-              <stop offset="100%" stop-color="${fillB}"></stop>
+            <linearGradient id="triGrad-${mode}-${band}-${t.id}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${(color==="red") ? "#ff8b8b" : "#ffd978"}"></stop>
+              <stop offset="100%" stop-color="${(color==="red") ? "#d61f2a" : "#f2a21a"}"></stop>
             </linearGradient>
-            <radialGradient id="triHi-${uid}" cx="35%" cy="20%" r="75%">
+            <radialGradient id="triHi-${mode}-${band}-${t.id}" cx="35%" cy="20%" r="75%">
               <stop offset="0%" stop-color="rgba(255,255,255,.55)"></stop>
               <stop offset="55%" stop-color="rgba(255,255,255,.10)"></stop>
               <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
             </radialGradient>
           </defs>
-
-          <!-- Rounded emoji-ish triangle -->
-          <path d="M50 0 C53 0 55 2 57 5 L100 87 C102 90 99 93 95 93 L5 93 C1 93 -2 90 0 87 L43 5 C45 2 47 0 50 0Z"
-                fill="url(#triGrad-${uid})"></path>
-
-          <!-- Highlight sheen -->
-          <path d="M50 6 C52 6 54 7 55 10 L92 80 C94 83 92 86 88 86 L12 86 C8 86 6 83 8 80 L45 10 C46 7 48 6 50 6Z"
-                fill="url(#triHi-${uid})"></path>
-
-          <!-- Exclamation -->
+          <!-- rounded emoji-ish triangle -->
+          <path d="M50 0
+                   C53 0 55 2 56.5 4.5
+                   L99 85
+                   C101 88 99 91 95 91
+                   L5 91
+                   C1 91 -1 88 1 85
+                   L43.5 4.5
+                   C45 2 47 0 50 0Z"
+                fill="url(#triGrad-${mode}-${band}-${t.id})"></path>
+          <!-- highlight sheen -->
+          <path d="M50 6
+                   C52 6 54 7.2 55.2 9.6
+                   L92 80
+                   C94 83 92.2 86 88.4 86
+                   L11.6 86
+                   C7.8 86 6 83 8 80
+                   L44.8 9.6
+                   C46 7.2 48 6 50 6Z"
+                fill="url(#triHi-${mode}-${band}-${t.id})"></path>
+          <!-- exclamation -->
           <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
           <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
-
-          <!-- Count -->
+          <!-- count -->
           <text x="${textX}" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
+
         </svg>
       </button>
     `;
   }
 
-function countBandsFor(mode){
+    function countBandsFor(mode){
     let red=0, yellow=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
@@ -498,6 +517,16 @@ function countBandsFor(mode){
   const focusLbl = focus==="sold" ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
+  const __fullName = String(t.name||"").trim();
+  const __parts = __fullName.split(/\s+/).filter(Boolean);
+  const __first = (__parts.shift() || __fullName || "—");
+  const __rest = __parts.join(" ");
+  const __nameHtml = __rest
+    ? `<span style="display:block;line-height:1.02">${safe(__first)}</span><span style="display:block;line-height:1.02">${safe(__rest)}</span>`
+    : `${safe(__first)}`;
+
+
+
   
 const header = `
     <div class="panel techHeaderPanel">
@@ -506,12 +535,14 @@ const header = `
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
-          <div class="techNameWrap">
-            <div class="h2 techH2Big">${safe(t.name)}</div>
+          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
+            <div class="h2 techH2Big">${__nameHtml}</div>
             <div class="techTeamLine">${safe(team)}</div>
           </div>
-          <div class="overallBlock">
+          <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+          </div>
+          <div class="overallBlock">
 <div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
           </div>
