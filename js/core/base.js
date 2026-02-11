@@ -398,12 +398,13 @@ function renderTeam(team, st){
 
     return `
       <div class="techRow">
-        <div class="techMeta" style="align-items:flex-start">
+        <div class="techMeta" style="align-items:flex-start;display:flex;justify-content:space-between;gap:10px">
           <div class="techMetaLeft">
             <div class="val name" style="font-size:16px">
               <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
-            </div>
-            <div class="rankUnder">${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}</div>
+            </div>          </div>
+          <div class="techMetaRight" style="margin-left:auto">
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
           </div>
 
         </div>
