@@ -364,7 +364,7 @@ function ensureDashTypographyOverrides(){
   position:absolute !important;
   top:50% !important;
   transform:translateY(-50%) !important;
-  left: 222px !important; /* start after Avg ODO area */
+  left: 280px !important; /* start after Avg ODO area + extra gap */
   right: 118px !important; /* leave room for rank badge */
   display:flex !important;
   flex-wrap:nowrap !important;
@@ -426,7 +426,7 @@ function ensureDashTypographyOverrides(){
 
   .techRow .techMetaRight{right:14px !important;}
   .techRow .pills{
-    left: 198px !important;
+    left: 246px !important;
     right: 104px !important;
     gap:9px !important;
   }
