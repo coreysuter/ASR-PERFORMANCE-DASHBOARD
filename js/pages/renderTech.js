@@ -234,18 +234,6 @@ const hash = location.hash || "";
       </div>
     `;
   }
-  function rankBadgeHtmlHeader(rank, total, focus){
-    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
-    const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
-    const t = (total===null || total===undefined || total==="") ? "—" : total;
-    return `
-      <div class="rankFocusBadge" style="--w:80px;--h:80px;--r:18px;text-decoration:none">
-        <div class="rfbFocus" style="text-decoration:none">${top}</div>
-        <div class="rfbMain" style="text-decoration:none"><span class="rfbHash">#</span>${r}</div>
-        <div class="rfbOf" style="text-decoration:none"><span class="rfbOfWord" style="text-decoration:none">of</span><span class="rfbOfNum" style="text-decoration:none">${t}</span></div>
-      </div>
-    `;
-  }
 
 const s = t.summary?.[filterKey] || {};
 
@@ -485,7 +473,7 @@ const header = `
             <div class="techTeamLine">${safe(team)}</div>
           </div>
           <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
-            ${rankBadgeHtmlHeader(overall.rank ?? "—", overall.total ?? "—", focus)}
+            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div>
           <div class="overallBlock">
 <div class="overallMetric">${focusVal}</div>
