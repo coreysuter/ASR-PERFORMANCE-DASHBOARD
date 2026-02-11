@@ -256,6 +256,31 @@ function renderFiltersText(parts){
 const ICON_FILTER = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3 5h18l-7 8v5l-4 2v-7L3 5z"/></svg>';
 const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10 4a6 6 0 104.47 10.03l4.25 4.25 1.41-1.41-4.25-4.25A6 6 0 0010 4zm0 2a4 4 0 110 8 4 4 0 010-8z"/></svg>';
 
+
+// ===== Dashboard typography overrides (Technician Dashboard page only) =====
+function ensureDashTypographyOverrides(){
+  try{
+    if(document.getElementById("dashTypographyOverrides")) return;
+    const css = `
+/* Technician Dashboard header */
+.techH2Big{font-size:36px;}
+@media (max-width: 700px){ .techH2Big{font-size:28px;} }
+
+/* EXPRESS / KIA headers */
+.catTitle{font-size:28px;}
+@media (max-width: 700px){ .catTitle{font-size:24px;} }
+
+/* Technician names on dashboard list */
+.techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
+@media (max-width: 700px){ .techRow .val.name{font-size:20px !important;} }
+`;
+    const style = document.createElement("style");
+    style.id = "dashTypographyOverrides";
+    style.textContent = css;
+    document.head.appendChild(style);
+  }catch(e){}
+}
+
 // ===== UI (filters open state on routed pages) =====
 const UI = { groupFilters:{}, techFilters:{} };
 
@@ -476,6 +501,7 @@ function toggleTechFilters(techId){
 }
 // --- Split-repo glue: keep left menu populated ---
 function __refreshSideMenu(){
+  ensureDashTypographyOverrides();
   try { renderMenuTechLists(); } catch(e) { /* ignore */ }
   try { populateAsrMenuLinks(); } catch(e) { /* ignore */ }
 }
