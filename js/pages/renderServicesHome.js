@@ -106,16 +106,55 @@ function renderServicesHome(){
   }
 
   function triBadgeSvg(color, num){
-    const fill = color==="red" ? "#f04545" : "#f3a91a";
-    const txtFill = "#ffffff";
-    // Slight left bias on number via dx
+    const fill = (color==="red") ? "#ff4b4b" : "#ffbf2f";
+    // unique ids so gradients don't collide across badges
+    const uid = (Math.random().toString(36).slice(2,8));
+    const gradId = `svcTriGrad-${color}-${uid}`;
+    const hiId = `svcTriHi-${color}-${uid}`;
+    const textX = 86; // keep numbers inside
     return `
       <span class="triBadge tri-${color}">
-        <svg viewBox="0 0 120 110" width="56" height="50" aria-hidden="true" focusable="false">
-          <polygon points="60,4 116,104 4,104" fill="${fill}"></polygon>
-          <rect x="54" y="30" width="12" height="44" rx="6" fill="#111"></rect>
-          <circle cx="60" cy="90" r="7" fill="#111"></circle>
-          <text x="90" y="98" font-size="28" font-weight="900" fill="${txtFill}" text-anchor="middle">${num}</text>
+        <svg viewBox="0 0 100 91" width="56" height="50" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${(color==="red") ? "#ff8b8b" : "#ffd978"}"></stop>
+              <stop offset="100%" stop-color="${(color==="red") ? "#d61f2a" : "#f2a21a"}"></stop>
+            </linearGradient>
+            <radialGradient id="${hiId}" cx="35%" cy="20%" r="75%">
+              <stop offset="0%" stop-color="rgba(255,255,255,55)"></stop>
+              <stop offset="55%" stop-color="rgba(255,255,255,10)"></stop>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
+            </radialGradient>
+          </defs>
+
+          <!-- same rounded triangle used on Technician Details page -->
+          <path d="M50 0
+                   C53 0 55 2 56.5 4.5
+                   L99 85
+                   C101 88 99 91 95 91
+                   L5 91
+                   C1 91 -1 88 1 85
+                   L43.5 4.5
+                   C45 2 47 0 50 0Z"
+                fill="url(#${gradId})"></path>
+
+          <!-- highlight sheen -->
+          <path d="M50 6
+                   C52 6 54 7.2 55.2 9.6
+                   L92 80
+                   C94 83 92.2 86 88.4 86
+                   L11.6 86
+                   C7.8 86 6 83 8 80
+                   L44.8 9.6
+                   C46 7.2 48 6 50 6Z"
+                fill="url(#${hiId})"></path>
+
+          <!-- exclamation -->
+          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,78)"></rect>
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,78)"></circle>
+
+          <!-- count -->
+          <text x="${textX}" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${num}</text>
         </svg>
       </span>
     `;
