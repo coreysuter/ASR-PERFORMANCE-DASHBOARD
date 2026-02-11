@@ -457,6 +457,7 @@ const s = t.summary?.[filterKey] || {};
 
 
   const filters = `
+    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
     <div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
@@ -546,12 +547,29 @@ const header = `
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
           </div>
         </div>
-        <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
-          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${fmt1(techAsrPerRo(t, filterKey),1)}</div></div>
-          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(techSoldPct(t, filterKey))}</div></div>
+        <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
+          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+          </div>
+
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+          </div>
+
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+          </div>
+
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}</div>
+          </div>
         </div>
+
+        <div style="height:1px; background:rgba(255,255,255,.14); margin:10px 0 6px 0;"></div>
         ${filters}
       </div>
     </div>
