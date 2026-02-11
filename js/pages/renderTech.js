@@ -520,6 +520,8 @@ const s = t.summary?.[filterKey] || {};
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
   const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? `(${(__soldOfAsr*100).toFixed(1)}%)` : "";
+  const __asrPerRoVal = techAsrPerRo(t, filterKey);
+  const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
 
 
   const __fullName = String(t.name||"").trim();
@@ -546,8 +548,12 @@ const header = `
               <div class="techTeamLine">${safe(team)}</div>
             </div>
           </div>
-          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;justify-content:flex-end;align-items:flex-start;">
+          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-end;gap:8px;">
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+            <div class="asrroPinned" style="text-align:right;line-height:1;">
+              <div style="font-size:46px;font-weight:1000;letter-spacing:.2px;">${__asrPerRoTxt}</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+            </div>
           </div></div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
           <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
