@@ -533,26 +533,22 @@ const s = t.summary?.[filterKey] || {};
 
 
   
-
 const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+          <div class="techTitlePinnedLeft" style="display:flex;align-items:flex-start;gap:18px;min-width:0;flex:1 1 auto;">
+            <div class="techTitleLeft">
+              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+            </div>
+            <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
+              <div class="h2 techH2Big">${__nameHtml}</div>
+              <div class="techTeamLine">${safe(team)}</div>
+            </div>
           </div>
-
-          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
-            <div class="h2 techH2Big">${__nameHtml}</div>
-            <div class="techTeamLine">${safe(team)}</div>
-          </div>
-
-          <!-- Ranking badge pinned to top-right (replaces ASRs/RO corner stat) -->
-          <div class="techRankCorner" style="position:absolute;top:0;right:0;">
+          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;justify-content:flex-end;align-items:flex-start;">
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-          </div>
-        </div>
-
+          </div></div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
           <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
@@ -580,7 +576,6 @@ const header = `
       </div>
     </div>
   `;
-
 
   function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
 
