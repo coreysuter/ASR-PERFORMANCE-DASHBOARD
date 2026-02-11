@@ -286,9 +286,10 @@ function ensureDashTypographyOverrides(){
 /* Dashboard tech-row layout tweaks (Technician Dashboard list) */
 .techRow{
   position:relative;
-  min-height:140px !important;
+  min-height:150px !important;
   padding-top:0 !important;
   display:block !important;
+  overflow:hidden !important;
 }
 
 /* Tech name pinned top-left */
@@ -296,13 +297,12 @@ function ensureDashTypographyOverrides(){
   position:absolute !important;
   top:12px !important;
   left:18px !important;
-  right:auto !important;
   margin:0 !important;
   text-align:left !important;
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
-  max-width:60% !important;
+  max-width:58% !important;
   font-weight:1000 !important;
 }
 
@@ -311,7 +311,7 @@ function ensureDashTypographyOverrides(){
   position:absolute !important;
   top:52px !important;
   left:18px !important;
-  width:min(60%, 260px) !important;
+  width:min(58%, 300px) !important;
   display:flex !important;
   justify-content:center !important;
 }
@@ -325,9 +325,9 @@ function ensureDashTypographyOverrides(){
   align-items:center !important;
   justify-content:center !important;
 
-  background:linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.58)) !important;
-  border:1px solid rgba(255,255,255,.16) !important;
-  box-shadow:0 10px 26px rgba(0,0,0,.50) inset, 0 10px 24px rgba(0,0,0,.18) !important;
+  background:linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.62)) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.55) inset, 0 10px 24px rgba(0,0,0,.18) !important;
 }
 .techRow .pill.odoHeaderLike .kv{
   display:flex !important;
@@ -349,13 +349,23 @@ function ensureDashTypographyOverrides(){
   font-weight:1000 !important;
 }
 
-/* Place the rest of pills to the RIGHT of Avg ODO so they never overlap */
+/* Rank badge pinned far-right, vertically centered */
+.techRow .techMetaRight{
+  position:absolute !important;
+  right:18px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  margin:0 !important;
+  z-index:2 !important;
+}
+
+/* Pills row: positioned left of rank badge; starts AFTER the name column */
 .techRow .pills{
   position:absolute !important;
   top:50% !important;
   transform:translateY(-50%) !important;
-  left:222px !important; /* 18 + 190 + 14 gap */
-  right:18px !important;
+  left: calc(18px + 58% + 12px) !important; /* start after name column */
+  right: 118px !important; /* leave room for rank badge */
   display:flex !important;
   flex-wrap:nowrap !important;
   gap:10px !important;
@@ -363,15 +373,8 @@ function ensureDashTypographyOverrides(){
   justify-content:flex-start !important;
   margin:0 !important;
   padding:0 !important;
-  width:auto !important;
-}
-
-/* Put rank badge inline at the end (next to ASRs/RO) */
-.techRow .techMetaRight{
-  position:static !important;
-  transform:none !important;
-  margin-left:10px !important;
-  flex:0 0 auto !important;
+  min-width:0 !important;
+  overflow:hidden !important;
 }
 
 /* Darker, higher-contrast square pills */
@@ -387,9 +390,9 @@ function ensureDashTypographyOverrides(){
   border-radius:14px !important;
   gap:5px !important;
 
-  background:linear-gradient(180deg, rgba(0,0,0,.40), rgba(0,0,0,.62)) !important;
-  border:1px solid rgba(255,255,255,.14) !important;
-  box-shadow:0 10px 26px rgba(0,0,0,.55) inset, 0 10px 22px rgba(0,0,0,.18) !important;
+  background:linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.68)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.60) inset, 0 10px 22px rgba(0,0,0,.18) !important;
 }
 .techRow .pill .k{
   width:100% !important;
@@ -410,18 +413,28 @@ function ensureDashTypographyOverrides(){
   line-height:1 !important;
   font-size:23px !important;
 }
+
 .techRow .pill .k + .v{ margin-top:0 !important; }
 
-/* Shorten row: keep content tight and prevent huge empty spacing */
-.techRow .techMeta{
-  display:block !important;
-}
-.techRow{
-  padding-right:18px !important;
+@media (max-width: 700px){
+  .techRow{min-height:136px !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .odoUnderName{top:46px !important; left:14px !important; width:min(60%, 280px) !important;}
+  .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
+  .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
+  .techRow .pill.odoHeaderLike .v{font-size:20px !important;}
+
+  .techRow .techMetaRight{right:14px !important;}
+  .techRow .pills{
+    left: calc(14px + 60% + 10px) !important;
+    right: 104px !important;
+    gap:9px !important;
+  }
+  .techRow .pill{width:76px !important;height:76px !important;min-width:76px !important;border-radius:13px !important;padding:8px 8px !important;gap:4px !important;}
+  .techRow .pill .k{font-size:11px !important;}
+  .techRow .pill .v{font-size:20px !important;}
 }
 
-@media (max-width: 700px){
-  .techRow{min-height:128px !important;}
   .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:72% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important; width:170px !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
