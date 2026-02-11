@@ -940,6 +940,31 @@ return `
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+
+  // Keep the DIAG (Top/Bottom) panel exactly the same height as the Tech Name header panel
+  // (right panel matches left panel; never stretches the left).
+  function syncDiagHeight(){
+    const left = document.querySelector('.techHeaderPanel');
+    const right = document.querySelector('.techPickPanel.diagSection');
+    if(!left || !right) return;
+
+    const h = left.getBoundingClientRect().height;
+    if(!h || !Number.isFinite(h)) return;
+
+    right.style.height = `${Math.round(h)}px`;
+    right.style.maxHeight = `${Math.round(h)}px`;
+
+    // Allow internal scroll if needed (rare), without changing the outer height.
+    const phead = right.querySelector('.phead');
+    if(phead){
+      phead.style.height = '100%';
+      phead.style.overflow = 'auto';
+    }
+  }
+
+  // Run after layout settles
+  requestAnimationFrame(()=>{ syncDiagHeight(); requestAnimationFrame(syncDiagHeight); });
+  window.addEventListener('resize', ()=>{ requestAnimationFrame(syncDiagHeight); });
   // Top/Bottom 3 clicks: jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){
