@@ -1159,14 +1159,14 @@ body.route-tech .techPickPanel{
   width:100% !important;
 }
 
-/* === v5: header panels should NOT stretch (removes blank space under filters) === */
-body.route-tech .techHeaderWrap{align-items:start;}
-body.route-tech .techHeaderWrap > .panel{height:auto;}
+/* === v5: equal-height header panels + larger Top/Bottom headings + thumbs icons === */
+body.route-tech .techHeaderWrap{align-items:stretch;}
+body.route-tech .techHeaderWrap > .panel{height:100%;}
 body.route-tech .techHeaderPanel,
-body.route-tech .techPickPanel{height:auto;}
-body.route-tech .techHeaderPanel .phead{height:auto; display:block;}
-/* keep normal spacing (do not push pills to the bottom) */
-body.route-tech .techHeaderPanel .pills{margin-top:8px;}
+body.route-tech .techPickPanel{height:100%;}
+body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
+/* ensure the pills/filters don't force overflow weirdness */
+body.route-tech .techHeaderPanel .pills{margin-top:auto;}
 
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
@@ -1383,17 +1383,43 @@ body.route-tech .catTitle .meta{
 /* Keep everything clipped inside the tile (prevents badge from floating outside) */
 .catCard{overflow:hidden;}
 
+/* ===============================
+   FIX: Tech Details header spacing + restore Top/Bottom 3 layout
+   - Remove equal-height stretching (it created blank space under filters)
+   - Ensure Top/Bottom panel uses original stacked ASR + SOLD layout
+   =============================== */
 
-/* === v5b: make Top/Bottom panel shorter by placing ASR + SOLD side-by-side (desktop only) === */
-body.route-tech .techPickPanel .phead{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:14px;
-  align-items:start;
+/* Stop forcing equal-height columns in the tech header row */
+body.route-tech .techHeaderWrap{
+  align-items:flex-start !important;
 }
-body.route-tech .techPickPanel .pickRow{margin-top:0 !important;}
-@media (max-width: 980px){
-  body.route-tech .techPickPanel .phead{display:block;}
-  body.route-tech .techPickPanel .pickRow{margin-top:14px !important;}
-  body.route-tech .techPickPanel .pickRow:first-child{margin-top:0 !important;}
+body.route-tech .techHeaderWrap > .panel{
+  height:auto !important;
+}
+body.route-tech .techHeaderPanel,
+body.route-tech .techPickPanel{
+  height:auto !important;
+}
+
+/* Let the tech header content size naturally (no giant empty area below filters) */
+body.route-tech .techHeaderPanel .phead{
+  height:auto !important;
+  display:block !important;
+}
+body.route-tech .techHeaderPanel .pills{
+  margin-top:12px !important;
+}
+
+/* Restore Top/Bottom panel to the original behavior (ASR row over SOLD row) */
+body.route-tech .techPickPanel .phead{
+  display:block !important;
+  grid-template-columns:unset !important;
+  gap:unset !important;
+  align-items:unset !important;
+}
+body.route-tech .techPickPanel .pickRow{
+  margin-top:14px !important;
+}
+body.route-tech .techPickPanel .pickRow:first-child{
+  margin-top:0 !important;
 }
