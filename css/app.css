@@ -15,7 +15,6 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .big{font-size:22px;font-weight:var(--HB);text-align:right}
 
 .overallBlock{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
-.overallBlock .big{font-size:21px;font-weight:var(--HB);text-align:right}
 .overallBlock .overallMetric{margin-top:6px;font-size:21px;font-weight:1200;text-align:right}
 
 .tag{font-size:11px;color:var(--muted);text-align:right;margin-top:2px}
@@ -622,7 +621,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .brRYTop{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px}
 .brRYLeft{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
 .brRYRight{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
-.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.18); font-size:11px; line-height:1}
+.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.22); font-size:11px; line-height:1}
 .switch.sm{width:34px; height:18px}
 .switch.sm .slider:before{height:14px; width:14px; left:2px; bottom:2px}
 .switch.sm input:checked + .slider:before{transform:translateX(16px)}
@@ -841,30 +840,7 @@ h3{font-size:var(--H3);font-weight:var(--HB);letter-spacing:.2px}
 .svcName{font-size:var(--H2)!important;font-weight:var(--HB)!important;letter-spacing:.25px;line-height:1.08}
 
 /* Rankings: always bold; size matches the context (category rank uses H2) */
-.rankNum,.catRank,.overallBlock .big,.overallBlock .overallMetric{font-weight:var(--HB)!important}
 .catRank{font-size:var(--H2)!important}
-
-/* === Services/Group page triangle badges (match tech-detail triangles) === */
-.triSummaryRow{display:flex;justify-content:center;gap:54px;margin-top:10px;user-select:none}
-.triSummaryBlock{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;outline:none}
-.triPair{display:flex;gap:14px;align-items:center;justify-content:center}
-.triBadge{width:56px;height:50px;display:flex;align-items:center;justify-content:center}
-.triSvg{width:100%;height:100%;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}
-.triSvg .triNum{font-weight:1200;font-size:28px;fill:#fff}
-.triLbl{font-size:22px;font-weight:1200;letter-spacing:.6px;color:rgba(255,255,255,.8)}
-
-/* Popup */
-.triPop{position:fixed;z-index:9999;min-width:280px;max-width:360px;background:linear-gradient(180deg, rgba(23,31,61,.95), rgba(13,18,38,.95));border:1px solid rgba(255,255,255,.12);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.55);padding:12px}
-.triPopHead{display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1)}
-.triPopTitle{font-size:16px;font-weight:1200;letter-spacing:.35px}
-.triPopX{margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.8);font-size:22px;line-height:1;cursor:pointer}
-.triPopCounts{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
-.triChip{display:flex;align-items:center;gap:8px}
-.triChip .triBadge,.triChip .triSvg{width:40px;height:36px}
-.triPopList{padding-top:10px;max-height:280px;overflow:auto;display:grid;gap:8px}
-.triPopRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
-.triPopRow a{color:inherit;text-decoration:none;font-weight:1100}
-.triPopRow a:hover{text-decoration:underline}
 
 
 
@@ -897,7 +873,6 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .svcName,.serviceName,.svcTitle{font-size:var(--H2)!important;font-weight:var(--HB)!important;line-height:1.08}
 
 /* Rankings: bold; size follows the header level they sit with */
-.overallBlock .big{font-size:var(--H1)!important;font-weight:var(--HB);font-weight:var(--HB)!important}
 .rankNum{font-weight:var(--HB)!important}
 
 .catCounts b{font-weight:var(--HB)}
@@ -1216,3 +1191,194 @@ body.route-tech .catTitle .meta{
   font-weight: 900 !important;
   letter-spacing: .15px !important;
 }
+
+/* === Services: focus badges are EXACTLY 150% of mini badges === */
+.secFocusDial .focusBadgePair .triBadge svg{
+  width:80px !important;
+  height:72px !important;
+}
+.secFocusDial .focusBadgePair .badgeCap.big{
+  font-size:18px !important;
+  line-height:1.05 !important;
+  letter-spacing:.25px !important;
+}
+
+
+/* === Rank badge (PROPORTION-LOCKED to your Paint mock) === */
+.rankFocusBadge{
+  /* Size */
+  --w: 80px;
+  --h: 80px;
+  --r: 18px;
+
+  /* Geometry (these 3 are the only “proportion” knobs) */
+  --line1f: 0.24;  /* top divider @ ~24% of height */
+  --line2f: 0.74;  /* bottom divider @ ~74% of height */
+  --padX: 12px;
+
+  width: var(--w);
+  height: var(--h);
+  border-radius: var(--r);
+  border:1px solid rgba(255,255,255,.34);
+  background:
+    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.14), rgba(0,0,0,0) 55%),
+    radial-gradient(140% 140% at 70% 85%, rgba(0,0,0,.62), rgba(0,0,0,0) 60%),
+    linear-gradient(180deg, rgba(18,30,58,.96), rgba(7,10,24,.97));
+  box-shadow:
+    0 34px 90px rgba(0,0,0,.78),
+    0 0 0 1px rgba(255,255,255,.10),
+    0 0 28px rgba(120,180,255,.12),
+    inset 0 0 0 1px rgba(255,255,255,.20),
+    inset 0 0 30px rgba(255,255,255,.10),
+    inset 0 -26px 34px rgba(0,0,0,.48);
+  position:relative;
+  display:block;
+  overflow:hidden;
+}
+
+/* divider lines */
+.rankFocusBadge::before,
+.rankFocusBadge::after{
+  content:"";
+  position:absolute;
+  left: var(--padX);
+  right: var(--padX);
+  height:1px;
+  background:rgba(255,255,255,.16);
+  pointer-events:none;
+}
+.rankFocusBadge::before{ top: calc(var(--h) * var(--line1f)); }
+.rankFocusBadge::after{  top: calc(var(--h) * var(--line2f)); }
+
+/* ASR% / SOLD% / GOAL% */
+.rankFocusBadge .rfbFocus{
+  position:absolute;
+  top: calc(var(--h) * 0.05);
+  left:0;
+  right:0;
+  text-align:center;
+  font-size: calc(var(--h) * 0.14);
+  font-weight:1100;
+  letter-spacing:.35px;
+  text-transform:uppercase;
+  color:rgba(234,240,255,.90);
+  line-height:1;
+}
+
+/* # next to the big number (always rendered via pseudo-element to avoid stacking issues) */
+.rankFocusBadge .rfbMain{
+  position:absolute;
+  top: calc(var(--h) * ((var(--line1f) + var(--line2f)) / 2));
+  left:0;
+  right:0;
+  transform:translateY(-50%);
+  text-align:center;
+  font-size: calc(var(--h) * 0.52);
+  font-weight:1200;
+  line-height:1;
+  color:rgba(234,240,255,.96);
+}
+.rankFocusBadge .rfbMain::before{
+  content:"#";
+  position:absolute;
+  left: calc(50% - (var(--w) * 0.22));
+  top: 50%;
+  transform: translate(-50%,-35%);
+  font-size: calc(var(--h) * 0.14);
+  font-weight:1100;
+  line-height:1;
+  color:rgba(234,240,255,.90);
+}
+/* hide any legacy hash nodes if they exist in markup */
+.rankFocusBadge .rfbHash{ display:none !important; }
+
+/* of 5 centered between bottom divider and bottom edge */
+.rankFocusBadge .rfbOf{
+  position:absolute;
+  top: calc(var(--h) * ((var(--line2f) + 1) / 2));
+  left:0;
+  right:0;
+  transform:translateY(-50%);
+  display:flex;
+  justify-content:center;
+  align-items:baseline;
+  gap: calc(var(--w) * 0.03);
+  line-height:1;
+  color:rgba(234,240,255,.90);
+}
+.rankFocusBadge .rfbOfWord{
+  font-size: calc(var(--h) * 0.145);
+  font-weight:1000;
+  color:rgba(234,240,255,.78);
+}
+.rankFocusBadge .rfbOfNum{
+  font-size: calc(var(--h) * 0.165);
+  font-weight:1100;
+  color:rgba(234,240,255,.92);
+}
+
+/* small version for service tiles */
+.rankFocusBadge.sm{
+  --w: 74px;
+  --h: 68px;
+  --r: 16px;
+
+  /* keep same relative divider proportions */
+  --padX: 12px;
+}
+
+
+/* prevent legacy x/x line from overlapping if present */
+.overallBlock .big{ display:none !important; }
+
+
+/* === Diag triangle badges (emoji-style SVG) === */
+.diagTriBtn{ line-height:0; }
+.diagTriSvg{ overflow:visible; }
+.diagTriSvg text{ font-family: inherit; }
+
+
+
+/* =====================================================================================
+   PIN ONLY: keep existing rank badge size/style exactly as-is.
+   This block ONLY ensures the badge stays inside the service tile header and
+   moves/shrinks with the tile (no separate sizing rules).
+   ===================================================================================== */
+
+/* Service tile header is the positioning context */
+.catHeader{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  flex-wrap:nowrap;
+  min-width:0;
+}
+
+/* Allow the title/meta column to shrink so the badge stays inside the header */
+.catHeader > div:nth-child(2){
+  flex:1 1 auto;
+  min-width:0;
+}
+
+/* Keep dial and rank on the right, and keep rank from wrapping out of the header */
+.catHeader .svcGaugeWrap{
+  flex:0 0 auto;
+}
+.catHeader .catRank{
+  flex:0 0 auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  white-space:nowrap;
+  min-width:0;
+}
+
+/* Ensure the badge itself never stretches or wraps */
+.catHeader .rankFocusBadge,
+.catHeader .rankFocusBadge.sm{
+  flex:0 0 auto;
+  display:block;
+}
+
+/* Keep everything clipped inside the tile (prevents badge from floating outside) */
+.catCard{overflow:hidden;}
