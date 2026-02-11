@@ -549,8 +549,8 @@ const header = `
             </div>
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
-            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;">
-              <div style="font-size:36px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
+            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
               <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
             </div>
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
