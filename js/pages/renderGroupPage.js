@@ -26,6 +26,10 @@ function populateAsrMenuLinks(){
   if(!host) return;
   const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
   const links = [];
+
+  // Main Services page link above categories
+  links.push(`<a class="menuLink" href="#/servicesHome">Services</a>`);
+
   for(const sec of secs){
     const name = String(sec?.name || "").trim();
     if(!name) continue;
@@ -218,25 +222,25 @@ function renderGroupPage(groupKey){
     const rank = idx + 1;
 
     if(focus==="sold"){
-      return `<div class="techRow pickRowFrame">
+      return `<div class="techRow">
         <div class="techRowLeft">
           <span class="rankNum">${rank}.</span>
           <a href="#/tech/${encodeURIComponent(r.id)}">${safe(r.name)}</a>
         </div>
-        <div class="mini">
-          ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • Sold ${fmtInt(r.sold)} • ${fmtPct(r.close)}
-        </div>
+        <span class="mini">
+          ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • Sold ${fmtInt(r.sold)} • <b>${fmtPct(r.close)}</b>
+        </span>
       </div>`;
     }
 
-    return `<div class="techRow pickRowFrame">
+    return `<div class="techRow">
       <div class="techRowLeft">
         <span class="rankNum">${rank}.</span>
         <a href="#/tech/${encodeURIComponent(r.id)}">${safe(r.name)}</a>
       </div>
-      <div class="mini">
-        ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • ${fmtPctPlain(r.req)}
-      </div>
+      <span class="mini">
+        ROs ${fmtInt(r.ros)} • ASR ${fmtInt(r.asr)} • <b>${fmtPctPlain(r.req)}</b>
+      </span>
     </div>`;
   }).join("");
 }
