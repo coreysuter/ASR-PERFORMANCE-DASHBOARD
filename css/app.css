@@ -1159,14 +1159,14 @@ body.route-tech .techPickPanel{
   width:100% !important;
 }
 
-/* === v5: equal-height header panels + larger Top/Bottom headings + thumbs icons === */
-body.route-tech .techHeaderWrap{align-items:stretch;}
-body.route-tech .techHeaderWrap > .panel{height:100%;}
+/* === v5: header panels should NOT stretch (removes blank space under filters) === */
+body.route-tech .techHeaderWrap{align-items:start;}
+body.route-tech .techHeaderWrap > .panel{height:auto;}
 body.route-tech .techHeaderPanel,
-body.route-tech .techPickPanel{height:100%;}
-body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
-/* ensure the pills/filters don't force overflow weirdness */
-body.route-tech .techHeaderPanel .pills{margin-top:auto;}
+body.route-tech .techPickPanel{height:auto;}
+body.route-tech .techHeaderPanel .phead{height:auto; display:block;}
+/* keep normal spacing (do not push pills to the bottom) */
+body.route-tech .techHeaderPanel .pills{margin-top:8px;}
 
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
