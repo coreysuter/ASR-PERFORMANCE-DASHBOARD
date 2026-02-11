@@ -546,18 +546,16 @@ const header = `
           <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div>
+</div>
+        <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content) 1fr; gap:12px 14px; align-items:start;">
+          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+            
+          <div class="overallBlock" style="grid-column:4;grid-row:1;justify-self:end;align-self:center;text-align:right;min-width:120px">
+            <div class="overallMetric" style="font-size:34px;font-weight:1200;line-height:1;">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
           </div>
-        </div>
-        <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
-          <div class="pill" style="grid-column:auto; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
-            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
-          </div>
-
-          <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs/RO</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmt1(techAsrPerRo(t, filterKey),1)}</div>
+<div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
