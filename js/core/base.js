@@ -112,6 +112,23 @@ function fmtPctPlain(v){
   return (Math.round(n*10)/10).toFixed(1) + "%";
 }
 
+
+// Focus Rank Badge (matches Technician Details page)
+function rankBadgeHtmlDash(rank, total, focus, size="sm"){
+  const top = (focus==="sold") ? "SOLD%" : "ASR%";
+  const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+  const t = (total===null || total===undefined || total==="") ? "—" : total;
+  const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+  // Force bold to match Tech Details badges
+  return `
+    <div class="${cls}">
+      <div class="rfbFocus" style="font-weight:1000">${top}</div>
+      <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
+      <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
+    </div>
+  `;
+}
+
 // -------------------- Goals (user-configurable) --------------------
 const GOALS_STORAGE_KEY = "techDashGoals_v1";
 
@@ -329,8 +346,7 @@ function teamAverages(teamTechs, filterKey){
 }
 
 function renderTeam(team, st){
-  // Be defensive about team casing and ensure each column only renders its own techs
-  const techs=(DATA.techs||[]).filter(t=>String(t.team||"").toUpperCase()===String(team||"").toUpperCase());
+  const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
 
   const list=techs.slice();
@@ -360,19 +376,19 @@ function renderTeam(team, st){
         <div class="techMeta" style="align-items:flex-start">
           <div class="techMetaLeft">
             <div class="val name" style="font-size:16px">
-              <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit;white-space:nowrap;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
+              <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
             </div>
-            <div class="rankUnder">${rk.rank??"—"} of ${rk.total??"—"}<div class="byAsr">${st.sortBy==="sold_pct"?"Sold%":"ASR/RO"}</div></div>
+            <div class="rankUnder">${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}</div>
           </div>
 
         </div>
 
-        <div class="techTiles">
-          <div class="techTile tE"><div class="tLbl">ROs</div><div class="tVal">${fmtInt(t.ros)}</div></div>
-          <div class="techTile tA"><div class="tLbl">Avg ODO</div><div class="tVal">${fmtInt(t.odo)}</div></div>
-          <div class="techTile tC"><div class="tLbl">Total ASR</div><div class="tVal">${fmtInt(s.asr)}</div></div>
-          <div class="techTile tB"><div class="tLbl">Sold</div><div class="tVal">${fmtInt(s.sold)}</div></div>
-          <div class="techTile tD"><div class="tLbl">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="tVal">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
+        <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
+          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(s.asr)}</div></div>
+          <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
+          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="v">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
         </div>
       </div>
     `;
@@ -388,16 +404,16 @@ function renderTeam(team, st){
 
 
   return `
-    <div class="panel techHeaderPanel">
+    <div class="panel">
       <div class="phead">
-        <div class="titleRow">
+        <div class="catHeader">
           <div>
-            <div class="h2 teamTitle">${safe(team)}</div>
-            <div class="sub"></div>
+            <div class="catTitle">${safe(team)}</div>
+            <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
           </div>
-          <div class="teamStat">
-            <div class="num">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
-            <div class="lbl">${st.sortBy==="sold_pct" ? "Sold%" : "Avg ASR/RO (Summary)"}</div>
+          <div class="catRank">
+            <div class="rankNum">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
+            <div class="rankLbl">${st.sortBy==="sold_pct" ? "SOLD%" : "ASRs/RO"}</div>
           </div>
         </div>
 
