@@ -1336,3 +1336,57 @@ body.route-tech .catTitle .meta{
 .diagTriBtn{ line-height:0; }
 .diagTriSvg{ overflow:visible; }
 .diagTriSvg text{ font-family: inherit; }
+
+
+
+/* =====================================================================================
+   PIN RANK BADGES TO SERVICE TILE HEADERS
+   ===================================================================================== */
+
+/* Keep header as the containing layout row */
+.catHeader{
+  display:flex !important;
+  align-items:flex-start !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  min-width:0 !important;
+}
+
+/* Title block can shrink without pushing the badge out */
+.catHeader > div:nth-child(2){
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+
+/* Rank container pinned to header row */
+.catHeader .catRank{
+  flex:0 0 auto !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  justify-content:flex-end !important;
+  min-width:0 !important;
+}
+
+/* Badge scales with tile (em-based sizing) */
+.catHeader .rankFocusBadge.sm{
+  --w: 4.6em;
+  --h: 4.2em;
+  --r: 1em;
+  --padX: 0.75em;
+  width: var(--w) !important;
+  height: var(--h) !important;
+  border-radius: var(--r) !important;
+}
+
+/* Prevent overflow */
+.catCard{overflow:hidden;}
+.catHeader .rankFocusBadge{max-width:100% !important;}
+
+/* Narrow layouts: shrink a bit more */
+@media (max-width: 760px){
+  .catHeader .rankFocusBadge.sm{
+    --w: 4.0em;
+    --h: 3.7em;
+    --padX: 0.65em;
+  }
+}
