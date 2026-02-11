@@ -1389,26 +1389,16 @@ body.route-tech .catTitle .meta{
    - Ensure Top/Bottom panel uses original stacked ASR + SOLD layout
    =============================== */
 
-/* Header row: keep BOTH panels aligned and make the diag (right) panel stretch down to
-   the first category panel below (i.e., match the taller left header). */
+/* Stop forcing equal-height columns in the tech header row */
 body.route-tech .techHeaderWrap{
-  align-items:stretch !important;
+  align-items:flex-start !important;
 }
 body.route-tech .techHeaderWrap > .panel{
-  height:100% !important;
+  height:auto !important;
 }
 body.route-tech .techHeaderPanel,
 body.route-tech .techPickPanel{
-  height:100% !important;
-}
-
-/* Keep the tech header content natural (avoid forcing extra blank space) */
-body.route-tech .techHeaderPanel .phead{
   height:auto !important;
-  display:block !important;
-}
-body.route-tech .techHeaderPanel .pills{
-  margin-top:12px !important;
 }
 
 /* Let the tech header content size naturally (no giant empty area below filters) */
@@ -1601,7 +1591,41 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 .serviceCard .techList .techRow .mini *{white-space:nowrap !important;}
 
 
-/* Tech diag boxes: ensure columns in each row are equal height */
-body.route-tech .techPickPanel .pickRow{align-items:stretch !important;}
-body.route-tech .techPickPanel .pickRow > div{height:100%;}
-body.route-tech .techPickPanel .pickBox{height:100%;}
+/* ===== ServicesHome ONLY: keep technician row truly one-line (prevent inner wrapping) ===== */
+.serviceCard .techList .techRow{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  min-width:0 !important;            /* allow children to shrink/ellipsis */
+}
+.serviceCard .techList .techRowLeft{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+.serviceCard .techList .techRowLeft .rankNum{
+  flex:0 0 auto !important;
+}
+.serviceCard .techList .techRowLeft a{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+/* The right-side meta MUST NOT wrap to a second line */
+.serviceCard .techList .techRow .mini{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  text-align:right !important;
+}
+/* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
+.serviceCard .techList .techRow .mini br{display:none !important;}
+
