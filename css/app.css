@@ -1540,118 +1540,52 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   white-space:nowrap !important;
 }
 
-/* =========================================================
-   SERVICESHOME ONLY — technician list rows MUST be one line
-   (Does NOT affect Technician Dashboard or Tech Details pages)
-   ========================================================= */
 
-/* Most ServicesHome tech lists live inside .serviceCard .techList */
+/* =====================================================================================
+   FIX: ServicesHome technician list rows must be ONE LINE (ONLY .serviceCard .techList)
+   - ServicesHome service tiles render the meta (.mini) under the name, causing 2 rows.
+   - We keep everything on a single flex row: rank + name (ellipsis) + meta (no wrap).
+   ===================================================================================== */
+
 .serviceCard .techList .techRow{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
   flex-wrap:nowrap !important;
-}
-
-/* If the markup uses .techRowLeft, keep everything inline */
-.serviceCard .techList .techRow .techRowLeft{
-  display:flex !important;
   align-items:center !important;
-  gap:10px !important;
-  flex-wrap:nowrap !important;
-  min-width:0 !important;
 }
 
-/* If the "mini" stats are nested under the left block, force them inline */
-.serviceCard .techList .techRow .techRowLeft .mini{
-  display:inline-flex !important;
-  align-items:center !important;
-  width:auto !important;
-  max-width:none !important;
-  margin:0 0 0 10px !important;
-  white-space:nowrap !important;
-  flex:0 0 auto !important;
-}
-
-/* If the "mini" stats are a sibling on the right, also keep them inline */
-.serviceCard .techList .techRow > .mini,
-.serviceCard .techList .techRow > div:last-child{
-  display:inline-flex !important;
-  align-items:center !important;
-  white-space:nowrap !important;
-  flex:0 0 auto !important;
-}
-
-/* Service/tech name: single line with ellipsis if needed */
-.serviceCard .techList .techRow a,
-.serviceCard .techList .techRow .tbJump,
-.serviceCard .techList .techRow .nm{
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-  min-width:0 !important;
-}
-
-/* Rank number should never force wrapping */
-.serviceCard .techList .techRow .rankNum{
-  flex:0 0 auto !important;
-  white-space:nowrap !important;
-}
-
-/* Ensure each row is a single horizontal line */
-.serviceCard .techList .techRow{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  flex-wrap:nowrap !important;
-  gap:10px !important;
-  padding:6px 10px !important;
-}
-
-/* Left cluster (rank + tech name) stays inline */
-.serviceCard .techList .techRowLeft,
-.serviceCard .techList .techRow > .techRowLeft,
+/* The common ServicesHome structure: an inner wrapper containing rank + link + .mini */
 .serviceCard .techList .techRow > div:first-child{
   display:flex !important;
   align-items:center !important;
-  flex-wrap:nowrap !important;
   gap:10px !important;
   min-width:0 !important;
   flex:1 1 auto !important;
 }
 
-/* Keep rank compact */
-.serviceCard .techList .rankNum{flex:0 0 auto !important;}
+/* If a dedicated left wrapper exists, treat it the same */
+.serviceCard .techList .techRow .techRowLeft{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
 
-/* Name: one line with ellipsis */
-.serviceCard .techList .techRowLeft a,
+/* Tech name: single line with ellipsis */
 .serviceCard .techList .techRow a{
+  display:block !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
-  min-width:0 !important;
-  max-width:100% !important;
 }
 
-/* The meta/stat line (ROs • ASR • %) MUST NOT drop below */
-.serviceCard .techList .mini,
-.serviceCard .techList .techRow .mini,
-.serviceCard .techList .techRowLeft .mini{
+/* Meta line: must stay inline on the SAME row */
+.serviceCard .techList .techRow .mini{
   display:inline-flex !important;
   align-items:center !important;
+  gap:6px !important;
+  margin-left:auto !important;
   white-space:nowrap !important;
-  width:auto !important;
-  min-width:0 !important;
-  flex:0 0 auto !important;
-  margin:0 !important;
 }
-
-/* If the meta is nested inside the left cluster, give it a little separation */
-.serviceCard .techList .techRowLeft .mini{margin-left:10px !important;}
-
-/* If the meta is the right-side column (preferred), keep it on the right */
-.serviceCard .techList .techRow > .mini,
-.serviceCard .techList .techRow > div:last-child{
-  white-space:nowrap !important;
-  flex:0 0 auto !important;
-}
+.serviceCard .techList .techRow .mini *{white-space:nowrap !important;}
