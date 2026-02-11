@@ -531,10 +531,21 @@ function ensureDashTypographyOverrides(){
 /* ---- Dashboard tweaks: tighter gaps + more contrast + smaller Avg ODO pill ---- */.techRow .odoUnderName{left:18px !important; width:auto !important; justify-content:flex-start !important;}
 
 .techRow .pill.odoHeaderLike{
-  width:178px !important;
-  min-width:178px !important;
-  height:52px !important;
-  padding:9px 12px !important;
+  width:auto !important;
+  min-width:0 !important;
+  height:auto !important;
+  padding:8px 12px !important;
+  border-radius:999px !important;
+
+  display:inline-flex !important;
+  flex-direction:row !important;
+  align-items:baseline !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+
+  background:rgba(0,0,0,.25) !important;
+  border:1px solid var(--border) !important;
+  box-shadow:none !important;
 }
 .techRow .midPills{
   left:206px !important;
@@ -553,10 +564,14 @@ function ensureDashTypographyOverrides(){
 /* Mobile adjustments */
 @media (max-width: 700px){
   .techRow .pill.odoHeaderLike{
-    width:159px !important;
-    min-width:159px !important;
-    height:48px !important;
-    padding:8px 10px !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:auto !important;
+    padding:8px 12px !important;
+    border-radius:999px !important;
+    background:rgba(0,0,0,.25) !important;
+    border:1px solid var(--border) !important;
+    box-shadow:none !important;
   }
   .techRow .midPills{
     left:186px !important;
