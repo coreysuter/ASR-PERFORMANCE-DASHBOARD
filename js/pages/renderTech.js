@@ -242,6 +242,14 @@ const hash = location.hash || "";
   }
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
+  // Applied filter summary (used in section headers; intentionally not shown in the top tech header)
+  const appliedParts = [
+    `Filters: ${filterLabel(filterKey)}`,
+    `Compare: ${compareBasis==="store" ? "STORE" : team}`,
+    `Focus: ${focus==="sold" ? "SOLD%" : "ASR/RO"}`
+  ];
+
+
   
 
   function safeSvcId(cat){
@@ -448,16 +456,7 @@ const s = t.summary?.[filterKey] || {};
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
-  const appliedParts = [
-    `${filterLabel(filterKey)}`,
-    (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
-    (focus==="sold" ? "Focus: Sold" : (focus==="goal" ? "Focus: Goal" : "Focus: ASR/RO"))
-  ];
-  const appliedTextHtml = renderFiltersText(appliedParts);
-
-
   const filters = `
-    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
     <div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
@@ -547,15 +546,18 @@ const header = `
           <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div>
-          <div class="overallBlock">
-<div class="overallMetric" style="font-size:30px;font-weight:1200;line-height:1;">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
           </div>
         </div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
-          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
+          <div class="pill" style="grid-column:auto; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
             <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+          </div>
+
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs/RO</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmt1(techAsrPerRo(t, filterKey),1)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
@@ -570,7 +572,7 @@ const header = `
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:rgba(255,255,255,.65);margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:27px;font-weight:1000;color:inherit;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
