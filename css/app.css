@@ -1445,18 +1445,97 @@ body.route-tech .techPickPanel .techRow{
   padding:6px 12px !important;
 }
 
-/* === FIX: Services + lists where rows are stretching too tall ===
-   Mirrors the Top/Bottom 3 compact-row fix: rows should size to content,
-   not stretch to fill the container height.
-*/
-.panel .list{
-  align-content:start;            /* if list is a grid */
-  grid-auto-rows:auto;            /* prevent 1fr auto-rows behavior */
+
+/* ===========================
+   ServicesHome list row fix
+   - Keep service name + metric on ONE row
+   - Do NOT affect Technician Dashboard lists
+   =========================== */
+
+/* Service cards: prevent the left column from stacking name + mini on separate lines */
+.serviceCard .techList .techRow{
+  align-items:center;
+  flex-wrap:nowrap;
 }
-.panel .list > .techRow,
-.panel .list .techRow{
-  height:auto !important;
-  min-height:unset !important;
-  flex:0 0 auto !important;       /* if parent is flex */
-  align-self:start !important;    /* if parent is grid */
+
+/* If ServicesHome rows use a left wrapper (first child div) that stacks name + mini,
+   force it into a single-line row. */
+.serviceCard .techList .techRow > div:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0; /* allow ellipsis */
+}
+
+/* Make sure the "mini" metric doesn't drop to a new line */
+.serviceCard .techList .techRow > div:first-child .mini{
+  margin:0;
+  white-space:nowrap;
+}
+
+/* Keep the main label single-line (ellipsis if needed) */
+.serviceCard .techList .techRow > div:first-child a,
+.serviceCard .techList .techRow > div:first-child button,
+.serviceCard .techList .techRow > div:first-child span,
+.serviceCard .techList .techRow > div:first-child div{
+  white-space:nowrap;
+}
+
+/* Ellipsis for long service names */
+.serviceCard .techList .techRow .tbJump,
+.serviceCard .techList .techRow a{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+
+/* Right side metric: never wrap */
+.serviceCard .techList .techRow > .mini,
+.serviceCard .techList .techRow > div:last-child{
+  white-space:nowrap;
+}
+
+/* ===========================
+   RenderTech Top/Bottom 3: keep each row on ONE line
+   - Scope tightly to Tech Details Top/Bottom panel only
+   =========================== */
+
+/* Ensure the left side (rank + service name + %) stays on a single horizontal line */
+body.route-tech .techPickPanel .pickList .techRow{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  flex-wrap:nowrap !important;
+}
+
+/* Left cluster: rank + name + mini metric inline */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important; /* enable ellipsis */
+}
+
+/* Prevent the mini metric (ASR%/Sold%) from dropping to a 2nd line */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child .mini{
+  margin:0 !important;
+  white-space:nowrap !important;
+}
+
+/* Keep the service name to one line (ellipsis if too long) */
+body.route-tech .techPickPanel .pickList .techRow a,
+body.route-tech .techPickPanel .pickList .techRow .tbJump,
+body.route-tech .techPickPanel .pickList .techRow .nm,
+body.route-tech .techPickPanel .pickList .techRow span,
+body.route-tech .techPickPanel .pickList .techRow button{
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+
+/* Right-side metric: never wrap */
+body.route-tech .techPickPanel .pickList .techRow > .mini,
+body.route-tech .techPickPanel .pickList .techRow > div:last-child{
+  white-space:nowrap !important;
 }
