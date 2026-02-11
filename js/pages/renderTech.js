@@ -516,6 +516,11 @@ const s = t.summary?.[filterKey] || {};
   const overall = ordered.length ? {rank: (idx>=0?idx+1:null), total: ordered.length} : {rank:null,total:null};
   const focusLbl = focus==="sold" ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
+  const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
+  const __soldTotal = Number(t.summary?.[filterKey]?.sold);
+  const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
+  const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? `(${(__soldOfAsr*100).toFixed(1)}%)` : "";
+
 
   const __fullName = String(t.name||"").trim();
   const __parts = __fullName.split(/\s+/).filter(Boolean);
@@ -543,12 +548,12 @@ const header = `
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div>
           <div class="overallBlock">
-<div class="overallMetric">${focusVal}</div>
-            <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
+<div class="overallMetric" style="font-size:30px;font-weight:1200;line-height:1;">${focusVal}</div>
+            <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
           </div>
         </div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
-          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px;">
+          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
             <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
           </div>
@@ -565,7 +570,7 @@ const header = `
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:rgba(255,255,255,.65);margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
