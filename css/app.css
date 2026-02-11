@@ -1444,3 +1444,19 @@ body.route-tech .techPickPanel .pickList > .techRow{
 body.route-tech .techPickPanel .techRow{
   padding:6px 12px !important;
 }
+
+/* === FIX: Services + lists where rows are stretching too tall ===
+   Mirrors the Top/Bottom 3 compact-row fix: rows should size to content,
+   not stretch to fill the container height.
+*/
+.panel .list{
+  align-content:start;            /* if list is a grid */
+  grid-auto-rows:auto;            /* prevent 1fr auto-rows behavior */
+}
+.panel .list > .techRow,
+.panel .list .techRow{
+  height:auto !important;
+  min-height:unset !important;
+  flex:0 0 auto !important;       /* if parent is flex */
+  align-self:start !important;    /* if parent is grid */
+}
