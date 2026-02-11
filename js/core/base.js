@@ -23,6 +23,22 @@ function fmtInt(v){ if(v===null||v===undefined||!Number.isFinite(Number(v))) ret
 function fmt1(v,d=1){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return Number(v).toFixed(d); }
 function fmtPct(v){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return (Number(v)*100).toFixed(1)+"%"; }
 function clamp01(x){ x=Number(x); if(!Number.isFinite(x)) return 0; return Math.max(0, Math.min(1, x)); }
+
+// Focus Rank Badge (dashboard + team lists) — matches Technician Details page .rankFocusBadge CSS
+function rankBadgeHtmlDash(rank, total, focus, size="sm"){
+  const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
+  const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+  const t = (total===null || total===undefined || total==="") ? "—" : total;
+  const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+  return `
+    <div class="${cls}">
+      <div class="rfbFocus">${top}</div>
+      <div class="rfbMain">${r}</div>
+      <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
+    </div>
+  `;
+}
+
 function miniGauge(pct){
   if(!(Number.isFinite(pct))) return "";
   const p = clamp01(pct);
@@ -110,23 +126,6 @@ function fmtPctPlain(v){
   const n = Number(v);
   if(!isFinite(n)) return "—";
   return (Math.round(n*10)/10).toFixed(1) + "%";
-}
-
-
-// Focus Rank Badge (matches Technician Details page)
-function rankBadgeHtmlDash(rank, total, focus, size="sm"){
-  const top = (focus==="sold") ? "SOLD%" : "ASR%";
-  const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
-  const t = (total===null || total===undefined || total==="") ? "—" : total;
-  const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
-  // Force bold to match Tech Details badges
-  return `
-    <div class="${cls}">
-      <div class="rfbFocus" style="font-weight:1000">${top}</div>
-      <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
-      <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
-    </div>
-  `;
 }
 
 // -------------------- Goals (user-configurable) --------------------
@@ -375,8 +374,7 @@ function renderTeam(team, st){
       <div class="techRow">
         <div class="techMeta" style="align-items:flex-start">
           <div class="techMetaLeft">
-            <div class="val name" style="font-size:16px">
-              <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
+            <div class="svcName name"><a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
             </div>
             <div class="rankUnder">${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}</div>
           </div>
@@ -391,6 +389,7 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="v">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
         </div>
       </div>
+      </div>
     `;
   }).join("");
 
@@ -404,16 +403,16 @@ function renderTeam(team, st){
 
 
   return `
-    <div class="panel">
+    <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="catHeader">
+        <div class="titleRow">
           <div>
-            <div class="catTitle">${safe(team)}</div>
-            <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
+            <div class="h2 techH2">${safe(team)}</div>
+            <div class="sub">${appliedTextHtml}</div>
           </div>
-          <div class="catRank">
-            <div class="rankNum">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
-            <div class="rankLbl">${st.sortBy==="sold_pct" ? "SOLD%" : "ASRs/RO"}</div>
+          <div class="overallBlock">
+            <div class="big">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
+            <div class="tag">${st.sortBy==="sold_pct" ? "Sold%" : "ASRs/RO"}</div>
           </div>
         </div>
 
