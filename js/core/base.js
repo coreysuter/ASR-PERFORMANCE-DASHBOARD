@@ -260,18 +260,8 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    const h = location.hash || "#/";
-    const isMainDash = (h === "#/" || h === "#" || h.startsWith("#/?"));
-
-    // Always clear any prior injected dashboard-only overrides
-    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el) el.remove();
-    });
-
-    // These overrides are ONLY meant for the main dashboard list (#/).
-    // If we're not on the main dashboard, don't inject anything (prevents breaking ServicesHome tech rows, etc.).
-    if(!isMainDash) return;
+    // force-replace any previous dashboard override styles
+    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{const el=document.getElementById(id); if(el) el.remove();});
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
@@ -303,61 +293,72 @@ function ensureDashTypographyOverrides(){
   overflow:hidden !important;
 }
 
-/* Tech name pinned top-left */
-.techRow .val.name{
+/* Tech name + Avg ODO (dashboard rows): vertically centered to align with mid pills */
+.techRow .techMetaLeft{
   position:absolute !important;
-  top:12px !important;
   left:18px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+  gap:10px !important;
+  max-width:58% !important;
+  min-width:0 !important;
+}
+
+/* Tech name (no longer pinned to top) */
+.techRow .val.name{
+  position:static !important;
   margin:0 !important;
   text-align:left !important;
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
-  max-width:58% !important;
+  max-width:100% !important;
   font-weight:1000 !important;
 }
 
-/* Avg ODO pill centered under the tech name */
+/* Avg ODO pill (match the title-row pill sizing + typography) */
 .techRow .odoUnderName{
-  position:absolute !important;
-  top:52px !important;
-  left:18px !important;
-  width:min(58%, 300px) !important;
-  display:flex !important;
-  justify-content:center !important;
-}
-.techRow .pill.odoHeaderLike{
-  width:190px !important;
-  height:56px !important;
-  min-width:190px !important;
-  padding:10px 14px !important;
-  border-radius:999px !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-
-  background:linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.62)) !important;
-  border:1px solid rgba(255,255,255,.18) !important;
-  box-shadow:0 10px 26px rgba(0,0,0,.55) inset, 0 10px 24px rgba(0,0,0,.18) !important;
-}
-.techRow .pill.odoHeaderLike .kv{
-  display:flex !important;
-  align-items:baseline !important;
-  justify-content:center !important;
-  gap:12px !important;
+  position:static !important;
   width:100% !important;
+  display:flex !important;
+  justify-content:center !important;
+}
+
+/* Override the tech-row square-pill styling so this stays like the header pill */
+.techRow .pill.odoHeaderLike{
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  padding:8px 12px !important;
+  border-radius:999px !important;
+
+  display:inline-flex !important;
+  flex-direction:row !important;
+  align-items:baseline !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+
+  background:rgba(0,0,0,.25) !important;
+  border:1px solid var(--border) !important;
+  box-shadow:none !important;
 }
 .techRow .pill.odoHeaderLike .k{
-  width:auto !important;
-  font-size:12px !important;
-  font-weight:1000 !important;
-  letter-spacing:.28px !important;
-  opacity:.92 !important;
+  font-size:11px !important;
+  color:var(--muted) !important;
+  font-weight:900 !important;
+  letter-spacing:.2px !important;
+  text-transform:uppercase !important;
+  opacity:1 !important;
+  text-align:left !important;
 }
 .techRow .pill.odoHeaderLike .v{
-  width:auto !important;
-  font-size:22px !important;
+  font-size:18px !important;
   font-weight:1000 !important;
+  line-height:1 !important;
+  text-align:left !important;
 }
 
 /* Rank badge pinned far-right, vertically centered */
@@ -693,7 +694,7 @@ function renderTeam(team, st){
               <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
             </div>
             <div class="odoUnderName">
-              <div class="pill odoHeaderLike"><div class="kv"><div class="k">AVG ODO</div><div class="v">${fmtInt(t.odo)}</div></div></div>
+              <div class="pill odoHeaderLike"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
             </div>          </div>
           <div class="techMetaRight" style="margin-left:auto">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
