@@ -1446,96 +1446,60 @@ body.route-tech .techPickPanel .techRow{
 }
 
 
-/* ===========================
-   ServicesHome list row fix
-   - Keep service name + metric on ONE row
-   - Do NOT affect Technician Dashboard lists
-   =========================== */
+/* === FIX: ServicesHome + TechDetails Top/Bottom lists stay SINGLE ROW ===
+   Scope tightly so Technician Dashboard list rows are untouched.
+*/
 
-/* Service cards: prevent the left column from stacking name + mini on separate lines */
-.serviceCard .techList .techRow{
-  align-items:center;
-  flex-wrap:nowrap;
+/* ServicesHome (service tiles) */
+.serviceCard .techList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
-
-/* If ServicesHome rows use a left wrapper (first child div) that stacks name + mini,
-   force it into a single-line row. */
-.serviceCard .techList .techRow > div:first-child{
+.serviceCard .techList .techRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:auto !important;
+  min-height:unset !important;
+  padding:10px 12px !important;
+}
+.serviceCard .techList .techRowLeft{
   display:flex;
   align-items:center;
   gap:10px;
-  min-width:0; /* allow ellipsis */
+  min-width:0;
 }
-
-/* Make sure the "mini" metric doesn't drop to a new line */
-.serviceCard .techList .techRow > div:first-child .mini{
-  margin:0;
+.serviceCard .techList .techRowLeft > *{min-width:0}
+.serviceCard .techList .techRowLeft a{
   white-space:nowrap;
-}
-
-/* Keep the main label single-line (ellipsis if needed) */
-.serviceCard .techList .techRow > div:first-child a,
-.serviceCard .techList .techRow > div:first-child button,
-.serviceCard .techList .techRow > div:first-child span,
-.serviceCard .techList .techRow > div:first-child div{
-  white-space:nowrap;
-}
-
-/* Ellipsis for long service names */
-.serviceCard .techList .techRow .tbJump,
-.serviceCard .techList .techRow a{
   overflow:hidden;
   text-overflow:ellipsis;
-  max-width:100%;
+  max-width:260px;
 }
 
-/* Right side metric: never wrap */
-.serviceCard .techList .techRow > .mini,
-.serviceCard .techList .techRow > div:last-child{
-  white-space:nowrap;
-}
-
-/* ===========================
-   RenderTech Top/Bottom 3: keep each row on ONE line
-   - Scope tightly to Tech Details Top/Bottom panel only
-   =========================== */
-
-/* Ensure the left side (rank + service name + %) stays on a single horizontal line */
-body.route-tech .techPickPanel .pickList .techRow{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  flex-wrap:nowrap !important;
-}
-
-/* Left cluster: rank + name + mini metric inline */
-body.route-tech .techPickPanel .pickList .techRow > div:first-child{
-  display:flex !important;
-  align-items:center !important;
-  gap:10px !important;
-  min-width:0 !important; /* enable ellipsis */
-}
-
-/* Prevent the mini metric (ASR%/Sold%) from dropping to a 2nd line */
-body.route-tech .techPickPanel .pickList .techRow > div:first-child .mini{
+/* If a meta line uses .sub inside a row, force it inline (no 2nd line) */
+.serviceCard .techList .techRow .sub,
+.serviceCard .techList .techRow .mini{
+  display:inline !important;
   margin:0 !important;
+  line-height:1.1 !important;
   white-space:nowrap !important;
 }
+.serviceCard .techList .techRow .sub{color:var(--muted)}
 
-/* Keep the service name to one line (ellipsis if too long) */
-body.route-tech .techPickPanel .pickList .techRow a,
-body.route-tech .techPickPanel .pickList .techRow .tbJump,
-body.route-tech .techPickPanel .pickList .techRow .nm,
-body.route-tech .techPickPanel .pickList .techRow span,
-body.route-tech .techPickPanel .pickList .techRow button{
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-  max-width:100% !important;
+/* Tech Details Top/Bottom 3 panel (renderTech) */
+body.route-tech .techPickPanel .techRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:auto !important;
+  min-height:unset !important;
 }
-
-/* Right-side metric: never wrap */
-body.route-tech .techPickPanel .pickList .techRow > .mini,
-body.route-tech .techPickPanel .pickList .techRow > div:last-child{
+body.route-tech .techPickPanel .techRow .sub,
+body.route-tech .techPickPanel .techRow .mini{
+  display:inline !important;
+  margin:0 !important;
+  line-height:1.1 !important;
   white-space:nowrap !important;
 }
