@@ -473,19 +473,9 @@ const s = t.summary?.[filterKey] || {};
           </div>
 	          <!-- Rank badge: centered between the name block and the right-side stats -->
 	          <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-	            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-=======
 	            <div class="overallBlock" style="padding:0; background:transparent; border:none; box-shadow:none; text-align:center; min-width:0;">
                 ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
               </div>
->>>>>>> Stashed changes
-=======
-	            <div class="overallBlock" style="padding:0; background:transparent; border:none; box-shadow:none; text-align:center; min-width:0;">
-                ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-              </div>
->>>>>>> Stashed changes
 	          </div>
 	          <div class="overallBlock">
 	<div class="overallMetric">${focusVal}</div>
