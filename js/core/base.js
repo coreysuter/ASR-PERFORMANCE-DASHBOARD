@@ -278,17 +278,18 @@ function ensureDashTypographyOverrides(){
 /* Rank badge pinned to far right of technician rows (dashboard) */
 .techRow{position:relative;}
 .techRow .techMetaRight{position:absolute;right:16px;top:14px;margin-left:0 !important;}
-.techRow .pills{padding-right:96px;}
+.techRow .pills{padding-right:0px !important;}
 @media (max-width: 700px){
   .techRow .techMetaRight{right:12px;top:12px;}
-  .techRow .pills{padding-right:86px;}
+  .techRow .pills{padding-right:0px !important;}
 }
 
 /* Dashboard tech-row layout tweaks (Technician Dashboard list) */
 .techRow{
   position:relative;
-  min-height:150px !important;
+  min-height:120px !important;
   padding-top:0 !important;
+  padding-bottom:0 !important;
   display:block !important;
   overflow:hidden !important;
 }
@@ -429,7 +430,7 @@ function ensureDashTypographyOverrides(){
 .techRow .pill .k + .v{ margin-top:0 !important; }
 
 @media (max-width: 700px){
-  .techRow{min-height:136px !important;}
+  .techRow{min-height:120px !important;}
   .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important; width:min(60%, 280px) !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
@@ -505,11 +506,13 @@ function ensureDashTypographyOverrides(){
   position:absolute !important;
   top:50% !important;
   transform:translateY(-50%) !important;
-  /* left edge: after the Avg ODO pill area; right edge: before rank badge */
-  left: 280px !important;
-  right: 130px !important;
+
+  /* Pin the mid pills near the rank badge (instead of centered) */
+  right: 130px !important;   /* leaves room for the rank badge */
+  left: auto !important;
+
   display:flex !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   align-items:center !important;
   pointer-events:none !important; /* avoids accidental overlay clicks */
 }
@@ -519,12 +522,13 @@ function ensureDashTypographyOverrides(){
   left:auto !important;
   right:auto !important;
   width:auto !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   overflow:visible !important;
 }
 
 @media (max-width: 700px){
-  .techRow .midPills{left: 250px !important; right: 118px !important;}
+  .techRow .midPills{right: 118px !important;}
+}
 }
 
 
