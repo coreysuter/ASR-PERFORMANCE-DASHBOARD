@@ -1382,3 +1382,18 @@ body.route-tech .catTitle .meta{
 
 /* Keep everything clipped inside the tile (prevents badge from floating outside) */
 .catCard{overflow:hidden;}
+
+
+/* === v5b: make Top/Bottom panel shorter by placing ASR + SOLD side-by-side (desktop only) === */
+body.route-tech .techPickPanel .phead{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:14px;
+  align-items:start;
+}
+body.route-tech .techPickPanel .pickRow{margin-top:0 !important;}
+@media (max-width: 980px){
+  body.route-tech .techPickPanel .phead{display:block;}
+  body.route-tech .techPickPanel .pickRow{margin-top:14px !important;}
+  body.route-tech .techPickPanel .pickRow:first-child{margin-top:0 !important;}
+}
