@@ -273,6 +273,15 @@ function ensureDashTypographyOverrides(){
 /* Technician names on dashboard list */
 .techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
 @media (max-width: 700px){ .techRow .val.name{font-size:20px !important;} }
+
+/* Rank badge pinned to far right of technician rows (dashboard) */
+.techRow{position:relative;}
+.techRow .techMetaRight{position:absolute;right:16px;top:14px;margin-left:0 !important;}
+.techRow .pills{padding-right:96px;}
+@media (max-width: 700px){
+  .techRow .techMetaRight{right:12px;top:12px;}
+  .techRow .pills{padding-right:86px;}
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides";
