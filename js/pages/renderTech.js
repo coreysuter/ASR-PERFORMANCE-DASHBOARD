@@ -234,6 +234,19 @@ const hash = location.hash || "";
       </div>
     `;
   }
+  function rankBadgeHtmlHeader(rank, total, focus){
+    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
+    const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+    const t = (total===null || total===undefined || total==="") ? "—" : total;
+    return `
+      <div class="rankFocusBadge" style="--w:80px;--h:80px;--r:18px;text-decoration:none">
+        <div class="rfbFocus" style="text-decoration:none">${top}</div>
+        <div class="rfbMain" style="text-decoration:none"><span class="rfbHash">#</span>${r}</div>
+        <div class="rfbOf" style="text-decoration:none"><span class="rfbOfWord" style="text-decoration:none">of</span><span class="rfbOfNum" style="text-decoration:none">${t}</span></div>
+      </div>
+    `;
+  }
+
 const s = t.summary?.[filterKey] || {};
 
   function allTechs(){ return (DATA.techs||[]).filter(x=>x.team==="EXPRESS" || x.team==="KIA"); }
@@ -449,8 +462,6 @@ const s = t.summary?.[filterKey] || {};
   const focusLbl = focus==="sold" ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
 
-  
-
   const __fullName = String(t.name||"").trim();
   const __parts = __fullName.split(/\s+/).filter(Boolean);
   const __first = (__parts.shift() || __fullName || "—");
@@ -459,26 +470,25 @@ const s = t.summary?.[filterKey] || {};
     ? `<span style="display:block;line-height:1.02">${safe(__first)}</span><span style="display:block;line-height:1.02">${safe(__rest)}</span>`
     : `${safe(__first)}`;
 
-	  const header = `
+
+
+  
+const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-	        <div class="titleRow techTitleRow">
+        <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
-	          <!-- Name: do NOT let this flex-fill the row, so the rank badge can sit in the middle "blank" area -->
-	          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
+          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
             <div class="h2 techH2Big">${__nameHtml}</div>
             <div class="techTeamLine">${safe(team)}</div>
           </div>
-	          <!-- Rank badge: centered between the name block and the right-side stats -->
-	          <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
-	            <div class="overallBlock" style="padding:0; background:transparent; border:none; box-shadow:none; text-align:center; min-width:0;">
-                ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-              </div>
-	          </div>
-	          <div class="overallBlock">
-	<div class="overallMetric">${focusVal}</div>
+          <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
+            ${rankBadgeHtmlHeader(overall.rank ?? "—", overall.total ?? "—", focus)}
+          </div>
+          <div class="overallBlock">
+<div class="overallMetric">${focusVal}</div>
             <div class="tag">${focus==="sold" ? "Sold%" : "Total ASR/RO"}</div>
           </div>
         </div>
