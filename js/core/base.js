@@ -58,23 +58,6 @@ function miniGauge(pct){
   return `<span class="miniGauge" style="--p:${p100}"><span class="needle"></span></span>`;
 }
 
-// Dashboard ranking badge (uses the same markup/classes as Tech Details category rank)
-// focusKey: "asr" | "sold" (controls label)
-function rankBadgeHtmlDash(rank, total, focusKey="asr", size="sm"){
-  const r = (rank===null||rank===undefined) ? "—" : String(rank);
-  const t = (total===null||total===undefined) ? "" : String(total);
-  const lbl = (String(focusKey).toLowerCase()==="sold") ? "SOLD%" : "ASR%";
-  const den = t ? `<span class="rankDen">/${safe(t)}</span>` : "";
-  // size hook in case you want to tune later without touching CSS
-  const style = (size==="sm") ? `style="min-width:64px"` : "";
-  return `
-    <div class="catRank" ${style}>
-      <div class="rankNum">#${safe(r)}${den}</div>
-      <div class="rankLbl">${lbl}</div>
-    </div>
-  `;
-}
-
 
 function svcGauge(pct, label=""){
   // pct is a ratio vs comparison (e.g., 0.8 = 80% of benchmark). We show a ring gauge.
@@ -155,6 +138,24 @@ function fmtPctPlain(v){
   const n = Number(v);
   if(!isFinite(n)) return "—";
   return (Math.round(n*10)/10).toFixed(1) + "%";
+}
+
+// Dashboard rank badge (uses the same markup as Technician Details page `.catRank`)
+// focusKey: "asr" | "sold" (controls the label)
+// size is kept for compatibility; CSS controls the actual sizing.
+function rankBadgeHtmlDash(rank, total, focusKey, size){
+  const r = (rank===null || rank===undefined) ? "—" : String(rank);
+  const den = (total===null || total===undefined) ? "" : `<span class="rankDen">/${String(total)}</span>`;
+  const lbl = (String(focusKey).toLowerCase()==="sold") ? "SOLD%" : "ASR%";
+
+  // Wrap in the same container class used on Tech Details so it inherits the same styling.
+  // Extra class allows optional dashboard-specific tweaks if needed.
+  return `
+    <div class="catRank dashRank ${size?`dashRank-${safe(size)}`:""}">
+      <div class="rankNum">${r}${den}</div>
+      <div class="rankLbl">${lbl}</div>
+    </div>
+  `;
 }
 
 // -------------------- Goals (user-configurable) --------------------
