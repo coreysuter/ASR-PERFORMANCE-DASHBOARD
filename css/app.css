@@ -15,7 +15,6 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .big{font-size:22px;font-weight:var(--HB);text-align:right}
 
 .overallBlock{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
-.overallBlock .big{font-size:21px;font-weight:var(--HB);text-align:right}
 .overallBlock .overallMetric{margin-top:6px;font-size:21px;font-weight:1200;text-align:right}
 
 .tag{font-size:11px;color:var(--muted);text-align:right;margin-top:2px}
@@ -622,7 +621,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .brRYTop{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px}
 .brRYLeft{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
 .brRYRight{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:11px}
-.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.18); font-size:11px; line-height:1}
+.qMark{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:99px; border:1px solid rgba(255,255,255,.22); font-size:11px; line-height:1}
 .switch.sm{width:34px; height:18px}
 .switch.sm .slider:before{height:14px; width:14px; left:2px; bottom:2px}
 .switch.sm input:checked + .slider:before{transform:translateX(16px)}
@@ -841,7 +840,6 @@ h3{font-size:var(--H3);font-weight:var(--HB);letter-spacing:.2px}
 .svcName{font-size:var(--H2)!important;font-weight:var(--HB)!important;letter-spacing:.25px;line-height:1.08}
 
 /* Rankings: always bold; size matches the context (category rank uses H2) */
-.rankNum,.catRank,.overallBlock .big,.overallBlock .overallMetric{font-weight:var(--HB)!important}
 .catRank{font-size:var(--H2)!important}
 
 
@@ -875,7 +873,6 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .svcName,.serviceName,.svcTitle{font-size:var(--H2)!important;font-weight:var(--HB)!important;line-height:1.08}
 
 /* Rankings: bold; size follows the header level they sit with */
-.overallBlock .big{font-size:var(--H1)!important;font-weight:var(--HB);font-weight:var(--HB)!important}
 .rankNum{font-weight:var(--HB)!important}
 
 .catCounts b{font-weight:var(--HB)}
@@ -1195,25 +1192,440 @@ body.route-tech .catTitle .meta{
   letter-spacing: .15px !important;
 }
 
+/* === Services: focus badges are EXACTLY 150% of mini badges === */
+.secFocusDial .focusBadgePair .triBadge svg{
+  width:80px !important;
+  height:72px !important;
+}
+.secFocusDial .focusBadgePair .badgeCap.big{
+  font-size:18px !important;
+  line-height:1.05 !important;
+  letter-spacing:.25px !important;
+}
+
+
+/* === Rank badge (PROPORTION-LOCKED to your Paint mock) === */
+.rankFocusBadge{
+  /* Size */
+  --w: 80px;
+  --h: 80px;
+  --r: 18px;
+
+  /* Geometry (these 3 are the only “proportion” knobs) */
+  --line1f: 0.24;  /* top divider @ ~24% of height */
+  --line2f: 0.74;  /* bottom divider @ ~74% of height */
+  --padX: 12px;
+
+  width: var(--w);
+  height: var(--h);
+  border-radius: var(--r);
+  border:1px solid rgba(255,255,255,.34);
+  background:
+    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.14), rgba(0,0,0,0) 55%),
+    radial-gradient(140% 140% at 70% 85%, rgba(0,0,0,.62), rgba(0,0,0,0) 60%),
+    linear-gradient(180deg, rgba(18,30,58,.96), rgba(7,10,24,.97));
+  box-shadow:
+    0 34px 90px rgba(0,0,0,.78),
+    0 0 0 1px rgba(255,255,255,.10),
+    0 0 28px rgba(120,180,255,.12),
+    inset 0 0 0 1px rgba(255,255,255,.20),
+    inset 0 0 30px rgba(255,255,255,.10),
+    inset 0 -26px 34px rgba(0,0,0,.48);
+  position:relative;
+  display:block;
+  overflow:hidden;
+}
+
+/* divider lines */
+.rankFocusBadge::before,
+.rankFocusBadge::after{
+  content:"";
+  position:absolute;
+  left: var(--padX);
+  right: var(--padX);
+  height:1px;
+  background:rgba(255,255,255,.16);
+  pointer-events:none;
+}
+.rankFocusBadge::before{ top: calc(var(--h) * var(--line1f)); }
+.rankFocusBadge::after{  top: calc(var(--h) * var(--line2f)); }
+
+/* ASR% / SOLD% / GOAL% */
+.rankFocusBadge .rfbFocus{
+  position:absolute;
+  top: calc(var(--h) * 0.05);
+  left:0;
+  right:0;
+  text-align:center;
+  font-size: calc(var(--h) * 0.14);
+  font-weight:1100;
+  letter-spacing:.35px;
+  text-transform:uppercase;
+  color:rgba(234,240,255,.90);
+  line-height:1;
+}
+
+/* # next to the big number (always rendered via pseudo-element to avoid stacking issues) */
+.rankFocusBadge .rfbMain{
+  position:absolute;
+  top: calc(var(--h) * ((var(--line1f) + var(--line2f)) / 2));
+  left:0;
+  right:0;
+  transform:translateY(-50%);
+  text-align:center;
+  font-size: calc(var(--h) * 0.52);
+  font-weight:1200;
+  line-height:1;
+  color:rgba(234,240,255,.96);
+}
+.rankFocusBadge .rfbMain::before{
+  content:"#";
+  position:absolute;
+  left: calc(50% - (var(--w) * 0.22));
+  top: 50%;
+  transform: translate(-50%,-35%);
+  font-size: calc(var(--h) * 0.14);
+  font-weight:1100;
+  line-height:1;
+  color:rgba(234,240,255,.90);
+}
+/* hide any legacy hash nodes if they exist in markup */
+.rankFocusBadge .rfbHash{ display:none !important; }
+
+/* of 5 centered between bottom divider and bottom edge */
+.rankFocusBadge .rfbOf{
+  position:absolute;
+  top: calc(var(--h) * ((var(--line2f) + 1) / 2));
+  left:0;
+  right:0;
+  transform:translateY(-50%);
+  display:flex;
+  justify-content:center;
+  align-items:baseline;
+  gap: calc(var(--w) * 0.03);
+  line-height:1;
+  color:rgba(234,240,255,.90);
+}
+.rankFocusBadge .rfbOfWord{
+  font-size: calc(var(--h) * 0.145);
+  font-weight:1000;
+  color:rgba(234,240,255,.78);
+}
+.rankFocusBadge .rfbOfNum{
+  font-size: calc(var(--h) * 0.165);
+  font-weight:1100;
+  color:rgba(234,240,255,.92);
+}
+
+/* small version for service tiles */
+.rankFocusBadge.sm{
+  --w: 74px;
+  --h: 68px;
+  --r: 16px;
+
+  /* keep same relative divider proportions */
+  --padX: 12px;
+}
+
+
+/* prevent legacy x/x line from overlapping if present */
+.overallBlock .big{ display:none !important; }
+
+
+/* === Diag triangle badges (emoji-style SVG) === */
+.diagTriBtn{ line-height:0; }
+.diagTriSvg{ overflow:visible; }
+.diagTriSvg text{ font-family: inherit; }
+
 
 
 /* =====================================================================================
-   ServicesHome: make technician rows in service tiles match the Top/Bottom list rows
-   - One compact line: rank + tech name + stats
-   - Scoped ONLY to service tiles (.serviceCard .techList)
+   PIN ONLY: keep existing rank badge size/style exactly as-is.
+   This block ONLY ensures the badge stays inside the service tile header and
+   moves/shrinks with the tile (no separate sizing rules).
    ===================================================================================== */
-.serviceCard .techList .techRow.pickRowFrame{
+
+/* Service tile header is the positioning context */
+.catHeader{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  flex-wrap:nowrap;
+  min-width:0;
+}
+
+/* Allow the title/meta column to shrink so the badge stays inside the header */
+.catHeader > div:nth-child(2){
+  flex:1 1 auto;
+  min-width:0;
+}
+
+/* Keep dial and rank on the right, and keep rank from wrapping out of the header */
+.catHeader .svcGaugeWrap{
+  flex:0 0 auto;
+}
+.catHeader .catRank{
+  flex:0 0 auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-end;
+  white-space:nowrap;
+  min-width:0;
+}
+
+/* Ensure the badge itself never stretches or wraps */
+.catHeader .rankFocusBadge,
+.catHeader .rankFocusBadge.sm{
+  flex:0 0 auto;
+  display:block;
+}
+
+/* Keep everything clipped inside the tile (prevents badge from floating outside) */
+.catCard{overflow:hidden;}
+
+/* ===============================
+   FIX: Tech Details header spacing + restore Top/Bottom 3 layout
+   - Remove equal-height stretching (it created blank space under filters)
+   - Ensure Top/Bottom panel uses original stacked ASR + SOLD layout
+   =============================== */
+
+/* Stop forcing equal-height columns in the tech header row */
+body.route-tech .techHeaderWrap{
+  align-items:flex-start !important;
+}
+body.route-tech .techHeaderWrap > .panel{
+  height:auto !important;
+}
+body.route-tech .techHeaderPanel,
+body.route-tech .techPickPanel{
+  height:auto !important;
+}
+
+/* Let the tech header content size naturally (no giant empty area below filters) */
+body.route-tech .techHeaderPanel .phead{
+  height:auto !important;
+  display:block !important;
+}
+body.route-tech .techHeaderPanel .pills{
+  margin-top:12px !important;
+}
+
+/* Restore Top/Bottom panel to the original behavior (ASR row over SOLD row) */
+body.route-tech .techPickPanel .phead{
+  display:block !important;
+  grid-template-columns:unset !important;
+  gap:unset !important;
+  align-items:unset !important;
+}
+body.route-tech .techPickPanel .pickRow{
+  margin-top:14px !important;
+}
+body.route-tech .techPickPanel .pickRow:first-child{
+  margin-top:0 !important;
+}
+
+/* === FIX: Top/Bottom 3 rows too tall (force compact rows like reference) === */
+body.route-tech .techPickPanel .pickBox{
+  height:auto !important;
+  min-height:0 !important;
+}
+body.route-tech .techPickPanel .pickList{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:6px !important;
+  height:auto !important;
+}
+body.route-tech .techPickPanel .pickList > .techRow{
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:unset !important;
+  align-items:center !important;
+}
+body.route-tech .techPickPanel .techRow{
+  padding:6px 12px !important;
+}
+
+
+/* ===========================
+   ServicesHome list row fix
+   - Keep service name + metric on ONE row
+   - Do NOT affect Technician Dashboard lists
+   =========================== */
+
+/* Service cards: prevent the left column from stacking name + mini on separate lines */
+.serviceCard .techList .techRow{
+  align-items:center;
+  flex-wrap:nowrap;
+}
+
+/* If ServicesHome rows use a left wrapper (first child div) that stacks name + mini,
+   force it into a single-line row. */
+.serviceCard .techList .techRow > div:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0; /* allow ellipsis */
+}
+
+/* Make sure the "mini" metric doesn't drop to a new line */
+.serviceCard .techList .techRow > div:first-child .mini{
+  margin:0;
+  white-space:nowrap;
+}
+
+/* Keep the main label single-line (ellipsis if needed) */
+.serviceCard .techList .techRow > div:first-child a,
+.serviceCard .techList .techRow > div:first-child button,
+.serviceCard .techList .techRow > div:first-child span,
+.serviceCard .techList .techRow > div:first-child div{
+  white-space:nowrap;
+}
+
+/* Ellipsis for long service names */
+.serviceCard .techList .techRow .tbJump,
+.serviceCard .techList .techRow a{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:100%;
+}
+
+/* Right side metric: never wrap */
+.serviceCard .techList .techRow > .mini,
+.serviceCard .techList .techRow > div:last-child{
+  white-space:nowrap;
+}
+
+/* ===========================
+   RenderTech Top/Bottom 3: keep each row on ONE line
+   - Scope tightly to Tech Details Top/Bottom panel only
+   =========================== */
+
+/* Ensure the left side (rank + service name + %) stays on a single horizontal line */
+body.route-tech .techPickPanel .pickList .techRow{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  flex-wrap:nowrap !important;
+}
+
+/* Left cluster: rank + name + mini metric inline */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important; /* enable ellipsis */
+}
+
+/* Prevent the mini metric (ASR%/Sold%) from dropping to a 2nd line */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child .mini{
+  margin:0 !important;
+  white-space:nowrap !important;
+}
+
+/* Keep the service name to one line (ellipsis if too long) */
+body.route-tech .techPickPanel .pickList .techRow a,
+body.route-tech .techPickPanel .pickList .techRow .tbJump,
+body.route-tech .techPickPanel .pickList .techRow .nm,
+body.route-tech .techPickPanel .pickList .techRow span,
+body.route-tech .techPickPanel .pickList .techRow button{
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+
+/* Right-side metric: never wrap */
+body.route-tech .techPickPanel .pickList .techRow > .mini,
+body.route-tech .techPickPanel .pickList .techRow > div:last-child{
+  white-space:nowrap !important;
+}
+
+
+/* =====================================================================================
+   FIX: ServicesHome technician list rows must be ONE LINE (ONLY .serviceCard .techList)
+   - ServicesHome service tiles render the meta (.mini) under the name, causing 2 rows.
+   - We keep everything on a single flex row: rank + name (ellipsis) + meta (no wrap).
+   ===================================================================================== */
+
+.serviceCard .techList .techRow{
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+}
+
+/* The common ServicesHome structure: an inner wrapper containing rank + link + .mini */
+.serviceCard .techList .techRow > div:first-child{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+
+/* If a dedicated left wrapper exists, treat it the same */
+.serviceCard .techList .techRow .techRowLeft{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+
+/* Tech name: single line with ellipsis */
+.serviceCard .techList .techRow a{
+  display:block !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* Meta line: must stay inline on the SAME row */
+.serviceCard .techList .techRow .mini{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin-left:auto !important;
+  white-space:nowrap !important;
+}
+.serviceCard .techList .techRow .mini *{white-space:nowrap !important;}
+
+
+/* ===== ServicesHome ONLY: keep technician row truly one-line (prevent inner wrapping) ===== */
+.serviceCard .techList .techRow{
   display:flex !important;
   align-items:center !important;
   justify-content:space-between !important;
   gap:10px !important;
-
-  background:rgba(255,255,255,.06) !important;
-  border:1px solid rgba(255,255,255,.10) !important;
-  border-radius:12px !important;
-  padding:6px 10px !important;
-  margin:0 0 6px 0 !important;
+  flex-wrap:nowrap !important;
+  min-width:0 !important;            /* allow children to shrink/ellipsis */
 }
-.serviceCard .techList .techRow.pickRowFrame:last-child{ margin-bottom:0 !important; }
-.serviceCard .techList .techRow.pickRowFrame .mini{ font-size:12px !important; }
+.serviceCard .techList .techRowLeft{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+.serviceCard .techList .techRowLeft .rankNum{
+  flex:0 0 auto !important;
+}
+.serviceCard .techList .techRowLeft a{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+/* The right-side meta MUST NOT wrap to a second line */
+.serviceCard .techList .techRow .mini{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  text-align:right !important;
+}
+/* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
+.serviceCard .techList .techRow .mini br{display:none !important;}
 
