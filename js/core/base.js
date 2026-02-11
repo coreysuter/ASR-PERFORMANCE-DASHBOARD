@@ -260,7 +260,8 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    if(document.getElementById("dashTypographyOverrides")) return;
+    const existing = document.getElementById("dashTypographyOverrides");
+    if(existing){ existing.textContent = css; return; }
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
