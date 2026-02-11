@@ -364,13 +364,13 @@ function ensureDashTypographyOverrides(){
   position:absolute !important;
   top:50% !important;
   transform:translateY(-50%) !important;
-  left: calc(18px + 58% + 12px) !important; /* start after name column */
+  left: 222px !important; /* start after Avg ODO area */
   right: 118px !important; /* leave room for rank badge */
   display:flex !important;
   flex-wrap:nowrap !important;
   gap:10px !important;
   align-items:center !important;
-  justify-content:flex-start !important;
+  justify-content:center !important;
   margin:0 !important;
   padding:0 !important;
   min-width:0 !important;
@@ -426,7 +426,7 @@ function ensureDashTypographyOverrides(){
 
   .techRow .techMetaRight{right:14px !important;}
   .techRow .pills{
-    left: calc(14px + 60% + 10px) !important;
+    left: 198px !important;
     right: 104px !important;
     gap:9px !important;
   }
