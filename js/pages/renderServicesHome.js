@@ -121,8 +121,8 @@ function renderServicesHome(){
               <stop offset="100%" stop-color="${(color==="red") ? "#d61f2a" : "#f2a21a"}"></stop>
             </linearGradient>
             <radialGradient id="${hiId}" cx="35%" cy="20%" r="75%">
-              <stop offset="0%" stop-color="rgba(255,255,255,55)"></stop>
-              <stop offset="55%" stop-color="rgba(255,255,255,10)"></stop>
+              <stop offset="0%" stop-color="rgba(255,255,255,0.35)"></stop>
+              <stop offset="55%" stop-color="rgba(255,255,255,0.10)"></stop>
               <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
             </radialGradient>
           </defs>
@@ -150,8 +150,8 @@ function renderServicesHome(){
                 fill="url(#${hiId})"></path>
 
           <!-- exclamation -->
-          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,78)"></rect>
-          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,78)"></circle>
+          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,0.78)"></rect>
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,0.78)"></circle>
 
           <!-- count -->
           <text x="${textX}" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${num}</text>
