@@ -284,7 +284,7 @@ function ensureDashTypographyOverrides(){
 }
 
 /* Dashboard tech-row layout tweaks (Technician Dashboard list) */
-.techRow{position:relative; padding-top:44px !important;}
+.techRow{position:relative; min-height:118px !important; padding-top:0 !important;}
 
 /* Tech name pinned top-left */
 .techRow .val.name{
@@ -297,30 +297,46 @@ function ensureDashTypographyOverrides(){
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
-  max-width:55% !important;
+  max-width:60% !important;
 }
 
-/* Pills: smaller than rank badge, single row, starts under name */
+/* Rank badge pinned far-right and vertically centered */
+.techRow .techMetaRight{
+  position:absolute !important;
+  right:18px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  margin:0 !important;
+}
+
+/* Pills: single row, aligned to center of rank badge */
 .techRow .pills{
+  position:absolute !important;
+  left:18px !important;
+  right:118px !important; /* keep clear of right-anchored rank badge */
+  top:50% !important;
+  transform:translateY(-50%) !important;
   display:flex !important;
   flex-wrap:nowrap !important;
   gap:8px !important;
-  align-items:stretch !important;
+  align-items:center !important;
   justify-content:flex-start !important;
-  margin-top:0 !important;
-  padding-left:18px !important;
-  padding-right:118px !important; /* keep clear of right-anchored rank badge */
+  margin:0 !important;
+  padding:0 !important;
 }
+
+/* Default square pills */
 .techRow .pill{
-  width:72px !important;
-  height:72px !important;
-  min-width:72px !important;
+  width:68px !important;
+  height:68px !important;
+  min-width:68px !important;
   padding:7px 7px !important;
   display:flex !important;
   flex-direction:column !important;
-  justify-content:space-between !important;
+  justify-content:center !important;
   align-items:center !important;
   border-radius:12px !important;
+  gap:4px !important;
 }
 .techRow .pill .k{
   width:100% !important;
@@ -329,20 +345,55 @@ function ensureDashTypographyOverrides(){
   padding:0 !important;
   font-weight:1000 !important;
   letter-spacing:.2px !important;
-  line-height:1.05 !important;
+  line-height:1.0 !important;
   font-size:11px !important;
 }
 .techRow .pill .v{
   width:100% !important;
   text-align:center !important;
-  margin-top:3px !important;
+  margin:0 !important;
   font-weight:1000 !important;
   line-height:1 !important;
-  font-size:20px !important;
+  font-size:19px !important;
+}
+
+/* Avg Odo wide pill: label and value on same row */
+.techRow .pill.odoWide{
+  width:150px !important;
+  min-width:150px !important;
+  flex-direction:row !important;
+  justify-content:center !important;
+  gap:10px !important;
+}
+.techRow .pill.odoWide .kv{
+  display:flex !important;
+  align-items:baseline !important;
+  justify-content:center !important;
+  gap:10px !important;
+  width:100% !important;
+}
+.techRow .pill.odoWide .k{
+  width:auto !important;
+  font-size:11px !important;
+}
+.techRow .pill.odoWide .v{
+  width:auto !important;
+  font-size:19px !important;
 }
 
 @media (max-width: 700px){
-  .techRow{padding-top:38px !important;}
+  .techRow{min-height:104px !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:70% !important;}
+  .techRow .techMetaRight{right:14px !important;}
+  .techRow .pills{left:14px !important; right:104px !important; gap:7px !important;}
+  .techRow .pill{width:60px !important;height:60px !important;min-width:60px !important;border-radius:11px !important;padding:6px 6px !important;gap:3px !important;}
+  .techRow .pill .k{font-size:10px !important;}
+  .techRow .pill .v{font-size:16.5px !important;}
+  .techRow .pill.odoWide{width:132px !important;min-width:132px !important;gap:8px !important;}
+  .techRow .pill.odoWide .k{font-size:10px !important;}
+  .techRow .pill.odoWide .v{font-size:16.5px !important;}
+}
+
   .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
   .techRow .pills{gap:7px !important; padding-left:14px !important; padding-right:104px !important;}
   .techRow .pill{width:62px !important;height:62px !important;min-width:62px !important;border-radius:11px !important;padding:6px 6px !important;}
@@ -493,7 +544,7 @@ function renderTeam(team, st){
         </div>
 
         <div class="pills">
-          <div class="pill"><div class="k">Avg Odo</div><div class="v">${fmtInt(t.odo)}</div></div>
+          <div class="pill odoWide"><div class="kv"><div class="k">Avg Odo</div><div class="v">${fmtInt(t.odo)}</div></div></div>
           <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
           <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
           <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
