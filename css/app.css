@@ -1164,9 +1164,9 @@ body.route-tech .techHeaderWrap{align-items:stretch;}
 body.route-tech .techHeaderWrap > .panel{height:100%;}
 body.route-tech .techHeaderPanel,
 body.route-tech .techPickPanel{height:100%;}
-body.route-tech .techHeaderPanel .phead{display:block; height:auto;}
+body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
 /* ensure the pills/filters don't force overflow weirdness */
-body.route-tech .techHeaderPanel .pills{margin-top:10px;}
+body.route-tech .techHeaderPanel .pills{margin-top:auto;}
 
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
