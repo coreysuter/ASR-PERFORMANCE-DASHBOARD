@@ -226,11 +226,12 @@ const hash = location.hash || "";
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+    // NOTE: We set font-weight inline so the header (lg) badge text matches the in-card (sm) badge text.
     return `
       <div class="${cls}">
-        <div class="rfbFocus">${top}</div>
-        <div class="rfbMain"><span class="rfbHash">#</span>${r}</div>
-        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
+        <div class="rfbFocus" style="font-weight:1000">${top}</div>
+        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
+        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
       </div>
     `;
   }
