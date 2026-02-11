@@ -515,6 +515,42 @@ function ensureDashTypographyOverrides(){
 @media (max-width: 700px){
   .techRow .midPills{left: 250px !important; right: 118px !important;}
 }
+
+
+/* ---- Dashboard tweaks: tighter gaps + more contrast + smaller Avg ODO pill ---- */
+.techRow .pill.odoHeaderLike{
+  width:170px !important;
+  min-width:170px !important;
+  height:52px !important;
+  padding:9px 12px !important;
+}
+.techRow .midPills{
+  left:250px !important;
+  right:118px !important;
+}
+.techRow .midPills .pills{
+  gap:8px !important;
+}
+/* Darker pills with contrast */
+.techRow .pill{
+  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.72)) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.58) inset, 0 10px 24px rgba(0,0,0,.22) !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 700px){
+  .techRow .pill.odoHeaderLike{
+    width:150px !important;
+    min-width:150px !important;
+    height:48px !important;
+    padding:8px 10px !important;
+  }
+  .techRow .midPills{
+    left:220px !important;
+    right:108px !important;
+  }
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides";
