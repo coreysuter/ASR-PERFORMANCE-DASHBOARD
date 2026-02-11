@@ -112,6 +112,23 @@ function fmtPctPlain(v){
   return (Math.round(n*10)/10).toFixed(1) + "%";
 }
 
+
+// Focus Rank Badge (matches Technician Details page)
+function rankBadgeHtmlDash(rank, total, focus, size="sm"){
+  const top = (focus==="sold") ? "SOLD%" : "ASR%";
+  const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+  const t = (total===null || total===undefined || total==="") ? "—" : total;
+  const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+  // Force bold to match Tech Details badges
+  return `
+    <div class="${cls}">
+      <div class="rfbFocus" style="font-weight:1000">${top}</div>
+      <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
+      <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
+    </div>
+  `;
+}
+
 // -------------------- Goals (user-configurable) --------------------
 const GOALS_STORAGE_KEY = "techDashGoals_v1";
 
@@ -328,23 +345,6 @@ function teamAverages(teamTechs, filterKey){
   };
 }
 
-
-
-// Focus Rank Badge (same as Technician Details ranking badge)
-function rankBadgeHtml(rank, total, focus, size="sm"){
-  const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
-  const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
-  const t = (total===null || total===undefined || total==="") ? "—" : total;
-  const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
-  return `
-    <div class="${cls}">
-      <div class="rfbFocus">${top}</div>
-      <div class="rfbMain"><span class="rfbHash">#</span>${r}</div>
-      <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
-    </div>
-  `;
-}
-
 function renderTeam(team, st){
   const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
@@ -378,17 +378,17 @@ function renderTeam(team, st){
             <div class="val name" style="font-size:16px">
               <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
             </div>
-            ${rankBadgeHtml(rk.rank, rk.total, (st.sortBy==="sold_pct"?"sold":"asr"), "sm")}
+            <div class="rankUnder">${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}</div>
           </div>
 
         </div>
 
-        <div class="techTiles">
-          <div class="techTile tE"><div class="tLbl">ROs</div><div class="tVal">${fmtInt(t.ros)}</div></div>
-          <div class="techTile tA"><div class="tLbl">Avg ODO</div><div class="tVal">${fmtInt(t.odo)}</div></div>
-          <div class="techTile tC"><div class="tLbl">Total ASR</div><div class="tVal">${fmtInt(s.asr)}</div></div>
-          <div class="techTile tB"><div class="tLbl">Sold</div><div class="tVal">${fmtInt(s.sold)}</div></div>
-          <div class="techTile tD"><div class="tLbl">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="tVal">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
+        <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
+          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(s.asr)}</div></div>
+          <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
+          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "Sold%" : "ASR/RO"}</div><div class="v">${st.sortBy==="sold_pct" ? fmtPct(soldpct) : fmt1(asrpr,1)}</div></div>
         </div>
       </div>
     `;
@@ -404,16 +404,16 @@ function renderTeam(team, st){
 
 
   return `
-    <div class="panel techHeaderPanel">
+    <div class="panel">
       <div class="phead">
-        <div class="titleRow">
+        <div class="catHeader">
           <div>
-            <div class="h2 teamTitle">${safe(team)}</div>
-            <div class="sub">${appliedTextHtml}</div>
+            <div class="catTitle">${safe(team)}</div>
+            <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
           </div>
-          <div class="overallBlock">
-            <div class="big">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
-            <div class="tag">${st.sortBy==="sold_pct" ? "Sold%" : "ASRs/RO"}</div>
+          <div class="catRank">
+            <div class="rankNum">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
+            <div class="rankLbl">${st.sortBy==="sold_pct" ? "SOLD%" : "ASRs/RO"}</div>
           </div>
         </div>
 
@@ -422,6 +422,31 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
           <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
           <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
+        </div>
+        <div class="iconBar">
+          <button class="iconBtn" onclick="toggleTeamFilters('${safe(team)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
+          <div class="appliedInline">${appliedTextHtml}</div>
+          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${ICON_SEARCH}</button>
+        </div>
+
+        <div class="ctlPanel ${st.filtersOpen?"open":""}">
+          <div class="controls">
+            <div>
+              <label>Filter</label>
+              <select data-team="${safe(team)}" data-ctl="filter">
+                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+              </select>
+            </div>
+            <div>
+              <label>Focus</label>
+              <select data-team="${safe(team)}" data-ctl="sort">
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
       <div class="list">${rows || `<div class="notice">No technicians found.</div>`}</div>
