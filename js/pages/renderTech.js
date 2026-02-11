@@ -457,7 +457,6 @@ const s = t.summary?.[filterKey] || {};
 
 
   const filters = `
-    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
     <div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
