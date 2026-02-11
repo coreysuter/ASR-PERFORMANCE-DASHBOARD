@@ -1423,3 +1423,24 @@ body.route-tech .techPickPanel .pickRow{
 body.route-tech .techPickPanel .pickRow:first-child{
   margin-top:0 !important;
 }
+
+/* === FIX: Top/Bottom 3 rows too tall (force compact rows like reference) === */
+body.route-tech .techPickPanel .pickBox{
+  height:auto !important;
+  min-height:0 !important;
+}
+body.route-tech .techPickPanel .pickList{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:6px !important;
+  height:auto !important;
+}
+body.route-tech .techPickPanel .pickList > .techRow{
+  flex:0 0 auto !important;
+  height:auto !important;
+  min-height:unset !important;
+  align-items:center !important;
+}
+body.route-tech .techPickPanel .techRow{
+  padding:6px 12px !important;
+}
