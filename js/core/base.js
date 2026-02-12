@@ -553,23 +553,28 @@ function ensureDashTypographyOverrides(){
   }
 }
 
-/* --- FINAL OVERRIDES (dashboard only): make tech-row Avg ODO pill match header pill + remove padding made for pinned badge --- */
-.techRow .pills{padding-right:0 !important;}
-.techRow .rankNextToPill{display:flex !important; align-items:center !important; margin-left:-10px !important;}
-.techRow .rankNextToPill svg{display:block;}
-
-.techRow .odoUnderName{justify-content:flex-start !important; width:auto !important;}
+/* === FINAL: force Avg ODO pill to match the Tech Header Panel pill exactly === */
 .techRow .pill.odoHeaderLike{
-  width:auto !important; min-width:0 !important; height:auto !important;
+  width:auto !important;
+  min-width:0 !important;
+  height:auto !important;
   padding:8px 12px !important;
+  border-radius:999px !important;
   border:1px solid var(--border) !important;
   background:rgba(0,0,0,.25) !important;
   box-shadow:none !important;
+  display:inline-flex !important;
+  gap:8px !important;
+  align-items:baseline !important;
 }
-.techRow .pill.odoHeaderLike .kv{gap:8px !important;}
 .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
-.techRow .pill.odoHeaderLike .v{font-size:18px !important; line-height:1 !important;}
+.techRow .pill.odoHeaderLike .v{font-size:18px !important;}
 
+@media (max-width: 700px){
+  .techRow .pill.odoHeaderLike{ padding:8px 12px !important; }
+  .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
+  .techRow .pill.odoHeaderLike .v{font-size:18px !important;}
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -703,6 +708,10 @@ function renderTeam(team, st){
             <div class="odoUnderName">
               <div class="pill odoHeaderLike"><div class="kv"><div class="k">AVG ODO</div><div class="v">${fmtInt(t.odo)}</div></div></div>
             </div>          </div>
+          <div class="techMetaRight" style="margin-left:auto">
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
+          </div>
+
         </div>
 
         <div class="midPills">
@@ -711,7 +720,6 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
           <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-          <div class="rankNextToPill">${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}</div>
         </div>
         </div>
       </div>
