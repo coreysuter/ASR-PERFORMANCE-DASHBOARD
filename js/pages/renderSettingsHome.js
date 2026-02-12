@@ -70,12 +70,10 @@ function router(){
   if(h.startsWith("#/tech/")){
     const rest = h.slice("#/tech/".length);
     const id = decodeURIComponent(rest.split("?")[0] || "");
-    // renderTech is attached to window in renderTech.js; call via window to avoid
-    // ReferenceError if the function isn't a global symbol in some builds.
-    window.renderTech?.(id);
+    renderTech(id);
     return;
   }
-  window.renderMain?.();
+  renderMain();
 }
 
 
