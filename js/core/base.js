@@ -563,6 +563,13 @@ function ensureDashTypographyOverrides(){
     left:auto !important;
   }
 }
+/* ---- Dashboard tweak: pull rank badge tight to pills (no gap between last pill and badge) ---- */
+.techRow .midPills{gap:0 !important;}
+.techRow .midPills .techMetaRight{margin-left:0 !important;}
+.techRow .midPills .pills{justify-content:flex-end !important;}
+/* keep spacing BETWEEN the square pills */
+.techRow .midPills .pills{gap:10px !important;}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
