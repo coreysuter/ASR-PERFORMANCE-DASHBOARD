@@ -448,7 +448,55 @@ const s = t.summary?.[filterKey] || {};
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
-  const appliedParts = [
+  
+  // Section rank (category header badge): rank the technician vs comparison peers for this section only
+  function sectionRankFor(sec){
+    const cats = Array.from(new Set((sec && sec.categories ? sec.categories : []).filter(Boolean)));
+    if(!cats.length) return {rank:null,total:null};
+
+    const CMP_TECHS = (compareBasis==="team") ? TEAM_TECHS : STORE_TECHS;
+
+    function metricForSection(x){
+      const vals = [];
+      for(const cat of cats){
+        const c = x.categories?.[cat];
+        if(!c) continue;
+
+        if(focus==="sold"){
+          const v = Number(c.close);
+          if(Number.isFinite(v)) vals.push(v);
+          continue;
+        }
+
+        if(focus==="goal"){
+          const req = Number(c.req ?? NaN);
+          const close = Number(c.close ?? NaN);
+          const gReq = Number(getGoal(cat,"req"));
+          const gClose = Number(getGoal(cat,"close"));
+          const parts = [];
+          if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) parts.push(req/gReq);
+          if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) parts.push(close/gClose);
+          if(parts.length) vals.push(parts.reduce((a,b)=>a+b,0)/parts.length);
+          continue;
+        }
+
+        // focus==="asr"
+        const v = Number(c.req);
+        if(Number.isFinite(v)) vals.push(v);
+      }
+      return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length) : NaN;
+    }
+
+    const vals = CMP_TECHS
+      .map(x=>({id:x.id, v: metricForSection(x)}))
+      .filter(o=>Number.isFinite(o.v))
+      .sort((a,b)=>b.v-a.v);
+
+    const meIdx = vals.findIndex(o=>o.id===t.id);
+    return {rank: meIdx>=0 ? meIdx+1 : null, total: vals.length || null};
+  }
+
+const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
     (focus==="sold" ? "Focus: Sold" : (focus==="goal" ? "Focus: Goal" : "Focus: ASR/RO"))
@@ -802,6 +850,9 @@ return `
     const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? pctGoal : pctAsr);
     const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASR");
 
+    const secRk = sectionRankFor(sec);
+
+
     const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
@@ -820,7 +871,7 @@ return `
               </div>
               <div class="sub">${appliedParts.join(" • ")}</div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrStats" style="text-align:right">
+            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="display:flex;align-items:center;justify-content:center;min-width:0;">${rankBadgeHtml((secRk&&secRk.rank)?secRk.rank:"—",(secRk&&secRk.total)?secRk.total:"—",focus,"sm")}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
