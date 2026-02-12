@@ -757,31 +757,6 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techH2Big{font-size:32px;font-weight:1000;line-height:1.05;letter-spacing:.2px}
 .techH2Big .teamDot{opacity:.7;font-weight:900}
 .techTeamLine{margin-top:6px;font-size:16px;font-weight:900;opacity:.75;letter-spacing:.15px}
-
-/* === Tech details: shrink-wrap the title row (reduce wasted space) ===
-   The tech header uses a flex title row. Previously, the rank badge wrapper
-   in renderTech.js used a flex:1 spacer to center itself, which creates a
-   large empty middle area. These scoped rules make the rank badge + mid pills
-   pack to the right naturally.
-*/
-body.route-tech .techTitleRow{
-  align-items:center; /* vertical centering */
-}
-body.route-tech .techTitleRow .techNameWrap{
-  flex:0 1 auto;
-  max-width:340px;
-}
-body.route-tech .techTitleRow .techRankMid{
-  flex:0 0 auto !important;
-  margin-left:auto !important;            /* push to the right */
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-end !important;
-  padding-top:0 !important;
-}
-body.route-tech .techTitleRow .overallBlock{
-  margin-left:10px;
-}
 @media (max-width: 820px){
   .techH2Big{font-size:26px}
   .brandLogoMini{height:28px}
@@ -789,30 +764,6 @@ body.route-tech .techTitleRow .overallBlock{
 .catRank .rankNum{font-size:26px;font-weight:1100;opacity:1;margin:0}
 .catRank .rankDen{font-size:inherit;opacity:1;margin-left:0}
 .catRank .rankLbl{font-size:8px;opacity:.7;font-weight:900;letter-spacing:.4px;text-transform:uppercase;margin-top:4px}
-
-/* === Tech details: shrink-wrapped header row (ties badge to pills visually) === */
-body.route-tech .techTitleRow{
-  align-items:center; /* stop top-align creating extra vertical space */
-}
-/* The center badge wrapper rendered by renderTech.js */
-body.route-tech .techRankMid{
-  flex:0 0 auto !important;         /* remove the flex spacer */
-  margin-left:auto !important;      /* push badge group to the right */
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-end !important;
-  padding-top:0 !important;
-}
-/* Keep name from eating the middle of the row */
-body.route-tech .techNameWrap{
-  flex:0 1 auto !important;
-  max-width:320px;
-}
-/* Reduce wasted vertical space in the header panel itself */
-body.route-tech .techHeaderPanel .phead{
-  height:auto !important;
-  min-height:0 !important;
-}
 
 
 body.route-tech .catTitle{font-size:30px;font-weight:var(--HB);line-height:1.06;letter-spacing:.2px} /* -25% scoped to tech details */
@@ -1686,3 +1637,30 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
+
+/* === v7: Make DIAG (right) box match TECH NAME (left) box height (tech details only) === */
+/* This intentionally re-enables equal-height stretching for the two header panels, but keeps
+   the tech header content from being pushed to the bottom. */
+body.route-tech .techHeaderWrap{align-items:stretch !important;}
+body.route-tech .techHeaderWrap > .panel{height:100% !important;}
+
+/* Ensure both panels can stretch cleanly */
+body.route-tech .techHeaderPanel,
+body.route-tech .techPickPanel{
+  height:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+/* Let headers size naturally (no "push to bottom" behavior) */
+body.route-tech .techHeaderPanel .phead{
+  height:auto !important;
+  display:block !important;
+}
+body.route-tech .techHeaderPanel .pills{
+  margin-top:12px !important;
+}
+
+/* Make the right DIAG panel fill the available height visually */
+body.route-tech .techPickPanel .phead{flex:0 0 auto !important;}
+body.route-tech .techPickPanel .list{flex:1 1 auto !important;}
