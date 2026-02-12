@@ -260,8 +260,18 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    // force-replace any previous dashboard override styles
-    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{const el=document.getElementById(id); if(el) el.remove();});
+    const h = location.hash || "#/";
+    const isMainDash = (h === "#/" || h === "#" || h.startsWith("#/?"));
+
+    // Always clear any prior injected dashboard-only overrides
+    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.remove();
+    });
+
+    // These overrides are ONLY meant for the main dashboard list (#/).
+    // If we're not on the main dashboard, don't inject anything (prevents breaking ServicesHome tech rows, etc.).
+    if(!isMainDash) return;
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
@@ -275,14 +285,11 @@ function ensureDashTypographyOverrides(){
 .techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
 @media (max-width: 700px){ .techRow .val.name{font-size:20px !important;} }
 
-/* Rank badge pinned to far right of technician rows (dashboard) */
+/* Rank badge lives inside the midPills row (with the square pills) */
 .techRow{position:relative;}
-.techRow .techMetaRight{position:absolute;right:16px;top:14px;margin-left:0 !important;}
-.techRow .pills{padding-right:96px;}
-@media (max-width: 700px){
-  .techRow .techMetaRight{right:12px;top:12px;}
-  .techRow .pills{padding-right:86px;}
-}
+.techRow .techMetaRight{position:static !important; right:auto !important; top:auto !important; transform:none !important; margin:0 !important;}
+.techRow .pills{padding-right:0 !important;}
+
 
 /* Dashboard tech-row layout tweaks (Technician Dashboard list) */
 .techRow{
@@ -350,15 +357,9 @@ function ensureDashTypographyOverrides(){
   font-weight:1000 !important;
 }
 
-/* Rank badge pinned far-right, vertically centered */
-.techRow .techMetaRight{
-  position:absolute !important;
-  right:18px !important;
-  top:50% !important;
-  transform:translateY(-50%) !important;
-  margin:0 !important;
-  z-index:2 !important;
-}
+/* Rank badge inside midPills */
+.techRow .midPills .techMetaRight{flex:0 0 auto; margin-left:12px !important;}
+
 
 /* Pills row: positioned left of rank badge; starts AFTER the name column */
 .techRow .pills{
@@ -488,19 +489,29 @@ function ensureDashTypographyOverrides(){
 }
 
 
-/* Dashboard tech-row middle pills container */
+/* Dashboard tech-row middle pills container (pills + rank badge travel together) */
 .techRow{position:relative !important;}
 .techRow .midPills{
   position:absolute !important;
   top:50% !important;
   transform:translateY(-50%) !important;
-  /* left edge: after the Avg ODO pill area; right edge: before rank badge */
-  left: 280px !important;
-  right: 130px !important;
+  right:18px !important;
+  left:auto !important;
+
   display:flex !important;
-  justify-content:center !important;
   align-items:center !important;
-  pointer-events:none !important; /* avoids accidental overlay clicks */
+  justify-content:flex-end !important;
+  gap:12px !important;
+  pointer-events:auto !important;
+}
+.techRow .midPills .pills{
+  position:static !important;
+  transform:none !important;
+  left:auto !important;
+  right:auto !important;
+  width:auto !important;
+  justify-content:flex-end !important;
+  overflow:visible !important;
 }
 .techRow .midPills .pills{
   position:static !important;
@@ -513,7 +524,7 @@ function ensureDashTypographyOverrides(){
 }
 
 @media (max-width: 700px){
-  .techRow .midPills{left: 250px !important; right: 118px !important;}
+  .techRow .midPills{right:14px !important; left:auto !important;}
 }
 
 
@@ -526,8 +537,8 @@ function ensureDashTypographyOverrides(){
   padding:9px 12px !important;
 }
 .techRow .midPills{
-  left:206px !important;
-  right:118px !important;
+  right:18px !important;
+  left:auto !important;
 }
 .techRow .midPills .pills{
   gap:8px !important;
@@ -548,8 +559,8 @@ function ensureDashTypographyOverrides(){
     padding:8px 10px !important;
   }
   .techRow .midPills{
-    left:186px !important;
-    right:108px !important;
+    right:14px !important;
+    left:auto !important;
   }
 }
 `;
@@ -683,12 +694,10 @@ function renderTeam(team, st){
               <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
             </div>
             <div class="odoUnderName">
-              <div class="pill odoHeaderLike"><div class="kv"><div class="k">AVG ODO</div><div class="v">${fmtInt(t.odo)}</div></div></div>
-            </div>          </div>
-          <div class="techMetaRight" style="margin-left:auto">
-            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
+              <!-- Avg ODO pill under tech name: match title-row pill sizing/style by using the standard .pill markup -->
+              <div class="pill"><div class="k">AVG ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
+            </div>
           </div>
-
         </div>
 
         <div class="midPills">
@@ -697,6 +706,9 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
           <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+        </div>
+        <div class="techMetaRight">
+          ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
         </div>
         </div>
       </div>
@@ -791,72 +803,3 @@ function __refreshSideMenu(){
 }
 window.addEventListener("DOMContentLoaded", __refreshSideMenu);
 window.addEventListener("hashchange", __refreshSideMenu);
-
-/* --- Dashboard-only: move ranking badge next to ASRs/RO pill without touching other pages --- */
-(function(){
-  const STYLE_ID = "dashRankBadgeBesideAsrRo";
-  function isDashboardRoute(){
-    const h = String(location.hash||"");
-    return h==="" || h==="#" || h==="#/" || h.startsWith("#/?");
-  }
-  function ensureStyle(){
-    if(!isDashboardRoute()) return;
-    if(document.getElementById(STYLE_ID)) return;
-    const st = document.createElement("style");
-    st.id = STYLE_ID;
-    st.textContent = `
-      /* Only when the rank badge is placed inside the pills row */
-      .techRow .pills .techMetaRight{
-        position:static !important;
-        top:auto !important;
-        right:auto !important;
-        left:auto !important;
-        transform:none !important;
-        margin:0 !important;
-      }
-      .techRow .pills{ padding-right:0 !important; }
-    `;
-    document.head.appendChild(st);
-  }
-
-  function moveBadges(){
-    if(!isDashboardRoute()) return;
-    ensureStyle();
-
-    document.querySelectorAll(".techRow").forEach(row=>{
-      // Remove Avg ODO pill under the tech name (dashboard only)
-      const odo = row.querySelector(".odoUnderName");
-      if(odo) odo.remove();
-
-      const badge = row.querySelector(":scope > .techMetaRight") || row.querySelector(".techMetaRight");
-      const pills = row.querySelector(".pills");
-      if(!badge || !pills) return;
-
-      // If it's already in the pills container, we're done
-      if(badge.parentElement === pills) return;
-
-      // Find the ASRs/RO pill to insert after (fallback: append to end)
-      const asrPill = Array.from(pills.querySelectorAll(".pill")).find(p=>{
-        const k = (p.querySelector(".k")?.textContent || "").toUpperCase().replace(/\s/g,"");
-        return k.includes("ASR/RO") || k.includes("ASRS/RO");
-      });
-
-      if(asrPill){
-        asrPill.insertAdjacentElement("afterend", badge);
-      }else{
-        pills.appendChild(badge);
-      }
-    });
-  }
-
-  function start(){
-    // Run now and whenever the dashboard list re-renders
-    moveBadges();
-    const obs = new MutationObserver(()=>moveBadges());
-    obs.observe(document.documentElement, {subtree:true, childList:true});
-    window.addEventListener("hashchange", ()=>moveBadges());
-  }
-
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
-  else start();
-})();
