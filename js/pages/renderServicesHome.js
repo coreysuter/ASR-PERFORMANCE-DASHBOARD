@@ -3,6 +3,25 @@ function renderServicesHome(){
   try{ document.body.classList.add("route-tech"); }catch(e){}
   try{ document.body.classList.add("route-services"); }catch(e){}
   try{ document.body.classList.add("route-services"); }catch(e){}
+
+  // Fix: remove the leftover horizontal divider line inside rankFocusBadge on Services pages
+  (function ensureRankBadgeFixCss(){
+    if(document.getElementById("rankBadgeFixCss")) return;
+    const st = document.createElement("style");
+    st.id = "rankBadgeFixCss";
+    st.textContent = `
+      .route-services .rankFocusBadge .rfbMain,
+      .route-services .rankFocusBadge .rfbOf{
+        border-top:0 !important;
+        border-bottom:0 !important;
+        box-shadow:none !important;
+        background-image:none !important;
+      }
+      .route-services .rankFocusBadge::before,
+      .route-services .rankFocusBadge::after{display:none !important;}
+    `;
+    document.head.appendChild(st);
+  })();
   // Route: #/servicesHome?team=all|express|kia&focus=asr|sold&filter=total|without_fluids|fluids_only&compare=team|store
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
@@ -408,21 +427,6 @@ function tbRow(item, idx, mode){
   }
 
   // Service tile: header like Tech Details tile, body is technician list
-  // Focus Rank Badge (same markup as Technician Details)
-  function rankBadgeHtml(rank, total, focus, size="sm"){
-    const top = (focus==="sold") ? "SOLD%" : "ASR%";
-    const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
-    const t = (total===null || total===undefined || total==="") ? "—" : total;
-    const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
-    return `
-      <div class="${cls}">
-        <div class="rfbFocus" style="font-weight:1000">${top}</div>
-        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
-        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
-      </div>
-    `;
-  }
-
   function serviceTile(catKey){
     const name = (typeof catLabel==="function") ? catLabel(catKey) : String(catKey);
     const agg = aggFor(catKey, techs);
@@ -459,7 +463,9 @@ function tbRow(item, idx, mode){
               ${fmt1(agg.asr,0)} ASR • ${fmt1(agg.sold,0)} Sold • ${fmt1(agg.totalRos,0)} ROs
             </div>
           </div>
-          <div class="catRank">${rankBadgeHtml(rk.rank ?? "—", rk.total ?? "—", focus, "sm")}</div>
+          ${(typeof rankBadgeHtmlDash==="function")
+            ? rankBadgeHtmlDash(rk.rank, rk.total, focus, "sm")
+            : `<div class="catRank"><div class="rankNum">${rk.rank ?? "—"}${rk.total ? `<span class="rankDen">/${rk.total}</span>` : ""}</div><div class="rankLbl">${focus==="sold" ? "SOLD%" : "ASR%"}</div></div>`}
         </div>
 
         ${techListHtml}
