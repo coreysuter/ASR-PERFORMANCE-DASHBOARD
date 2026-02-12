@@ -321,7 +321,7 @@ function ensureDashTypographyOverrides(){
   left:18px !important;
   width:min(58%, 300px) !important;
   display:flex !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
 }
 .techRow .pill.odoHeaderLike{
   width:190px !important;
@@ -331,7 +331,7 @@ function ensureDashTypographyOverrides(){
   border-radius:999px !important;
   display:flex !important;
   align-items:center !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
 
   background:linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.62)) !important;
   border:1px solid rgba(255,255,255,.18) !important;
@@ -340,8 +340,8 @@ function ensureDashTypographyOverrides(){
 .techRow .pill.odoHeaderLike .kv{
   display:flex !important;
   align-items:baseline !important;
-  justify-content:center !important;
-  gap:12px !important;
+  justify-content:flex-end !important;
+  gap:0px !important;
   width:100% !important;
 }
 .techRow .pill.odoHeaderLike .k{
@@ -358,7 +358,7 @@ function ensureDashTypographyOverrides(){
 }
 
 /* Rank badge inside midPills */
-.techRow .midPills .techMetaRight{flex:0 0 auto; margin-left:12px !important;}
+.techRow .midPills .techMetaRight{flex:0 0 auto; margin-left:0px !important;}
 
 
 /* Pills row: positioned left of rank badge; starts AFTER the name column */
@@ -372,7 +372,7 @@ function ensureDashTypographyOverrides(){
   flex-wrap:nowrap !important;
   gap:10px !important;
   align-items:center !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   margin:0 !important;
   padding:0 !important;
   min-width:0 !important;
@@ -387,7 +387,7 @@ function ensureDashTypographyOverrides(){
   padding:9px 9px !important;
   display:flex !important;
   flex-direction:column !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   align-items:center !important;
   border-radius:14px !important;
   gap:5px !important;
@@ -501,7 +501,7 @@ function ensureDashTypographyOverrides(){
   display:flex !important;
   align-items:center !important;
   justify-content:flex-end !important;
-  gap:12px !important;
+  gap:0px !important;
   pointer-events:auto !important;
 }
 .techRow .midPills .pills{
@@ -519,7 +519,7 @@ function ensureDashTypographyOverrides(){
   left:auto !important;
   right:auto !important;
   width:auto !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
   overflow:visible !important;
 }
 
