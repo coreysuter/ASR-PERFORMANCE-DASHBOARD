@@ -323,7 +323,8 @@ function ensureDashTypographyOverrides(){
   margin-top:8px !important;
   width:100% !important;
   display:flex !important;
-  justify-content:center !important;
+  justify-content:flex-start !important;
+  width:auto !important;
 }
 
 /* Ensure ODO pill uses header pill sizing (no fixed width/height overrides) */
@@ -333,6 +334,12 @@ function ensureDashTypographyOverrides(){
   min-width:0 !important;
   border-radius:999px !important;
 }
+
+/* ODO pill: shrink typography by 2px and keep left aligned under name */
+.techRow .odoUnderName{justify-content:flex-start !important;}
+.techRow .odoUnderName .pill.odoHeaderLike{margin-left:0 !important;}
+.techRow .odoUnderName .pill.odoHeaderLike .k{font-size:9px !important; line-height:1.05 !important; text-align:left !important; width:100% !important;}
+.techRow .odoUnderName .pill.odoHeaderLike .v{font-size:16px !important; line-height:1.1 !important; text-align:left !important; width:100% !important;}
 
 /* Right block */
 .techRight{
@@ -365,6 +372,19 @@ function ensureDashTypographyOverrides(){
 
 /* remove leftover padding reserved for the old far-right badge */
 .techRow .pills{padding-right:0 !important;}
+
+/* Mid pills: make taller and stack label above value */
+.techRow .pills .pill{
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:6px !important;
+  padding:14px 14px !important;
+  min-height:88px !important;
+}
+.techRow .pills .pill .k{display:block !important; text-align:center !important; width:100% !important;}
+.techRow .pills .pill .v{display:block !important; text-align:center !important; width:100% !important;}
 
 `;
     const style = document.createElement("style");
