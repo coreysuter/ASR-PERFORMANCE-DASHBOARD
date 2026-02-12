@@ -457,8 +457,8 @@ const s = t.summary?.[filterKey] || {};
 
 
   const filters = `
-    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
-    <div class="controls" style="margin-top:10px">
+
+<div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
         <select id="techFilter">
@@ -879,14 +879,17 @@ return `
 
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
-    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
+    const isAsr = mode!=="sold";
+    const metricLbl = isAsr ? "ASR" : "SOLD";
+    const metricHtml = `${metricLbl} = ${fmtPct(metric)}`;
+    const metricStyle = isAsr ? "font-weight:1000;" : "";
     return `
       <div class="techRow pickRowFrame">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
-          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left">${safe(item.label)}</button>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px">${safe(item.label)}</button>
         </div>
-        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
+        <div class="mini" style="${metricStyle}">${metricHtml}</div>
       </div>
     `;
   }
