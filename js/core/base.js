@@ -644,6 +644,8 @@ const state = {
   KIA: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
 };
 
+window.state = state;
+
 function toggleTeamFilters(team){
   if(!state[team]) return;
   state[team].filtersOpen = !state[team].filtersOpen;
