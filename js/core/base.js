@@ -260,18 +260,8 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    const h = location.hash || "#/";
-    const isMainDash = (h === "#/" || h === "#" || h.startsWith("#/?"));
-
-    // Always clear any prior injected dashboard-only overrides
-    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el) el.remove();
-    });
-
-    // These overrides are ONLY meant for the main dashboard list (#/).
-    // If we're not on the main dashboard, don't inject anything (prevents breaking ServicesHome tech rows, etc.).
-    if(!isMainDash) return;
+    // force-replace any previous dashboard override styles
+    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{const el=document.getElementById(id); if(el) el.remove();});
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
@@ -562,29 +552,6 @@ function ensureDashTypographyOverrides(){
     right:108px !important;
   }
 }
-
-/* === FINAL: force Avg ODO pill to match the Tech Header Panel pill exactly === */
-.techRow .pill.odoHeaderLike{
-  width:auto !important;
-  min-width:0 !important;
-  height:auto !important;
-  padding:8px 12px !important;
-  border-radius:999px !important;
-  border:1px solid var(--border) !important;
-  background:rgba(0,0,0,.25) !important;
-  box-shadow:none !important;
-  display:inline-flex !important;
-  gap:8px !important;
-  align-items:baseline !important;
-}
-.techRow .pill.odoHeaderLike .k{font-size:11px !important;}
-.techRow .pill.odoHeaderLike .v{font-size:18px !important;}
-
-@media (max-width: 700px){
-  .techRow .pill.odoHeaderLike{ padding:8px 12px !important; }
-  .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
-  .techRow .pill.odoHeaderLike .v{font-size:18px !important;}
-}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -824,3 +791,68 @@ function __refreshSideMenu(){
 }
 window.addEventListener("DOMContentLoaded", __refreshSideMenu);
 window.addEventListener("hashchange", __refreshSideMenu);
+
+/* --- Dashboard-only: move ranking badge next to ASRs/RO pill without touching other pages --- */
+(function(){
+  const STYLE_ID = "dashRankBadgeBesideAsrRo";
+  function isDashboardRoute(){
+    const h = String(location.hash||"");
+    return h==="" || h==="#" || h==="#/" || h.startsWith("#/?");
+  }
+  function ensureStyle(){
+    if(!isDashboardRoute()) return;
+    if(document.getElementById(STYLE_ID)) return;
+    const st = document.createElement("style");
+    st.id = STYLE_ID;
+    st.textContent = `
+      /* Only when the rank badge is placed inside the pills row */
+      .techRow .pills .techMetaRight{
+        position:static !important;
+        top:auto !important;
+        right:auto !important;
+        left:auto !important;
+        transform:none !important;
+        margin:0 !important;
+      }
+      .techRow .pills{ padding-right:0 !important; }
+    `;
+    document.head.appendChild(st);
+  }
+
+  function moveBadges(){
+    if(!isDashboardRoute()) return;
+    ensureStyle();
+
+    document.querySelectorAll(".techRow").forEach(row=>{
+      const badge = row.querySelector(":scope > .techMetaRight") || row.querySelector(".techMetaRight");
+      const pills = row.querySelector(".pills");
+      if(!badge || !pills) return;
+
+      // If it's already in the pills container, we're done
+      if(badge.parentElement === pills) return;
+
+      // Find the ASRs/RO pill to insert after (fallback: append to end)
+      const asrPill = Array.from(pills.querySelectorAll(".pill")).find(p=>{
+        const k = (p.querySelector(".k")?.textContent || "").toUpperCase().replace(/\s/g,"");
+        return k.includes("ASR/RO") || k.includes("ASRS/RO");
+      });
+
+      if(asrPill){
+        asrPill.insertAdjacentElement("afterend", badge);
+      }else{
+        pills.appendChild(badge);
+      }
+    });
+  }
+
+  function start(){
+    // Run now and whenever the dashboard list re-renders
+    moveBadges();
+    const obs = new MutationObserver(()=>moveBadges());
+    obs.observe(document.documentElement, {subtree:true, childList:true});
+    window.addEventListener("hashchange", ()=>moveBadges());
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+})();
