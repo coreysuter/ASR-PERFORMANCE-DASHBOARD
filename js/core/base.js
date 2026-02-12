@@ -400,6 +400,10 @@ function ensureDashTypographyOverrides(){
 }
 
 /* Darker, higher-contrast square pills */
+
+/* Rank badge placed inside the pills row (right beside ASRs/RO) */
+.techRow .pills{gap:10px !important; justify-content:flex-end !important;}
+.techRow .rankBadgeInRow{display:flex !important; align-items:center !important; margin-left:0 !important;}
 .techRow .pill{
   width:85px !important;
   height:85px !important;
@@ -718,16 +722,14 @@ function renderTeam(team, st){
             </div>          </div>
         </div>
 
-        <div class="midPills">
         <div class="pills">
           <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
           <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
           <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-        </div>
-        <div class="techMetaRight">
-          ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
-        </div>
+          <div class="rankBadgeInRow">
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
+          </div>
         </div>
       </div>
     `;
