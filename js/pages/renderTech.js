@@ -457,6 +457,7 @@ const s = t.summary?.[filterKey] || {};
 
 
   const filters = `
+    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
     <div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
@@ -515,6 +516,21 @@ const s = t.summary?.[filterKey] || {};
   const overall = ordered.length ? {rank: (idx>=0?idx+1:null), total: ordered.length} : {rank:null,total:null};
   const focusLbl = focus==="sold" ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
+
+  // Average ranking across all service tiles (uses the same rank logic as each service tile)
+  let __avgSvcRank = null;
+  {
+    const ranks = [];
+    for(const cat of CAT_LIST){
+      const rk = rankFor(cat);
+      if(rk && Number.isFinite(Number(rk.rank))) ranks.push(Number(rk.rank));
+    }
+    if(ranks.length){
+      __avgSvcRank = ranks.reduce((a,b)=>a+b,0) / ranks.length;
+    }
+  }
+  const __avgSvcRankTxt = (__avgSvcRank==null) ? "—" : __avgSvcRank.toFixed(1);
+  const __avgSvcRankDen = (overall && Number.isFinite(Number(overall.total))) ? Number(overall.total) : null;
   const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
@@ -535,7 +551,7 @@ const s = t.summary?.[filterKey] || {};
 const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="titleRow techTitleRow" style="align-items:flex-start;">
+        <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
@@ -543,14 +559,13 @@ const header = `
             <div class="h2 techH2Big">${__nameHtml}</div>
             <div class="techTeamLine">${safe(team)}</div>
           </div>
-          <div class="techRightCluster" style="margin-left:auto;display:flex;align-items:flex-start;gap:14px;min-width:0;">
-            <div class="overallBlock" style="text-align:right;">
-              <div class="overallMetric" style="font-size:40px;font-weight:1200;line-height:1;color:#fff;">${focusVal}</div>
-              <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
-            </div>
-            <div class="techRankBadgeWrap">
-              ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-            </div>
+          <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
+            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+          </div>
+          <div class="overallBlock">
+<div class="overallMetric" style="font-size:34px;font-weight:1200;line-height:1;">${focusVal}</div>
+            <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
+            <div class="sub" style="margin-top:4px;font-style:italic;color:rgba(255,255,255,.70)">Avg svc rank: <span style="font-style:normal;font-weight:900;color:rgba(255,255,255,.85)">${__avgSvcRankTxt}</span>${__avgSvcRankDen?` <span style=\"font-style:normal;color:rgba(255,255,255,.55)\">/ ${__avgSvcRankDen}</span>`:""}</div>
           </div>
         </div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
@@ -571,7 +586,7 @@ const header = `
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:rgba(255,255,255,.65);margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
@@ -877,21 +892,18 @@ return `
 
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
-    const metricLbl = mode==="sold" ? "SOLD" : "ASR";
-    const valTxt = `${metricLbl} = ${fmtPct(metric)}`;
+    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
     return `
-      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;">
-        <div class="techRowLeft" style="min-width:0;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;">
-          <span class="rankNum" style="font-size:14px;font-weight:700;">${idx}.</span>
-          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}"
-            style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:700;flex:1;min-width:0;">
-            ${safe(item.label)}
-          </button>
+      <div class="techRow pickRowFrame">
+        <div class="techRowLeft">
+          <span class="rankNum">${idx}.</span>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left">${safe(item.label)}</button>
         </div>
-        <div class="mini" style="font-size:14px;font-weight:700;white-space:nowrap;">${valTxt}</div>
+        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
     `;
   }
+
   
   function tbMiniBox(title, arr, mode, iconDir){
     const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
@@ -924,8 +936,6 @@ return `
           <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
           <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
         </div>
-
-        <div class="diagSplitLine" style="height:1px;background:rgba(255,255,255,.14);margin:12px 0;"></div>
 
         <!-- SOLD row -->
         <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
