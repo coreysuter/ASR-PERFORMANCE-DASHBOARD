@@ -1139,7 +1139,7 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
+  grid-template-columns: 1.05fr 1.95fr; /* narrower tech header, wider diag for triangle breathing room */
 }
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
@@ -1637,30 +1637,3 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
-
-/* === v7: Make DIAG (right) box match TECH NAME (left) box height (tech details only) === */
-/* This intentionally re-enables equal-height stretching for the two header panels, but keeps
-   the tech header content from being pushed to the bottom. */
-body.route-tech .techHeaderWrap{align-items:stretch !important;}
-body.route-tech .techHeaderWrap > .panel{height:100% !important;}
-
-/* Ensure both panels can stretch cleanly */
-body.route-tech .techHeaderPanel,
-body.route-tech .techPickPanel{
-  height:100% !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-
-/* Let headers size naturally (no "push to bottom" behavior) */
-body.route-tech .techHeaderPanel .phead{
-  height:auto !important;
-  display:block !important;
-}
-body.route-tech .techHeaderPanel .pills{
-  margin-top:12px !important;
-}
-
-/* Make the right DIAG panel fill the available height visually */
-body.route-tech .techPickPanel .phead{flex:0 0 auto !important;}
-body.route-tech .techPickPanel .list{flex:1 1 auto !important;}
