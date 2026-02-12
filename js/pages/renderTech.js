@@ -879,17 +879,22 @@ return `
 
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
-    const isAsr = mode!=="sold";
-    const metricLbl = isAsr ? "ASR" : "SOLD";
+    const metricLbl = (mode==="sold") ? "SOLD" : "ASR";
     const metricHtml = `${metricLbl} = ${fmtPct(metric)}`;
-    const metricStyle = isAsr ? "font-weight:1000;" : "";
+
+    // Keep ALL text inside the Top/Bottom lists the same font, style, and size.
+    const rowTextStyle = "font-size:18px;font-weight:1000;letter-spacing:.1px;line-height:1.15;color:inherit;";
+
     return `
-      <div class="techRow pickRowFrame">
-        <div class="techRowLeft">
-          <span class="rankNum">${idx}.</span>
-          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:3px">${safe(item.label)}</button>
+      <div class="techRow pickRowFrame" style="${rowTextStyle}">
+        <div class="techRowLeft" style="display:flex;align-items:center;gap:10px;min-width:0;${rowTextStyle}">
+          <span class="rankNum" style="${rowTextStyle}">${idx}.</span>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}"
+            style="${rowTextStyle}background:transparent;border:none;padding:0;cursor:pointer;text-align:left;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:underline;text-underline-offset:3px">
+            ${safe(item.label)}
+          </button>
         </div>
-        <div class="mini" style="${metricStyle}">${metricHtml}</div>
+        <div class="mini" style="${rowTextStyle}margin-left:auto;white-space:nowrap;">${metricHtml}</div>
       </div>
     `;
   }
