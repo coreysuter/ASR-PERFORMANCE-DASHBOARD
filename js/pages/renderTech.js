@@ -520,6 +520,8 @@ const s = t.summary?.[filterKey] || {};
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
   const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? `(${(__soldOfAsr*100).toFixed(1)}%)` : "";
+  const __asrPerRoVal = techAsrPerRo(t, filterKey);
+  const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
 
 
   const __fullName = String(t.name||"").trim();
@@ -536,41 +538,42 @@ const s = t.summary?.[filterKey] || {};
 const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="titleRow techTitleRow">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+        <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
+          <div class="techTitlePinnedLeft" style="display:flex;align-items:flex-start;gap:18px;min-width:0;flex:1 1 auto;">
+            <div class="techTitleLeft">
+              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+            </div>
+            <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
+              <div class="h2 techH2Big">${__nameHtml}</div>
+              <div class="techTeamLine">${safe(team)}</div>
+            </div>
           </div>
-          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
-            <div class="h2 techH2Big">${__nameHtml}</div>
-            <div class="techTeamLine">${safe(team)}</div>
-          </div>
-          <div class="techRankMid" style="flex:1 1 auto;display:flex;justify-content:center;align-items:flex-start;padding-top:2px;min-width:0;">
+          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
+            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+            </div>
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-          </div>
-          <div class="overallBlock">
-<div class="overallMetric" style="font-size:34px;font-weight:1200;line-height:1;">${focusVal}</div>
-            <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
-          </div>
-        </div>
+          </div></div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
           <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:rgba(255,255,255,.65);margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
@@ -907,42 +910,38 @@ return `
 
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px;height:100%">
-        <div class="diagSplit" style="display:flex;flex-direction:column;height:100%">
-
-          <!-- ASR row (stays pinned toward the top) -->
-          <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start">
-            <div class="diagLabelCol">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
+      <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
+        <!-- ASR row -->
+        <div class="diagBandRow" style="padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
                 ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
                 ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
               </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
             </div>
             <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
           </div>
+        </div>
+        <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
 
-          <!-- divider line between ASR and SOLD -->
-          <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.14);margin:12px 0"></div>
-
-          <!-- SOLD row (vertically centered between divider + bottom) -->
-          <div class="diagSoldWrap" style="flex:1;display:flex;align-items:center">
-            <div style="width:100%">
-              <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:center">
-                <div class="diagLabelCol">
-                  <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
-                  <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
-                    ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
-                    ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
-                  </div>
-                </div>
-                <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
-                <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
+        <!-- SOLD row -->
+        <div class="diagBandRow" style="padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+                ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+                ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
               </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
             </div>
+            <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+            <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
           </div>
-
         </div>
       </div>
     </div>
