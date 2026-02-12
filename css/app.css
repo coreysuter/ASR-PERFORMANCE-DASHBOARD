@@ -1139,7 +1139,7 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1fr 2fr; /* narrower header, wider diag section */
+  grid-template-columns: 1.5fr 2fr; /* balanced header vs diag */
 }
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
@@ -1406,7 +1406,7 @@ body.route-tech .techHeaderWrap{
    (desktop only; mobile still stacks to 1 column via the existing max-width media rule). */
 @media (min-width: 981px){
   body.route-tech .techHeaderWrap{
-    grid-template-columns: 0.72fr 2.28fr !important;
+    grid-template-columns: 1.08fr 1.92fr !important;
   }
 }
 body.route-tech .techHeaderWrap > .panel{
