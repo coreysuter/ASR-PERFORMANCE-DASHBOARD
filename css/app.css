@@ -1139,7 +1139,7 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.5fr 2fr; /* balanced header vs diag */
+  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
 }
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
@@ -1174,7 +1174,7 @@ body.route-tech .techHeaderPanel,
 body.route-tech .techPickPanel{height:100%;}
 body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
 /* ensure the pills/filters don't force overflow weirdness */
-body.route-tech .techHeaderPanel .pills{margin-top:auto;}
+body.route-tech .techHeaderPanel .pills{margin-top:10px !important;}
 
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
@@ -1400,14 +1400,6 @@ body.route-tech .catTitle .meta{
 /* Stop forcing equal-height columns in the tech header row */
 body.route-tech .techHeaderWrap{
   align-items:flex-start !important;
-}
-
-/* Make the left tech-name header column narrower and give the diag section more room
-   (desktop only; mobile still stacks to 1 column via the existing max-width media rule). */
-@media (min-width: 981px){
-  body.route-tech .techHeaderWrap{
-    grid-template-columns: 1.08fr 1.92fr !important;
-  }
 }
 body.route-tech .techHeaderWrap > .panel{
   height:auto !important;
