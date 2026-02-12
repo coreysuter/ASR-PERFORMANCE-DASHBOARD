@@ -913,8 +913,8 @@ return `
 
 
   const top3Panel = `
-    <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px">
+    <div class="panel techPickPanel diagSection" style="display:flex;flex-direction:column;min-height:0">
+      <div class="phead" style="border-bottom:none;padding:12px;flex:1 1 auto;overflow:auto;min-height:0">
         <!-- ASR row -->
         <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start">
           <div class="diagLabelCol">
