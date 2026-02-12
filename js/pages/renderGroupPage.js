@@ -88,24 +88,6 @@ function aggService(serviceName, teamKey){
 }
 
 function renderGroupPage(groupKey){
-  // Fix: remove the horizontal divider line inside rankFocusBadge (leftover from older rank badge styling)
-  (function ensureRankBadgeFixCss(){
-    if(document.getElementById("rankBadgeFixCss")) return;
-    const st = document.createElement("style");
-    st.id = "rankBadgeFixCss";
-    st.textContent = `
-      .rankFocusBadge .rfbMain,
-      .rankFocusBadge .rfbOf{
-        border-top:0 !important;
-        border-bottom:0 !important;
-        box-shadow:none !important;
-        background-image:none !important;
-      }
-      .rankFocusBadge::before,
-      .rankFocusBadge::after{display:none !important;}
-    `;
-    document.head.appendChild(st);
-  })();
   const g = GROUPS[groupKey];
   if(!g){
     document.getElementById("app").innerHTML = `<div class="panel"><div class="h2">Unknown page</div><div class="sub"><a href="#/">Back</a></div></div>`;
@@ -270,6 +252,21 @@ function renderGroupPage(groupKey){
   return "bandBad";
 }
 
+  // Focus Rank Badge (same markup as Technician Details)
+  function rankBadgeHtml(rank, total, focus, size="sm"){
+    const top = (focus==="sold") ? "SOLD%" : "ASR%";
+    const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+    const t = (total===null || total===undefined || total==="") ? "—" : total;
+    const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+    return `
+      <div class="${cls}">
+        <div class="rfbFocus" style="font-weight:1000">${top}</div>
+        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
+        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
+      </div>
+    `;
+  }
+
 const cards = serviceAggs.map(s=>{
   const rk = rankMap.get(s.serviceName) || {rank:null,total:serviceAggs.length};
 
@@ -335,9 +332,7 @@ const cards = serviceAggs.map(s=>{
         ${fmt1(s.asr,0)} ASR • ${fmt1(s.sold,0)} Sold • ${fmt1(s.totalRos,0)} ROs
       </div>
     </div>
-    ${(typeof rankBadgeHtmlDash==="function")
-      ? rankBadgeHtmlDash(rk.rank, rk.total, focus, "sm")
-      : `<div class="catRank"><div class="rankNum">${rk.rank ?? "—"}${rk.total ? `<span class="rankDen">/${rk.total}</span>` : ""}</div><div class="rankLbl">${focus==="sold" ? "SOLD%" : "ASR%"}</div></div>`}
+    <div class="catRank">${rankBadgeHtml(rk.rank ?? "—", rk.total ?? "—", focus, "sm")}</div>
   </div>
 
         <div class="metricStack">
