@@ -950,6 +950,43 @@ return `
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+
+  // --- Keep the diag section bottom aligned with the tech name box ---
+  // We only grow the diag panel to match the left header panel (never shrink),
+  // which avoids the large empty-space issues caused by forcing equal-height columns.
+  const syncDiagHeight = ()=>{
+    const left = document.querySelector('.techHeaderPanel');
+    const diag = document.querySelector('.techPickPanel');
+    if(!left || !diag) return;
+    // reset to allow natural shrink before measuring
+    diag.style.minHeight = '';
+    const leftH = left.getBoundingClientRect().height;
+    const diagH = diag.getBoundingClientRect().height;
+    if(leftH > diagH + 2){
+      diag.style.minHeight = `${Math.ceil(leftH)}px`;
+    }
+  };
+  syncDiagHeight();
+  window.addEventListener('resize', syncDiagHeight);
+  // We only grow the diag panel to match the left header panel (never shrink),
+  // which avoids the large empty-space issues caused by forcing equal-height columns.
+  const syncDiagHeight = ()=>{
+    const left = document.querySelector('.techHeaderWrap .techHeaderPanel');
+    const right = document.querySelector('.techHeaderWrap .techPickPanel');
+    if(!left || !right) return;
+    // Reset first so we can re-measure accurately after layout changes.
+    right.style.minHeight = '';
+    const lh = left.getBoundingClientRect().height;
+    const rh = right.getBoundingClientRect().height;
+    if(lh > rh + 1){
+      right.style.minHeight = Math.ceil(lh) + 'px';
+    }
+  };
+  // run once now + again after fonts/layout settle
+  syncDiagHeight();
+  setTimeout(syncDiagHeight, 0);
+  setTimeout(syncDiagHeight, 100);
+  window.addEventListener('resize', syncDiagHeight);
   // Top/Bottom 3 clicks: jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){
