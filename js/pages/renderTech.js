@@ -876,24 +876,17 @@ return `
 
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
-    const metricLbl = mode==="sold" ? "SOLD =" : "ASR =";
-    // Keep all list text consistent and compact so it stays inside the diag box.
+    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
     return `
-      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;line-height:1.15;display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0">
-        <div class="techRowLeft" style="display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto">
-          <span class="rankNum" style="font:inherit">${idx}.</span>
-          <button
-            type="button"
-            class="tbJump"
-            data-cat="${safeSvcId(item.cat)}"
-            style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;font:inherit;min-width:0;flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
-          >${safe(item.label)}</button>
+      <div class="techRow pickRowFrame">
+        <div class="techRowLeft">
+          <span class="rankNum">${idx}.</span>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left">${safe(item.label)}</button>
         </div>
-        <div class="mini" style="font:inherit;white-space:nowrap;flex:0 0 auto">${metricLbl} ${fmtPct(metric)}</div>
+        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
     `;
   }
-
 
   
   function tbMiniBox(title, arr, mode, iconDir){
@@ -912,9 +905,11 @@ return `
   const bandCounts_sold = countBandsFor('sold');
 
 
+  // The diag panel matches the tech name box height via CSS. Make sure the lists never get clipped
+  // by allowing the diag content area to scroll when needed.
   const top3Panel = `
-    <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px">
+    <div class="panel techPickPanel diagSection" style="height:100%;display:flex;flex-direction:column;min-height:0">
+      <div class="phead" style="border-bottom:none;padding:12px;flex:1;min-height:0;overflow:auto">
         <!-- ASR row -->
         <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start">
           <div class="diagLabelCol">
