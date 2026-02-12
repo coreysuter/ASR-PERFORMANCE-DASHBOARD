@@ -260,8 +260,18 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    // force-replace any previous dashboard override styles
-    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{const el=document.getElementById(id); if(el) el.remove();});
+    const h = location.hash || "#/";
+    const isMainDash = (h === "#/" || h === "#" || h.startsWith("#/?"));
+
+    // Always clear any prior injected dashboard-only overrides
+    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.remove();
+    });
+
+    // These overrides are ONLY meant for the main dashboard list (#/).
+    // If we're not on the main dashboard, don't inject anything (prevents breaking ServicesHome tech rows, etc.).
+    if(!isMainDash) return;
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
