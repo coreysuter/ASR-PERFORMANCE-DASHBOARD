@@ -824,6 +824,10 @@ window.addEventListener("hashchange", __refreshSideMenu);
     ensureStyle();
 
     document.querySelectorAll(".techRow").forEach(row=>{
+      // Remove Avg ODO pill under the tech name (dashboard only)
+      const odo = row.querySelector(".odoUnderName");
+      if(odo) odo.remove();
+
       const badge = row.querySelector(":scope > .techMetaRight") || row.querySelector(".techMetaRight");
       const pills = row.querySelector(".pills");
       if(!badge || !pills) return;
