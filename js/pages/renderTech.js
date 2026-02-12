@@ -910,31 +910,37 @@ return `
 
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px">
-        <!-- ASR row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:start">
-          <div class="diagLabelCol">
-            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
-            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
-              ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
-              ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+      <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
+        <!-- ASR row (bordered) -->
+        <div class="diagBandRow" style="border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+                ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
+                ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+              </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recommendations</div>
             </div>
+            <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
+            <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
           </div>
-          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
         </div>
 
-        <!-- SOLD row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
-          <div class="diagLabelCol">
-            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
-            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
-              ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
-              ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+        <!-- SOLD row (bordered) -->
+        <div class="diagBandRow" style="border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+                ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+                ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+              </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
             </div>
+            <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+            <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
           </div>
-          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>
       </div>
     </div>
