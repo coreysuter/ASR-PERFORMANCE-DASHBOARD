@@ -911,8 +911,8 @@ return `
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
-        <!-- ASR row (bordered) -->
-        <div class="diagBandRow" style="border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px">
+        <!-- ASR row -->
+        <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
               <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
@@ -920,15 +920,16 @@ return `
                 ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
                 ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
               </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recommendations</div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
             </div>
             <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
           </div>
         </div>
+        <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
 
-        <!-- SOLD row (bordered) -->
-        <div class="diagBandRow" style="border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px">
+        <!-- SOLD row -->
+        <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
               <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
@@ -936,7 +937,7 @@ return `
                 ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
                 ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
               </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
             </div>
             <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
