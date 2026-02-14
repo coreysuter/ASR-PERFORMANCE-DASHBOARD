@@ -1,4 +1,11 @@
 function renderMain(){
+  // Ensure globals exist (prevents "ReferenceError: state is not defined" if base.js changes)
+  const state = (window.state = window.state || {
+    EXPRESS: { filterKey: "total", sortBy: "asr_per_ro", search: "" },
+    KIA:     { filterKey: "total", sortBy: "asr_per_ro", search: "" }
+  });
+  const UI = (window.UI = window.UI || {});
+
   const app=document.getElementById('app');
 
   // Main header owns the team filters now
@@ -8,7 +15,6 @@ function renderMain(){
   if(state && state.EXPRESS && state.KIA){
     state.KIA.filterKey = state.EXPRESS.filterKey;
     state.KIA.sortBy = state.EXPRESS.sortBy;
-    state.KIA.compare = state.EXPRESS.compare;
   }
 
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
@@ -78,14 +84,6 @@ function renderMain(){
                 <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
               </select>
             </div>
-            <div>
-              <label>Compare</label>
-              <select data-scope="main" data-ctl="compare">
-                <option value="team" ${(st.compare||"team")==="team"?"selected":""}>TEAM</option>
-                <option value="store" ${(st.compare||"team")==="store"?"selected":""}>STORE</option>
-                <option value="goal" ${(st.compare||"team")==="goal"?"selected":""}>GOAL</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -103,7 +101,6 @@ function renderMain(){
       if(scope==="main"){
         if(ctl==="filter"){ state.EXPRESS.filterKey=el.value; state.KIA.filterKey=el.value; }
         if(ctl==="sort"){ state.EXPRESS.sortBy=el.value; state.KIA.sortBy=el.value; }
-        if(ctl==="compare"){ state.EXPRESS.compare=el.value; state.KIA.compare=el.value; }
       } else if(team && state[team]){
         const st=state[team];
         if(ctl==="filter") st.filterKey=el.value;
