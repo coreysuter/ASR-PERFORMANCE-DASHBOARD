@@ -646,19 +646,38 @@ function ensureDashTypographyOverrides(){
 
 
 
-/* Comparison shading (dashboard tech-row pills) */
-.techRow .pill.compG{
-  /* translucent full-pill tint (not just the outline) */
-  box-shadow:0 0 0 999px rgba(46,204,113,.16) inset !important;
-}
-.techRow .pill.compY{
-  /* translucent full-pill tint (not just the outline) */
-  box-shadow:0 0 0 999px rgba(241,196,15,.16) inset !important;
-}
+/* Comparison shading (dashboard tech-row pills)
+   Use an overlay + contrast tint filter so the base pill gradient stays visible
+   and colors look "true" (not flat). */
+.techRow .pill.compG,
+.techRow .pill.compY,
 .techRow .pill.compR{
-  /* translucent full-pill tint (not just the outline) */
-  box-shadow:0 0 0 999px rgba(231,76,60,.16) inset !important;
+  position:relative !important;
+  overflow:hidden !important;
 }
+.techRow .pill.compG > *,
+.techRow .pill.compY > *,
+.techRow .pill.compR > *{
+  position:relative !important;
+  z-index:2 !important;
+}
+/* overlay layer */
+.techRow .pill.compG::before,
+.techRow .pill.compY::before,
+.techRow .pill.compR::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  z-index:1;
+  mix-blend-mode:overlay;
+  filter:contrast(1.35) saturate(1.55);
+  opacity:.33;
+}
+.techRow .pill.compG::before{ background: rgba(46,204,113,1); }
+.techRow .pill.compY::before{ background: rgba(241,196,15,1); }
+.techRow .pill.compR::before{ background: rgba(231,76,60,1); }
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
