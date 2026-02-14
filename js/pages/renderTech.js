@@ -782,8 +782,52 @@ return `
     };
   }
 
+
+// Rank badge for section/category headers (Maintenance / Fluids / etc.)
+function sectionScoreForTech(sec, x){
+  const cats = sec.categories || [];
+  const vals = [];
+  for(const cat of cats){
+    const c = x.categories?.[cat];
+    if(!c) continue;
+    if(focus==="sold"){
+      const v = Number(c.close);
+      if(Number.isFinite(v)) vals.push(v);
+    }else if(focus==="goal"){
+      if(goalMetric==="sold"){
+        const v = Number(c.close);
+        const g = Number(getGoal(cat,"close"));
+        if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
+      }else{
+        const v = Number(c.req);
+        const g = Number(getGoal(cat,"req"));
+        if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
+      }
+    }else{
+      const v = Number(c.req);
+      if(Number.isFinite(v)) vals.push(v);
+    }
+  }
+  if(!vals.length) return NaN;
+  return vals.reduce((a,b)=>a+b,0)/vals.length;
+}
+
+function sectionRankFor(sec){
+  const CMP_TECHS = (compareBasis==="team") ? TEAM_TECHS : STORE_TECHS;
+  const vals = CMP_TECHS
+    .map(x=>({id:x.id, v: sectionScoreForTech(sec, x)}))
+    .filter(o=>Number.isFinite(o.v))
+    .sort((a,b)=>b.v-a.v);
+  const me = sectionScoreForTech(sec, t);
+  if(!Number.isFinite(me)) return {rank:null, total: vals.length};
+  const idx = vals.findIndex(o=>o.id===t.id);
+  return {rank: idx>=0 ? idx+1 : null, total: vals.length};
+}
+
+
   const sectionsHtml = (DATA.sections||[]).map(sec=>{
     const secStats = sectionStatsForTech(sec);
+    const secRank = sectionRankFor(sec);
     const cats = (sec.categories||[]);
     // Benchmarks for section-level dials (avg across categories)
     const benchReqs = cats.map(cat=>{
@@ -837,7 +881,7 @@ return `
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrStats" style="text-align:right">
+            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "sm")}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
