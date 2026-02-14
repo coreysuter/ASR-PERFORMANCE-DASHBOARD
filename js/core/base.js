@@ -741,6 +741,15 @@ function renderTeam(team, st){
   const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
 
+  // Goal metric selection (from dashboard header Goal dropdown)
+  const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
+  const goalKey = (goalMetric === 'sold') ? 'close' : 'req';
+  const storedGoal = getGoalRaw('__META_GLOBAL', goalKey);
+  const goalTarget = (Number.isFinite(storedGoal) && storedGoal>0)
+    ? storedGoal
+    : (goalMetric === 'sold' ? (Number.isFinite(av.sold_pct_avg) ? av.sold_pct_avg : null)
+                             : (Number.isFinite(av.asr_per_ro_avg) ? av.asr_per_ro_avg : null));
+
   const list=techs.slice();
   list.sort((a,b)=>{
     const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
@@ -762,6 +771,10 @@ function renderTeam(team, st){
     const rk = rankIndex.get(t.id) || {rank:null,total:null};
     const asrpr = techAsrPerRo(t, st.filterKey);
     const soldpct = techSoldPct(t, st.filterKey);
+
+    const actualForGoal = (goalMetric === 'sold') ? soldpct : asrpr;
+    const goalRatio = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0) ? (actualForGoal/goalTarget) : null;
+    const goalPctTxt = goalRatio==null ? '—' : fmtPct(goalRatio);
 
     return `
       <div class="techRow dashTechRow">
@@ -787,7 +800,8 @@ function renderTeam(team, st){
             <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
             <div class="pill"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
             <div class="pill"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-          </div>
+                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
+</div>
 
           <div class="techMetaRight">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
@@ -858,8 +872,8 @@ function renderTeam(team, st){
 }
 
 const state = {
-  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
-  KIA: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
+  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
+  KIA: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
 };
 
 function toggleTeamFilters(team){
