@@ -326,13 +326,11 @@ function ensureDashTypographyOverrides(){
   flex-direction:column !important;
   gap:6px !important;
   align-items:flex-start !important;
-  /* Keep this block from stealing horizontal space (prevents pushing pills/rank) */
-  max-width:240px !important;
+  max-width:240px !important;   /* prevent it from pushing into pills/rank area */
   min-width:0 !important;
   overflow:hidden !important;
 }
-.techRow .techNameStats .tnRow{display:flex !important; align-items:baseline !important; gap:10px !important; flex-wrap:nowrap !important;}
-.techRow .techNameStats .tnRow1{gap:14px !important;}
+.techRow .techNameStats .tnRow{display:flex !important; flex-wrap:nowrap !important; align-items:baseline !important; gap:10px !important;}
 .techRow .techNameStats .tnRow2{gap:14px !important;}
 .techRow .techNameStats .tnMini{display:inline-flex !important; align-items:baseline !important; gap:8px !important;}
 .techRow .techNameStats .tnLbl{
