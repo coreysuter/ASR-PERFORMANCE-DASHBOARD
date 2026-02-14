@@ -286,8 +286,8 @@ function ensureDashTypographyOverrides(){
 @media (max-width: 700px){ .catTitle{font-size:24px;} }
 
 /* Technician names on dashboard list */
-.techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
-@media (max-width: 700px){ .techRow .val.name{font-size:20px !important;} }
+.techRow .val.name{font-size:28px !important;font-weight:1000 !important;white-space:nowrap;}
+@media (max-width: 700px){ .techRow .val.name{font-size:25px !important;} }
 
 /* Rank badge pinned to far right of technician rows (dashboard) */
 .techRow{position:relative;}
@@ -336,7 +336,15 @@ function ensureDashTypographyOverrides(){
 }
 .techRow .techNameStats .tnRow{display:flex !important; flex-wrap:nowrap !important; align-items:baseline !important; gap:10px !important;}
 .techRow .techNameStats .tnRow2{gap:14px !important;}
-.techRow .techNameStats .tnMini{display:inline-flex !important; align-items:baseline !important; gap:8px !important;}
+.techRow .techNameStats .tnMini{
+  display:inline-flex !important;
+  align-items:baseline !important;
+  gap:8px !important;
+  padding:6px 10px !important;
+  border-radius:999px !important;
+  background:rgba(0,0,0,.25) !important;
+  border:1px solid var(--border) !important;
+}
 .techRow .techNameStats .tnLbl{
   font-size:10px !important;
   color:var(--muted) !important;
@@ -448,18 +456,11 @@ function ensureDashTypographyOverrides(){
   font-size:23px !important;
 }
 
-
-/* Force ALL pill text to pure white (dashboard tech rows only) */
-.techRow .pill, .techRow .pill *{
-  color:#fff !important;
-  text-shadow:none !important;
-}
-
 .techRow .pill .k + .v{ margin-top:0 !important; }
 
 @media (max-width: 700px){
   .techRow{min-height:136px !important;}
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:25px !important; max-width:60% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important; width:min(60%, 280px) !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
   .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
@@ -476,7 +477,7 @@ function ensureDashTypographyOverrides(){
   .techRow .pill .v{font-size:20px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:72% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:25px !important; max-width:72% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important; width:170px !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
   .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
@@ -489,7 +490,7 @@ function ensureDashTypographyOverrides(){
   .techRow .techMetaRight{margin-left:9px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:72% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:25px !important; max-width:72% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
   .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
@@ -502,7 +503,7 @@ function ensureDashTypographyOverrides(){
   .techRow .pill .v{font-size:20px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:70% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:25px !important; max-width:70% !important;}
   .techRow .techMetaRight{right:14px !important;}
   .techRow .pills{left:14px !important; right:104px !important; gap:7px !important;}
   .techRow .pill{width:60px !important;height:60px !important;min-width:60px !important;border-radius:11px !important;padding:6px 6px !important;gap:3px !important;}
@@ -513,14 +514,14 @@ function ensureDashTypographyOverrides(){
   .techRow .pill.odoWide .v{font-size:16.5px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:25px !important; max-width:60% !important;}
   .techRow .pills{gap:7px !important; padding-left:14px !important; padding-right:104px !important;}
   .techRow .pill{width:62px !important;height:62px !important;min-width:62px !important;border-radius:11px !important;padding:6px 6px !important;}
   .techRow .pill .k{font-size:10px !important;}
   .techRow .pill .v{font-size:17px !important;}
 }
 
-  .techRow .val.name{top:10px !important; right:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .val.name{top:10px !important; right:14px !important; font-size:25px !important; max-width:60% !important;}
   .techRow .pills{gap:8px !important; padding-right:96px !important;}
   .techRow .pill{width:68px !important;height:68px !important;min-width:68px !important;border-radius:12px !important;padding:7px 7px !important;}
   .techRow .pill .k{font-size:11px !important;}
@@ -654,89 +655,27 @@ function ensureDashTypographyOverrides(){
 
 
 /* Comparison shading (dashboard tech-row pills)
-   Bright, noticeable tint with NO glow outside the pill */
-.techRow .pill{
-  position: relative;
-  overflow: hidden; /* clips everything at pill edge */
-  box-shadow: inset 0 10px 26px rgba(0,0,0,.60) !important; /* no outside glow */
-}
-
-/* stronger overlay layer (off by default) */
-.techRow .pill::before{
-  content:"";
-  position:absolute; inset:0;
-  pointer-events:none;
-  opacity: 0;
-  background: transparent;
-}
-
-/* bright inner ring (still clipped) */
-.techRow .pill::after{
-  content:"";
-  position:absolute; inset:0;
-  border-radius: inherit;
-  pointer-events:none;
-  opacity: 0;
-}
-
-/* ensure text/content stays above overlays */
-.techRow .pill > *{
-  position: relative !important;
-  z-index: 2 !important;
-}
-
-/* RED (BRIGHT) */
-.techRow .pill.compR::before{
-  opacity: .78;
-  background:
-    radial-gradient(circle at 50% 55%,
-      rgba(0,0,0,.30) 0 42%,
-      rgba(255, 55, 55, .40) 70%,
-      rgba(255, 55, 55, .65) 100%
-    ),
-    linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10));
-}
-.techRow .pill.compR::after{
-  opacity: 1;
+   Start over: solid R/G/Y pills with black contrast (border + inner stroke). */
+.techRow .pill.compG,
+.techRow .pill.compY,
+.techRow .pill.compR{
+  border:1px solid rgba(0,0,0,.95) !important;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 90, 90, .55),
-    inset 0 0 16px rgba(255, 70, 70, .35);
+    0 0 0 2px rgba(0,0,0,.55) inset,
+    0 10px 22px rgba(0,0,0,.18) !important;
 }
 
-/* YELLOW (BRIGHT lemon, not gold) */
-.techRow .pill.compY::before{
-  opacity: .72;
-  background:
-    radial-gradient(circle at 50% 55%,
-      rgba(0,0,0,.28) 0 42%,
-      rgba(255, 245, 120, .35) 70%,
-      rgba(255, 245, 120, .60) 100%
-    ),
-    linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10));
-}
-.techRow .pill.compY::after{
-  opacity: 1;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 160, .50),
-    inset 0 0 16px rgba(255, 235, 90, .30);
-}
+/* Solid fills */
+.techRow .pill.compG{ background: rgba(46,204,113,.88) !important; }
+.techRow .pill.compY{ background: rgba(241,196,15,.88) !important; }
+.techRow .pill.compR{ background: rgba(231,76,60,.88) !important; }
 
-/* GREEN (BRIGHT) */
-.techRow .pill.compG::before{
-  opacity: .68;
-  background:
-    radial-gradient(circle at 50% 55%,
-      rgba(0,0,0,.30) 0 42%,
-      rgba(60, 255, 140, .30) 70%,
-      rgba(60, 255, 140, .55) 100%
-    ),
-    linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08));
-}
-.techRow .pill.compG::after{
-  opacity: 1;
-  box-shadow:
-    inset 0 0 0 1px rgba(120, 255, 180, .45),
-    inset 0 0 16px rgba(60, 255, 140, .28);
+/* Text tuned for solid fills */
+.techRow .pill.compG .k, .techRow .pill.compG .v,
+.techRow .pill.compY .k, .techRow .pill.compY .v,
+.techRow .pill.compR .k, .techRow .pill.compR .v{
+  color: rgba(0,0,0,.92) !important;
+  text-shadow:none !important;
 }
 `;
     const style = document.createElement("style");
@@ -888,9 +827,6 @@ function renderTeam(team, st){
   // Global goal baselines (if compareMode === "goal")
   const goalReq = getGoalRaw('__META_GLOBAL','req');
   const goalClose = getGoalRaw('__META_GLOBAL','close');
-  const baseAsrGoalRatio = (Number.isFinite(goalReq) && goalReq>0 && Number.isFinite(baseAsrpr)) ? (baseAsrpr/goalReq) : null;
-  const baseSoldGoalRatio = (Number.isFinite(goalClose) && goalClose>0 && Number.isFinite(baseSoldAsr)) ? (baseSoldAsr/goalClose) : null;
-
 
   function compClass(actual, baseline){
     if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
@@ -923,25 +859,21 @@ function renderTeam(team, st){
     const asrpr = techAsrPerRo(t, st.filterKey);
     const soldpct = techSoldPct(t, st.filterKey);
 
-    const asrGoalRatio = (Number.isFinite(asrpr) && Number.isFinite(goalReq) && goalReq>0) ? (asrpr/goalReq) : null;
-    const asrGoalPctTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
+    const actualForGoal = (goalMetric === 'sold') ? soldpct : asrpr;
+    const goalRatio = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0) ? (actualForGoal/goalTarget) : null;
+    const goalPctTxt = goalRatio==null ? '—' : fmtPct(goalRatio);
 
     const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
     const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
-    const soldGoalRatio = (Number.isFinite(soldAsrRatio) && Number.isFinite(goalClose) && goalClose>0) ? (soldAsrRatio/goalClose) : null;
-    const soldGoalPctTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
-
 
     const compAsrBase = (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr;
     const compSoldAsrBase = (compareMode==='goal' && Number.isFinite(goalClose) && goalClose>0) ? goalClose : baseSoldAsr;
-    const compAsrGoalBase = (compareMode==='goal') ? 1 : baseAsrGoalRatio;
-    const compSoldGoalBase = (compareMode==='goal') ? 1 : baseSoldGoalRatio;
+    const compGoalBase = (compareMode==='goal') ? 1 : baseGoalRatio;
 
     const clsAsrpr = compClass(asrpr, compAsrBase);
     const clsSoldRo = compClass(soldRoVal, baseSoldRo);
     const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-    const clsAsrGoal = compClass(asrGoalRatio, compAsrGoalBase);
-    const clsSoldGoal = compClass(soldGoalRatio, compSoldGoalBase);
+    const clsGoal = compClass(goalRatio, compGoalBase);
 
     return `
       <div class="techRow dashTechRow">
@@ -965,11 +897,10 @@ function renderTeam(team, st){
         <div class="dashRight">
           <div class="pills">
             <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-            <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalPctTxt)}</div></div>
             <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
             <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-            <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalPctTxt)}</div></div>
-          </div>
+                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
+</div>
 
           <div class="techMetaRight">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
