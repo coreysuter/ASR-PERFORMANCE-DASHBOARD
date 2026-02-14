@@ -53,6 +53,9 @@ function renderGoalsPage(){
   const used = new Set([...MAINT, ...FLUIDS, ...BRAKES, ...TIRES]);
   const leftovers = allCats.filter(c=>!used.has(c)).sort((a,b)=>a.localeCompare(b));
 
+  // "Other" quadrant = any categories not mapped into the four primary quadrants
+  const OTHER = leftovers;
+
   // Precompute store-wide averages for each category
   const AVG = {};
   for(const cat of allCats){
