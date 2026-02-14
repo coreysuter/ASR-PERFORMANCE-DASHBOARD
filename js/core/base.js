@@ -448,6 +448,13 @@ function ensureDashTypographyOverrides(){
   font-size:23px !important;
 }
 
+
+/* Force ALL pill text to pure white (dashboard tech rows only) */
+.techRow .pill, .techRow .pill *{
+  color:#fff !important;
+  text-shadow:none !important;
+}
+
 .techRow .pill .k + .v{ margin-top:0 !important; }
 
 @media (max-width: 700px){
@@ -881,6 +888,9 @@ function renderTeam(team, st){
   // Global goal baselines (if compareMode === "goal")
   const goalReq = getGoalRaw('__META_GLOBAL','req');
   const goalClose = getGoalRaw('__META_GLOBAL','close');
+  const baseAsrGoalRatio = (Number.isFinite(goalReq) && goalReq>0 && Number.isFinite(baseAsrpr)) ? (baseAsrpr/goalReq) : null;
+  const baseSoldGoalRatio = (Number.isFinite(goalClose) && goalClose>0 && Number.isFinite(baseSoldAsr)) ? (baseSoldAsr/goalClose) : null;
+
 
   function compClass(actual, baseline){
     if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
@@ -913,21 +923,25 @@ function renderTeam(team, st){
     const asrpr = techAsrPerRo(t, st.filterKey);
     const soldpct = techSoldPct(t, st.filterKey);
 
-    const actualForGoal = (goalMetric === 'sold') ? soldpct : asrpr;
-    const goalRatio = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0) ? (actualForGoal/goalTarget) : null;
-    const goalPctTxt = goalRatio==null ? '—' : fmtPct(goalRatio);
+    const asrGoalRatio = (Number.isFinite(asrpr) && Number.isFinite(goalReq) && goalReq>0) ? (asrpr/goalReq) : null;
+    const asrGoalPctTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
 
     const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
     const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
+    const soldGoalRatio = (Number.isFinite(soldAsrRatio) && Number.isFinite(goalClose) && goalClose>0) ? (soldAsrRatio/goalClose) : null;
+    const soldGoalPctTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
+
 
     const compAsrBase = (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr;
     const compSoldAsrBase = (compareMode==='goal' && Number.isFinite(goalClose) && goalClose>0) ? goalClose : baseSoldAsr;
-    const compGoalBase = (compareMode==='goal') ? 1 : baseGoalRatio;
+    const compAsrGoalBase = (compareMode==='goal') ? 1 : baseAsrGoalRatio;
+    const compSoldGoalBase = (compareMode==='goal') ? 1 : baseSoldGoalRatio;
 
     const clsAsrpr = compClass(asrpr, compAsrBase);
     const clsSoldRo = compClass(soldRoVal, baseSoldRo);
     const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-    const clsGoal = compClass(goalRatio, compGoalBase);
+    const clsAsrGoal = compClass(asrGoalRatio, compAsrGoalBase);
+    const clsSoldGoal = compClass(soldGoalRatio, compSoldGoalBase);
 
     return `
       <div class="techRow dashTechRow">
@@ -951,10 +965,11 @@ function renderTeam(team, st){
         <div class="dashRight">
           <div class="pills">
             <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+            <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalPctTxt)}</div></div>
             <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
             <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
-</div>
+            <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalPctTxt)}</div></div>
+          </div>
 
           <div class="techMetaRight">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
