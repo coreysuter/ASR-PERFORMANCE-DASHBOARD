@@ -210,6 +210,23 @@
   }, true);
 })();
 
+// --- Robust format helpers (some routes load this file without base.js first) ---
+// Provide fallbacks to prevent hard crashes (keeps existing behavior when base.js is present).
+var fmtPct = (typeof window.fmtPct === "function") ? window.fmtPct : function(v){
+  const n = Number(v);
+  if(!Number.isFinite(n)) return "—";
+  return (n*100).toFixed(1) + "%";
+};
+window.fmtPct = fmtPct;
+
+var fmt1 = (typeof window.fmt1 === "function") ? window.fmt1 : function(v, d){
+  const n = Number(v);
+  if(!Number.isFinite(n)) return "—";
+  const dec = Number.isFinite(Number(d)) ? Number(d) : 1;
+  return n.toFixed(dec);
+};
+window.fmt1 = fmt1;
+
 function renderTech(techId){
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
