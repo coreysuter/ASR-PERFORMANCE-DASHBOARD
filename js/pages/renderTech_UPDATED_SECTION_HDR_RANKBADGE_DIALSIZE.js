@@ -263,9 +263,10 @@ const hash = location.hash || "";
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
+    const style = (size==="dial") ? ' style="--w:90px;--h:90px;--r:20px;"' : "";
     // NOTE: We set font-weight inline so the header (lg) badge text matches the in-card (sm) badge text.
     return `
-      <div class="${cls}">
+      <div class="${cls}"${style}>
         <div class="rfbFocus" style="font-weight:1000">${top}</div>
         <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
         <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
@@ -881,7 +882,7 @@ return `
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "sm")}</div><div class="secHdrStats" style="text-align:right">
+            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
