@@ -581,6 +581,65 @@ function ensureDashTypographyOverrides(){
     right:108px !important;
   }
 }
+
+/* --- FINAL: dashboard tech-row flex layout (prevents wrapping / 2-row layouts) --- */
+.techRow.dashTechRow{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:18px !important;
+  padding:12px 14px !important;
+  min-height:auto !important;
+}
+.techRow.dashTechRow .dashLeft{
+  flex:0 0 auto !important;
+  max-width:260px !important;   /* hard limit so it can’t push pills/rank */
+  min-width:220px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+}
+.techRow.dashTechRow .val.name{
+  position:static !important;
+  max-width:100% !important;
+}
+.techRow.dashTechRow .techNameStats{
+  position:static !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+}
+.techRow.dashTechRow .techNameStats .tnRow{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  gap:12px !important;
+}
+.techRow.dashTechRow .dashRight{
+  flex:1 1 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important; /* starts immediately after name block */
+  gap:12px !important;
+  min-width:0 !important;
+}
+.techRow.dashTechRow .pills{
+  position:static !important;
+  transform:none !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  justify-content:flex-start !important;
+  gap:10px !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+.techRow.dashTechRow .techMetaRight{
+  position:static !important;
+  transform:none !important;
+  margin:0 !important;
+}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -705,37 +764,32 @@ function renderTeam(team, st){
     const soldpct = techSoldPct(t, st.filterKey);
 
     return `
-      <div class="techRow">
-        <div class="techMeta" style="align-items:flex-start;display:flex;justify-content:space-between;gap:10px">
-          <div class="techMetaLeft">
-            <div class="val name" style="font-size:16px">
-              <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
-            </div>
-            <div class="techNameStats">
-              <div class="tnRow tnRow1">
-                <span class="tnMini"><span class="tnLbl">AVG ODO</span><span class="tnVal">${fmtInt(t.odo)}</span></span>
-                <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(t.ros)}</span></span>
-              </div>
-              <div class="tnRow tnRow2">
-                <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
-                <span class="tnMini"><span class="tnLbl">SOLD</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
-              </div>
-            </div>
-          </div></div>
-            </div>          </div>
-          <div class="techMetaRight" style="margin-left:auto">
-            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
+      <div class="techRow dashTechRow">
+        <div class="dashLeft">
+          <div class="val name" style="font-size:16px">
+            <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
           </div>
 
+          <div class="techNameStats">
+            <div class="tnRow tnRow1">
+              <span class="tnMini"><span class="tnLbl">AVG ODO</span><span class="tnVal">${fmtInt(t.odo)}</span></span>
+              <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(t.ros)}</span></span>
+            </div>
+            <div class="tnRow tnRow2">
+              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
+              <span class="tnMini"><span class="tnLbl">SOLD</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
+            </div>
+          </div>
         </div>
 
-        <div class="midPills">
-        <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
-          <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
-          <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
-          <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-        </div>
+        <div class="dashRight">
+          <div class="pills">
+            <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+          </div>
+
+          <div class="techMetaRight">
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
+          </div>
         </div>
       </div>
     `;
