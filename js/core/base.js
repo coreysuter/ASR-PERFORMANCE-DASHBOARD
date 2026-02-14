@@ -317,31 +317,41 @@ function ensureDashTypographyOverrides(){
   font-weight:1000 !important;
 }
 
-/* Tech name stats block (prevents overlap; sits directly below name) */
-.techRow .techNameStats{
+/* Avg ODO pill centered under the tech name */
+.techRow .odoUnderName{
   position:absolute !important;
-  top:48px !important;
+  top:52px !important;
   left:18px !important;
+  width:min(58%, 300px) !important;
   display:flex !important;
-  flex-direction:column !important;
-  gap:6px !important;
-  align-items:flex-start !important;
+  justify-content:center !important;
 }
-.techRow .techNameStats .tnRow{display:flex !important; align-items:baseline !important; gap:10px !important;}
-.techRow .techNameStats .tnRow2{gap:14px !important;}
-.techRow .techNameStats .tnMini{display:inline-flex !important; align-items:baseline !important; gap:8px !important;}
-.techRow .techNameStats .tnLbl{
-  font-size:10px !important;
-  color:var(--muted) !important;
-  font-weight:900 !important;
-  letter-spacing:.2px !important;
-  text-transform:uppercase !important;
+.techRow .techUnderNameStats{
+  margin-top:6px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  align-items:flex-start;
 }
-.techRow .techNameStats .tnVal{
-  font-size:16px !important;
-  font-weight:1000 !important;
-  line-height:1 !important;
+.techRow .techUnderNameStats .tsLine{
+  display:flex;
+  gap:8px;
+  align-items:baseline;
+  line-height:1.05;
 }
+.techRow .techUnderNameStats .tsLbl{
+  font-size:11px !important;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  opacity:.65;
+  font-weight:900;
+}
+.techRow .techUnderNameStats .tsVal{
+  font-size:18px !important;
+  font-weight:1000;
+  opacity:.95;
+}
+
 .techRow .pill.odoHeaderLike{
   width:190px !important;
   height:56px !important;
@@ -578,6 +588,40 @@ function ensureDashTypographyOverrides(){
     right:108px !important;
   }
 }
+
+/* --- RO mini pill (under Avg ODO) --- */
+.techRow .roUnderOdo{
+  position:absolute !important;
+  top:116px !important;
+  left:18px !important;
+  display:flex !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+}
+.techRow .pill.roMini{
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  padding:6px 12px !important;
+  border-radius:999px !important;
+  display:inline-flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  background:linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.62)) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.55) inset, 0 10px 24px rgba(0,0,0,.18) !important;
+}
+.techRow .pill.roMini .v{width:auto !important; font-size:18px !important; font-weight:1000 !important; line-height:1 !important; text-align:left !important;}
+.techRow .pill.roMini .k{width:auto !important; font-size:12px !important; font-weight:1000 !important; letter-spacing:.22px !important; opacity:.92 !important; line-height:1 !important; text-align:left !important;}
+
+@media (max-width: 700px){
+  .techRow .roUnderOdo{top:104px !important; left:14px !important;}
+  .techRow .pill.roMini{padding:5px 10px !important; gap:7px !important;}
+  .techRow .pill.roMini .v{font-size:16px !important;}
+  .techRow .pill.roMini .k{font-size:11px !important;}
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -679,6 +723,20 @@ function renderTeam(team, st){
   const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
 
+  // Goal metric for per-tech "GOAL" pill (set via the dashboard header Goal dropdown)
+  const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
+  const goalKey = (goalMetric === 'sold') ? 'close' : 'req';
+
+  // Prefer stored meta goals if present; otherwise fall back to team averages.
+  // Stored goals share the same system used by the Goals page:
+  //   cat: "__META_GLOBAL" metric: "req" (ASR) or "close" (Sold)
+  const storedGoal = getGoalRaw("__META_GLOBAL", goalKey);
+  const goalTarget = (Number.isFinite(storedGoal) && storedGoal>0)
+    ? storedGoal
+    : (goalMetric === 'sold'
+        ? (Number.isFinite(av.sold_pct_avg) ? av.sold_pct_avg : null)
+        : (Number.isFinite(av.asr_per_ro_avg) ? av.asr_per_ro_avg : null));
+
   const list=techs.slice();
   list.sort((a,b)=>{
     const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
@@ -701,6 +759,13 @@ function renderTeam(team, st){
     const asrpr = techAsrPerRo(t, st.filterKey);
     const soldpct = techSoldPct(t, st.filterKey);
 
+    // % of goal for selected goal metric
+    const actualForGoal = (goalMetric === 'sold') ? soldpct : asrpr;
+    const goalPct = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0)
+      ? (actualForGoal / goalTarget)
+      : null;
+    const goalPctTxt = goalPct==null ? "—" : fmtPct(goalPct);
+
     return `
       <div class="techRow">
         <div class="techMeta" style="align-items:flex-start;display:flex;justify-content:space-between;gap:10px">
@@ -708,16 +773,13 @@ function renderTeam(team, st){
             <div class="val name" style="font-size:16px">
               <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
             </div>
-            <div class="techNameStats">
-              <div class="tnRow tnRow1"><span class="tnLbl">AVG ODO</span><span class="tnVal">${fmtInt(t.odo)}</span></div>
-              <div class="tnRow tnRow2">
-                <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(t.ros)}</span></span>
-                <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
-                <span class="tnMini"><span class="tnLbl">SOLD</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
-              </div>
+            <div class="techUnderNameStats">
+              <div class="tsLine"><span class="tsLbl">AVG ODO</span><span class="tsVal">${fmtInt(t.odo)}</span></div>
+              <div class="tsLine"><span class="tsLbl">ROs</span><span class="tsVal">${fmtInt(t.ros)}</span></div>
+              <div class="tsLine"><span class="tsLbl">ASRs</span><span class="tsVal">${fmtInt(s.asr)}</span></div>
+              <div class="tsLine"><span class="tsLbl">SOLD</span><span class="tsVal">${fmtInt(s.sold)}</span></div>
             </div>
-          </div></div>
-            </div>          </div>
+          </div>
           <div class="techMetaRight" style="margin-left:auto">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
           </div>
@@ -726,10 +788,10 @@ function renderTeam(team, st){
 
         <div class="midPills">
         <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
-          <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
-          <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+          <div class="pill"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+          <div class="pill"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+          <div class="pill"><div class="k">Goal</div><div class="v">${safe(goalPctTxt)}</div></div>
         </div>
         </div>
       </div>
@@ -797,8 +859,8 @@ function renderTeam(team, st){
 }
 
 const state = {
-  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
-  KIA: {filterKey:"total", sortBy:"asr_per_ro", filtersOpen:false},
+  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
+  KIA: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
 };
 
 function toggleTeamFilters(team){
