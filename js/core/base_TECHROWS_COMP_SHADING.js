@@ -644,6 +644,12 @@ function ensureDashTypographyOverrides(){
   margin:0 !important;
 }
 
+
+
+/* Comparison shading (dashboard tech-row pills) */
+.techRow .pill.compG{border-color:rgba(46, 204, 113, .55) !important; box-shadow:0 0 0 1px rgba(46,204,113,.18) inset !important;}
+.techRow .pill.compY{border-color:rgba(241, 196, 15, .55) !important; box-shadow:0 0 0 1px rgba(241,196,15,.18) inset !important;}
+.techRow .pill.compR{border-color:rgba(231, 76, 60, .55) !important; box-shadow:0 0 0 1px rgba(231,76,60,.18) inset !important;}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -754,6 +760,56 @@ function renderTeam(team, st){
     : (goalMetric === 'sold' ? (Number.isFinite(av.sold_pct_avg) ? av.sold_pct_avg : null)
                              : (Number.isFinite(av.asr_per_ro_avg) ? av.asr_per_ro_avg : null));
 
+  // Comparison mode for pill shading (TEAM | STORE | GOAL)
+  const compareMode = (st && st.compare) ? String(st.compare).toLowerCase() : 'team';
+  const storeTechs = (DATA.techs||[]);
+  const storeAv = teamAverages(storeTechs, st.filterKey);
+
+  function avgDerived(listIn, fn){
+    let sum=0, n=0;
+    for(const tt of listIn){
+      const v = fn(tt);
+      if(Number.isFinite(v)){
+        sum += v; n += 1;
+      }
+    }
+    return n ? (sum/n) : null;
+  }
+
+  // Baselines for comparison
+  const baseAsrpr = (compareMode==="store") ? storeAv.asr_per_ro_avg : av.asr_per_ro_avg;
+  const baseSoldPct = (compareMode==="store") ? storeAv.sold_pct_avg : av.sold_pct_avg;
+  const baseGoalRatio = (Number.isFinite(goalTarget) && goalTarget>0) ? (((goalMetric==='sold') ? baseSoldPct : baseAsrpr) / goalTarget) : null;
+
+  const groupList = (compareMode==="store") ? storeTechs : techs;
+
+  const baseSoldRo = avgDerived(groupList, (tt)=>{
+    const ss = (tt.summary && tt.summary[st.filterKey]) ? tt.summary[st.filterKey] : {};
+    const ro = Number(tt.ros);
+    const sold = Number(ss.sold);
+    return (Number.isFinite(ro) && ro>0 && Number.isFinite(sold)) ? (sold/ro) : null;
+  });
+
+  const baseSoldAsr = avgDerived(groupList, (tt)=>{
+    const ss = (tt.summary && tt.summary[st.filterKey]) ? tt.summary[st.filterKey] : {};
+    const sold = Number(ss.sold);
+    const asr = Number(ss.asr);
+    return (Number.isFinite(asr) && asr>0 && Number.isFinite(sold)) ? (sold/asr) : null; // ratio (0-1)
+  });
+
+  // Global goal baselines (if compareMode === "goal")
+  const goalReq = getGoalRaw('__META_GLOBAL','req');
+  const goalClose = getGoalRaw('__META_GLOBAL','close');
+
+  function compClass(actual, baseline){
+    if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
+    const r = actual / baseline;
+    if(r >= 0.80) return " compG";
+    if(r >= 0.60) return " compY";
+    return " compR";
+  }
+
+
   const list=techs.slice();
   list.sort((a,b)=>{
     const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
@@ -780,6 +836,18 @@ function renderTeam(team, st){
     const goalRatio = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0) ? (actualForGoal/goalTarget) : null;
     const goalPctTxt = goalRatio==null ? '—' : fmtPct(goalRatio);
 
+    const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
+    const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
+
+    const compAsrBase = (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr;
+    const compSoldAsrBase = (compareMode==='goal' && Number.isFinite(goalClose) && goalClose>0) ? goalClose : baseSoldAsr;
+    const compGoalBase = (compareMode==='goal') ? 1 : baseGoalRatio;
+
+    const clsAsrpr = compClass(asrpr, compAsrBase);
+    const clsSoldRo = compClass(soldRoVal, baseSoldRo);
+    const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
+    const clsGoal = compClass(goalRatio, compGoalBase);
+
     return `
       <div class="techRow dashTechRow">
         <div class="dashLeft">
@@ -801,9 +869,9 @@ function renderTeam(team, st){
 
         <div class="dashRight">
           <div class="pills">
-            <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-            <div class="pill"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-            <div class="pill"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+            <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+            <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+            <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
                     <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
 </div>
 
