@@ -835,7 +835,7 @@ return `
                 <div class="h2 techH2">${safe(sec.name)}</div>
                 <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
               </div>
-              <div class="sub">${appliedParts.join(" • ")}</div>
+              <div class="sub"></div>
             </div>
             <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
