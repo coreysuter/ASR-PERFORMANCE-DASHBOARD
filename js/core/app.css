@@ -1002,6 +1002,19 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
 .pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
+/* ===== v240: dial text with arrow + short label ===== */
+.pctStack2{flex-direction:column;gap:1px}
+.pctStack2 .pctMain{font-size:calc(var(--sz,64px)/5.1);font-weight:1000;line-height:1}
+.pctStack2 .pctArrow{
+  margin-top:2px;
+  font-size:calc(var(--sz,64px)/6.0);
+  line-height:1;
+  font-weight:1200;
+  color:var(--gCol);
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
+}
+.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
+
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1637,21 +1650,3 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
-
-
-/* === Section focus car icon === */
-.secHdrRight{display:flex;align-items:center;gap:14px;}
-.secCarWrap{display:flex;align-items:center;justify-content:center;}
-.focusCar{position:relative;width:240px;max-width:240px;height:110px;}
-.focusCarImg{width:100%;height:100%;object-fit:contain;display:block;filter:invert(1);opacity:.92;}
-.focusCarText{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.02;}
-.focusCarTop{font-size:42px;font-weight:1000;color:var(--text);letter-spacing:.5px;}
-.focusCarMid{margin-top:2px;font-size:32px;font-weight:1000;color:var(--text);letter-spacing:1px;}
-.focusCarBot{margin-top:4px;font-size:18px;font-weight:600;color:rgba(255,255,255,.78);}
-
-@media (max-width: 1100px){
-  .focusCar{width:200px;max-width:200px;height:96px;}
-  .focusCarTop{font-size:34px;}
-  .focusCarMid{font-size:26px;}
-  .focusCarBot{font-size:16px;}
-}
