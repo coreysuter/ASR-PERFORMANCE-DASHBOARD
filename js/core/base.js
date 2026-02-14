@@ -21,7 +21,11 @@ function renderMenuTechLists(){
 
 function fmtInt(v){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return Math.round(Number(v)).toLocaleString(); }
 function fmt1(v,d=1){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return Number(v).toFixed(d); }
-function fmtPct(v){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return (Number(v)*100).toFixed(1)+"%"; }
+// Percent display: no decimals (per dashboard preference)
+function fmtPct(v){
+  if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—";
+  return Math.round(Number(v)*100) + "%";
+}
 function clamp01(x){ x=Number(x); if(!Number.isFinite(x)) return 0; return Math.max(0, Math.min(1, x)); }
 function miniGauge(pct){
   if(!(Number.isFinite(pct))) return "";
@@ -109,7 +113,7 @@ function fmtPctPlain(v){
   if(v===null||v===undefined||v==="") return "—";
   const n = Number(v);
   if(!isFinite(n)) return "—";
-  return (Math.round(n*10)/10).toFixed(1) + "%";
+  return Math.round(n) + "%";
 }
 
 
