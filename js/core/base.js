@@ -647,37 +647,90 @@ function ensureDashTypographyOverrides(){
 
 
 /* Comparison shading (dashboard tech-row pills)
-   Use an overlay + contrast tint filter so the base pill gradient stays visible
-   and colors look "true" (not flat). */
-.techRow .pill.compG,
-.techRow .pill.compY,
-.techRow .pill.compR{
-  position:relative !important;
-  overflow:hidden !important;
+   Bright, noticeable tint with NO glow outside the pill */
+.techRow .pill{
+  position: relative;
+  overflow: hidden; /* clips everything at pill edge */
+  box-shadow: inset 0 10px 26px rgba(0,0,0,.60) !important; /* no outside glow */
 }
-.techRow .pill.compG > *,
-.techRow .pill.compY > *,
-.techRow .pill.compR > *{
-  position:relative !important;
-  z-index:2 !important;
-}
-/* overlay layer */
-.techRow .pill.compG::before,
-.techRow .pill.compY::before,
-.techRow .pill.compR::before{
+
+/* stronger overlay layer (off by default) */
+.techRow .pill::before{
   content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
+  position:absolute; inset:0;
   pointer-events:none;
-  z-index:1;
-  mix-blend-mode:overlay;
-  filter:contrast(1.35) saturate(1.55);
-  opacity:.33;
+  opacity: 0;
+  background: transparent;
 }
-.techRow .pill.compG::before{ background: rgba(46,204,113,1); }
-.techRow .pill.compY::before{ background: rgba(241,196,15,1); }
-.techRow .pill.compR::before{ background: rgba(231,76,60,1); }
+
+/* bright inner ring (still clipped) */
+.techRow .pill::after{
+  content:"";
+  position:absolute; inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+  opacity: 0;
+}
+
+/* ensure text/content stays above overlays */
+.techRow .pill > *{
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* RED (BRIGHT) */
+.techRow .pill.compR::before{
+  opacity: .78;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.30) 0 42%,
+      rgba(255, 55, 55, .40) 70%,
+      rgba(255, 55, 55, .65) 100%
+    ),
+    linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10));
+}
+.techRow .pill.compR::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 90, 90, .55),
+    inset 0 0 16px rgba(255, 70, 70, .35);
+}
+
+/* YELLOW (BRIGHT lemon, not gold) */
+.techRow .pill.compY::before{
+  opacity: .72;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.28) 0 42%,
+      rgba(255, 245, 120, .35) 70%,
+      rgba(255, 245, 120, .60) 100%
+    ),
+    linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10));
+}
+.techRow .pill.compY::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 160, .50),
+    inset 0 0 16px rgba(255, 235, 90, .30);
+}
+
+/* GREEN (BRIGHT) */
+.techRow .pill.compG::before{
+  opacity: .68;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.30) 0 42%,
+      rgba(60, 255, 140, .30) 70%,
+      rgba(60, 255, 140, .55) 100%
+    ),
+    linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08));
+}
+.techRow .pill.compG::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 255, 180, .45),
+    inset 0 0 16px rgba(60, 255, 140, .28);
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -860,25 +913,21 @@ function renderTeam(team, st){
     const asrpr = techAsrPerRo(t, st.filterKey);
     const soldpct = techSoldPct(t, st.filterKey);
 
-    // Goal ratios (always compute both so we can show ASR GOAL + SOLD GOAL pills)
+    const actualForGoal = (goalMetric === 'sold') ? soldpct : asrpr;
+    const goalRatio = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0) ? (actualForGoal/goalTarget) : null;
+    const goalPctTxt = goalRatio==null ? '—' : fmtPct(goalRatio);
+
+    const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
     const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
-    const asrGoalRatio = (Number.isFinite(asrpr) && Number.isFinite(goalReq) && goalReq>0) ? (asrpr/goalReq) : null;
-    const soldGoalRatio = (Number.isFinite(soldAsrRatio) && Number.isFinite(goalClose) && goalClose>0) ? (soldAsrRatio/goalClose) : null;
-    const asrGoalTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
-    const soldGoalTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
 
     const compAsrBase = (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr;
     const compSoldAsrBase = (compareMode==='goal' && Number.isFinite(goalClose) && goalClose>0) ? goalClose : baseSoldAsr;
-    // For goal-% pills, compare against 100% in GOAL mode; otherwise compare against team/store average goal-%.
-    const baseAsrGoalRatio = (Number.isFinite(baseAsrpr) && Number.isFinite(goalReq) && goalReq>0) ? (baseAsrpr/goalReq) : null;
-    const baseSoldGoalRatio = (Number.isFinite(baseSoldAsr) && Number.isFinite(goalClose) && goalClose>0) ? (baseSoldAsr/goalClose) : null;
-    const compAsrGoalBase = (compareMode==='goal') ? 1 : baseAsrGoalRatio;
-    const compSoldGoalBase = (compareMode==='goal') ? 1 : baseSoldGoalRatio;
+    const compGoalBase = (compareMode==='goal') ? 1 : baseGoalRatio;
 
     const clsAsrpr = compClass(asrpr, compAsrBase);
+    const clsSoldRo = compClass(soldRoVal, baseSoldRo);
     const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-    const clsAsrGoal = compClass(asrGoalRatio, compAsrGoalBase);
-    const clsSoldGoal = compClass(soldGoalRatio, compSoldGoalBase);
+    const clsGoal = compClass(goalRatio, compGoalBase);
 
     return `
       <div class="techRow dashTechRow">
@@ -902,10 +951,10 @@ function renderTeam(team, st){
         <div class="dashRight">
           <div class="pills">
             <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-            <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
-            <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${soldAsrRatio==null ? "—" : fmtPct(soldAsrRatio)}</div></div>
-            <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
-          </div>
+            <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+            <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
+</div>
 
           <div class="techMetaRight">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
