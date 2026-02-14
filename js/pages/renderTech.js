@@ -894,17 +894,24 @@ return `
 
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
-    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
+    const metricLbl = mode==="sold" ? "SOLD" : "ASR";
+    // Keep all text in the lists uniform (size/weight/style) and ensure it always fits.
     return `
-      <div class="techRow pickRowFrame">
-        <div class="techRowLeft">
-          <span class="rankNum">${idx}.</span>
-          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left">${safe(item.label)}</button>
+      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;line-height:1.2">
+        <div class="techRowLeft" style="min-width:0">
+          <span class="rankNum" style="font-size:14px;font-weight:700">${idx}.</span>
+          <button type="button"
+            class="tbJump"
+            data-cat="${safeSvcId(item.cat)}"
+            style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;font:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">
+            ${safe(item.label)}
+          </button>
         </div>
-        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
+        <div class="mini" style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;margin-left:12px">${metricLbl} = ${fmtPct(metric)}</div>
       </div>
     `;
   }
+
 
   
   function tbMiniBox(title, arr, mode, iconDir){
