@@ -8,6 +8,8 @@ function renderMain(){
   if(state && state.EXPRESS && state.KIA){
     state.KIA.filterKey = state.EXPRESS.filterKey;
     state.KIA.sortBy = state.EXPRESS.sortBy;
+    if(state.EXPRESS.goalMetric !== undefined) state.KIA.goalMetric = state.EXPRESS.goalMetric;
+    if(state.EXPRESS.compare !== undefined) state.KIA.compare = state.EXPRESS.compare;
   }
 
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
@@ -23,10 +25,14 @@ function renderMain(){
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPct = totalAsr ? (totalSold/totalAsr) : null;
 
-  const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro"};
+  const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+  const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
+  const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const filterLabel = st.filterKey==="without_fluids" ? "Without Fluids" : (st.filterKey==="fluids_only" ? "Fluids Only" : "With Fluids (Total)");
   const focusLabel = (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO");
-  const appliedTextHtml = (typeof renderFiltersText === 'function') ? renderFiltersText([filterLabel, focusLabel]) : "";
+  const goalLabel = `Goal: ${goalMetric==="sold" ? "Sold" : "ASR"}`;
+  const compareLabel = `Compare: ${compareMode.toUpperCase()}`;
+  const appliedTextHtml = (typeof renderFiltersText === 'function') ? renderFiltersText([filterLabel, focusLabel, goalLabel, compareLabel]) : "";
 
   const header = `
     <div class="panel techHeaderPanel">
@@ -77,6 +83,21 @@ function renderMain(){
                 <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
               </select>
             </div>
+            <div>
+              <label>Goal</label>
+              <select data-scope="main" data-ctl="goal">
+                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
+              </select>
+            </div>
+            <div>
+              <label>Comparison</label>
+              <select data-scope="main" data-ctl="compare">
+                <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
+                <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
+                <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -94,10 +115,14 @@ function renderMain(){
       if(scope==="main"){
         if(ctl==="filter"){ state.EXPRESS.filterKey=el.value; state.KIA.filterKey=el.value; }
         if(ctl==="sort"){ state.EXPRESS.sortBy=el.value; state.KIA.sortBy=el.value; }
+        if(ctl==="goal"){ state.EXPRESS.goalMetric=el.value; state.KIA.goalMetric=el.value; }
+        if(ctl==="compare"){ state.EXPRESS.compare=el.value; state.KIA.compare=el.value; }
       } else if(team && state[team]){
         const st=state[team];
         if(ctl==="filter") st.filterKey=el.value;
         if(ctl==="sort") st.sortBy=el.value;
+        if(ctl==="goal") st.goalMetric=el.value;
+        if(ctl==="compare") st.compare=el.value;
         if(ctl==="search") st.search=el.value;
       }
       renderMain();
