@@ -1002,6 +1002,19 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
 .pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
+/* ===== v240: dial text with arrow + short label ===== */
+.pctStack2{flex-direction:column;gap:1px}
+.pctStack2 .pctMain{font-size:calc(var(--sz,64px)/5.1);font-weight:1000;line-height:1}
+.pctStack2 .pctArrow{
+  margin-top:2px;
+  font-size:calc(var(--sz,64px)/6.0);
+  line-height:1;
+  font-weight:1200;
+  color:var(--gCol);
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
+}
+.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
+
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1139,7 +1152,7 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.05fr 1.95fr; /* narrower tech header, wider diag for triangle breathing room */
+  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
 }
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
