@@ -70,10 +70,11 @@ function router(){
   if(h.startsWith("#/tech/")){
     const rest = h.slice("#/tech/".length);
     const id = decodeURIComponent(rest.split("?")[0] || "");
-    renderTech(id);
+    // renderTech is attached on window (some builds don't expose it as a bare global)
+    window.renderTech?.(id);
     return;
   }
-  renderMain();
+  window.renderMain?.();
 }
 
 
