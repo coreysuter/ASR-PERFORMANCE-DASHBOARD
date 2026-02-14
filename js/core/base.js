@@ -947,6 +947,9 @@ const state = {
   EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
   KIA: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
 };
+// expose state for module scripts (app.js)
+window.state = state;
+
 
 function toggleTeamFilters(team){
   if(!state[team]) return;
