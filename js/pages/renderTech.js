@@ -448,55 +448,7 @@ const s = t.summary?.[filterKey] || {};
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
-  
-  // Section rank (category header badge): rank the technician vs comparison peers for this section only
-  function sectionRankFor(sec){
-    const cats = Array.from(new Set((sec && sec.categories ? sec.categories : []).filter(Boolean)));
-    if(!cats.length) return {rank:null,total:null};
-
-    const CMP_TECHS = (compareBasis==="team") ? TEAM_TECHS : STORE_TECHS;
-
-    function metricForSection(x){
-      const vals = [];
-      for(const cat of cats){
-        const c = x.categories?.[cat];
-        if(!c) continue;
-
-        if(focus==="sold"){
-          const v = Number(c.close);
-          if(Number.isFinite(v)) vals.push(v);
-          continue;
-        }
-
-        if(focus==="goal"){
-          const req = Number(c.req ?? NaN);
-          const close = Number(c.close ?? NaN);
-          const gReq = Number(getGoal(cat,"req"));
-          const gClose = Number(getGoal(cat,"close"));
-          const parts = [];
-          if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) parts.push(req/gReq);
-          if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) parts.push(close/gClose);
-          if(parts.length) vals.push(parts.reduce((a,b)=>a+b,0)/parts.length);
-          continue;
-        }
-
-        // focus==="asr"
-        const v = Number(c.req);
-        if(Number.isFinite(v)) vals.push(v);
-      }
-      return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length) : NaN;
-    }
-
-    const vals = CMP_TECHS
-      .map(x=>({id:x.id, v: metricForSection(x)}))
-      .filter(o=>Number.isFinite(o.v))
-      .sort((a,b)=>b.v-a.v);
-
-    const meIdx = vals.findIndex(o=>o.id===t.id);
-    return {rank: meIdx>=0 ? meIdx+1 : null, total: vals.length || null};
-  }
-
-const appliedParts = [
+  const appliedParts = [
     `${filterLabel(filterKey)}`,
     (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
     (focus==="sold" ? "Focus: Sold" : (focus==="goal" ? "Focus: Goal" : "Focus: ASR/RO"))
@@ -505,6 +457,7 @@ const appliedParts = [
 
 
   const filters = `
+    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
     <div class="controls" style="margin-top:10px">
       <div>
         <label>Summary Filter</label>
@@ -521,11 +474,12 @@ const appliedParts = [
           <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
         </select>
       </div>
+      <div style="visibility:hidden"></div>
       <div>
-        <label>Focus</label>
+        <label>Goal</label>
         <select id="techFocus">
-          <option value="asr" ${focus==="asr"?"selected":""}>ASR/RO</option>
-          <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
+          <option value="asr" ${focus==="asr"?"selected":""}>ASR</option>
+          <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
@@ -567,6 +521,10 @@ const appliedParts = [
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
   const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? `(${(__soldOfAsr*100).toFixed(1)}%)` : "";
+  const __asrPerRoVal = techAsrPerRo(t, filterKey);
+  const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
+  const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
+  const __soldPerRoTxt = Number.isFinite(__soldPerRoVal) ? fmt1(__soldPerRoVal, 1) : "—";
 
 
   const __fullName = String(t.name||"").trim();
@@ -583,43 +541,46 @@ const appliedParts = [
 const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="titleRow techTitleRow" style="align-items:flex-start;">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-          </div>
-          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
-            <div class="h2 techH2Big">${__nameHtml}</div>
-            <div class="techTeamLine">${safe(team)}</div>
-          </div>
-          <div class="techRightCluster" style="margin-left:auto;display:flex;align-items:flex-start;gap:14px;min-width:0;">
-            <div class="overallBlock" style="text-align:right;">
-              <div class="overallMetric" style="font-size:40px;font-weight:1200;line-height:1;color:#fff;">${focusVal}</div>
-              <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
+        <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
+          <div class="techTitlePinnedLeft" style="display:flex;align-items:flex-start;gap:18px;min-width:0;flex:1 1 auto;">
+            <div class="techTitleLeft">
+              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
             </div>
-            <div class="techRankBadgeWrap">
-              ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+            <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
+              <div class="h2 techH2Big">${__nameHtml}</div>
+              <div class="techTeamLine">${safe(team)}</div>
             </div>
           </div>
-        </div>
+          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
+            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+            </div>
+            <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
+  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
+</div>
+${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+          </div></div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
           <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
@@ -850,9 +811,6 @@ return `
     const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? pctGoal : pctAsr);
     const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASR");
 
-    const secRk = sectionRankFor(sec);
-
-
     const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
@@ -871,7 +829,7 @@ return `
               </div>
               <div class="sub">${appliedParts.join(" • ")}</div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="display:flex;align-items:center;justify-content:center;min-width:0;">${rankBadgeHtml((secRk&&secRk.rank)?secRk.rank:"—",(secRk&&secRk.total)?secRk.total:"—",focus,"sm")}</div><div class="secHdrStats" style="text-align:right">
+            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
@@ -928,21 +886,18 @@ return `
 
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
-    const metricLbl = mode==="sold" ? "SOLD" : "ASR";
-    const valTxt = `${metricLbl} = ${fmtPct(metric)}`;
+    const metricLbl = mode==="sold" ? "Sold%" : "ASR%";
     return `
-      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;">
-        <div class="techRowLeft" style="min-width:0;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;">
-          <span class="rankNum" style="font-size:14px;font-weight:700;">${idx}.</span>
-          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}"
-            style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:700;flex:1;min-width:0;">
-            ${safe(item.label)}
-          </button>
+      <div class="techRow pickRowFrame">
+        <div class="techRowLeft">
+          <span class="rankNum">${idx}.</span>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}" style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left">${safe(item.label)}</button>
         </div>
-        <div class="mini" style="font-size:14px;font-weight:700;white-space:nowrap;">${valTxt}</div>
+        <div class="mini">${metricLbl} ${fmtPct(metric)}</div>
       </div>
     `;
   }
+
   
   function tbMiniBox(title, arr, mode, iconDir){
     const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
@@ -962,33 +917,38 @@ return `
 
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px">
+      <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <!-- ASR row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start">
-          <div class="diagLabelCol">
-            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
-            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
-              ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
-              ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+        <div class="diagBandRow" style="padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+                ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
+                ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+              </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
             </div>
+            <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
+            <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
           </div>
-          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
         </div>
-
-        <div class="diagSplitLine" style="height:1px;background:rgba(255,255,255,.14);margin:12px 0;"></div>
+        <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
 
         <!-- SOLD row -->
-        <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
-          <div class="diagLabelCol">
-            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
-            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
-              ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
-              ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+        <div class="diagBandRow" style="padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+                ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+                ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+              </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
             </div>
+            <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+            <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
           </div>
-          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>
       </div>
     </div>
