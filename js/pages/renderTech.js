@@ -224,6 +224,7 @@ function renderTech(techId){
   let filterKey = "total";
   let compareBasis = "team";
   let focus = "asr"; // asr | sold
+  let goalMetric = "asr"; // asr | sold (which goal set to reference when focus=goal)
 const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
@@ -237,6 +238,10 @@ const hash = location.hash || "";
       if(k==="focus"){
         const vv = decodeURIComponent(v||"") || "asr";
         focus = (vv==="sold"||vv==="goal"||vv==="asr") ? vv : "asr";
+      }
+      if(k==="goal"){
+        const vv = decodeURIComponent(v||"") || "asr";
+        goalMetric = (vv==="sold") ? "sold" : "asr";
       }
     }
   }
@@ -415,10 +420,12 @@ const s = t.summary?.[filterKey] || {};
           const close = Number(c.close ?? NaN);
           const gReq = Number(getGoal(cat,"req"));
           const gClose = Number(getGoal(cat,"close"));
-          const parts = [];
-          if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) parts.push(req/gReq);
-          if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) parts.push(close/gClose);
-          v = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
+          // Use the goal metric chosen in the Goal dropdown.
+          if(goalMetric==="sold"){
+            v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+          }else{
+            v = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+          }
         }else{
           v = Number(c.req);
         }
@@ -436,10 +443,11 @@ const s = t.summary?.[filterKey] || {};
       const close = Number(meC.close);
       const gReq = Number(getGoal(cat,"req"));
       const gClose = Number(getGoal(cat,"close"));
-      const parts = [];
-      if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) parts.push(req/gReq);
-      if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) parts.push(close/gClose);
-      me = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
+      if(goalMetric==="sold"){
+        me = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+      }else{
+        me = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+      }
     }else{
       me = Number(meC.req);
     }
@@ -448,19 +456,10 @@ const s = t.summary?.[filterKey] || {};
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
-  const appliedParts = [
-    `${filterLabel(filterKey)}`,
-    (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
-    (focus==="sold" ? "Focus: Sold" : (focus==="goal" ? "Focus: Goal" : "Focus: ASR/RO"))
-  ];
-  const appliedTextHtml = renderFiltersText(appliedParts);
-
-
   const filters = `
-    <div class="appliedInline" style="margin-top:0">${appliedTextHtml}</div>
     <div class="controls" style="margin-top:10px">
       <div>
-        <label>Summary Filter</label>
+        <label>Fluids</label>
         <select id="techFilter">
           <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
           <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
@@ -474,13 +473,19 @@ const s = t.summary?.[filterKey] || {};
           <option value="store" ${compareBasis==="store"?"selected":""}>Store</option>
         </select>
       </div>
-      <div style="visibility:hidden"></div>
       <div>
-        <label>Goal</label>
+        <label>Focus</label>
         <select id="techFocus">
           <option value="asr" ${focus==="asr"?"selected":""}>ASR</option>
           <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
+        </select>
+      </div>
+      <div>
+        <label>Goal</label>
+        <select id="techGoalMetric">
+          <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+          <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
         </select>
       </div>
     </div>
@@ -496,8 +501,11 @@ const s = t.summary?.[filterKey] || {};
       const close = Number(c.close ?? NaN);
       const gReq = Number(getGoal(cat,"req"));
       const gClose = Number(getGoal(cat,"close"));
-      if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0){ sum += (req/gReq); n++; }
-      if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0){ sum += (close/gClose); n++; }
+      if(goalMetric==="sold"){
+        if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0){ sum += (close/gClose); n++; }
+      }else{
+        if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0){ sum += (req/gReq); n++; }
+      }
     }
     return n ? (sum/n) : null; // ratio (1.0 = 100% of goal)
   }
@@ -980,7 +988,8 @@ return `
       const v = sel.value || "total";
       const c = encodeURIComponent(compareBasis||"team");
       const fo = encodeURIComponent(focus||"asr");
-      location.hash = `#/tech/${encodeURIComponent(t.id)}?filter=${encodeURIComponent(v)}&compare=${c}&focus=${fo}`;
+      const g = encodeURIComponent(goalMetric||"asr");
+      location.hash = `#/tech/${encodeURIComponent(t.id)}?filter=${encodeURIComponent(v)}&compare=${c}&focus=${fo}&goal=${g}`;
     });
   }
 
@@ -990,7 +999,8 @@ return `
       const f = encodeURIComponent(filterKey);
       const c = encodeURIComponent(compSel.value||"team");
       const fo = encodeURIComponent(focus||"asr");
-      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}`;
+      const g = encodeURIComponent(goalMetric||"asr");
+      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
     });
   }
 
@@ -1000,7 +1010,19 @@ return `
       const f = encodeURIComponent(filterKey);
       const c = encodeURIComponent(compareBasis||'team');
       const fo = encodeURIComponent(focusSel.value||'asr');
-      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}`;
+      const g = encodeURIComponent(goalMetric||"asr");
+      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
+    });
+  }
+
+  const goalSel = document.getElementById('techGoalMetric');
+  if(goalSel){
+    goalSel.addEventListener('change', ()=>{
+      const f = encodeURIComponent(filterKey);
+      const c = encodeURIComponent(compareBasis||'team');
+      const fo = encodeURIComponent(focus||'asr');
+      const g = encodeURIComponent(goalSel.value||'asr');
+      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
     });
   }
 }
