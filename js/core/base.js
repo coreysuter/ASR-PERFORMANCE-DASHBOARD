@@ -21,11 +21,7 @@ function renderMenuTechLists(){
 
 function fmtInt(v){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return Math.round(Number(v)).toLocaleString(); }
 function fmt1(v,d=1){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return Number(v).toFixed(d); }
-// Percent display: no decimals (per dashboard preference)
-function fmtPct(v){
-  if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—";
-  return Math.round(Number(v)*100) + "%";
-}
+function fmtPct(v){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return (Number(v)*100).toFixed(1)+"%"; }
 function clamp01(x){ x=Number(x); if(!Number.isFinite(x)) return 0; return Math.max(0, Math.min(1, x)); }
 function miniGauge(pct){
   if(!(Number.isFinite(pct))) return "";
@@ -113,7 +109,7 @@ function fmtPctPlain(v){
   if(v===null||v===undefined||v==="") return "—";
   const n = Number(v);
   if(!isFinite(n)) return "—";
-  return Math.round(n) + "%";
+  return (Math.round(n*10)/10).toFixed(1) + "%";
 }
 
 
@@ -264,18 +260,8 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    const h = location.hash || "#/";
-    const isMainDash = (h === "#/" || h === "#" || h.startsWith("#/?"));
-
-    // Always clear any prior injected dashboard-only overrides
-    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el) el.remove();
-    });
-
-    // These overrides are ONLY meant for the main dashboard list (#/).
-    // If we're not on the main dashboard, don't inject anything (prevents breaking ServicesHome tech rows, etc.).
-    if(!isMainDash) return;
+    // force-replace any previous dashboard override styles
+    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{const el=document.getElementById(id); if(el) el.remove();});
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
@@ -321,33 +307,14 @@ function ensureDashTypographyOverrides(){
   font-weight:1000 !important;
 }
 
-/* Tech name stats block (prevents overlap; sits directly below name) */
-.techRow .techNameStats{
+/* Avg ODO pill centered under the tech name */
+.techRow .odoUnderName{
   position:absolute !important;
-  top:48px !important;
+  top:52px !important;
   left:18px !important;
+  width:min(58%, 300px) !important;
   display:flex !important;
-  flex-direction:column !important;
-  gap:6px !important;
-  align-items:flex-start !important;
-  max-width:240px !important;   /* prevent it from pushing into pills/rank area */
-  min-width:0 !important;
-  overflow:hidden !important;
-}
-.techRow .techNameStats .tnRow{display:flex !important; flex-wrap:nowrap !important; align-items:baseline !important; gap:10px !important;}
-.techRow .techNameStats .tnRow2{gap:14px !important;}
-.techRow .techNameStats .tnMini{display:inline-flex !important; align-items:baseline !important; gap:8px !important;}
-.techRow .techNameStats .tnLbl{
-  font-size:10px !important;
-  color:var(--muted) !important;
-  font-weight:900 !important;
-  letter-spacing:.2px !important;
-  text-transform:uppercase !important;
-}
-.techRow .techNameStats .tnVal{
-  font-size:16px !important;
-  font-weight:1000 !important;
-  line-height:1 !important;
+  justify-content:center !important;
 }
 .techRow .pill.odoHeaderLike{
   width:190px !important;
@@ -569,7 +536,7 @@ function ensureDashTypographyOverrides(){
 .techRow .pill{
   background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.72)) !important;
   border:1px solid rgba(255,255,255,.18) !important;
-  box-shadow:0 12px 30px rgba(0,0,0,.58) inset, 0 10px 24px rgba(0,0,0,.22) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.58) inset !important;
 }
 
 /* Mobile adjustments */
@@ -584,90 +551,6 @@ function ensureDashTypographyOverrides(){
     left:186px !important;
     right:108px !important;
   }
-}
-
-/* --- FINAL: dashboard tech-row flex layout (prevents wrapping / 2-row layouts) --- */
-.techRow.dashTechRow{
-  position:relative !important;
-  display:flex !important;
-  align-items:center !important;
-  gap:18px !important;
-  padding:12px 14px !important;
-  min-height:auto !important;
-}
-.techRow.dashTechRow .dashLeft{
-  flex:0 0 auto !important;
-  max-width:260px !important;   /* hard limit so it can’t push pills/rank */
-  min-width:220px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:8px !important;
-}
-.techRow.dashTechRow .val.name{
-  position:static !important;
-  max-width:100% !important;
-}
-.techRow.dashTechRow .techNameStats{
-  position:static !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-}
-.techRow.dashTechRow .techNameStats .tnRow{
-  display:flex !important;
-  flex-wrap:nowrap !important;
-  gap:12px !important;
-}
-.techRow.dashTechRow .dashRight{
-  flex:1 1 auto !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-start !important; /* starts immediately after name block */
-  gap:12px !important;
-  min-width:0 !important;
-}
-.techRow.dashTechRow .pills{
-  position:static !important;
-  transform:none !important;
-  left:auto !important;
-  right:auto !important;
-  top:auto !important;
-  display:flex !important;
-  flex-wrap:nowrap !important;
-  justify-content:flex-start !important;
-  gap:10px !important;
-  padding:0 !important;
-  margin:0 !important;
-}
-.techRow.dashTechRow .techMetaRight{
-  position:static !important;
-  transform:none !important;
-  margin:0 !important;
-}
-
-
-
-/* Comparison shading (dashboard tech-row pills)
-   Start over: solid R/G/Y pills with black contrast (border + inner stroke). */
-.techRow .pill.compG,
-.techRow .pill.compY,
-.techRow .pill.compR{
-  border:1px solid rgba(0,0,0,.95) !important;
-  box-shadow:
-    0 0 0 2px rgba(0,0,0,.55) inset,
-    0 10px 22px rgba(0,0,0,.18) !important;
-}
-
-/* Solid fills */
-.techRow .pill.compG{ background: rgba(46,204,113,.88) !important; }
-.techRow .pill.compY{ background: rgba(241,196,15,.88) !important; }
-.techRow .pill.compR{ background: rgba(231,76,60,.88) !important; }
-
-/* Text tuned for solid fills */
-.techRow .pill.compG .k, .techRow .pill.compG .v,
-.techRow .pill.compY .k, .techRow .pill.compY .v,
-.techRow .pill.compR .k, .techRow .pill.compR .v{
-  color: rgba(0,0,0,.92) !important;
-  text-shadow:none !important;
 }
 `;
     const style = document.createElement("style");
@@ -770,64 +653,25 @@ function renderTeam(team, st){
   const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
 
-  // Goal metric selection (from dashboard header Goal dropdown)
-  const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
-  const goalKey = (goalMetric === 'sold') ? 'close' : 'req';
-  const storedGoal = getGoalRaw('__META_GLOBAL', goalKey);
-  const goalTarget = (Number.isFinite(storedGoal) && storedGoal>0)
-    ? storedGoal
-    : (goalMetric === 'sold' ? (Number.isFinite(av.sold_pct_avg) ? av.sold_pct_avg : null)
-                             : (Number.isFinite(av.asr_per_ro_avg) ? av.asr_per_ro_avg : null));
-
-  // Comparison mode for pill shading (TEAM | STORE | GOAL)
-  const compareMode = (st && st.compare) ? String(st.compare).toLowerCase() : 'team';
-  const storeTechs = (DATA.techs||[]);
+  // Comparison baseline for coloring pills (TEAM | STORE | GOAL)
+  const compareMode = (st && st.compare) ? String(st.compare).toLowerCase() : "team";
+  const storeTechs = (DATA && Array.isArray(DATA.techs)) ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA")) : [];
   const storeAv = teamAverages(storeTechs, st.filterKey);
 
-  function avgDerived(listIn, fn){
-    let sum=0, n=0;
-    for(const tt of listIn){
-      const v = fn(tt);
-      if(Number.isFinite(v)){
-        sum += v; n += 1;
-      }
-    }
-    return n ? (sum/n) : null;
-  }
+  const goalReq = (typeof getGoalRaw === "function") ? getGoalRaw("__META_GLOBAL","req") : null;
 
-  // Baselines for comparison
+  const baseRos  = (compareMode==="store") ? storeAv.ros_avg : av.ros_avg;
+  const baseAsr  = (compareMode==="store") ? storeAv.asr_total_avg : av.asr_total_avg;
+  const baseSold = (compareMode==="store") ? storeAv.sold_avg : av.sold_avg;
   const baseAsrpr = (compareMode==="store") ? storeAv.asr_per_ro_avg : av.asr_per_ro_avg;
-  const baseSoldPct = (compareMode==="store") ? storeAv.sold_pct_avg : av.sold_pct_avg;
-  const baseGoalRatio = (Number.isFinite(goalTarget) && goalTarget>0) ? (((goalMetric==='sold') ? baseSoldPct : baseAsrpr) / goalTarget) : null;
-
-  const groupList = (compareMode==="store") ? storeTechs : techs;
-
-  const baseSoldRo = avgDerived(groupList, (tt)=>{
-    const ss = (tt.summary && tt.summary[st.filterKey]) ? tt.summary[st.filterKey] : {};
-    const ro = Number(tt.ros);
-    const sold = Number(ss.sold);
-    return (Number.isFinite(ro) && ro>0 && Number.isFinite(sold)) ? (sold/ro) : null;
-  });
-
-  const baseSoldAsr = avgDerived(groupList, (tt)=>{
-    const ss = (tt.summary && tt.summary[st.filterKey]) ? tt.summary[st.filterKey] : {};
-    const sold = Number(ss.sold);
-    const asr = Number(ss.asr);
-    return (Number.isFinite(asr) && asr>0 && Number.isFinite(sold)) ? (sold/asr) : null; // ratio (0-1)
-  });
-
-  // Global goal baselines (if compareMode === "goal")
-  const goalReq = getGoalRaw('__META_GLOBAL','req');
-  const goalClose = getGoalRaw('__META_GLOBAL','close');
 
   function compClass(actual, baseline){
-    if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
-    const r = actual / baseline;
+    if(!Number.isFinite(Number(actual)) || !Number.isFinite(Number(baseline)) || Number(baseline)<=0) return "";
+    const r = Number(actual) / Number(baseline);
     if(r >= 0.80) return " compG";
     if(r >= 0.60) return " compY";
     return " compR";
   }
-
 
   const list=techs.slice();
   list.sort((a,b)=>{
@@ -851,52 +695,29 @@ function renderTeam(team, st){
     const asrpr = techAsrPerRo(t, st.filterKey);
     const soldpct = techSoldPct(t, st.filterKey);
 
-    const actualForGoal = (goalMetric === 'sold') ? soldpct : asrpr;
-    const goalRatio = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0) ? (actualForGoal/goalTarget) : null;
-    const goalPctTxt = goalRatio==null ? '—' : fmtPct(goalRatio);
-
-    const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
-    const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
-
-    const compAsrBase = (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr;
-    const compSoldAsrBase = (compareMode==='goal' && Number.isFinite(goalClose) && goalClose>0) ? goalClose : baseSoldAsr;
-    const compGoalBase = (compareMode==='goal') ? 1 : baseGoalRatio;
-
-    const clsAsrpr = compClass(asrpr, compAsrBase);
-    const clsSoldRo = compClass(soldRoVal, baseSoldRo);
-    const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-    const clsGoal = compClass(goalRatio, compGoalBase);
-
     return `
-      <div class="techRow dashTechRow">
-        <div class="dashLeft">
-          <div class="val name" style="font-size:16px">
-            <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
-          </div>
-
-          <div class="techNameStats">
-            <div class="tnRow tnRow1">
-              <span class="tnMini"><span class="tnLbl">AVG ODO</span><span class="tnVal">${fmtInt(t.odo)}</span></span>
-              <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(t.ros)}</span></span>
+      <div class="techRow">
+        <div class="techMeta" style="align-items:flex-start;display:flex;justify-content:space-between;gap:10px">
+          <div class="techMetaLeft">
+            <div class="val name" style="font-size:16px">
+              <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
             </div>
-            <div class="tnRow tnRow2">
-              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
-              <span class="tnMini"><span class="tnLbl">SOLD</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="dashRight">
-          <div class="pills">
-            <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-            <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-            <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
-</div>
-
-          <div class="techMetaRight">
+            <div class="odoUnderName">
+              <div class="pill odoHeaderLike"><div class="kv"><div class="k">AVG ODO</div><div class="v">${fmtInt(t.odo)}</div></div></div>
+            </div>          </div>
+          <div class="techMetaRight" style="margin-left:auto">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
           </div>
+
+        </div>
+
+        <div class="midPills">
+        <div class="pills">
+          <div class="pill${compareMode==='goal' ? '' : compClass(t.ros, baseRos)}"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
+          <div class="pill${compareMode==='goal' ? '' : compClass(s.asr, baseAsr)}"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
+          <div class="pill${compareMode==='goal' ? '' : compClass(s.sold, baseSold)}"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
+          <div class="pill${compClass(asrpr, (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr)}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+        </div>
         </div>
       </div>
     `;
@@ -963,12 +784,9 @@ function renderTeam(team, st){
 }
 
 const state = {
-  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
-  KIA: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
+  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", compare:"team", filtersOpen:false},
+  KIA: {filterKey:"total", sortBy:"asr_per_ro", compare:"team", filtersOpen:false},
 };
-// expose state for module scripts (app.js)
-window.state = state;
-
 
 function toggleTeamFilters(team){
   if(!state[team]) return;
