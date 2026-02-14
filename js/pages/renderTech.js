@@ -869,6 +869,35 @@ function sectionRankFor(sec){
     const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
+    // Car Focus icon (shows Focus stat + secondary stat inside car outline)
+    const asrTxt = fmtPct(secStats.avgReq);
+    const soldTxt = fmtPct(secStats.avgClose);
+
+    let carTop = asrTxt, carMid = "RECOMMENDED", carSub = `(${soldTxt} SOLD)`;
+    if(focus==="sold"){
+      carTop = soldTxt; carMid = "SOLD"; carSub = `(${asrTxt} REC)`;
+    }else if(focus==="goal"){
+      if(goalMetric==="sold"){
+        carTop = fmtPct(pctGoalSold);
+        carMid = "SOLD";
+        carSub = `(${fmtPct(pctGoalAsr)} REC)`;
+      }else{
+        carTop = fmtPct(pctGoalAsr);
+        carMid = "RECOMMENDED";
+        carSub = `(${fmtPct(pctGoalSold)} SOLD)`;
+      }
+    }
+
+    const carFocusHtml = `
+      <div class="secCarFocus" aria-label="Category focus summary">
+        <div class="carTxt">
+          <div class="carTop">${carTop}</div>
+          <div class="carMid">${carMid}</div>
+          <div class="carSub">${carSub}</div>
+        </div>
+      </div>
+    `;
+
     const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
     const rows = __cats.map(cat=>renderCategoryRectSafe(cat, compareBasis)).join("");
 return `
@@ -882,7 +911,7 @@ return `
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
+            <div class="secHdrRight">${carFocusHtml}<div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
