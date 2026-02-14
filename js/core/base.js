@@ -575,6 +575,82 @@ function ensureDashTypographyOverrides(){
     left:auto !important;
   }
 }
+
+
+/* ---- Comparison tints for tech-row pills (NO outside glow) ---- */
+.techRow .pill{
+  position:relative !important;
+  overflow:hidden !important; /* hard stop */
+}
+
+/* remove any outer glow when a comparison class is applied */
+.techRow .pill.compG,
+.techRow .pill.compY,
+.techRow .pill.compR{
+  box-shadow:0 12px 30px rgba(0,0,0,.58) inset !important;
+}
+
+/* tint overlay layer */
+.techRow .pill.compG::before,
+.techRow .pill.compY::before,
+.techRow .pill.compR::before{
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  opacity:.38;
+}
+
+/* GREEN (80-100%+) */
+.techRow .pill.compG{
+  border:1px solid rgba(120,255,190,.22) !important;
+}
+.techRow .pill.compG::before{
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.62) 0 48%,
+      rgba(60,255,140,.18) 76%,
+      rgba(60,255,140,.30) 100%
+    ),
+    linear-gradient(180deg, rgba(60,255,140,.12), rgba(60,255,140,.05));
+}
+
+/* YELLOW (60-79%) */
+.techRow .pill.compY{
+  border:1px solid rgba(255,245,120,.22) !important;
+}
+.techRow .pill.compY::before{
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.62) 0 48%,
+      rgba(255,245,120,.18) 76%,
+      rgba(255,245,120,.30) 100%
+    ),
+    linear-gradient(180deg, rgba(255,245,120,.12), rgba(255,245,120,.05));
+}
+
+/* RED (<60%) */
+.techRow .pill.compR{
+  border:1px solid rgba(255,120,120,.22) !important;
+}
+.techRow .pill.compR::before{
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.62) 0 48%,
+      rgba(255,70,70,.18) 76%,
+      rgba(255,70,70,.30) 100%
+    ),
+    linear-gradient(180deg, rgba(255,70,70,.12), rgba(255,70,70,.05));
+}
+
+/* keep tech-row pill text flat white, no shading */
+.techRow .pill.compG, .techRow .pill.compG *,
+.techRow .pill.compY, .techRow .pill.compY *,
+.techRow .pill.compR, .techRow .pill.compR *{
+  color:#fff !important;
+  text-shadow:none !important;
+  filter:none !important;
+}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -676,6 +752,24 @@ function renderTeam(team, st){
   const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
 
+  // Comparison mode for tech-row pill tinting (TEAM / STORE / GOAL)
+  const compareMode = (st && st.compare==="store") ? "store" : (st && st.compare==="goal" ? "goal" : "team");
+  const storeTechs = (DATA.techs||[]).filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA"));
+  const storeAv = teamAverages(storeTechs, st.filterKey);
+
+  // Determine baseline stats for coloring
+  const base = (compareMode==="store") ? storeAv : av;
+
+  function compClass(val, baseVal){
+    const v = Number(val);
+    const b = Number(baseVal);
+    if(!(Number.isFinite(v) && Number.isFinite(b) && b>0)) return "";
+    const pct = v / b;
+    if(pct >= 0.80) return "compG";
+    if(pct >= 0.60) return "compY";
+    return "compR";
+  }
+
   const list=techs.slice();
   list.sort((a,b)=>{
     const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
@@ -712,10 +806,10 @@ function renderTeam(team, st){
 
         <div class="midPills">
         <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
-          <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
-          <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
-          <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+          <div class="pill ${compClass(t.ros, base.ros_avg)}"><div class="k">ROs</div><div class="v">${fmtInt(t.ros)}</div></div>
+          <div class="pill ${compClass(s.asr, base.asr_total_avg)}"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
+          <div class="pill ${compClass(s.sold, base.sold_avg)}"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
+          <div class="pill ${compClass(asrpr, base.asr_per_ro_avg)}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
         </div>
         <div class="techMetaRight">
           ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
