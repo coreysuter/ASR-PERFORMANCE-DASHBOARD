@@ -646,62 +646,91 @@ function ensureDashTypographyOverrides(){
 
 
 
-/*
 /* Comparison shading (dashboard tech-row pills)
-   Strong clipped tints (NO glow outside pill) */
-.techRow .pill.compG,
-.techRow .pill.compY,
-.techRow .pill.compR{
-  position:relative !important;
-  overflow:hidden !important;            /* hard-stop tint at edge */
-  border:1px solid rgba(255,255,255,.16) !important;
-  box-shadow:0 12px 30px rgba(0,0,0,.58) inset !important; /* remove outer glow */
-}
-.techRow .pill.compG > *, .techRow .pill.compY > *, .techRow .pill.compR > *{
-  position:relative !important;
-  z-index:2 !important;
-  color:#fff !important;
-  text-shadow:none !important;
+   Bright, noticeable tint with NO glow outside the pill */
+.techRow .pill{
+  position: relative;
+  overflow: hidden; /* clips everything at pill edge */
+  box-shadow: inset 0 10px 26px rgba(0,0,0,.60) !important; /* no outside glow */
 }
 
-/* tint overlay (center stays darker; edges get color) */
-.techRow .pill.compG::before,
-.techRow .pill.compY::before,
-.techRow .pill.compR::before{
+/* stronger overlay layer (off by default) */
+.techRow .pill::before{
   content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
+  position:absolute; inset:0;
   pointer-events:none;
-  z-index:1;
-  opacity:.55;
+  opacity: 0;
+  background: transparent;
 }
-.techRow .pill.compG{ border-color: rgba(60,255,140,.26) !important; }
-.techRow .pill.compY{ border-color: rgba(255,245,120,.24) !important; }
-.techRow .pill.compR{ border-color: rgba(255,70,70,.24) !important; }
 
-.techRow .pill.compG::before{
-  background:
-    radial-gradient(circle at 50% 55%,
-      rgba(0,0,0,.62) 0 46%,
-      rgba(60,255,140,.16) 72%,
-      rgba(60,255,140,.34) 100%);
+/* bright inner ring (still clipped) */
+.techRow .pill::after{
+  content:"";
+  position:absolute; inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+  opacity: 0;
 }
-.techRow .pill.compY::before{
-  background:
-    radial-gradient(circle at 50% 55%,
-      rgba(0,0,0,.62) 0 46%,
-      rgba(255,245,120,.16) 72%,
-      rgba(255,245,120,.34) 100%);
+
+/* ensure text/content stays above overlays */
+.techRow .pill > *{
+  position: relative !important;
+  z-index: 2 !important;
 }
+
+/* RED (BRIGHT) */
 .techRow .pill.compR::before{
+  opacity: .78;
   background:
     radial-gradient(circle at 50% 55%,
-      rgba(0,0,0,.62) 0 46%,
-      rgba(255,70,70,.16) 72%,
-      rgba(255,70,70,.34) 100%);
+      rgba(0,0,0,.30) 0 42%,
+      rgba(255, 55, 55, .40) 70%,
+      rgba(255, 55, 55, .65) 100%
+    ),
+    linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10));
+}
+.techRow .pill.compR::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 90, 90, .55),
+    inset 0 0 16px rgba(255, 70, 70, .35);
 }
 
+/* YELLOW (BRIGHT lemon, not gold) */
+.techRow .pill.compY::before{
+  opacity: .72;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.28) 0 42%,
+      rgba(255, 245, 120, .35) 70%,
+      rgba(255, 245, 120, .60) 100%
+    ),
+    linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10));
+}
+.techRow .pill.compY::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 160, .50),
+    inset 0 0 16px rgba(255, 235, 90, .30);
+}
+
+/* GREEN (BRIGHT) */
+.techRow .pill.compG::before{
+  opacity: .68;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.30) 0 42%,
+      rgba(60, 255, 140, .30) 70%,
+      rgba(60, 255, 140, .55) 100%
+    ),
+    linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08));
+}
+.techRow .pill.compG::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 255, 180, .45),
+    inset 0 0 16px rgba(60, 255, 140, .28);
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -924,7 +953,7 @@ function renderTeam(team, st){
             <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
             <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
             <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                    <div class="pill${clsGoal}"><div class="k">Goal</div><div class="v">${safe(goalPctTxt)}</div></div>
+                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
 </div>
 
           <div class="techMetaRight">
