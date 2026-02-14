@@ -647,9 +647,18 @@ function ensureDashTypographyOverrides(){
 
 
 /* Comparison shading (dashboard tech-row pills) */
-.techRow .pill.compG{border-color:rgba(46, 204, 113, .55) !important; box-shadow:0 0 0 1px rgba(46,204,113,.18) inset !important;}
-.techRow .pill.compY{border-color:rgba(241, 196, 15, .55) !important; box-shadow:0 0 0 1px rgba(241,196,15,.18) inset !important;}
-.techRow .pill.compR{border-color:rgba(231, 76, 60, .55) !important; box-shadow:0 0 0 1px rgba(231,76,60,.18) inset !important;}
+.techRow .pill.compG{
+  /* translucent full-pill tint (not just the outline) */
+  box-shadow:0 0 0 999px rgba(46,204,113,.16) inset !important;
+}
+.techRow .pill.compY{
+  /* translucent full-pill tint (not just the outline) */
+  box-shadow:0 0 0 999px rgba(241,196,15,.16) inset !important;
+}
+.techRow .pill.compR{
+  /* translucent full-pill tint (not just the outline) */
+  box-shadow:0 0 0 999px rgba(231,76,60,.16) inset !important;
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
