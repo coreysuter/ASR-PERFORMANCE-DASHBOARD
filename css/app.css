@@ -1002,19 +1002,6 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
 .pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
-/* ===== v240: dial text with arrow + short label ===== */
-.pctStack2{flex-direction:column;gap:1px}
-.pctStack2 .pctMain{font-size:calc(var(--sz,64px)/5.1);font-weight:1000;line-height:1}
-.pctStack2 .pctArrow{
-  margin-top:2px;
-  font-size:calc(var(--sz,64px)/6.0);
-  line-height:1;
-  font-weight:1200;
-  color:var(--gCol);
-  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
-}
-.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
-
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1650,3 +1637,21 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
+
+
+/* === Section focus car icon === */
+.secHdrRight{display:flex;align-items:center;gap:14px;}
+.secCarWrap{display:flex;align-items:center;justify-content:center;}
+.focusCar{position:relative;width:240px;max-width:240px;height:110px;}
+.focusCarImg{width:100%;height:100%;display:block;background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20800%20220%22%3E%0A%20%20%3Cpath%20d%3D%22M70%20150%0A%20%20%20%20%20%20%20%20%20%20%20C90%20120%20150%2095%20240%2080%0A%20%20%20%20%20%20%20%20%20%20%20C315%2068%20420%2065%20510%2082%0A%20%20%20%20%20%20%20%20%20%20%20C575%2095%20635%20115%20690%20118%0A%20%20%20%20%20%20%20%20%20%20%20C740%20121%20760%20136%20770%20155%0A%20%20%20%20%20%20%20%20%20%20%20L770%20170%0A%20%20%20%20%20%20%20%20%20%20%20C770%20182%20760%20190%20748%20190%0A%20%20%20%20%20%20%20%20%20%20%20L685%20190%0A%20%20%20%20%20%20%20%20%20%20%20C675%20165%20650%20150%20620%20150%0A%20%20%20%20%20%20%20%20%20%20%20C590%20150%20565%20165%20555%20190%0A%20%20%20%20%20%20%20%20%20%20%20L260%20190%0A%20%20%20%20%20%20%20%20%20%20%20C250%20165%20225%20150%20195%20150%0A%20%20%20%20%20%20%20%20%20%20%20C165%20150%20140%20165%20130%20190%0A%20%20%20%20%20%20%20%20%20%20%20L95%20190%0A%20%20%20%20%20%20%20%20%20%20%20C80%20190%2070%20180%2070%20165%0A%20%20%20%20%20%20%20%20%20%20%20Z%22%0A%20%20%20%20%20%20%20%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%2218%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22/%3E%0A%20%20%3Ccircle%20cx%3D%22200%22%20cy%3D%22190%22%20r%3D%2234%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%2218%22/%3E%0A%20%20%3Ccircle%20cx%3D%22620%22%20cy%3D%22190%22%20r%3D%2234%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%2218%22/%3E%0A%3C/svg%3E');background-repeat:no-repeat;background-position:center;background-size:contain;opacity:.95;}
+.focusCarText{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.02;}
+.focusCarTop{font-size:42px;font-weight:1000;color:var(--text);letter-spacing:.5px;}
+.focusCarMid{margin-top:2px;font-size:32px;font-weight:1000;color:var(--text);letter-spacing:1px;}
+.focusCarBot{margin-top:4px;font-size:18px;font-weight:600;color:rgba(255,255,255,.78);}
+
+@media (max-width: 1100px){
+  .focusCar{width:200px;max-width:200px;height:96px;}
+  .focusCarTop{font-size:34px;}
+  .focusCarMid{font-size:26px;}
+  .focusCarBot{font-size:16px;}
+}

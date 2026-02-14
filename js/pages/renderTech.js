@@ -224,7 +224,6 @@ function renderTech(techId){
   let filterKey = "total";
   let compareBasis = "team";
   let focus = "asr"; // asr | sold
-  let goalMetric = "asr"; // asr | sold (which goal set to reference when focus=goal)
 const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
@@ -238,10 +237,6 @@ const hash = location.hash || "";
       if(k==="focus"){
         const vv = decodeURIComponent(v||"") || "asr";
         focus = (vv==="sold"||vv==="goal"||vv==="asr") ? vv : "asr";
-      }
-      if(k==="goal"){
-        const vv = decodeURIComponent(v||"") || "asr";
-        goalMetric = (vv==="sold") ? "sold" : "asr";
       }
     }
   }
@@ -263,10 +258,9 @@ const hash = location.hash || "";
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
-    const style = (size==="dial") ? ' style="--w:90px;--h:90px;--r:20px;"' : "";
     // NOTE: We set font-weight inline so the header (lg) badge text matches the in-card (sm) badge text.
     return `
-      <div class="${cls}"${style}>
+      <div class="${cls}">
         <div class="rfbFocus" style="font-weight:1000">${top}</div>
         <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
         <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
@@ -421,12 +415,10 @@ const s = t.summary?.[filterKey] || {};
           const close = Number(c.close ?? NaN);
           const gReq = Number(getGoal(cat,"req"));
           const gClose = Number(getGoal(cat,"close"));
-          // Use the goal metric chosen in the Goal dropdown.
-          if(goalMetric==="sold"){
-            v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
-          }else{
-            v = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
-          }
+          const parts = [];
+          if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) parts.push(req/gReq);
+          if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) parts.push(close/gClose);
+          v = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
         }else{
           v = Number(c.req);
         }
@@ -444,11 +436,10 @@ const s = t.summary?.[filterKey] || {};
       const close = Number(meC.close);
       const gReq = Number(getGoal(cat,"req"));
       const gClose = Number(getGoal(cat,"close"));
-      if(goalMetric==="sold"){
-        me = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
-      }else{
-        me = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
-      }
+      const parts = [];
+      if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) parts.push(req/gReq);
+      if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) parts.push(close/gClose);
+      me = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }else{
       me = Number(meC.req);
     }
@@ -457,10 +448,18 @@ const s = t.summary?.[filterKey] || {};
     const idx = vals.findIndex(o=>o.id===t.id);
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
+  const appliedParts = [
+    `${filterLabel(filterKey)}`,
+    (compareBasis==="team" ? `Compare: ${team}` : "Compare: Store"),
+    (focus==="sold" ? "Focus: Sold" : (focus==="goal" ? "Focus: Goal" : "Focus: ASR/RO"))
+  ];
+  const appliedTextHtml = renderFiltersText(appliedParts);
+
+
   const filters = `
     <div class="controls" style="margin-top:10px">
       <div>
-        <label>Fluids</label>
+        <label>Summary Filter</label>
         <select id="techFilter">
           <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
           <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
@@ -477,16 +476,9 @@ const s = t.summary?.[filterKey] || {};
       <div>
         <label>Focus</label>
         <select id="techFocus">
-          <option value="asr" ${focus==="asr"?"selected":""}>ASR</option>
-          <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
+          <option value="asr" ${focus==="asr"?"selected":""}>ASR/RO</option>
+          <option value="sold" ${focus==="sold"?"selected":""}>Sold%</option>
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
-        </select>
-      </div>
-      <div>
-        <label>Goal</label>
-        <select id="techGoalMetric">
-          <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-          <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
         </select>
       </div>
     </div>
@@ -502,11 +494,8 @@ const s = t.summary?.[filterKey] || {};
       const close = Number(c.close ?? NaN);
       const gReq = Number(getGoal(cat,"req"));
       const gClose = Number(getGoal(cat,"close"));
-      if(goalMetric==="sold"){
-        if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0){ sum += (close/gClose); n++; }
-      }else{
-        if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0){ sum += (req/gReq); n++; }
-      }
+      if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0){ sum += (req/gReq); n++; }
+      if(Number.isFinite(close) && Number.isFinite(gClose) && gClose>0){ sum += (close/gClose); n++; }
     }
     return n ? (sum/n) : null; // ratio (1.0 = 100% of goal)
   }
@@ -530,10 +519,6 @@ const s = t.summary?.[filterKey] || {};
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
   const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? `(${(__soldOfAsr*100).toFixed(1)}%)` : "";
-  const __asrPerRoVal = techAsrPerRo(t, filterKey);
-  const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
-  const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
-  const __soldPerRoTxt = Number.isFinite(__soldPerRoVal) ? fmt1(__soldPerRoVal, 1) : "—";
 
 
   const __fullName = String(t.name||"").trim();
@@ -550,46 +535,43 @@ const s = t.summary?.[filterKey] || {};
 const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
-          <div class="techTitlePinnedLeft" style="display:flex;align-items:flex-start;gap:18px;min-width:0;flex:1 1 auto;">
-            <div class="techTitleLeft">
-              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+        <div class="titleRow techTitleRow" style="align-items:flex-start;">
+          <div class="techTitleLeft">
+            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+          </div>
+          <div class="techNameWrap" style="flex:0 1 auto;max-width:260px;min-width:0;">
+            <div class="h2 techH2Big">${__nameHtml}</div>
+            <div class="techTeamLine">${safe(team)}</div>
+          </div>
+          <div class="techRightCluster" style="margin-left:auto;display:flex;align-items:flex-start;gap:14px;min-width:0;">
+            <div class="overallBlock" style="text-align:right;">
+              <div class="overallMetric" style="font-size:40px;font-weight:1200;line-height:1;color:#fff;">${focusVal}</div>
+              <div class="tag">${focus==="sold" ? "Sold%" : "ASRs/RO"}</div>
             </div>
-            <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
-              <div class="h2 techH2Big">${__nameHtml}</div>
-              <div class="techTeamLine">${safe(team)}</div>
+            <div class="techRankBadgeWrap">
+              ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
             </div>
           </div>
-          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
-            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
-              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
-            </div>
-            <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
-  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
-</div>
-${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-          </div></div>
+        </div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
           <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+            <div class="v" style="font-size:27px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:16px;font-weight:900;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
@@ -783,52 +765,8 @@ return `
     };
   }
 
-
-// Rank badge for section/category headers (Maintenance / Fluids / etc.)
-function sectionScoreForTech(sec, x){
-  const cats = sec.categories || [];
-  const vals = [];
-  for(const cat of cats){
-    const c = x.categories?.[cat];
-    if(!c) continue;
-    if(focus==="sold"){
-      const v = Number(c.close);
-      if(Number.isFinite(v)) vals.push(v);
-    }else if(focus==="goal"){
-      if(goalMetric==="sold"){
-        const v = Number(c.close);
-        const g = Number(getGoal(cat,"close"));
-        if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
-      }else{
-        const v = Number(c.req);
-        const g = Number(getGoal(cat,"req"));
-        if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
-      }
-    }else{
-      const v = Number(c.req);
-      if(Number.isFinite(v)) vals.push(v);
-    }
-  }
-  if(!vals.length) return NaN;
-  return vals.reduce((a,b)=>a+b,0)/vals.length;
-}
-
-function sectionRankFor(sec){
-  const CMP_TECHS = (compareBasis==="team") ? TEAM_TECHS : STORE_TECHS;
-  const vals = CMP_TECHS
-    .map(x=>({id:x.id, v: sectionScoreForTech(sec, x)}))
-    .filter(o=>Number.isFinite(o.v))
-    .sort((a,b)=>b.v-a.v);
-  const me = sectionScoreForTech(sec, t);
-  if(!Number.isFinite(me)) return {rank:null, total: vals.length};
-  const idx = vals.findIndex(o=>o.id===t.id);
-  return {rank: idx>=0 ? idx+1 : null, total: vals.length};
-}
-
-
   const sectionsHtml = (DATA.sections||[]).map(sec=>{
     const secStats = sectionStatsForTech(sec);
-    const secRank = sectionRankFor(sec);
     const cats = (sec.categories||[]);
     // Benchmarks for section-level dials (avg across categories)
     const benchReqs = cats.map(cat=>{
@@ -869,6 +807,22 @@ function sectionRankFor(sec){
     const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
+    // === Section focus car icon (requested) ===
+    const primaryMode = (focus==="goal") ? ((goalMetric==="sold") ? "sold" : "asr") : focus; // treat goal as chosen metric
+    const topPct = (primaryMode==="sold") ? fmtPct(secStats.avgClose) : fmtPct(secStats.avgReq);
+    const midLabel = (primaryMode==="sold") ? "SOLD" : "RECOMMENDED";
+    const botLine = (primaryMode==="sold") ? `(${fmtPct(secStats.avgReq)} REC)` : `(${fmtPct(secStats.avgClose)} SOLD)`;
+    const secCarHtml = `
+      <div class="focusCar">
+        <div class="focusCarImg"></div>
+        <div class="focusCarText">
+          <div class="focusCarTop">${topPct}</div>
+          <div class="focusCarMid">${midLabel}</div>
+          <div class="focusCarBot">${botLine}</div>
+        </div>
+      </div>
+    `;
+
     const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
     const rows = __cats.map(cat=>renderCategoryRectSafe(cat, compareBasis)).join("");
 return `
@@ -880,9 +834,9 @@ return `
                 <div class="h2 techH2">${safe(sec.name)}</div>
                 <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
               </div>
-              <div class="sub"></div>
+              <div class="sub">${appliedParts.join(" • ")}</div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
+            <div class="secHdrRight"><div class="secCarWrap">${secCarHtml}</div><div class="secFocusDial">${dialFocus}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmtPct(secStats.avgReq)}</div>
                 <div class="tag">ASR%</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
@@ -940,24 +894,20 @@ return `
   function tbRow(item, idx, mode){
     const metric = mode==="sold" ? item.close : item.req;
     const metricLbl = mode==="sold" ? "SOLD" : "ASR";
-    // Keep all text in the lists uniform (size/weight/style) and ensure it always fits.
+    const valTxt = `${metricLbl} = ${fmtPct(metric)}`;
     return `
-      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;line-height:1.2">
-        <div class="techRowLeft" style="min-width:0">
-          <span class="rankNum" style="font-size:14px;font-weight:700">${idx}.</span>
-          <button type="button"
-            class="tbJump"
-            data-cat="${safeSvcId(item.cat)}"
-            style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;font:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">
+      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;">
+        <div class="techRowLeft" style="min-width:0;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;">
+          <span class="rankNum" style="font-size:14px;font-weight:700;">${idx}.</span>
+          <button type="button" class="tbJump" data-cat="${safeSvcId(item.cat)}"
+            style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:700;flex:1;min-width:0;">
             ${safe(item.label)}
           </button>
         </div>
-        <div class="mini" style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;margin-left:12px">${metricLbl} = ${fmtPct(metric)}</div>
+        <div class="mini" style="font-size:14px;font-weight:700;white-space:nowrap;">${valTxt}</div>
       </div>
     `;
   }
-
-
   
   function tbMiniBox(title, arr, mode, iconDir){
     const html = arr.length ? arr.map((x,i)=>tbRow(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
@@ -977,38 +927,33 @@ return `
 
   const top3Panel = `
     <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
+      <div class="phead" style="border-bottom:none;padding:12px">
         <!-- ASR row -->
-        <div class="diagBandRow" style="padding:12px">
-          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
-            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
-                ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
-                ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
-              </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
+        <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start">
+          <div class="diagLabelCol">
+            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">ASR</div>
+            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
+              ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
+              ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
             </div>
-            <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
-            <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
           </div>
+          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
         </div>
-        <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
+
+        <div class="diagSplitLine" style="height:1px;background:rgba(255,255,255,.14);margin:12px 0;"></div>
 
         <!-- SOLD row -->
-        <div class="diagBandRow" style="padding:12px">
-          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
-            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
-                ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
-                ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
-              </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
+        <div class="pickRow" style="display:grid;grid-template-columns:130px 1fr 1fr;gap:12px;align-items:start;margin-top:14px">
+          <div class="diagLabelCol">
+            <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:start;justify-self:start">SOLD</div>
+            <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;margin-top:10px">
+              ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+              ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
             </div>
-            <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
-            <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
           </div>
+          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
         </div>
       </div>
     </div>
@@ -1040,8 +985,7 @@ return `
       const v = sel.value || "total";
       const c = encodeURIComponent(compareBasis||"team");
       const fo = encodeURIComponent(focus||"asr");
-      const g = encodeURIComponent(goalMetric||"asr");
-      location.hash = `#/tech/${encodeURIComponent(t.id)}?filter=${encodeURIComponent(v)}&compare=${c}&focus=${fo}&goal=${g}`;
+      location.hash = `#/tech/${encodeURIComponent(t.id)}?filter=${encodeURIComponent(v)}&compare=${c}&focus=${fo}`;
     });
   }
 
@@ -1051,8 +995,7 @@ return `
       const f = encodeURIComponent(filterKey);
       const c = encodeURIComponent(compSel.value||"team");
       const fo = encodeURIComponent(focus||"asr");
-      const g = encodeURIComponent(goalMetric||"asr");
-      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
+      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}`;
     });
   }
 
@@ -1062,19 +1005,7 @@ return `
       const f = encodeURIComponent(filterKey);
       const c = encodeURIComponent(compareBasis||'team');
       const fo = encodeURIComponent(focusSel.value||'asr');
-      const g = encodeURIComponent(goalMetric||"asr");
-      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
-    });
-  }
-
-  const goalSel = document.getElementById('techGoalMetric');
-  if(goalSel){
-    goalSel.addEventListener('change', ()=>{
-      const f = encodeURIComponent(filterKey);
-      const c = encodeURIComponent(compareBasis||'team');
-      const fo = encodeURIComponent(focus||'asr');
-      const g = encodeURIComponent(goalSel.value||'asr');
-      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
+      location.hash = `#/tech/${encodeURIComponent(techId)}?filter=${f}&compare=${c}&focus=${fo}`;
     });
   }
 }
