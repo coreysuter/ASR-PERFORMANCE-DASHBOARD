@@ -646,29 +646,62 @@ function ensureDashTypographyOverrides(){
 
 
 
+/*
 /* Comparison shading (dashboard tech-row pills)
-   Start over: solid R/G/Y pills with black contrast (border + inner stroke). */
+   Strong clipped tints (NO glow outside pill) */
 .techRow .pill.compG,
 .techRow .pill.compY,
 .techRow .pill.compR{
-  border:1px solid rgba(0,0,0,.95) !important;
-  box-shadow:
-    0 0 0 2px rgba(0,0,0,.55) inset,
-    0 10px 22px rgba(0,0,0,.18) !important;
+  position:relative !important;
+  overflow:hidden !important;            /* hard-stop tint at edge */
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.58) inset !important; /* remove outer glow */
 }
-
-/* Solid fills */
-.techRow .pill.compG{ background: rgba(46,204,113,.88) !important; }
-.techRow .pill.compY{ background: rgba(241,196,15,.88) !important; }
-.techRow .pill.compR{ background: rgba(231,76,60,.88) !important; }
-
-/* Text tuned for solid fills */
-.techRow .pill.compG .k, .techRow .pill.compG .v,
-.techRow .pill.compY .k, .techRow .pill.compY .v,
-.techRow .pill.compR .k, .techRow .pill.compR .v{
-  color: rgba(0,0,0,.92) !important;
+.techRow .pill.compG > *, .techRow .pill.compY > *, .techRow .pill.compR > *{
+  position:relative !important;
+  z-index:2 !important;
+  color:#fff !important;
   text-shadow:none !important;
 }
+
+/* tint overlay (center stays darker; edges get color) */
+.techRow .pill.compG::before,
+.techRow .pill.compY::before,
+.techRow .pill.compR::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  z-index:1;
+  opacity:.55;
+}
+.techRow .pill.compG{ border-color: rgba(60,255,140,.26) !important; }
+.techRow .pill.compY{ border-color: rgba(255,245,120,.24) !important; }
+.techRow .pill.compR{ border-color: rgba(255,70,70,.24) !important; }
+
+.techRow .pill.compG::before{
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.62) 0 46%,
+      rgba(60,255,140,.16) 72%,
+      rgba(60,255,140,.34) 100%);
+}
+.techRow .pill.compY::before{
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.62) 0 46%,
+      rgba(255,245,120,.16) 72%,
+      rgba(255,245,120,.34) 100%);
+}
+.techRow .pill.compR::before{
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.62) 0 46%,
+      rgba(255,70,70,.16) 72%,
+      rgba(255,70,70,.34) 100%);
+}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -891,7 +924,7 @@ function renderTeam(team, st){
             <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
             <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
             <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
+                    <div class="pill${clsGoal}"><div class="k">Goal</div><div class="v">${safe(goalPctTxt)}</div></div>
 </div>
 
           <div class="techMetaRight">
