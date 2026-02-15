@@ -32,8 +32,7 @@ function miniGauge(pct){
 
 
 function svcGauge(pct, label=""){
-  // pct is a ratio vs comparison (e.g., 0.8 = 80% of benchmark).
-  // New layout: % in center, up/down arrow below (colored like dial), then ASR/SOLD/GOAL label.
+  // pct is a ratio vs comparison (e.g., 0.8 = 80% of benchmark). We show a ring gauge.
   const p = Number.isFinite(pct) ? Math.max(0, pct) : 0;
   const disp = Math.round(p*100);                 // text can exceed 100
   const ring = Math.round(Math.min(p, 1) * 100);  // ring fills to 100 max
@@ -42,21 +41,10 @@ function svcGauge(pct, label=""){
   if(p >= 0.80) cls = "gGreen";
   else if(p >= 0.60) cls = "gYellow";
 
-  const arrow = (p >= 1) ? "▲" : "▼";
-
-  const raw = String(label||"").trim().toUpperCase();
-  let shortLbl = "";
-  if(raw.includes("GOAL")) shortLbl = "GOAL";
-  else if(raw.includes("SOLD")) shortLbl = "SOLD";
-  else if(raw.includes("ASR")) shortLbl = "ASR";
-
-  const textHtml = `
-    <span class="pctText pctStack2">
-      <span class="pctMain">${disp}%</span>
-      <span class="pctArrow">${arrow}</span>
-      ${shortLbl ? `<span class="pctSub">${safe(shortLbl)}</span>` : ""}
-    </span>
-  `;
+  const lbl = String(label||"").trim();
+  const textHtml = lbl
+    ? `<span class="pctText pctStack"><span class="pctMain">${disp}%</span><span class="pctSub">${safe(lbl)}</span></span>`
+    : `<span class="pctText">${disp}%</span>`;
 
   // SVG circle with r=15.915494... => circumference ≈ 100 (so we can use percent-based dash)
   return `<span class="svcGauge ${cls}" data-p="${ring}">
@@ -272,18 +260,8 @@ const ICON_SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 // ===== Dashboard typography overrides (Technician Dashboard page only) =====
 function ensureDashTypographyOverrides(){
   try{
-    const h = location.hash || "#/";
-    const isMainDash = (h === "#/" || h === "#" || h.startsWith("#/?"));
-
-    // Always clear any prior injected dashboard-only overrides
-    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{
-      const el = document.getElementById(id);
-      if(el) el.remove();
-    });
-
-    // These overrides are ONLY meant for the main dashboard list (#/).
-    // If we're not on the main dashboard, don't inject anything (prevents breaking ServicesHome tech rows, etc.).
-    if(!isMainDash) return;
+    // force-replace any previous dashboard override styles
+    ["dashTypographyOverrides","dashTypographyOverrides_v2_ODO2PILLS","dashRankRightStyle"].forEach(id=>{const el=document.getElementById(id); if(el) el.remove();});
     const css = `
 /* Technician Dashboard header */
 .techH2Big{font-size:36px;}
@@ -297,11 +275,14 @@ function ensureDashTypographyOverrides(){
 .techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
 @media (max-width: 700px){ .techRow .val.name{font-size:20px !important;} }
 
-/* Rank badge lives inside the midPills row (with the square pills) */
+/* Rank badge pinned to far right of technician rows (dashboard) */
 .techRow{position:relative;}
-.techRow .techMetaRight{position:static !important; right:auto !important; top:auto !important; transform:none !important; margin:0 !important;}
-.techRow .pills{padding-right:0 !important;}
-
+.techRow .techMetaRight{position:absolute;right:16px;top:14px;margin-left:0 !important;}
+.techRow .pills{padding-right:96px;}
+@media (max-width: 700px){
+  .techRow .techMetaRight{right:12px;top:12px;}
+  .techRow .pills{padding-right:86px;}
+}
 
 /* Dashboard tech-row layout tweaks (Technician Dashboard list) */
 .techRow{
@@ -369,9 +350,15 @@ function ensureDashTypographyOverrides(){
   font-weight:1000 !important;
 }
 
-/* Rank badge inside midPills */
-.techRow .midPills .techMetaRight{flex:0 0 auto; margin-left:12px !important;}
-
+/* Rank badge pinned far-right, vertically centered */
+.techRow .techMetaRight{
+  position:absolute !important;
+  right:18px !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  margin:0 !important;
+  z-index:2 !important;
+}
 
 /* Pills row: positioned left of rank badge; starts AFTER the name column */
 .techRow .pills{
@@ -408,6 +395,9 @@ function ensureDashTypographyOverrides(){
   border:1px solid rgba(255,255,255,.16) !important;
   box-shadow:0 10px 26px rgba(0,0,0,.60) inset, 0 10px 22px rgba(0,0,0,.18) !important;
 }
+
+/* force all text inside dashboard tech-row pills to white */
+.techRow .pill, .techRow .pill *{ color:#fff !important; text-shadow:none !important; }
 .techRow .pill .k{
   width:100% !important;
   text-align:center !important;
@@ -501,29 +491,19 @@ function ensureDashTypographyOverrides(){
 }
 
 
-/* Dashboard tech-row middle pills container (pills + rank badge travel together) */
+/* Dashboard tech-row middle pills container */
 .techRow{position:relative !important;}
 .techRow .midPills{
   position:absolute !important;
   top:50% !important;
   transform:translateY(-50%) !important;
-  right:18px !important;
-  left:auto !important;
-
+  /* left edge: after the Avg ODO pill area; right edge: before rank badge */
+  left: 280px !important;
+  right: 130px !important;
   display:flex !important;
+  justify-content:center !important;
   align-items:center !important;
-  justify-content:flex-end !important;
-  gap:12px !important;
-  pointer-events:auto !important;
-}
-.techRow .midPills .pills{
-  position:static !important;
-  transform:none !important;
-  left:auto !important;
-  right:auto !important;
-  width:auto !important;
-  justify-content:flex-end !important;
-  overflow:visible !important;
+  pointer-events:none !important; /* avoids accidental overlay clicks */
 }
 .techRow .midPills .pills{
   position:static !important;
@@ -536,7 +516,7 @@ function ensureDashTypographyOverrides(){
 }
 
 @media (max-width: 700px){
-  .techRow .midPills{right:14px !important; left:auto !important;}
+  .techRow .midPills{left: 250px !important; right: 118px !important;}
 }
 
 
@@ -549,8 +529,8 @@ function ensureDashTypographyOverrides(){
   padding:9px 12px !important;
 }
 .techRow .midPills{
-  right:18px !important;
-  left:auto !important;
+  left:206px !important;
+  right:118px !important;
 }
 .techRow .midPills .pills{
   gap:8px !important;
@@ -571,29 +551,9 @@ function ensureDashTypographyOverrides(){
     padding:8px 10px !important;
   }
   .techRow .midPills{
-    right:14px !important;
-    left:auto !important;
+    left:186px !important;
+    right:108px !important;
   }
-}
-
-
-/* === Comparison shading: solid Red / Yellow / Green with black contrast === */
-.techRow .pill.compG,
-.techRow .pill.compY,
-.techRow .pill.compR{
-  border:1px solid rgba(0,0,0,.95) !important;
-  box-shadow:0 0 0 2px rgba(0,0,0,.55) inset, 0 10px 22px rgba(0,0,0,.18) !important;
-}
-.techRow .pill.compG{ background: rgba(46,204,113,.88) !important; }
-.techRow .pill.compY{ background: rgba(241,196,15,.88) !important; }
-.techRow .pill.compR{ background: rgba(231,76,60,.88) !important; }
-
-/* Keep text readable against solid fills */
-.techRow .pill.compG .k, .techRow .pill.compG .v,
-.techRow .pill.compY .k, .techRow .pill.compY .v,
-.techRow .pill.compR .k, .techRow .pill.compR .v{
-  color: rgba(0,0,0,.92) !important;
-  text-shadow:none !important;
 }
 `;
     const style = document.createElement("style");
@@ -728,6 +688,10 @@ function renderTeam(team, st){
             <div class="odoUnderName">
               <div class="pill odoHeaderLike"><div class="kv"><div class="k">AVG ODO</div><div class="v">${fmtInt(t.odo)}</div></div></div>
             </div>          </div>
+          <div class="techMetaRight" style="margin-left:auto">
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
+          </div>
+
         </div>
 
         <div class="midPills">
@@ -736,9 +700,6 @@ function renderTeam(team, st){
           <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(s.asr)}</div></div>
           <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(s.sold)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-        </div>
-        <div class="techMetaRight">
-          ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
         </div>
         </div>
       </div>
