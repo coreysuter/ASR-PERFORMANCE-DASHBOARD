@@ -485,14 +485,37 @@ function brakeRowHtml(key,label,mappedCat){
   }
 
   // One big box; inside we render a 2x2 grid of quadrants
-  app.innerHTML = `
+  
+  // ---------- Totals across all categories (derived from category goal totals) ----------
+  const projMaint = _projectedTotalsForQuadrant("maintenance", MAINT);
+  const projFl    = _projectedTotalsForQuadrant("fluids", FLUIDS);
+  const projBr    = _projectedTotalsForQuadrant("brakes", BRAKES);
+  const projTr    = _projectedTotalsForQuadrant("tires", TIRES);
+  const projOther = _projectedTotalsForQuadrant("other", OTHER);
+
+  const totalAsrRoGoal = (projMaint.asrRo + projFl.asrRo + projBr.asrRo + projTr.asrRo + projOther.asrRo);
+  const totalSoldRoGoal = (projMaint.soldRo + projFl.soldRo + projBr.soldRo + projTr.soldRo + projOther.soldRo);
+
+  const totalAsrRoGoalTxt = _fmtRatio2(totalAsrRoGoal);
+  const totalSoldRoGoalTxt = _fmtRatio2(totalSoldRoGoal);
+
+app.innerHTML = `
     <div class="panel goalsBig halfPage">
       <div class="goalsBigTop">
         <div class="goalsTitleRow">
           <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
           <div>
             <div class="goalsH1">GOALS</div>
-            <div class="sub" style="margin-top:4px">Set goals for each service. Values populate the “Goal:” lines throughout the dashboard.</div>
+</div>
+          <div class="goalsTopStats" style="margin-left:auto; display:flex; gap:14px; align-items:flex-end; padding-bottom:2px;">
+            <div style="text-align:right;">
+              <div style="font-size:12px; opacity:.75;">ASRs/RO Goal</div>
+              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(totalAsrRoGoalTxt)}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px; opacity:.75;">Sold/RO Goal</div>
+              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(totalSoldRoGoalTxt)}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -533,6 +556,9 @@ function _applyFluidsApplyAll(){
     const tClose = document.getElementById(`g_${encodeURIComponent(targetCat)}_close`);
     if(allReq && tReq) tReq.value = allReq.value;
     if(allClose && tClose) tClose.value = allClose.value;
+    // Persist into goal storage so the rest of the dashboard reads the applied values
+    if(allReq) setGoalRaw(targetCat, "req", inputToGoal(allReq.value));
+    if(allClose) setGoalRaw(targetCat, "close", inputToGoal(allClose.value));
   };
 
   // disable/enable all fluid service rows; when ON, fill them from ALL and lock them
@@ -559,6 +585,40 @@ function _applyFluidsApplyAll(){
     r.addEventListener("change", _applyFluidsApplyAll);
   });
   _applyFluidsApplyAll();
+  // Keep fluids services synced live while apply-all is ON
+  function _wireAllFluidsSync(){
+    const allReq = document.getElementById(`g_${encodeURIComponent("__FLUIDS_ALL")}_req`);
+    const allClose = document.getElementById(`g_${encodeURIComponent("__FLUIDS_ALL")}_close`);
+    if(allReq){
+      allReq.addEventListener("input", ()=>{
+        const on = !!(document.querySelector('input[name="fl_apply_all"][value="yes"]')?.checked);
+        if(!on) return;
+        for(const c of (FLUIDS||[])){
+          // mirror UI + persist
+          const tReq = document.getElementById(`g_${encodeURIComponent(c)}_req`);
+          if(tReq) tReq.value = allReq.value;
+          setGoalRaw(c, "req", inputToGoal(allReq.value));
+        }
+        if(typeof persistGoals==="function") persistGoals();
+        if(typeof window.renderGoalsPage==="function") requestAnimationFrame(equalizeGoalQuadrants);
+      });
+    }
+    if(allClose){
+      allClose.addEventListener("input", ()=>{
+        const on = !!(document.querySelector('input[name="fl_apply_all"][value="yes"]')?.checked);
+        if(!on) return;
+        for(const c of (FLUIDS||[])){
+          const tClose = document.getElementById(`g_${encodeURIComponent(c)}_close`);
+          if(tClose) tClose.value = allClose.value;
+          setGoalRaw(c, "close", inputToGoal(allClose.value));
+        }
+        if(typeof persistGoals==="function") persistGoals();
+        if(typeof window.renderGoalsPage==="function") requestAnimationFrame(equalizeGoalQuadrants);
+      });
+    }
+  }
+  _wireAllFluidsSync();
+
 
   // Wire up Brakes controls (Apply-to-all + Red/Yellow toggles)
   function _setRowDisabled(brakeKey, disabled){
