@@ -731,6 +731,13 @@ function ensureDashTypographyOverrides(){
     inset 0 0 0 1px rgba(120, 255, 180, .45),
     inset 0 0 16px rgba(60, 255, 140, .28);
 }
+
+
+/* --- Force ALL pill text white (dashboard only) --- */
+.pill, .pill *{
+  color:#fff !important;
+}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
