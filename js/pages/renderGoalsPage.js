@@ -53,6 +53,9 @@ function renderGoalsPage(){
   const used = new Set([...MAINT, ...FLUIDS, ...BRAKES, ...TIRES]);
   const leftovers = allCats.filter(c=>!used.has(c)).sort((a,b)=>a.localeCompare(b));
 
+  // "Other" quadrant = any categories not mapped into the four primary quadrants
+  const OTHER = leftovers;
+
   // Precompute store-wide averages for each category
   const AVG = {};
   for(const cat of allCats){
@@ -77,6 +80,79 @@ function renderGoalsPage(){
     return `
       <div class="gAvg">Avg ASR/RO%: ${safe(aReq)}</div>
       <div class="gAvg gAvgSold">Avg Sold%: ${safe(aClose)}</div>
+    `;
+  }
+
+  // ---------- Goal projection helpers (based on current goal inputs) ----------
+  const _num = (v)=>{
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  const _mean = (arr)=>{
+    const nums = (arr||[]).map(_num).filter(v=>v!==null);
+    if(!nums.length) return null;
+    return nums.reduce((a,b)=>a+b,0) / nums.length;
+  };
+  const _sum = (arr)=>{
+    const nums = (arr||[]).map(_num).filter(v=>v!==null);
+    if(!nums.length) return 0;
+    return nums.reduce((a,b)=>a+b,0);
+  };
+  const _fmtPct1 = (n)=>{
+    const x = _num(n);
+    if(x===null) return "—";
+    return `${x.toFixed(1)}%`;
+  };
+  const _fmtRatio2 = (n)=>{
+    const x = _num(n);
+    if(x===null) return "—";
+    return x.toFixed(2);
+  };
+
+  // Effective goal values for a service category key
+  function _goalPct(catKey, metric){
+    // metric: 'req' or 'close'
+    return _num(getGoalRaw(catKey, metric));
+  }
+
+  // Build the effective service list for each quadrant (respecting apply-all toggles)
+  function _effectiveListForQuadrant(title, cats){
+    const t = String(title||"").toLowerCase();
+    if(t==="fluids"){
+      const applyAllFl = String(getGoalRaw("__META_FLUIDS","apply_all"))==="1";
+      return applyAllFl ? ["__FLUIDS_ALL"] : (cats||[]);
+    }
+    if(t==="brakes"){
+      const applyAll = String(getGoalRaw("__META_BRAKES","apply_all"))==="1";
+      return applyAll ? ["BRAKES_TOTAL"] : ["BRAKES_TOTAL","BRAKES_FRONT","BRAKES_REAR"];
+    }
+    if(t==="tires"){
+      const applyAll = String(getGoalRaw("__META_TIRES","apply_all"))==="1";
+      return applyAll ? ["TIRES_TOTAL2"] : ["TIRES_TOTAL2","TIRES_TWO","TIRES_FOUR"];
+    }
+    // generic categories use the categories themselves
+    return (cats||[]);
+  }
+
+  function _projectedAveragesForQuadrant(title, cats){
+    const eff = _effectiveListForQuadrant(title, cats);
+    const reqs = eff.map(k=>_goalPct(k,'req'));
+    const closes = eff.map(k=>_goalPct(k,'close'));
+    return {
+      avgReq: _mean(reqs),
+      avgClose: _mean(closes),
+      sumReq: _sum(reqs),
+      sumClose: _sum(closes)
+    };
+  }
+
+  function _quadHeaderStatsHtml(title, cats){
+    const p = _projectedAveragesForQuadrant(title, cats);
+    return `
+      <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
+        <span style="margin-right:14px;">Avg ASR%*: <b>${safe(_fmtPct1(p.avgReq))}</b></span>
+        <span>Avg Sold%*: <b>${safe(_fmtPct1(p.avgClose))}</b></span>
+      </div>
     `;
   }
 
@@ -130,7 +206,9 @@ function renderGoalsPage(){
       // Add synthetic row (hidden unless apply-all is enabled)
       const allRow = rowHtml("__FLUIDS_ALL","ALL FLUIDS").replace('class="goalRow tight', 'class="goalRow tight fluidsAllRow');
       const body = `
-        <div class="goalQuadTitle">${safe(title)}</div>
+        <div class="goalQuadTitle">${safe(title)}
+          ${_quadHeaderStatsHtml(title, list)}
+        </div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
@@ -245,7 +323,9 @@ function brakeRowHtml(key,label,mappedCat){
 
   return `
     <div class="goalQuad brakes ${ryGlobal?'ry-on':'ry-off'}">
-      <div class="goalQuadTitle">${safe(title)}</div>
+      <div class="goalQuadTitle">${safe(title)}
+        ${_quadHeaderStatsHtml(title, list)}
+      </div>
       ${applyRow}
       <div class="goalQuadHeadRow">
         <div class="ghName"></div>
@@ -354,7 +434,9 @@ function brakeRowHtml(key,label,mappedCat){
 
       return `
         <div class="goalQuad tires ${ryGlobal?'ry-on':'ry-off'}">
-          <div class="goalQuadTitle">${safe(title)}</div>
+          <div class="goalQuadTitle">${safe(title)}
+            ${_quadHeaderStatsHtml(title, list)}
+          </div>
           ${applyRow}
           <div class="goalQuadHeadRow">
             <div class="ghName"></div>
@@ -373,7 +455,9 @@ function brakeRowHtml(key,label,mappedCat){
 
     return `
       <div class="goalQuad">
-        <div class="goalQuadTitle">${safe(title)}</div>
+        <div class="goalQuadTitle">${safe(title)}
+          ${_quadHeaderStatsHtml(title, list)}
+        </div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
@@ -385,6 +469,19 @@ function brakeRowHtml(key,label,mappedCat){
     `;
   }
 
+  // Overall projections across all categories (expressed as ASRs/RO-style numbers)
+  const projMaint = _projectedAveragesForQuadrant("maintenance", MAINT);
+  const projFl    = _projectedAveragesForQuadrant("fluids", FLUIDS);
+  const projBr    = _projectedAveragesForQuadrant("brakes", BRAKES);
+  const projTr    = _projectedAveragesForQuadrant("tires", TIRES);
+  const projOther = _projectedAveragesForQuadrant("other", OTHER);
+
+  const totalReqPct   = (projMaint.sumReq + projFl.sumReq + projBr.sumReq + projTr.sumReq + projOther.sumReq);
+  const totalClosePct = (projMaint.sumClose + projFl.sumClose + projBr.sumClose + projTr.sumClose + projOther.sumClose);
+
+  const asrsPerRoGoal = _fmtRatio2(totalReqPct / 100);
+  const soldPerRoGoal = _fmtRatio2(totalClosePct / 100);
+
   // One big box; inside we render a 2x2 grid of quadrants
   app.innerHTML = `
     <div class="panel goalsBig halfPage">
@@ -393,7 +490,16 @@ function brakeRowHtml(key,label,mappedCat){
           <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
           <div>
             <div class="goalsH1">GOALS</div>
-            <div class="sub" style="margin-top:4px">Set goals for each service. Values populate the “Goal:” lines throughout the dashboard.</div>
+          </div>
+          <div class="goalsTopStats" style="margin-left:auto; display:flex; gap:14px; align-items:flex-end; padding-bottom:2px;">
+            <div style="text-align:right;">
+              <div style="font-size:12px; opacity:.75;">ASRs/RO Goal</div>
+              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(asrsPerRoGoal)}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px; opacity:.75;">Sold/RO Goal</div>
+              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(soldPerRoGoal)}</div>
+            </div>
           </div>
         </div>
       </div>
