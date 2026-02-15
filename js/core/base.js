@@ -575,6 +575,26 @@ function ensureDashTypographyOverrides(){
     left:auto !important;
   }
 }
+
+
+/* === Comparison shading: solid Red / Yellow / Green with black contrast === */
+.techRow .pill.compG,
+.techRow .pill.compY,
+.techRow .pill.compR{
+  border:1px solid rgba(0,0,0,.95) !important;
+  box-shadow:0 0 0 2px rgba(0,0,0,.55) inset, 0 10px 22px rgba(0,0,0,.18) !important;
+}
+.techRow .pill.compG{ background: rgba(46,204,113,.88) !important; }
+.techRow .pill.compY{ background: rgba(241,196,15,.88) !important; }
+.techRow .pill.compR{ background: rgba(231,76,60,.88) !important; }
+
+/* Keep text readable against solid fills */
+.techRow .pill.compG .k, .techRow .pill.compG .v,
+.techRow .pill.compY .k, .techRow .pill.compY .v,
+.techRow .pill.compR .k, .techRow .pill.compR .v{
+  color: rgba(0,0,0,.92) !important;
+  text-shadow:none !important;
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
