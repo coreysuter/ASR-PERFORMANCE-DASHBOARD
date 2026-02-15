@@ -724,36 +724,91 @@ function brakeRowHtml(key,label,mappedCat){
 function _wireBrakes(){
     const yes = document.querySelector('input[name="br_apply_all"][value="yes"]');
     const no  = document.querySelector('input[name="br_apply_all"][value="no"]');
+
+    const _brakeIds = (key)=>{
+      const k = encodeURIComponent(key);
+      return {
+        rReq:   `b_${k}_req_red`,
+        rClose: `b_${k}_close_red`,
+        yReq:   `b_${k}_req_yellow`,
+        yClose: `b_${k}_close_yellow`,
+      };
+    };
+
+    const _snapshotBrakeRow = (key)=>{
+      const row = document.querySelector(`.brakeRow[data-brake-key="${key}"]`);
+      if(!row) return;
+      if(row.dataset.snap === "1") return;
+      const ids = _brakeIds(key);
+      Object.values(ids).forEach(id=>{
+        const el = document.getElementById(id);
+        if(el) row.dataset["prev_"+id] = el.value;
+      });
+      row.dataset.snap = "1";
+    };
+
+    const _restoreBrakeRow = (key)=>{
+      const row = document.querySelector(`.brakeRow[data-brake-key="${key}"]`);
+      if(!row) return;
+      const ids = _brakeIds(key);
+      Object.values(ids).forEach(id=>{
+        const el = document.getElementById(id);
+        const prev = row.dataset["prev_"+id];
+        if(el && typeof prev === "string") el.value = prev;
+        delete row.dataset["prev_"+id];
+      });
+      delete row.dataset.snap;
+    };
+
+    const _copyBrakeFromTotal = (key)=>{
+      const src = _brakeIds("BRAKES_TOTAL");
+      const dst = _brakeIds(key);
+      [["rReq","rReq"],["rClose","rClose"],["yReq","yReq"],["yClose","yClose"]].forEach(([s,d])=>{
+        const sEl = document.getElementById(src[s]);
+        const dEl = document.getElementById(dst[d]);
+        if(sEl && dEl) dEl.value = sEl.value;
+      });
+    };
+
     const applyNow = ()=>{
       const applyAll = !!(yes && yes.checked);
+      setGoalRaw("__META_BRAKES","apply_all", applyAll ? "1" : "0");
+
+      if(applyAll){
+        ["BRAKES_FRONT","BRAKES_REAR"].forEach(k=>{
+          _snapshotBrakeRow(k);
+          _copyBrakeFromTotal(k);
+        });
+      }else{
+        ["BRAKES_FRONT","BRAKES_REAR"].forEach(k=>_restoreBrakeRow(k));
+      }
+
       _setRowDisabled("BRAKES_FRONT", applyAll);
       _setRowDisabled("BRAKES_REAR",  applyAll);
+
       _applyYellowGlobal();
+      equalizeGoalQuadrants();
     };
+
     if(yes) yes.addEventListener("change", applyNow);
     if(no)  no.addEventListener("change", applyNow);
 
-    // If universal is enabled, keep TWO/Four in sync as you edit the TOTAL row
     ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
-      const id = `t_${encodeURIComponent("TIRES_TOTAL2")}_${sfx}`;
+      const id = `b_${encodeURIComponent("BRAKES_TOTAL")}_${sfx}`;
       const el = document.getElementById(id);
-      if(el){
-        el.addEventListener("input", ()=>{
-          const applyAll = !!(document.querySelector('input[name="tr_apply_all"][value="yes"]')?.checked);
-          if(applyAll){
-            _copyTireFromTotal("TIRES_TWO");
-            _copyTireFromTotal("TIRES_FOUR");
-          }
-        });
-      }
+      if(!el) return;
+      el.addEventListener("input", ()=>{
+        const applyAll = !!(document.querySelector('input[name="br_apply_all"][value="yes"]')?.checked);
+        if(!applyAll) return;
+        _copyBrakeFromTotal("BRAKES_FRONT");
+        _copyBrakeFromTotal("BRAKES_REAR");
+      });
     });
 
-    
     const ry = document.getElementById("br_ry_global");
     if(ry) ry.addEventListener("change", ()=>{ _applyYellowGlobal(); equalizeGoalQuadrants(); });
 
     applyNow();
-    equalizeGoalQuadrants();
   }
 
 
