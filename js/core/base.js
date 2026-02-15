@@ -336,15 +336,7 @@ function ensureDashTypographyOverrides(){
 }
 .techRow .techNameStats .tnRow{display:flex !important; flex-wrap:nowrap !important; align-items:baseline !important; gap:10px !important;}
 .techRow .techNameStats .tnRow2{gap:14px !important;}
-.techRow .techNameStats .tnMini{
-  display:inline-flex !important;
-  align-items:baseline !important;
-  gap:8px !important;
-  padding:6px 10px !important;
-  border-radius:999px !important;
-  background:rgba(0,0,0,.25) !important;
-  border:1px solid var(--border) !important;
-}
+.techRow .techNameStats .tnMini{display:inline-flex !important; align-items:baseline !important; gap:8px !important;}
 .techRow .techNameStats .tnLbl{
   font-size:10px !important;
   color:var(--muted) !important;
