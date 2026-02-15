@@ -395,9 +395,6 @@ function ensureDashTypographyOverrides(){
   border:1px solid rgba(255,255,255,.16) !important;
   box-shadow:0 10px 26px rgba(0,0,0,.60) inset, 0 10px 22px rgba(0,0,0,.18) !important;
 }
-
-/* force all text inside dashboard tech-row pills to white */
-.techRow .pill, .techRow .pill *{ color:#fff !important; text-shadow:none !important; }
 .techRow .pill .k{
   width:100% !important;
   text-align:center !important;
@@ -555,6 +552,94 @@ function ensureDashTypographyOverrides(){
     right:108px !important;
   }
 }
+
+
+/* ---- Comparison shading (dashboard tech-row pills) ----
+   Bright, noticeable tint with NO glow outside the pill */
+.techRow .pill{
+  position: relative;
+  overflow: hidden;                 /* clips everything at pill edge */
+  box-shadow: inset 0 10px 26px rgba(0,0,0,.60) !important; /* no outside glow */
+}
+
+/* stronger overlay layer (off by default) */
+.techRow .pill::before{
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  opacity: 0;
+  background: transparent;
+}
+
+/* bright inner ring (still clipped) */
+.techRow .pill::after{
+  content:"";
+  position:absolute; inset:0;
+  border-radius: inherit;
+  pointer-events:none;
+  opacity: 0;
+}
+
+/* ensure text/content stays above overlays */
+.techRow .pill > *{
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* RED (BRIGHT) */
+.techRow .pill.compR::before{
+  opacity: .78;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.30) 0 42%,
+      rgba(255, 55, 55, .40) 70%,
+      rgba(255, 55, 55, .65) 100%
+    ),
+    linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10));
+}
+.techRow .pill.compR::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 90, 90, .55),
+    inset 0 0 16px rgba(255, 70, 70, .35);
+}
+
+/* YELLOW (BRIGHT lemon, not gold) */
+.techRow .pill.compY::before{
+  opacity: .72;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.28) 0 42%,
+      rgba(255, 245, 120, .35) 70%,
+      rgba(255, 245, 120, .60) 100%
+    ),
+    linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10));
+}
+.techRow .pill.compY::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 160, .50),
+    inset 0 0 16px rgba(255, 235, 90, .30);
+}
+
+/* GREEN (BRIGHT) */
+.techRow .pill.compG::before{
+  opacity: .68;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.30) 0 42%,
+      rgba(60, 255, 140, .30) 70%,
+      rgba(60, 255, 140, .55) 100%
+    ),
+    linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08));
+}
+.techRow .pill.compG::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 255, 180, .45),
+    inset 0 0 16px rgba(60, 255, 140, .28);
+}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
