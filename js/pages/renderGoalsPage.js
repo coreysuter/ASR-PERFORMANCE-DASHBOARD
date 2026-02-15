@@ -156,11 +156,12 @@ function renderGoalsPage(){
   }
 
   function _quadHeaderStatsHtml(title, cats){
+    const key = String(title||"").toLowerCase().replace(/\s+/g,"_");
     const p = _projectedAveragesForQuadrant(title, cats);
     return `
       <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-        <span style="margin-right:14px;">ASRs/RO Goals: <b>${safe(_fmtRatio2(p.sumAsrRo))}</b></span>
-        <span>Sold/RO Goals: <b>${safe(_fmtRatio2(p.sumSoldRo))}</b></span>
+        <span style="margin-right:14px;">ASRs/RO Goals: <b><span class="qStatAsrRo" data-quad="${safe(key)}">${safe(_fmtRatio2(p.sumAsrRo))}</span></b></span>
+        <span>Sold/RO Goals: <b><span class="qStatSoldRo" data-quad="${safe(key)}">${safe(_fmtRatio2(p.sumSoldRo))}</span></b></span>
       </div>
     `;
   }
@@ -520,11 +521,11 @@ function brakeRowHtml(key,label,mappedCat){
           <div class="goalsTopStats" style="margin-left:auto; display:flex; gap:14px; align-items:flex-end; padding-bottom:2px;">
             <div style="text-align:right;">
               <div style="font-size:12px; opacity:.75;">ASRs/RO Goal</div>
-              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(asrsPerRoGoal)}</div>
+              <div style="font-size:22px; font-weight:800; line-height:1;"><span id="goals_total_asrro">${safe(asrsPerRoGoal)}</span></div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:12px; opacity:.75;">Sold/RO Goal</div>
-              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(soldPerRoGoal)}</div>
+              <div style="font-size:22px; font-weight:800; line-height:1;"><span id="goals_total_soldro">${safe(soldPerRoGoal)}</span></div>
             </div>
           </div>
         </div>
@@ -543,6 +544,79 @@ function brakeRowHtml(key,label,mappedCat){
       </div>
     </div>
   `;
+
+
+  // --- Live projection updates (category + total stats) ---
+  function _num(v){
+    const n = parseFloat(String(v||"").replace(/[^0-9.\-]/g,""));
+    return isFinite(n) ? n : 0;
+  }
+  function _sumCats(cats){
+    let asrRo = 0;
+    let soldRo = 0;
+    (cats||[]).forEach(cat=>{
+      const asrPct  = _num(getGoalRaw(cat,"req"));
+      const soldPct = _num(getGoalRaw(cat,"close"));
+      const a = asrPct / 100;
+      const s = a * (soldPct / 100);
+      asrRo += a;
+      soldRo += s;
+    });
+    return {asrRo, soldRo};
+  }
+  function recomputeGoalProjections(){
+    const quads = [
+      { title:"Maintenance", cats: MAINT },
+      { title:"Fluids",      cats: FLUIDS },
+      { title:"Brakes",      cats: BRAKES },
+      { title:"Tires",       cats: TIRES },
+      { title:"Other",       cats: OTHER }
+    ];
+
+    let totalAsrRo = 0;
+    let totalSoldRo = 0;
+
+    quads.forEach(q=>{
+      const key = String(q.title||"").toLowerCase().replace(/\s+/g,"_");
+      const sums = _sumCats(q.cats);
+      totalAsrRo += sums.asrRo;
+      totalSoldRo += sums.soldRo;
+
+      const asrEl = document.querySelector(`.qStatAsrRo[data-quad="${key}"]`);
+      const soldEl = document.querySelector(`.qStatSoldRo[data-quad="${key}"]`);
+      if(asrEl) asrEl.textContent = _fmtRatio2(sums.asrRo);
+      if(soldEl) soldEl.textContent = _fmtRatio2(sums.soldRo);
+    });
+
+    const tAsr = document.getElementById("goals_total_asrro");
+    const tSold = document.getElementById("goals_total_soldro");
+    if(tAsr) tAsr.textContent = _fmtRatio2(totalAsrRo);
+    if(tSold) tSold.textContent = _fmtRatio2(totalSoldRo);
+  }
+
+  const _queueRecompute = (()=>{
+    let raf = null;
+    return ()=>{
+      if(raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(()=>{ raf=null; recomputeGoalProjections(); });
+    };
+  })();
+
+  // Recompute whenever any goal input changes (including apply-all toggles).
+  app.addEventListener("input", (e)=>{
+    const t = e.target;
+    if(t && t.matches && t.matches("input.goalMini")) _queueRecompute();
+  });
+  app.addEventListener("change", (e)=>{
+    const t = e.target;
+    if(!t) return;
+    if(t.matches && (t.matches("input.goalMini") || (t.name||"").includes("_apply_all") || (t.id||"").includes("_ry_") || (t.name||"").includes("fl_apply_all"))) {
+      _queueRecompute();
+    }
+  });
+
+  // Initial paint
+  recomputeGoalProjections();
 
 
   // Wire up Fluids controls (Apply-to-all)
