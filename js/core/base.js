@@ -283,10 +283,10 @@ function ensureDashTypographyOverrides(){
 
 /* EXPRESS / KIA headers */
 .catTitle{font-size:28px;}
-@media (max-width: 700px){ .catTitle{font-size:24px;} }
+@media (max-width: 700px){ .catTitle{font-size:26px;} }
 
 /* Technician names on dashboard list */
-.techRow .val.name{font-size:21px !important;font-weight:1000 !important;white-space:nowrap;}
+.techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
 @media (max-width: 700px){ .techRow .val.name{font-size:19px !important;} }
 
 /* Rank badge pinned to far right of technician rows (dashboard) */
@@ -390,7 +390,7 @@ function ensureDashTypographyOverrides(){
 }
 .techRow .pill.odoHeaderLike .v{
   width:auto !important;
-  font-size:24px !important;
+  font-size:26px !important;
   font-weight:1000 !important;
 }
 
