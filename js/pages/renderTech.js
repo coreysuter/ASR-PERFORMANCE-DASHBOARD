@@ -657,7 +657,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
       if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
       hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%")))}</div>
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"SOLD%":(focus==="goal"?"GOAL":"ASRS/RO")))}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
@@ -679,14 +679,14 @@ const tb = getTeamBenchmarks(cat, team) || {};
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq, "ASR GOAL"):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq, "ASRS/RO"):""}</div>
           </div>
           ` : `
           <div class="mbRow">
@@ -694,14 +694,14 @@ const tb = getTeamBenchmarks(cat, team) || {};
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq, "ASRS/RO"):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq, "ASR GOAL"):""}</div>
           </div>
           `}
           <div class="mbRow">
@@ -728,14 +728,14 @@ const soldBlock = `
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose, "SOLD GOAL"):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose, "SOLD%"):""}</div>
           </div>
           ` : `
           <div class="mbRow">
@@ -743,14 +743,14 @@ const soldBlock = `
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose, "SOLD%"):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose, "SOLD GOAL"):""}</div>
           </div>
           `}
           <div class="mbRow">
@@ -764,10 +764,18 @@ const soldBlock = `
       </div>
     `;
 
+    const miniGoalDials = `
+      <div class="catMiniGoals" style="display:flex;align-items:center;gap:8px;margin-left:10px;">
+        <div class="svcGaugeWrap" style="--sz:46px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq, "ASR GOAL") : ""}</div>
+        <div class="svcGaugeWrap" style="--sz:46px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose, "SOLD GOAL") : ""}</div>
+      </div>
+    `;
+
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"SOLD%":(focus==="goal"?"GOAL":"ASRS/RO"))) : ""}</div>
+          ${miniGoalDials}
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
