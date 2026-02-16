@@ -293,6 +293,17 @@ function ensureDashTypographyOverrides(){
 .techRow{position:relative;}
 .techRow .techMetaRight{position:absolute;right:16px;top:14px;margin-left:0 !important;}
 .techRow .pills{padding-right:96px;}
+
+/* Pill grouping: thin grey outline around (ASRs/RO + ASR GOAL) and (SOLD/ASR% + SOLD/RO + SOLD GOAL) */
+.pillGroup{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:6px 8px;
+  border:1px solid rgba(190,190,190,.35);
+  border-radius:14px;
+}
+
 @media (max-width: 700px){
   .techRow .techMetaRight{right:12px;top:12px;}
   .techRow .pills{padding-right:86px;}
@@ -971,12 +982,17 @@ function renderTeam(team, st){
 
         <div class="dashRight">
           <div class="pills">
-            <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-            <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-            <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                    <div class=\"pill${clsAsrGoal}\"><div class=\"k\">ASR GOAL</div><div class=\"v\">${safe(asrGoalTxt)}</div></div>
-            <div class=\"pill${clsSoldGoal}\"><div class=\"k\">SOLD GOAL</div><div class=\"v\">${safe(soldGoalTxt)}</div></div>
-</div>
+            <div class="pillGroup pillGroupA">
+              <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+              <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+            </div>
+
+            <div class="pillGroup pillGroupB">
+              <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+              <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+              <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
+            </div>
+          </div>
 
           <div class="techMetaRight">
             ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
