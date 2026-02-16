@@ -775,6 +775,21 @@ function ensureDashTypographyOverrides(){
   flex:0 0 auto !important;
 }
 
+
+
+/* === FINAL: keep pills + rank badge inside the tech row (no overflow) === */
+.techRow.dashTechRow{
+  overflow:hidden !important;
+  padding-right:18px !important; /* breathing room so the badge stays inside */
+}
+.techRow.dashTechRow .techRight{
+  max-width:100% !important;
+  overflow:hidden !important;
+  transform:scale(0.9) !important;          /* shrink pills + badge together */
+  transform-origin:right center !important; /* keep aligned to right edge */
+}
+.techRow.dashTechRow .pills{transform:none !important;}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
