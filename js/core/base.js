@@ -608,13 +608,16 @@ function ensureDashTypographyOverrides(){
   overflow:visible !important;
 }
 .techRow.dashTechRow .dashLeft{
-  flex:0 0 auto !important;
+  flex:1 1 260px !important;
   max-width:260px !important;   /* hard limit so it can’t push pills/rank */
-  min-width:220px !important;
+  min-width:0 !important;
   display:flex !important;
   flex-direction:column !important;
   gap:8px !important;
 }
+
+.techRow.dashTechRow .dashLeft *{min-width:0 !important;}
+.techRow.dashTechRow .val.name{overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important;}
 .techRow.dashTechRow .val.name{
   position:static !important;
   max-width:100% !important;
@@ -630,7 +633,7 @@ function ensureDashTypographyOverrides(){
   gap:12px !important;
 }
 .techRow.dashTechRow .dashRight{
-  flex:1 1 auto !important;
+  flex:0 0 auto !important;
   display:flex !important;
   align-items:center !important;
   justify-content:flex-start !important; /* starts immediately after name block */
