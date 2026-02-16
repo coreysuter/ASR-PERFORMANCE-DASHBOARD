@@ -211,6 +211,21 @@
 })();
 
 function renderTech(techId){
+  // --- diag section no-clip fix: allow internal scrolling so Bottom 3 rows never get cut off ---
+  (function ensureDiagNoClipCSS(){
+    if(document.getElementById('diagNoClipCSS')) return;
+    const st = document.createElement('style');
+    st.id = 'diagNoClipCSS';
+    st.textContent = `
+      /* Prevent Bottom 3 lists from being clipped when the diag section is height-constrained */
+      .techPickPanel.diagSection{display:flex;flex-direction:column;overflow:hidden}
+      .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+      /* keep list rows from forcing overflow */
+      .techPickPanel.diagSection .pickRow{min-height:0}
+    `;
+    document.head.appendChild(st);
+  })();
+
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
     document.getElementById('app').innerHTML = `<div class="panel"><div class="phead"><div class="h2">Technician not found</div><div class="sub"><a href="#/">Back</a></div></div></div>`;
