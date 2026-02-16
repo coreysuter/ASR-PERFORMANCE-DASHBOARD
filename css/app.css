@@ -1176,17 +1176,6 @@ body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-directio
 /* ensure the pills/filters don't force overflow weirdness */
 body.route-tech .techHeaderPanel .pills{margin-top:auto;}
 
-/* Prevent Bottom 3 lists from getting clipped inside the diag section.
-   Keep the outer panel rounded (overflow hidden) but allow the inner content
-   to scroll when the equal-height header panels constrain the available height. */
-body.route-tech .techPickPanel{overflow:hidden;}
-body.route-tech .techPickPanel .phead{
-  height:100%;
-  overflow:auto;
-  overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-}
-
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
   font-size:13px;
@@ -1648,3 +1637,21 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
+
+
+/* ===== PATCH: Tech Details diag (Top/Bottom 3) should never clip =====
+   Outer panel stays rounded; inner content scrolls if height is constrained. */
+body.route-tech .techPickPanel{
+  overflow:hidden !important;
+}
+body.route-tech .techPickPanel .phead{
+  overflow:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  max-height:100% !important;
+}
+/* Ensure inner boxes can shrink/expand naturally */
+body.route-tech .techPickPanel .pickBox{
+  height:auto !important;
+  min-height:0 !important;
+}
