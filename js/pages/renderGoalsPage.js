@@ -80,6 +80,23 @@ function renderGoalsPage(){
     `;
   }
 
+  function miniBoxHtml(slug){
+    return `
+      <div class="miniGoalsBox" style="border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:8px 10px; display:flex; align-items:stretch; gap:10px; background:rgba(0,0,0,0.06);">
+        <div style="min-width:86px; text-align:center; padding-right:10px;">
+          <div id="gh_${slug}_asrro" style="font-size:18px; font-weight:800; line-height:1;">0.00</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:4px;">ASRs/RO</div>
+        </div>
+        <div style="width:1px; background:rgba(180,180,180,.55);"></div>
+        <div style="min-width:70px; text-align:center; padding-left:10px;">
+          <div id="gh_${slug}_soldro" style="font-size:18px; font-weight:800; line-height:1;">0.00</div>
+          <div style="font-size:12px; opacity:0.85; margin-top:4px;">SOLD</div>
+        </div>
+      </div>
+    `;
+  }
+
+
   function rowHtml(cat, displayName){
     const catEnc = encodeURIComponent(cat);
     const vReq = goalToInput(getGoalRaw(cat,"req"));
@@ -111,46 +128,6 @@ function renderGoalsPage(){
     `;
   }
 
-
-// ---- Mini Goals helpers (category headers) ----
-function _fmtGoalNum(x){
-  const n = Number(x);
-  if(!Number.isFinite(n)) return "0.00";
-  return n.toFixed(2);
-}
-// Outlined mini-goals box with a thin vertical divider
-function _miniGoalsBoxHtml(asrro, soldro){
-  return `
-    <div class="miniGoalsBox" style="border:1px solid rgba(255,255,255,0.22); border-radius:10px; padding:8px 10px; display:flex; align-items:stretch; gap:10px; background:rgba(0,0,0,0.06);">
-      <div style="min-width:88px; text-align:center; padding-right:10px;">
-        <div style="font-size:18px; font-weight:800; line-height:1;">${safe(_fmtGoalNum(asrro))}</div>
-        <div style="font-size:12px; opacity:0.9; margin-top:4px;">ASRs/RO</div>
-      </div>
-      <div style="width:1px; background:rgba(255,255,255,0.22);"></div>
-      <div style="min-width:78px; text-align:center; padding-left:10px;">
-        <div style="font-size:18px; font-weight:800; line-height:1;">${safe(_fmtGoalNum(soldro))}</div>
-        <div style="font-size:12px; opacity:0.9; margin-top:4px;">SOLD</div>
-      </div>
-    </div>
-  `;
-}
-// Calculate goals for a list of service categories:
-// ASRs/RO = sum(ASR%/100); Sold/RO = sum((ASR%/100)*(Sold%/100))
-function _calcGoalsForCats(cats){
-  let asrro = 0;
-  let soldro = 0;
-  (cats||[]).forEach(cat=>{
-    const asrPct = Number(getGoalRaw(cat,"req"));
-    const soldPct = Number(getGoalRaw(cat,"close"));
-    const asrDec = Number.isFinite(asrPct) ? (asrPct/100) : 0;
-    const soldDec = Number.isFinite(soldPct) ? (soldPct/100) : 0;
-    asrro += asrDec;
-    soldro += (asrDec * soldDec);
-  });
-  return { asrro, soldro };
-}
-
-
   function quadHtml(title, cats, includeLeftovers=false, isBrakes=false, isTires=false){
     const list = (cats||[]).slice();
     let rows = list.map(c=>rowHtml(c)).join("");
@@ -168,21 +145,20 @@ function _calcGoalsForCats(cats){
     if(String(title||"").toLowerCase()==="fluids"){
       const applyAllFl = String(getGoalRaw("__META_FLUIDS","apply_all"))==="1";
       const applyRow = `
-        <div class="brApplyAllRow">
-          <div class="q">ONE GOAL FOR ALL RECS?</div>
-          <label><input type="radio" name="fl_apply_all" value="yes" ${applyAllFl?'checked':''}> Yes</label>
-          <label><input type="radio" name="fl_apply_all" value="no"  ${!applyAllFl?'checked':''}> No</label>
+        <div class="brApplyAllRow" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div class="q">ONE GOAL FOR ALL RECS?</div>
+            <label><input type="radio" name="fl_apply_all" value="yes" ${applyAllFl?'checked':''}> Yes</label>
+            <label><input type="radio" name="fl_apply_all" value="no"  ${!applyAllFl?'checked':''}> No</label>
+          </div>
+          ${miniBoxHtml(slug)}
         </div>
       `;
       // Add synthetic row (hidden unless apply-all is enabled)
       const allRow = rowHtml("__FLUIDS_ALL","ALL FLUIDS").replace('class="goalRow tight', 'class="goalRow tight fluidsAllRow');
       const body = `
         <div class="goalQuadTitle">${safe(title)}
-          <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-            <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-            <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-          </div>
-        </div>
+</div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
@@ -231,10 +207,13 @@ function _calcGoalsForCats(cats){
   const applyAll = String(getGoalRaw("__META_BRAKES","apply_all"))==="1";
   const ryGlobal = String(getGoalRaw("__META_BRAKES","ry"))==="1";
   const applyRow = `
-    <div class="brApplyAllRow">
-      <div class="q">ONE GOAL FOR ALL RECS?</div>
-      <label><input type="radio" name="br_apply_all" value="yes" ${applyAll?'checked':''}> Yes</label>
+    <div class="brApplyAllRow" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div class="q">ONE GOAL FOR ALL RECS?</div>
+        <label><input type="radio" name="br_apply_all" value="yes" ${applyAll?'checked':''}> Yes</label>
       <label><input type="radio" name="br_apply_all" value="no"  ${!applyAll?'checked':''}> No</label>
+      </div>
+      ${miniBoxHtml(slug)}
     </div>
     <div class="brApplyAllRow brGlobalRow" style="margin-top:6px">
       <div class="q">SET GOALS FOR RED/YELLOW?</div>
@@ -298,11 +277,7 @@ function brakeRowHtml(key,label,mappedCat){
   return `
     <div class="goalQuad brakes ${ryGlobal?'ry-on':'ry-off'}" data-quad="${safe(slug)}">
       <div class="goalQuadTitle">${safe(title)}
-        <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-          <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-          <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-        </div>
-      </div>
+</div>
       ${applyRow}
       <div class="goalQuadHeadRow">
         <div class="ghName"></div>
@@ -345,10 +320,13 @@ function brakeRowHtml(key,label,mappedCat){
       const ryGlobal = String(getGoalRaw("__META_TIRES","ry"))==="1";
 
       const applyRow = `
-        <div class="brApplyAllRow">
-          <div class="q">ONE GOAL FOR ALL RECS?</div>
-          <label><input type="radio" name="tr_apply_all" value="yes" ${applyAll?'checked':''}> Yes</label>
+        <div class="brApplyAllRow" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div class="q">ONE GOAL FOR ALL RECS?</div>
+            <label><input type="radio" name="tr_apply_all" value="yes" ${applyAll?'checked':''}> Yes</label>
           <label><input type="radio" name="tr_apply_all" value="no"  ${!applyAll?'checked':''}> No</label>
+          </div>
+          ${miniBoxHtml(slug)}
         </div>
         <div class="brApplyAllRow brGlobalRow" style="margin-top:6px">
           <div class="q">SET GOALS FOR RED/YELLOW?</div>
@@ -412,11 +390,7 @@ function brakeRowHtml(key,label,mappedCat){
       return `
         <div class="goalQuad tires ${ryGlobal?'ry-on':'ry-off'}" data-quad="${safe(slug)}">
           <div class="goalQuadTitle">${safe(title)}
-            <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-              <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-              <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-            </div>
-          </div>
+</div>
           ${applyRow}
           <div class="goalQuadHeadRow">
             <div class="ghName"></div>
@@ -436,11 +410,7 @@ function brakeRowHtml(key,label,mappedCat){
     return `
       <div class="goalQuad" data-quad="${safe(slug)}">
         <div class="goalQuadTitle">${safe(title)}
-          <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-            <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-            <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-          </div>
-        </div>
+</div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
@@ -456,25 +426,20 @@ function brakeRowHtml(key,label,mappedCat){
   app.innerHTML = `
     <div class="panel goalsBig halfPage">
       <div class="goalsBigTop">
-        <div class="goalsTitleRow" style="position:relative;">
+        <div class="goalsTitleRow">
           <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
           <div>
             <div class="goalsH1">GOALS</div>
-                      </div>
-
-          <div class="goalsMidGoals" style="margin-left:18px; text-align:center; border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:10px 14px;">
-            <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
-            <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
-              <div style="text-align:center;">
-                <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
-              </div>
-              
-              <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
-              <div style="text-align:center;">
-                <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
-              </div>
+            <div class="sub" style="margin-top:4px">Set goals for each service. Values populate the “Goal:” lines throughout the dashboard.</div>
+          </div>
+          <div class="goalsTopStats" style="margin-left:auto; display:flex; gap:14px; align-items:flex-end; padding-bottom:2px;">
+            <div style="text-align:right;">
+              <div style="font-size:12px; opacity:.75;">ASRs/RO Goal</div>
+              <div id="gh_total_asrro" style="font-size:22px; font-weight:800; line-height:1;">0.00</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:12px; opacity:.75;">Sold/RO Goal</div>
+              <div id="gh_total_soldro" style="font-size:22px; font-weight:800; line-height:1;">0.00</div>
             </div>
           </div>
         </div>
@@ -578,8 +543,8 @@ function brakeRowHtml(key,label,mappedCat){
 
     const totalAsr = maint.asr + fluids.asr + brakes.asr + tires.asr;
     const totalSold = maint.sold + fluids.sold + brakes.sold + tires.sold;
-_setHdr('gh_mid_asrro', totalAsr);
-    _setHdr('gh_mid_soldro', totalSold);
+    _setHdr('gh_total_asrro', totalAsr);
+    _setHdr('gh_total_soldro', totalSold);
   }
 
   let _rgRAF = 0;
@@ -610,52 +575,25 @@ _setHdr('gh_mid_asrro', totalAsr);
     row.classList.toggle("rowDisabled", !!disabled);
     row.querySelectorAll("input").forEach(inp=>{ inp.disabled = !!disabled; });
   }
-  function _copyFluidsFromAll(targetCat){
-    const uEnc = encodeURIComponent("__FLUIDS_ALL");
-    const tEnc = encodeURIComponent(targetCat);
-    const uReq = document.getElementById(`g_${uEnc}_req`);
-    const uClose = document.getElementById(`g_${uEnc}_close`);
-    const tReq = document.getElementById(`g_${tEnc}_req`);
-    const tClose = document.getElementById(`g_${tEnc}_close`);
-    if(tReq && uReq) tReq.value = uReq.value;
-    if(tClose && uClose) tClose.value = uClose.value;
-  }
-
   function _applyFluidsApplyAll(){
     const yes = document.querySelector('input[name="fl_apply_all"][value="yes"]');
     const on = !!(yes && yes.checked);
     setGoalRaw("__META_FLUIDS","apply_all", on ? 1 : 0);
-
+    // show/hide synthetic row
     const wrap = document.querySelector('.fluidsAllRow')?.parentElement;
     if(wrap) wrap.classList.toggle("hidden", !on);
 
+    // disable all fluid service rows when apply-all is on
     for(const c of (FLUIDS||[])){
       _setGoalRowDisabled(c, on);
-      if(on) _copyFluidsFromAll(c);
     }
+    // keep ALL row enabled
     _setGoalRowDisabled("__FLUIDS_ALL", false);
-    _scheduleRecompute();
   }
   document.querySelectorAll('input[name="fl_apply_all"]').forEach(r=>{
     r.addEventListener("change", _applyFluidsApplyAll);
   });
   _applyFluidsApplyAll();
-
-  // When apply-all is ON, keep each fluids service in sync as you edit ALL FLUIDS
-  (function _wireFluidsAllInputs(){
-    const uEnc = encodeURIComponent("__FLUIDS_ALL");
-    ["req","close"].forEach(f=>{
-      const el = document.getElementById(`g_${uEnc}_${f}`);
-      if(!el) return;
-      el.addEventListener("input", ()=>{
-        const on = !!(document.querySelector('input[name="fl_apply_all"][value="yes"]')?.checked);
-        if(on){
-          (FLUIDS||[]).forEach(c=>_copyFluidsFromAll(c));
-          _scheduleRecompute();
-        }
-      });
-    });
-  })();
 
   // Wire up Brakes controls (Apply-to-all + Red/Yellow toggles)
   function _setRowDisabled(brakeKey, disabled){
@@ -768,17 +706,6 @@ _setHdr('gh_mid_asrro', totalAsr);
     applyNow();
   }
 
-
-  function _copyBrakeFromTotal(toKey){
-    const tEnc = encodeURIComponent("BRAKES_TOTAL");
-    const dEnc = encodeURIComponent(toKey);
-    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
-      const src = document.getElementById(`b_${tEnc}_${sfx}`);
-      const dst = document.getElementById(`b_${dEnc}_${sfx}`);
-      if(src && dst) dst.value = src.value;
-    });
-  }
-
 function _wireBrakes(){
     const yes = document.querySelector('input[name="br_apply_all"][value="yes"]');
     const no  = document.querySelector('input[name="br_apply_all"][value="no"]');
@@ -786,32 +713,11 @@ function _wireBrakes(){
       const applyAll = !!(yes && yes.checked);
       _setRowDisabled("BRAKES_FRONT", applyAll);
       _setRowDisabled("BRAKES_REAR",  applyAll);
-      if(applyAll){
-        _copyBrakeFromTotal("BRAKES_FRONT");
-        _copyBrakeFromTotal("BRAKES_REAR");
-      }
       _applyYellowGlobal();
-      _scheduleRecompute();
     };
     if(yes) yes.addEventListener("change", applyNow);
     if(no)  no.addEventListener("change", applyNow);
 
-
-    // When apply-all is ON, keep FRONT/REAR in sync as you edit TOTAL
-    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
-      const id = `b_${encodeURIComponent("BRAKES_TOTAL")}_${sfx}`;
-      const el = document.getElementById(id);
-      if(el){
-        el.addEventListener("input", ()=>{
-          const applyAll = !!(document.querySelector('input[name="br_apply_all"][value="yes"]')?.checked);
-          if(applyAll){
-            _copyBrakeFromTotal("BRAKES_FRONT");
-            _copyBrakeFromTotal("BRAKES_REAR");
-            _scheduleRecompute();
-          }
-        });
-      }
-    });
     // If universal is enabled, keep TWO/Four in sync as you edit the TOTAL row
     ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
       const id = `t_${encodeURIComponent("TIRES_TOTAL2")}_${sfx}`;
