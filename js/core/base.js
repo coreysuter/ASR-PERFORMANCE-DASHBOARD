@@ -756,6 +756,24 @@ function ensureDashTypographyOverrides(){
   transform:scale(0.9) !important;
   transform-origin:left center !important;
 }
+
+
+/* --- Fix: allow pill row to expand so last pill (SOLD GOAL) never clips --- */
+.techRow .techRight,
+.techRow .pills,
+.techRow .pillGroup{
+  overflow:visible !important;
+}
+.techRow .techRight{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+}
+.techRow .pills{
+  width:auto !important;
+  max-width:none !important;
+  flex:0 0 auto !important;
+}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
