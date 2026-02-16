@@ -140,8 +140,8 @@ function renderGoalsPage(){
     const closes = eff.map(k=>_goalPct(k,'close'));   // Sold% inputs
 
     // Convert per-service % inputs into ASR/RO and Sold/RO projections
-    const asrRos  = eff.map(k=>_goalPct(k,'req')   / 100);                         // 50% -> 0.50
-    const soldRos = eff.map(k=>(_goalPct(k,'req')/100) * (_goalPct(k,'close')/100)); // (ASR/RO) * (Sold%)
+    const asrRos  = eff.map(k=>(_goalPct(k,'req')   || 0) / 100);                         // 50% -> 0.50
+    const soldRos = eff.map(k=>((_goalPct(k,'req')||0)/100) * ((_goalPct(k,'close')||0)/100)); // (ASR/RO) * (Sold%)
 
     return {
       avgReq: _mean(reqs),
@@ -157,10 +157,11 @@ function renderGoalsPage(){
 
   function _quadHeaderStatsHtml(title, cats){
     const p = _projectedAveragesForQuadrant(title, cats);
+    const k = String(title||"").toLowerCase().replace(/\s+/g,'_');
     return `
       <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-        <span style="margin-right:14px;">ASRs/RO Goals: <b>${safe(_fmtRatio2(p.sumAsrRo))}</b></span>
-        <span>Sold/RO Goals: <b>${safe(_fmtRatio2(p.sumSoldRo))}</b></span>
+        <span style="margin-right:14px;">ASRs/RO Goals: <b id="proj_${k}_asrro">${safe(_fmtRatio2(p.sumAsrRo))}</b></span>
+        <span>Sold/RO Goals: <b id="proj_${k}_soldro">${safe(_fmtRatio2(p.sumSoldRo))}</b></span>
       </div>
     `;
   }
@@ -520,11 +521,11 @@ function brakeRowHtml(key,label,mappedCat){
           <div class="goalsTopStats" style="margin-left:auto; display:flex; gap:14px; align-items:flex-end; padding-bottom:2px;">
             <div style="text-align:right;">
               <div style="font-size:12px; opacity:.75;">ASRs/RO Goal</div>
-              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(asrsPerRoGoal)}</div>
+              <div id="proj_total_asrro" style="font-size:22px; font-weight:800; line-height:1;">${safe(asrsPerRoGoal)}</div>
             </div>
             <div style="text-align:right;">
               <div style="font-size:12px; opacity:.75;">Sold/RO Goal</div>
-              <div style="font-size:22px; font-weight:800; line-height:1;">${safe(soldPerRoGoal)}</div>
+              <div id="proj_total_soldro" style="font-size:22px; font-weight:800; line-height:1;">${safe(soldPerRoGoal)}</div>
             </div>
           </div>
         </div>
@@ -543,6 +544,95 @@ function brakeRowHtml(key,label,mappedCat){
       </div>
     </div>
   `;
+
+  // ---------------- Live projection updates (category + totals) ----------------
+
+  // Read the *current* input values from the DOM (not just stored goals)
+  function _readPctFromInputs(goalKey, metric){
+    const m = metric === 'close' ? 'close' : 'req';
+
+    // Fluids synthetic universal
+    if(goalKey === "__FLUIDS_ALL"){
+      const id = `g_${encodeURIComponent("__FLUIDS_ALL")}_${m}`;
+      const el = document.getElementById(id);
+      const v = el ? sanitizeNum(el.value) : null;
+      return _num(v);
+    }
+
+    // Brakes special keys (use RED inputs)
+    if(String(goalKey||"").startsWith("BRAKES_")){
+      const k = encodeURIComponent(goalKey);
+      const id = `b_${k}_${m}_red`;
+      const el = document.getElementById(id);
+      const v = el ? sanitizeNum(el.value) : null;
+      return _num(v);
+    }
+
+    // Tires special keys (use RED inputs)
+    if(String(goalKey||"").startsWith("TIRES_")){
+      const k = encodeURIComponent(goalKey);
+      const id = `t_${k}_${m}_red`;
+      const el = document.getElementById(id);
+      const v = el ? sanitizeNum(el.value) : null;
+      return _num(v);
+    }
+
+    // Regular category key
+    const enc = encodeURIComponent(goalKey);
+    const el = document.getElementById(`g_${enc}_${m}`);
+    const v = el ? sanitizeNum(el.value) : null;
+    return _num(v);
+  }
+
+  function _projectFromDom(title, cats){
+    const eff = _effectiveListForQuadrant(title, cats);
+    const asrRos = eff.map(k=>(_readPctFromInputs(k,'req')||0)/100);
+    const soldRos = eff.map(k=>((_readPctFromInputs(k,'req')||0)/100) * ((_readPctFromInputs(k,'close')||0)/100));
+    return { sumAsrRo: _sum(asrRos), sumSoldRo: _sum(soldRos) };
+  }
+
+  function _setText(id, txt){
+    const el = document.getElementById(id);
+    if(el) el.textContent = txt;
+  }
+
+  function recomputeGoalProjections(){
+    const maint = _projectFromDom("maintenance", MAINT);
+    const fl    = _projectFromDom("fluids", FLUIDS);
+    const br    = _projectFromDom("brakes", BRAKES);
+    const tr    = _projectFromDom("tires", TIRES);
+    const oth   = _projectFromDom("other", OTHER);
+
+    // Quadrant headers
+    _setText("proj_maintenance_asrro", _fmtRatio2(maint.sumAsrRo));
+    _setText("proj_maintenance_soldro", _fmtRatio2(maint.sumSoldRo));
+    _setText("proj_fluids_asrro", _fmtRatio2(fl.sumAsrRo));
+    _setText("proj_fluids_soldro", _fmtRatio2(fl.sumSoldRo));
+    _setText("proj_brakes_asrro", _fmtRatio2(br.sumAsrRo));
+    _setText("proj_brakes_soldro", _fmtRatio2(br.sumSoldRo));
+    _setText("proj_tires_asrro", _fmtRatio2(tr.sumAsrRo));
+    _setText("proj_tires_soldro", _fmtRatio2(tr.sumSoldRo));
+    _setText("proj_other_asrro", _fmtRatio2(oth.sumAsrRo));
+    _setText("proj_other_soldro", _fmtRatio2(oth.sumSoldRo));
+
+    // Totals = add category goals
+    const totalAsrRo = maint.sumAsrRo + fl.sumAsrRo + br.sumAsrRo + tr.sumAsrRo + oth.sumAsrRo;
+    const totalSoldRo = maint.sumSoldRo + fl.sumSoldRo + br.sumSoldRo + tr.sumSoldRo + oth.sumSoldRo;
+    _setText("proj_total_asrro", _fmtRatio2(totalAsrRo));
+    _setText("proj_total_soldro", _fmtRatio2(totalSoldRo));
+  }
+
+  // Debounced live updates on any input/change in the Goals view
+  let _projT = null;
+  const _queueRecompute = ()=>{
+    clearTimeout(_projT);
+    _projT = setTimeout(recomputeGoalProjections, 0);
+  };
+  document.querySelectorAll(".goalsQuads input").forEach(inp=>{
+    inp.addEventListener("input", _queueRecompute);
+    inp.addEventListener("change", _queueRecompute);
+  });
+  recomputeGoalProjections();
 
 
   // Wire up Fluids controls (Apply-to-all)
