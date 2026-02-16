@@ -775,14 +775,13 @@ return `
   }
   function sectionStatsForTech(sec){
     const cats = sec.categories || [];
+    // Section-level ASRs/RO: convert each service ASR% (already stored as decimal) and SUM across services.
     const reqs = cats.map(cat=>Number(t.categories?.[cat]?.req)).filter(n=>Number.isFinite(n));
     const closes = cats.map(cat=>Number(t.categories?.[cat]?.close)).filter(n=>Number.isFinite(n));
-    return {
-      avgReq: reqs.length ? reqs.reduce((a,b)=>a+b,0)/reqs.length : null,
-      avgClose: closes.length ? closes.reduce((a,b)=>a+b,0)/closes.length : null
-    };
+    const sumReq = reqs.length ? reqs.reduce((a,b)=>a+b,0) : null;          // ASRs/RO
+    const avgClose = closes.length ? closes.reduce((a,b)=>a+b,0)/closes.length : null; // Sold% (average)
+    return { sumReq, avgClose };
   }
-
 
 // Rank badge for section/category headers (Maintenance / Fluids / etc.)
 function sectionScoreForTech(sec, x){
@@ -840,16 +839,16 @@ function sectionRankFor(sec){
       return Number(b && b.avgClose);
     }).filter(n=>Number.isFinite(n) && n>0);
 
-    const benchReq = benchReqs.length ? mean(benchReqs) : NaN;
+    const benchReq = benchReqs.length ? benchReqs.reduce((a,b)=>a+b,0) : NaN;
     const benchClose = benchCloses.length ? mean(benchCloses) : NaN;
 
     // Goals for section-level dials (avg across categories)
     const goalReqs = cats.map(cat=>Number(getGoal(cat,"req"))).filter(n=>Number.isFinite(n) && n>0);
     const goalCloses = cats.map(cat=>Number(getGoal(cat,"close"))).filter(n=>Number.isFinite(n) && n>0);
-    const goalReq = goalReqs.length ? mean(goalReqs) : NaN;
+    const goalReq = goalReqs.length ? goalReqs.reduce((a,b)=>a+b,0) : NaN;
     const goalClose = goalCloses.length ? mean(goalCloses) : NaN;
 
-    const asrVal = Number(secStats.avgReq);
+    const asrVal = Number(secStats.sumReq);
     const soldVal = Number(secStats.avgClose);
 
     const pctAsr = (Number.isFinite(asrVal) && Number.isFinite(benchReq) && benchReq>0) ? (asrVal/benchReq) : NaN;
@@ -883,8 +882,8 @@ return `
               <div class="sub"></div>
             </div>
             <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
-                <div class="big">${fmtPct(secStats.avgReq)}</div>
-                <div class="tag">ASR%</div>
+                <div class="big">${fmt1(secStats.sumReq,1)}</div>
+                <div class="tag">ASRs/RO</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
             </div>
           </div>
