@@ -793,6 +793,21 @@ function _wireBrakes(){
     if(yes) yes.addEventListener("change", applyNow);
     if(no)  no.addEventListener("change", applyNow);
 
+
+
+    // Keep TWO / FOUR in sync while editing TOTAL when universal is enabled
+    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
+      const id = `t_${encodeURIComponent("TIRES_TOTAL2")}_${sfx}`;
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener("input", ()=>{
+        const applyAll = !!(document.querySelector('input[name="tr_apply_all"][value="yes"]')?.checked);
+        if(applyAll){
+          _copyTireFromTotal("TIRES_TWO");
+          _copyTireFromTotal("TIRES_FOUR");
+        }
+      });
+    });
     ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
       const id = `b_${encodeURIComponent("BRAKES_TOTAL")}_${sfx}`;
       const el = document.getElementById(id);
