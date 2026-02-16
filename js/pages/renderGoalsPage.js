@@ -565,25 +565,52 @@ function brakeRowHtml(key,label,mappedCat){
     row.classList.toggle("rowDisabled", !!disabled);
     row.querySelectorAll("input").forEach(inp=>{ inp.disabled = !!disabled; });
   }
+  function _copyFluidsFromAll(targetCat){
+    const uEnc = encodeURIComponent("__FLUIDS_ALL");
+    const tEnc = encodeURIComponent(targetCat);
+    const uReq = document.getElementById(`g_${uEnc}_req`);
+    const uClose = document.getElementById(`g_${uEnc}_close`);
+    const tReq = document.getElementById(`g_${tEnc}_req`);
+    const tClose = document.getElementById(`g_${tEnc}_close`);
+    if(tReq && uReq) tReq.value = uReq.value;
+    if(tClose && uClose) tClose.value = uClose.value;
+  }
+
   function _applyFluidsApplyAll(){
     const yes = document.querySelector('input[name="fl_apply_all"][value="yes"]');
     const on = !!(yes && yes.checked);
     setGoalRaw("__META_FLUIDS","apply_all", on ? 1 : 0);
-    // show/hide synthetic row
+
     const wrap = document.querySelector('.fluidsAllRow')?.parentElement;
     if(wrap) wrap.classList.toggle("hidden", !on);
 
-    // disable all fluid service rows when apply-all is on
     for(const c of (FLUIDS||[])){
       _setGoalRowDisabled(c, on);
+      if(on) _copyFluidsFromAll(c);
     }
-    // keep ALL row enabled
     _setGoalRowDisabled("__FLUIDS_ALL", false);
+    _scheduleRecompute();
   }
   document.querySelectorAll('input[name="fl_apply_all"]').forEach(r=>{
     r.addEventListener("change", _applyFluidsApplyAll);
   });
   _applyFluidsApplyAll();
+
+  // When apply-all is ON, keep each fluids service in sync as you edit ALL FLUIDS
+  (function _wireFluidsAllInputs(){
+    const uEnc = encodeURIComponent("__FLUIDS_ALL");
+    ["req","close"].forEach(f=>{
+      const el = document.getElementById(`g_${uEnc}_${f}`);
+      if(!el) return;
+      el.addEventListener("input", ()=>{
+        const on = !!(document.querySelector('input[name="fl_apply_all"][value="yes"]')?.checked);
+        if(on){
+          (FLUIDS||[]).forEach(c=>_copyFluidsFromAll(c));
+          _scheduleRecompute();
+        }
+      });
+    });
+  })();
 
   // Wire up Brakes controls (Apply-to-all + Red/Yellow toggles)
   function _setRowDisabled(brakeKey, disabled){
@@ -696,6 +723,17 @@ function brakeRowHtml(key,label,mappedCat){
     applyNow();
   }
 
+
+  function _copyBrakeFromTotal(toKey){
+    const tEnc = encodeURIComponent("BRAKES_TOTAL");
+    const dEnc = encodeURIComponent(toKey);
+    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
+      const src = document.getElementById(`b_${tEnc}_${sfx}`);
+      const dst = document.getElementById(`b_${dEnc}_${sfx}`);
+      if(src && dst) dst.value = src.value;
+    });
+  }
+
 function _wireBrakes(){
     const yes = document.querySelector('input[name="br_apply_all"][value="yes"]');
     const no  = document.querySelector('input[name="br_apply_all"][value="no"]');
@@ -703,11 +741,32 @@ function _wireBrakes(){
       const applyAll = !!(yes && yes.checked);
       _setRowDisabled("BRAKES_FRONT", applyAll);
       _setRowDisabled("BRAKES_REAR",  applyAll);
+      if(applyAll){
+        _copyBrakeFromTotal("BRAKES_FRONT");
+        _copyBrakeFromTotal("BRAKES_REAR");
+      }
       _applyYellowGlobal();
+      _scheduleRecompute();
     };
     if(yes) yes.addEventListener("change", applyNow);
     if(no)  no.addEventListener("change", applyNow);
 
+
+    // When apply-all is ON, keep FRONT/REAR in sync as you edit TOTAL
+    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
+      const id = `b_${encodeURIComponent("BRAKES_TOTAL")}_${sfx}`;
+      const el = document.getElementById(id);
+      if(el){
+        el.addEventListener("input", ()=>{
+          const applyAll = !!(document.querySelector('input[name="br_apply_all"][value="yes"]')?.checked);
+          if(applyAll){
+            _copyBrakeFromTotal("BRAKES_FRONT");
+            _copyBrakeFromTotal("BRAKES_REAR");
+            _scheduleRecompute();
+          }
+        });
+      }
+    });
     // If universal is enabled, keep TWO/Four in sync as you edit the TOTAL row
     ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
       const id = `t_${encodeURIComponent("TIRES_TOTAL2")}_${sfx}`;
