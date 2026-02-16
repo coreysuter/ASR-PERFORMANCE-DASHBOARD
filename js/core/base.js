@@ -790,6 +790,25 @@ function ensureDashTypographyOverrides(){
 }
 .techRow.dashTechRow .pills{transform:none !important;}
 
+
+/* --- Fix: let tech row flex to fit right-side (pills + rank badge), prevent clipping --- */
+.techRow.dashTechRow{ overflow: visible !important; }
+.techRow.dashTechRow .techRowInner{
+  display:flex !important;
+  align-items:center !important;
+  gap:14px !important;
+  min-width:0 !important;
+}
+.techRow.dashTechRow .techLeft{
+  flex:1 1 auto !important;   /* left side can shrink to make room */
+  min-width:0 !important;
+}
+.techRow.dashTechRow .techRight{
+  flex:0 0 auto !important;   /* right side (pills+badge) keeps its width */
+  min-width:0 !important;
+}
+.techRow.dashTechRow .pills{ min-width:0 !important; flex-wrap:nowrap !important; }
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
