@@ -1176,17 +1176,6 @@ body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-directio
 /* ensure the pills/filters don't force overflow weirdness */
 body.route-tech .techHeaderPanel .pills{margin-top:auto;}
 
-/* Prevent Bottom 3 lists from getting clipped inside the diag section.
-   Keep the outer panel rounded (overflow hidden) but allow the inner content
-   to scroll when the equal-height header panels constrain the available height. */
-body.route-tech .techPickPanel{overflow:hidden;}
-body.route-tech .techPickPanel .phead{
-  height:100%;
-  overflow:auto;
-  overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-}
-
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
   font-size:13px;
@@ -1649,22 +1638,29 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
 
-/* ===== PATCH: Tech Details diag panel should not clip (allow internal scroll) ===== */
+/* ===== FIX: Tech Details diag panel should never clip Bottom 3 (force internal scroll) =====
+   This block is intentionally placed at the VERY END of app.css so it wins over all prior rules.
+*/
+body.route-tech .techHeaderWrap{ align-items:stretch !important; }
+body.route-tech .techHeaderWrap > .panel{ height:100% !important; }
+
+/* Keep rounded corners on the outer panel, but allow inner content to scroll */
 body.route-tech .techPickPanel{
-  overflow:hidden !important;          /* keep rounded corners */
+  height:100% !important;
+  overflow:hidden !important;
   display:flex !important;
   flex-direction:column !important;
 }
+
+/* Make the phead the scroll container. Use flex+gap so existing rows keep spacing. */
 body.route-tech .techPickPanel > .phead{
   flex:1 1 auto !important;
-  min-height:0 !important;             /* critical for flex children to scroll */
+  min-height:0 !important;
   overflow:auto !important;
   overflow-x:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  gap:14px !important;
   -webkit-overflow-scrolling:touch;
-}
-/* Ensure inner rows can shrink to fit without forcing overflow */
-body.route-tech .techPickPanel .pickRow,
-body.route-tech .techPickPanel .pickGrid2{
-  min-height:0 !important;
 }
 
