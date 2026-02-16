@@ -238,7 +238,7 @@ function renderTech(techId){
 
   let filterKey = "total";
   let compareBasis = "team";
-  let focus = "asr"; // asr | sold
+  let focus = "asr"; // asr | sold | asr_goal | sold_goal
   let goalMetric = "asr"; // asr | sold (which goal set to reference when focus=goal)
 const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
@@ -252,7 +252,7 @@ const hash = location.hash || "";
       }
       if(k==="focus"){
         const vv = decodeURIComponent(v||"") || "asr";
-        focus = (vv==="sold"||vv==="goal"||vv==="asr") ? vv : "asr";
+        focus = (vv==="sold"||vv==="asr"||vv==="asr_goal"||vv==="sold_goal") ? vv : "asr";
       }
       if(k==="goal"){
         const vv = decodeURIComponent(v||"") || "asr";
@@ -274,7 +274,7 @@ const hash = location.hash || "";
 
   // Focus Rank Badge (replaces x/x rankings)
   function rankBadgeHtml(rank, total, focus, size="lg"){
-    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
+    const top = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
@@ -299,6 +299,8 @@ const s = t.summary?.[filterKey] || {};
     }
     return Array.from(cats);
   }
+  const focusIsGoal = (focus==="asr_goal" || focus==="sold_goal");
+
   const CAT_LIST = categoryUniverse();
 
   function buildBench(scopeTechs){
@@ -431,7 +433,7 @@ const s = t.summary?.[filterKey] || {};
         let v = NaN;
         if(focus==="sold"){
           v = Number(c.close);
-        }else if(focus==="goal"){
+        }else if(focusIsGoal){
           const req = Number(c.req ?? NaN);
           const close = Number(c.close ?? NaN);
           const gReq = Number(getGoal(cat,"req"));
@@ -454,7 +456,7 @@ const s = t.summary?.[filterKey] || {};
     let me = NaN;
     if(focus==="sold"){
       me = Number(meC.close);
-    }else if(focus==="goal"){
+    }else if(focusIsGoal){
       const req = Number(meC.req);
       const close = Number(meC.close);
       const gReq = Number(getGoal(cat,"req"));
@@ -492,9 +494,10 @@ const s = t.summary?.[filterKey] || {};
       <div>
         <label>Focus</label>
         <select id="techFocus">
-          <option value="asr" ${focus==="asr"?"selected":""}>ASR</option>
-          <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
-          <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
+          <option value="asr" ${focus==="asr"?"selected":""}>ASRS/RO</option>
+          <option value="sold" ${focus==="sold"?"selected":""}>SOLD%</option>
+          <option value="asr_goal" ${focus==="asr_goal"?"selected":""}>ASR GOAL</option>
+          <option value="sold_goal" ${focus==="sold_goal"?"selected":""}>SOLD GOAL</option>
         </select>
       </div>
       <div>
@@ -522,12 +525,25 @@ const s = t.summary?.[filterKey] || {};
       }else{
         if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0){ sum += (req/gReq); n++; }
       }
+
+  // Goal score wrappers for Focus-specific goal dials
+  function techAsrGoalScore(x){
+    const prev = goalMetric;
+    try{ goalMetric = "asr"; return techGoalScore(x); }
+    finally{ goalMetric = prev; }
+  }
+  function techSoldGoalScore(x){
+    const prev = goalMetric;
+    try{ goalMetric = "sold"; return techGoalScore(x); }
+    finally{ goalMetric = prev; }
+  }
+
     }
     return n ? (sum/n) : null; // ratio (1.0 = 100% of goal)
   }
   const metricForRank = (x)=> {
     if(focus==="sold") return Number(techSoldPct(x, filterKey));
-    if(focus==="goal") return Number(techGoalScore(x));
+    if(focusIsGoal) return Number(focus==="asr_goal" ? techAsrGoalScore(x) : techSoldGoalScore(x));
     return Number(techAsrPerRo(x, filterKey));
   };
   const ordered = scopeTechs.slice().sort((a,b)=>{
@@ -539,8 +555,8 @@ const s = t.summary?.[filterKey] || {};
   const myV = metricForRank(t);
   const idx = Number.isFinite(myV) ? ordered.findIndex(o=>o.id===t.id) : -1;
   const overall = ordered.length ? {rank: (idx>=0?idx+1:null), total: ordered.length} : {rank:null,total:null};
-  const focusLbl = focus==="sold" ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
-  const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
+  const focusLbl = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
+  const focusVal = (focus==="sold") ? fmtPct(techSoldPct(t, filterKey)) : (focusIsGoal ? (focus==="asr_goal" ? fmtPct(techAsrGoalScore(t)) : fmtPct(techSoldGoalScore(t))) : fmt1(techAsrPerRo(t, filterKey),1));
   const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
@@ -651,18 +667,15 @@ const tb = getTeamBenchmarks(cat, team) || {};
     // Header gauge follows Focus:
     let hdrPct = pctCmpReq;
     if(focus==="sold") hdrPct = pctCmpClose;
-    if(focus==="goal"){
-      const parts = [];
-      if(Number.isFinite(pctGoalReq)) parts.push(pctGoalReq);
-      if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
-      hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
+    if(focusIsGoal){
+      hdrPct = (focus==="asr_goal") ? pctGoalReq : pctGoalClose;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%")))}</div>
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO")))}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
 
-    const showFocusTag = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
+    const showFocusTag = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
 
     const compareLabel = (compareBasis==="store") ? "Store Avg" : "Team Avg";
 
@@ -673,7 +686,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
           <div class="mbStat ${bandClass(pctCmpReq)}">${fmtPct(req)}</div>
         </div>
         <div class="mbRight">
-          ${(focus==="goal") ? `
+          ${(focusIsGoal) ? `
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
@@ -722,7 +735,7 @@ const soldBlock = `
           <div class="mbStat ${bandClass(pctCmpClose)}">${fmtPct(close)}</div>
         </div>
         <div class="mbRight">
-          ${(focus==="goal") ? `
+          ${(focusIsGoal) ? `
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
@@ -767,7 +780,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
@@ -808,7 +821,7 @@ function sectionScoreForTech(sec, x){
     if(focus==="sold"){
       const v = Number(c.close);
       if(Number.isFinite(v)) vals.push(v);
-    }else if(focus==="goal"){
+    }else if(focusIsGoal){
       if(goalMetric==="sold"){
         const v = Number(c.close);
         const g = Number(getGoal(cat,"close"));
@@ -875,8 +888,8 @@ function sectionRankFor(sec){
       ? mean([pctGoalAsr,pctGoalSold].filter(n=>Number.isFinite(n)))
       : NaN;
 
-    const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? pctGoal : pctAsr);
-    const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASR");
+    const focusPct = (focus==="sold") ? pctSold : (focusIsGoal ? (focus==="asr_goal" ? pctGoalAsr : pctGoalSold) : pctAsr);
+    const focusLbl = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
 
     const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASRS/RO")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"SOLD%")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
