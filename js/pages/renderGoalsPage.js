@@ -422,13 +422,15 @@ function brakeRowHtml(key,label,mappedCat){
             <div class="goalsH1">GOALS</div>
                       </div>
 
-          <div class="goalsMidGoals" style="margin-left:18px; text-align:center;">
+          <div class="goalsMidGoals" style="margin-left:18px; text-align:center; border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:10px 14px;">
             <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
             <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
               <div style="text-align:center;">
                 <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
                 <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
               </div>
+              
+              <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
               <div style="text-align:center;">
                 <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
                 <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
