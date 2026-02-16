@@ -286,8 +286,8 @@ function ensureDashTypographyOverrides(){
 @media (max-width: 700px){ .catTitle{font-size:24px;} }
 
 /* Technician names on dashboard list */
-.techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
-@media (max-width: 700px){ .techRow .val.name{font-size:20px !important;} }
+.techRow .val.name{font-size:21px !important;font-weight:1000 !important;white-space:nowrap;}
+@media (max-width: 700px){ .techRow .val.name{font-size:19px !important;} }
 
 /* Rank badge pinned to far right of technician rows (dashboard) */
 .techRow{position:relative;}
@@ -390,7 +390,7 @@ function ensureDashTypographyOverrides(){
 }
 .techRow .pill.odoHeaderLike .v{
   width:auto !important;
-  font-size:22px !important;
+  font-size:24px !important;
   font-weight:1000 !important;
 }
 
@@ -463,7 +463,7 @@ function ensureDashTypographyOverrides(){
 
 @media (max-width: 700px){
   .techRow{min-height:136px !important;}
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:19px !important; max-width:60% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important; width:min(60%, 280px) !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
   .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
@@ -480,7 +480,7 @@ function ensureDashTypographyOverrides(){
   .techRow .pill .v{font-size:20px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:72% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:22px !important; max-width:72% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important; width:170px !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
   .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
@@ -493,7 +493,7 @@ function ensureDashTypographyOverrides(){
   .techRow .techMetaRight{margin-left:9px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:72% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:22px !important; max-width:72% !important;}
   .techRow .odoUnderName{top:46px !important; left:14px !important;}
   .techRow .pill.odoHeaderLike{width:170px !important; min-width:170px !important; height:52px !important; padding:9px 12px !important;}
   .techRow .pill.odoHeaderLike .k{font-size:11px !important;}
@@ -506,7 +506,7 @@ function ensureDashTypographyOverrides(){
   .techRow .pill .v{font-size:20px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:70% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:22px !important; max-width:70% !important;}
   .techRow .techMetaRight{right:14px !important;}
   .techRow .pills{left:14px !important; right:104px !important; gap:7px !important;}
   .techRow .pill{width:60px !important;height:60px !important;min-width:60px !important;border-radius:11px !important;padding:6px 6px !important;gap:3px !important;}
@@ -517,14 +517,14 @@ function ensureDashTypographyOverrides(){
   .techRow .pill.odoWide .v{font-size:16.5px !important;}
 }
 
-  .techRow .val.name{top:10px !important; left:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .val.name{top:10px !important; left:14px !important; font-size:22px !important; max-width:60% !important;}
   .techRow .pills{gap:7px !important; padding-left:14px !important; padding-right:104px !important;}
   .techRow .pill{width:62px !important;height:62px !important;min-width:62px !important;border-radius:11px !important;padding:6px 6px !important;}
   .techRow .pill .k{font-size:10px !important;}
   .techRow .pill .v{font-size:17px !important;}
 }
 
-  .techRow .val.name{top:10px !important; right:14px !important; font-size:20px !important; max-width:60% !important;}
+  .techRow .val.name{top:10px !important; right:14px !important; font-size:22px !important; max-width:60% !important;}
   .techRow .pills{gap:8px !important; padding-right:96px !important;}
   .techRow .pill{width:68px !important;height:68px !important;min-width:68px !important;border-radius:12px !important;padding:7px 7px !important;}
   .techRow .pill .k{font-size:11px !important;}
@@ -621,6 +621,11 @@ function ensureDashTypographyOverrides(){
 .techRow.dashTechRow .val.name{
   position:static !important;
   max-width:100% !important;
+  font-size:19px !important; /* +25% from 23px */
+}
+
+@media (max-width: 700px){
+  .techRow.dashTechRow .val.name{font-size:19px !important; /* +25% from 20px */}
 }
 .techRow.dashTechRow .techNameStats{
   position:static !important;
