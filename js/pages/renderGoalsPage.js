@@ -446,24 +446,28 @@ function brakeRowHtml(key,label,mappedCat){
   app.innerHTML = `
     <div class="panel goalsBig halfPage">
       <div class="goalsBigTop">
-        <div class="goalsTitleRow" style="position:relative;">
-          <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
-          <div>
-            <div class="goalsH1">GOALS</div>
-                      </div>
+        <div class="goalsTitleRow" style="position:relative; display:flex; align-items:flex-start; gap:14px; width:100%;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
+            <div>
+              <div class="goalsH1">GOALS</div>
+            </div>
+          </div>
 
-          <div class="goalsMidGoals" style="margin-left:auto; text-align:center; border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:10px 14px;">
-            <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
-            <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
-              <div style="text-align:center;">
-                <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
-              </div>
-              
-              <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
-              <div style="text-align:center;">
-                <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
+          <!-- top-right container inside GOALSBIGTOP -->
+          <div class="goalsBigTopRight" style="margin-left:auto; display:flex; justify-content:flex-end; flex:1;">
+            <div class="goalsMidGoals" style="text-align:center; border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:10px 14px; flex-shrink:0;">
+              <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
+              <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
+                <div style="text-align:center;">
+                  <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
+                  <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
+                </div>
+                <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
+                <div style="text-align:center;">
+                  <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
+                  <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
+                </div>
               </div>
             </div>
           </div>
