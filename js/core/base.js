@@ -605,6 +605,7 @@ function ensureDashTypographyOverrides(){
   gap:18px !important;
   padding:12px 14px !important;
   min-height:auto !important;
+  overflow:visible !important;
 }
 .techRow.dashTechRow .dashLeft{
   flex:0 0 auto !important;
