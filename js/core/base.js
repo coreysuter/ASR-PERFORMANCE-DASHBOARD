@@ -621,11 +621,11 @@ function ensureDashTypographyOverrides(){
 .techRow.dashTechRow .val.name{
   position:static !important;
   max-width:100% !important;
-  font-size:26px !important;
+  font-size: 25px !important;
 }
 
 @media (max-width: 700px){
-  .techRow.dashTechRow .val.name{font-size:23px !important;}
+  .techRow.dashTechRow .val.name{font-size: 21px !important;}
 }
 .techRow.dashTechRow .techNameStats{
   position:static !important;
