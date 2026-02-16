@@ -621,7 +621,7 @@ function ensureDashTypographyOverrides(){
 .techRow.dashTechRow .val.name{
   position:static !important;
   max-width:100% !important;
-  font-size: 25px !important;
+  font-size: 24px !important;
 }
 
 @media (max-width: 700px){
