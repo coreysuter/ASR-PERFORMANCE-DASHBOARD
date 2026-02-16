@@ -398,6 +398,20 @@ function ensureDashTypographyOverrides(){
 .catTitle{font-size:28px;}
 @media (max-width: 700px){ .catTitle{font-size:26px;} }
 
+/* Team header stats layout (dashboard) */
+.catRank{display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:8px !important;}
+.catRank .rankMain, .catRank .rankSub{display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:2px !important;}
+.catRank .rankNum{font-size:36px !important; font-weight:1000 !important; line-height:1 !important;}
+.catRank .rankLbl{font-size:11px !important; font-weight:900 !important; letter-spacing:.35px !important; text-transform:uppercase !important; opacity:.75 !important; margin-top:2px !important;}
+.catRank .rankNum.sub{font-size:28px !important;}
+.catRank .rankLbl.sub{font-size:10px !important;}
+@media (max-width: 700px){
+  .catRank .rankNum{font-size:30px !important;}
+  .catRank .rankNum.sub{font-size:24px !important;}
+}
+
+
+
 /* Technician names on dashboard list */
 .techRow .val.name{font-size:23px !important;font-weight:1000 !important;white-space:nowrap;}
 @media (max-width: 700px){ .techRow .val.name{font-size:19px !important;} }
@@ -1016,6 +1030,18 @@ function teamAsrPerRo(teamTechs, filterKey){
   }
   return ros>0 ? (asr/ros) : null;
 }
+
+function teamSoldPerRo(teamTechs, filterKey){
+  let sold=0, ros=0;
+  for(const t of (teamTechs||[])){
+    const r = Number(t.ros);
+    const s = Number(t?.summary?.[filterKey]?.sold);
+    if(Number.isFinite(r) && r>0) ros += r;
+    if(Number.isFinite(s)) sold += s;
+  }
+  return ros>0 ? (sold/ros) : null;
+}
+
 function teamAverages(teamTechs, filterKey){
   return {
     ros_avg: mean(teamTechs.map(t=>t.ros)),
@@ -1023,6 +1049,7 @@ function teamAverages(teamTechs, filterKey){
     asr_total_avg: mean(teamTechs.map(t=>t.summary?.[filterKey]?.asr)),
     asr_per_ro_avg: teamAsrPerRo(teamTechs, filterKey),
     sold_pct_avg: mean(teamTechs.map(t=>techSoldPct(t, filterKey))),
+    sold_per_ro_avg: teamSoldPerRo(teamTechs, filterKey),
     sold_avg: mean(teamTechs.map(t=>t.summary?.[filterKey]?.sold)),
   };
 }
@@ -1201,8 +1228,14 @@ function renderTeam(team, st){
             <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
           </div>
           <div class="catRank">
-            <div class="rankNum">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
-            <div class="rankLbl">${st.sortBy==="sold_pct" ? "SOLD%" : "ASRs/RO"}</div>
+            <div class="rankMain">
+              <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
+              <div class="rankLbl">ASRs/RO</div>
+            </div>
+            <div class="rankSub">
+              <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+              <div class="rankLbl sub">SOLD/RO</div>
+            </div>
           </div>
         </div>
 
