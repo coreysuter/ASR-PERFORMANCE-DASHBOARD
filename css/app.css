@@ -17,6 +17,17 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .overallBlock{text-align:right;display:flex;flex-direction:column;align-items:flex-end}
 .overallBlock .overallMetric{margin-top:6px;font-size:21px;font-weight:1200;text-align:right}
 
+/* Technician Dashboard title row: stacked ASRs/RO + SOLD/RO (matches team header style) */
+.overallBlock .rankMain, .overallBlock .rankSub{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.overallBlock .rankNum{font-size:36px;font-weight:1200;line-height:1}
+.overallBlock .rankNum.sub{font-size:28px}
+.overallBlock .rankLbl{font-size:10px;opacity:.72;font-weight:900;letter-spacing:.35px;text-transform:uppercase}
+.overallBlock .rankLbl.sub{font-size:10px;opacity:.68}
+@media (max-width: 820px){
+  .overallBlock .rankNum{font-size:30px}
+  .overallBlock .rankNum.sub{font-size:24px}
+}
+
 .tag{font-size:11px;color:var(--muted);text-align:right;margin-top:2px}
 .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .pill{display:inline-flex;gap:8px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(0,0,0,.25)}
@@ -1002,6 +1013,19 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
 .pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
+/* ===== v240: dial text with arrow + short label ===== */
+.pctStack2{flex-direction:column;gap:1px}
+.pctStack2 .pctMain{font-size:calc(var(--sz,64px)/5.1);font-weight:1000;line-height:1}
+.pctStack2 .pctArrow{
+  margin-top:2px;
+  font-size:calc(var(--sz,64px)/6.0);
+  line-height:1;
+  font-weight:1200;
+  color:var(--gCol);
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
+}
+.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
+
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1636,31 +1660,4 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 }
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
-
-
-/* ===== FIX: Tech Details diag panel should never clip Bottom 3 (force internal scroll) =====
-   This block is intentionally placed at the VERY END of app.css so it wins over all prior rules.
-*/
-body.route-tech .techHeaderWrap{ align-items:stretch !important; }
-body.route-tech .techHeaderWrap > .panel{ height:100% !important; }
-
-/* Keep rounded corners on the outer panel, but allow inner content to scroll */
-body.route-tech .techPickPanel{
-  height:100% !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-
-/* Make the phead the scroll container. Use flex+gap so existing rows keep spacing. */
-body.route-tech .techPickPanel > .phead{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow:auto !important;
-  overflow-x:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:14px !important;
-  -webkit-overflow-scrolling:touch;
-}
 
