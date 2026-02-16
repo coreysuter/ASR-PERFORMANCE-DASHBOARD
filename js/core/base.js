@@ -53,6 +53,7 @@ function ensureSvcGaugeHoldStyles(){
     st.id = ID;
     st.textContent = `
       .svcGauge{ position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:default; user-select:none; -webkit-user-select:none; }
+      .svcGauge:hover{ cursor:pointer; }
       .svcGauge .pctText{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.05; }
       .svcGauge .pctDefault{ display:flex; flex-direction:column; gap:2px; }
       .svcGauge .pctAlt{ display:none; flex-direction:column; gap:2px; }
