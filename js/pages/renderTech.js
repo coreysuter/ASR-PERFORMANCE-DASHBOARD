@@ -891,7 +891,7 @@ function sectionRankFor(sec){
     const focusPct = (focus==="sold") ? pctSold : (focusIsGoal ? (focus==="asr_goal" ? pctGoalAsr : pctGoalSold) : pctAsr);
     const focusLbl = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
 
-    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASRS/RO")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR%")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"SOLD%")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialGoalAsr = Number.isFinite(pctGoalAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR GOAL")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialGoalSold = Number.isFinite(pctGoalSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"SOLD GOAL")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
