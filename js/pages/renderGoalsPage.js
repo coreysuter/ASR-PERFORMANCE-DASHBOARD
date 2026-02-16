@@ -231,20 +231,20 @@ function brakeRowHtml(key,label,mappedCat){
         <div class="brCell">
           <div class="brLine">
             <span class="brTag red">RED</span>
-            <input id="b_${keyEnc}_req_red" class="goalMini" inputmode="numeric" value="${safe(rReq)}">
+            <input id="b_${keyEnc}_req_red" class="goalMini" ${rowDisabled?\'disabled\':\'\'} inputmode="numeric" value="${safe(rReq)}">
           </div>
           <div class="brLine brY ${ryOn?'':'disabled'}">
             <span class="brTag yellow">YELLOW</span>
-            <input id="b_${keyEnc}_req_yellow" class="goalMini" ${ryOn?'':'disabled'} inputmode="numeric" value="${safe(yReq)}">
+            <input id="b_${keyEnc}_req_yellow" class="goalMini" ${rowDisabled?\'disabled\':\'\'} ${ryOn?\'\':\'disabled\'} inputmode="numeric" value="${safe(yReq)}">
           </div>
         </div>
 
         <div class="brCell">
           <div class="brLine">
-                        <input id="b_${keyEnc}_close_red" class="goalMini" inputmode="numeric" value="${safe(rClose)}">
+                        <input id="b_${keyEnc}_close_red" class="goalMini" ${rowDisabled?\'disabled\':\'\'} inputmode="numeric" value="${safe(rClose)}">
           </div>
           <div class="brLine brY ${ryOn?'':'disabled'}">
-                        <input id="b_${keyEnc}_close_yellow" class="goalMini" ${ryOn?'':'disabled'} inputmode="numeric" value="${safe(yClose)}">
+                        <input id="b_${keyEnc}_close_yellow" class="goalMini" ${rowDisabled?\'disabled\':\'\'} ${ryOn?\'\':\'disabled\'} inputmode="numeric" value="${safe(yClose)}">
           </div>
         </div>
       </div>
@@ -555,9 +555,7 @@ function brakeRowHtml(key,label,mappedCat){
     _goalsPanel.addEventListener('input', _scheduleRecompute, true);
     _goalsPanel.addEventListener('change', _scheduleRecompute, true);
   }
-
-
-  // Wire up Fluids controls (Apply-to-all)
+// Wire up Fluids controls (Apply-to-all)
   function _setGoalRowDisabled(cat, disabled){
     const id = "row_"+encodeURIComponent(cat);
     const row = document.getElementById(id);
@@ -565,25 +563,95 @@ function brakeRowHtml(key,label,mappedCat){
     row.classList.toggle("rowDisabled", !!disabled);
     row.querySelectorAll("input").forEach(inp=>{ inp.disabled = !!disabled; });
   }
+
+  function _fluidsIds(cat){
+    const c = encodeURIComponent(cat);
+    return { req: `g_${c}_req`, close: `g_${c}_close` };
+  }
+
+  function _snapshotFluidsRow(cat){
+    const row = document.getElementById("row_"+encodeURIComponent(cat));
+    if(!row) return;
+    if(row.dataset.snap === "1") return;
+    const ids = _fluidsIds(cat);
+    const r = document.getElementById(ids.req);
+    const c = document.getElementById(ids.close);
+    if(r) row.dataset.prev_req = r.value;
+    if(c) row.dataset.prev_close = c.value;
+    row.dataset.snap = "1";
+  }
+
+  function _restoreFluidsRow(cat){
+    const row = document.getElementById("row_"+encodeURIComponent(cat));
+    if(!row) return;
+    const ids = _fluidsIds(cat);
+    const r = document.getElementById(ids.req);
+    const c = document.getElementById(ids.close);
+    if(r && typeof row.dataset.prev_req === "string") r.value = row.dataset.prev_req;
+    if(c && typeof row.dataset.prev_close === "string") c.value = row.dataset.prev_close;
+    delete row.dataset.prev_req;
+    delete row.dataset.prev_close;
+    delete row.dataset.snap;
+  }
+
+  function _copyFluidsFromAll(cat){
+    const allIds = _fluidsIds("__FLUIDS_ALL");
+    const dstIds = _fluidsIds(cat);
+    const aReq = document.getElementById(allIds.req);
+    const aClose = document.getElementById(allIds.close);
+    const dReq = document.getElementById(dstIds.req);
+    const dClose = document.getElementById(dstIds.close);
+    if(aReq && dReq) dReq.value = aReq.value;
+    if(aClose && dClose) dClose.value = aClose.value;
+  }
+
   function _applyFluidsApplyAll(){
     const yes = document.querySelector('input[name="fl_apply_all"][value="yes"]');
     const on = !!(yes && yes.checked);
-    setGoalRaw("__META_FLUIDS","apply_all", on ? 1 : 0);
-    // show/hide synthetic row
+    setGoalRaw("__META_FLUIDS","apply_all", on ? "1" : "0");
+
+    // show/hide synthetic ALL FLUIDS row
     const wrap = document.querySelector('.fluidsAllRow')?.parentElement;
     if(wrap) wrap.classList.toggle("hidden", !on);
 
-    // disable all fluid service rows when apply-all is on
+    // When on: copy ALL -> each fluids service and disable them (greyed)
     for(const c of (FLUIDS||[])){
+      if(on){
+        _snapshotFluidsRow(c);
+        _copyFluidsFromAll(c);
+      }else{
+        _restoreFluidsRow(c);
+      }
       _setGoalRowDisabled(c, on);
     }
+
     // keep ALL row enabled
     _setGoalRowDisabled("__FLUIDS_ALL", false);
+
+    try{ if(typeof _scheduleRecompute==="function") _scheduleRecompute(); }catch(_e){}
   }
+
   document.querySelectorAll('input[name="fl_apply_all"]').forEach(r=>{
     r.addEventListener("change", _applyFluidsApplyAll);
   });
   _applyFluidsApplyAll();
+
+  // Keep Fluids rows synced as you type in ALL FLUIDS when apply-all is on
+  (function(){
+    const allIds = _fluidsIds("__FLUIDS_ALL");
+    [allIds.req, allIds.close].forEach(id=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener("input", ()=>{
+        const on = !!(document.querySelector('input[name="fl_apply_all"][value="yes"]')?.checked);
+        if(on){
+          (FLUIDS||[]).forEach(c=>_copyFluidsFromAll(c));
+          try{ if(typeof _scheduleRecompute==="function") _scheduleRecompute(); }catch(_e){}
+        }
+      });
+    });
+  })();
+
 
   // Wire up Brakes controls (Apply-to-all + Red/Yellow toggles)
   function _setRowDisabled(brakeKey, disabled){
@@ -696,40 +764,108 @@ function brakeRowHtml(key,label,mappedCat){
     applyNow();
   }
 
+function _brakeIds(key){
+  const k = encodeURIComponent(key);
+  return {
+    rReq:   `b_${k}_req_red`,
+    rClose: `b_${k}_close_red`,
+    yReq:   `b_${k}_req_yellow`,
+    yClose: `b_${k}_close_yellow`,
+  };
+}
+
+function _snapshotBrakeRow(key){
+  const row = document.querySelector(`.brakeRow[data-brake-key="${key}"]`);
+  if(!row) return;
+  if(row.dataset.snap === "1") return;
+  const ids = _brakeIds(key);
+  Object.values(ids).forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) row.dataset["prev_"+id] = el.value;
+  });
+  row.dataset.snap = "1";
+}
+
+function _restoreBrakeRow(key){
+  const row = document.querySelector(`.brakeRow[data-brake-key="${key}"]`);
+  if(!row) return;
+  const ids = _brakeIds(key);
+  Object.values(ids).forEach(id=>{
+    const el = document.getElementById(id);
+    const prev = row.dataset["prev_"+id];
+    if(el && typeof prev === "string") el.value = prev;
+    delete row.dataset["prev_"+id];
+  });
+  delete row.dataset.snap;
+}
+
+function _copyBrakeFromTotal(key){
+  const srcIds = _brakeIds("BRAKES_TOTAL");
+  const dstIds = _brakeIds(key);
+  [["rReq","rReq"],["rClose","rClose"],["yReq","yReq"],["yClose","yClose"]].forEach(([s,d])=>{
+    const src = document.getElementById(srcIds[s]);
+    const dst = document.getElementById(dstIds[d]);
+    if(src && dst) dst.value = src.value;
+  });
+}
+
 function _wireBrakes(){
-    const yes = document.querySelector('input[name="br_apply_all"][value="yes"]');
-    const no  = document.querySelector('input[name="br_apply_all"][value="no"]');
-    const applyNow = ()=>{
-      const applyAll = !!(yes && yes.checked);
-      _setRowDisabled("BRAKES_FRONT", applyAll);
-      _setRowDisabled("BRAKES_REAR",  applyAll);
-      _applyYellowGlobal();
-    };
-    if(yes) yes.addEventListener("change", applyNow);
-    if(no)  no.addEventListener("change", applyNow);
+  const yes = document.querySelector('input[name="br_apply_all"][value="yes"]');
+  const no  = document.querySelector('input[name="br_apply_all"][value="no"]');
 
-    // If universal is enabled, keep TWO/Four in sync as you edit the TOTAL row
-    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
-      const id = `t_${encodeURIComponent("TIRES_TOTAL2")}_${sfx}`;
-      const el = document.getElementById(id);
-      if(el){
-        el.addEventListener("input", ()=>{
-          const applyAll = !!(document.querySelector('input[name="tr_apply_all"][value="yes"]')?.checked);
-          if(applyAll){
-            _copyTireFromTotal("TIRES_TWO");
-            _copyTireFromTotal("TIRES_FOUR");
-          }
-        });
-      }
-    });
+  const applyNow = ()=>{
+    const applyAll = !!(yes && yes.checked);
+    setGoalRaw("__META_BRAKES","apply_all", applyAll ? "1" : "0");
 
-    
-    const ry = document.getElementById("br_ry_global");
-    if(ry) ry.addEventListener("change", ()=>{ _applyYellowGlobal(); equalizeGoalQuadrants(); });
+    if(applyAll){
+      ["BRAKES_FRONT","BRAKES_REAR"].forEach(k=>{
+        _snapshotBrakeRow(k);
+        _copyBrakeFromTotal(k);
+      });
+    }else{
+      ["BRAKES_FRONT","BRAKES_REAR"].forEach(k=>_restoreBrakeRow(k));
+    }
 
-    applyNow();
+    _setRowDisabled("BRAKES_FRONT", applyAll);
+    _setRowDisabled("BRAKES_REAR",  applyAll);
+
+    _applyYellowGlobal();
     equalizeGoalQuadrants();
+    // trigger goal projections recalculation
+    try{ if(typeof _scheduleRecompute==="function") _scheduleRecompute(); }catch(_e){}
+  };
+
+  if(yes) yes.addEventListener("change", applyNow);
+  if(no)  no.addEventListener("change", applyNow);
+
+  // Keep FRONT/REAR synced as you type in TOTAL when apply-all is on
+  ["rReq","rClose","yReq","yClose"].forEach(sfx=>{
+    const id = _brakeIds("BRAKES_TOTAL")[sfx];
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener("input", ()=>{
+        const applyAll = !!(document.querySelector('input[name="br_apply_all"][value="yes"]')?.checked);
+        if(applyAll){
+          _copyBrakeFromTotal("BRAKES_FRONT");
+          _copyBrakeFromTotal("BRAKES_REAR");
+          try{ if(typeof _scheduleRecompute==="function") _scheduleRecompute(); }catch(_e){}
+        }
+      });
+    }
+  });
+
+  // Red/Yellow global toggle
+  const ry = document.getElementById("br_ry_global");
+  if(ry){
+    ry.addEventListener("change", ()=>{
+      setGoalRaw("__META_BRAKES","ry", ry.checked ? "1" : "0");
+      _applyYellowGlobal();
+      applyNow(); // re-apply disable rules
+    });
   }
+
+  applyNow();
+}
 
 
   function _setTireRowDisabled(key, disabled){
