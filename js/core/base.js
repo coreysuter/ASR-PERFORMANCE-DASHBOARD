@@ -54,7 +54,7 @@ function ensureSvcGaugeHoldStyles(){
     st.textContent = `
       .svcGauge{ position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:default; user-select:none; -webkit-user-select:none; }
       .svcGauge .pctText{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.05; }
-      .svcGauge .pctDefault{ display:flex; }
+      .svcGauge .pctDefault{ display:flex; flex-direction:column; gap:2px; }
       .svcGauge .pctAlt{ display:none; flex-direction:column; gap:2px; }
       .svcGauge.showAlt .pctDefault{ display:none; }
       .svcGauge.showAlt .pctAlt{ display:flex; }
@@ -63,6 +63,12 @@ function ensureSvcGaugeHoldStyles(){
         font-size: 20px;
         font-weight: 1000;
         letter-spacing: 0.5px;
+      }
+      .svcGauge .pctTitle{
+        font-size: 10px;
+        font-weight: 900;
+        opacity: 0.95;
+        letter-spacing: 0.3px;
       }
       .svcGauge .pctAlt .pctMain{
         font-size: 14px;
@@ -149,7 +155,8 @@ function svcGauge(pct, label=""){
   const arrow = (delta >= 0) ? "▲" : "▼";
   const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
 
-  const defaultHtml = `<span class="pctText pctDefault"><span class="pctGrade">${safe(grade)}</span></span>`;
+  const titleHtml = lbl ? `<span class="pctTitle">${safe(lbl)}</span>` : ``;
+  const defaultHtml = `<span class="pctText pctDefault"><span class="pctGrade">${safe(grade)}</span>${titleHtml}</span>`;
   const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">${basis}</span></span>`;
 
   // SVG circle with r=15.915494... => circumference ≈ 100 (so we can use percent-based dash)
