@@ -749,6 +749,29 @@ function ensureDashTypographyOverrides(){
   color:#fff !important;
 }
 
+
+
+/* ---- Final override: shrink ALL tech-row pills by 10% (tech rows only) ---- */
+.techRow .pill{
+  width:77px !important;
+  height:77px !important;
+  min-width:77px !important;
+  padding:8px 8px !important;
+  gap:4px !important;
+}
+.techRow .pill .k{font-size:11px !important;}
+.techRow .pill .v{font-size:21px !important;}
+@media (max-width: 700px){
+  .techRow .pill{
+    width:68px !important;
+    height:68px !important;
+    min-width:68px !important;
+    padding:7px 7px !important;
+    gap:4px !important;
+  }
+  .techRow .pill .k{font-size:10px !important;}
+  .techRow .pill .v{font-size:18px !important;}
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
