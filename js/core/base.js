@@ -1120,15 +1120,22 @@ function __refreshSideMenu(){
 window.addEventListener("DOMContentLoaded", __refreshSideMenu);
 window.addEventListener("hashchange", __refreshSideMenu);
 
-/* === FIX: keep ranking badge inside row by shrinking the entire pills+badge group (tech rows only) === */
-.techRow.dashTechRow .techRight{
-  display:flex !important;
-  align-items:center !important;
-  gap:10px !important;
-  max-width:100% !important;
-  transform:scale(0.9) !important;
-  transform-origin:left center !important;
-}
-.techRow.dashTechRow .pills{
-  transform:none !important; /* avoid double-scaling */
-}
+// === FIX: keep ranking badge inside row by shrinking the entire pills+badge group (tech rows only) ===
+(function(){
+  const ID = "dashTechRowPillsBadgeScale";
+  if(document.getElementById(ID)) return;
+  const st = document.createElement("style");
+  st.id = ID;
+  st.textContent = `
+    .techRow.dashTechRow .techRight{
+      display:flex !important;
+      align-items:center !important;
+      gap:10px !important;
+      max-width:100% !important;
+      transform:scale(0.9) !important;
+      transform-origin:left center !important;
+    }
+    .techRow.dashTechRow .pills{ transform:none !important; }
+  `;
+  document.head.appendChild(st);
+})();
