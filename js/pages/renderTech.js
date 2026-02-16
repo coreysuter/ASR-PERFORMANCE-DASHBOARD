@@ -878,9 +878,10 @@ function sectionRankFor(sec){
     const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? pctGoal : pctAsr);
     const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASR");
 
-    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-    const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASRS/RO")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"SOLD%")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialGoalAsr = Number.isFinite(pctGoalAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR GOAL")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialGoalSold = Number.isFinite(pctGoalSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"SOLD GOAL")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
     const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
@@ -892,7 +893,7 @@ return `
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
-                <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
+                <div class="secMiniDials">${dialASR}${dialSold}${dialGoalAsr}${dialGoalSold}</div>
               </div>
               <div class="sub"></div>
             </div>
