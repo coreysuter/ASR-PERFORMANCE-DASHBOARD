@@ -1,17 +1,6 @@
 function renderGoalsPage(){
   const app = document.getElementById("app");
 
-  // Local numeric sanitizer (some builds define this in base.js; keep Goals page resilient)
-  function sanitizeNum(v){
-    if(v===undefined || v===null) return null;
-    const s = String(v).trim();
-    if(!s) return null;
-    // allow inputs like "50" or "50%" or " 50.5 %"
-    const cleaned = s.replace(/,/g,"").replace(/%/g,"").trim();
-    const n = Number(cleaned);
-    return Number.isFinite(n) ? n : null;
-  }
-
   // Build section -> categories mapping from DATA.sections
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
   const allSet = (typeof getAllCategoriesSet==="function") ? getAllCategoriesSet() : new Set();
@@ -147,13 +136,22 @@ function renderGoalsPage(){
 
   function _projectedAveragesForQuadrant(title, cats){
     const eff = _effectiveListForQuadrant(title, cats);
-    const reqs = eff.map(k=>_goalPct(k,'req'));
-    const closes = eff.map(k=>_goalPct(k,'close'));
+    const reqs = eff.map(k=>_goalPct(k,'req'));       // ASR% inputs
+    const closes = eff.map(k=>_goalPct(k,'close'));   // Sold% inputs
+
+    // Convert per-service % inputs into ASR/RO and Sold/RO projections
+    const asrRos  = eff.map(k=>_goalPct(k,'req')   / 100);                         // 50% -> 0.50
+    const soldRos = eff.map(k=>(_goalPct(k,'req')/100) * (_goalPct(k,'close')/100)); // (ASR/RO) * (Sold%)
+
     return {
       avgReq: _mean(reqs),
       avgClose: _mean(closes),
       sumReq: _sum(reqs),
-      sumClose: _sum(closes)
+      sumClose: _sum(closes),
+
+      // New: "goal" projections used in category headers and totals
+      sumAsrRo: _sum(asrRos),
+      sumSoldRo: _sum(soldRos)
     };
   }
 
@@ -161,8 +159,8 @@ function renderGoalsPage(){
     const p = _projectedAveragesForQuadrant(title, cats);
     return `
       <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-        <span style="margin-right:14px;">Avg ASR%*: <b>${safe(_fmtPct1(p.avgReq))}</b></span>
-        <span>Avg Sold%*: <b>${safe(_fmtPct1(p.avgClose))}</b></span>
+        <span style="margin-right:14px;">ASRs/RO Goals: <b>${safe(_fmtRatio2(p.sumAsrRo))}</b></span>
+        <span>Sold/RO Goals: <b>${safe(_fmtRatio2(p.sumSoldRo))}</b></span>
       </div>
     `;
   }
@@ -487,11 +485,28 @@ function brakeRowHtml(key,label,mappedCat){
   const projTr    = _projectedAveragesForQuadrant("tires", TIRES);
   const projOther = _projectedAveragesForQuadrant("other", OTHER);
 
-  const totalReqPct   = (projMaint.sumReq + projFl.sumReq + projBr.sumReq + projTr.sumReq + projOther.sumReq);
-  const totalClosePct = (projMaint.sumClose + projFl.sumClose + projBr.sumClose + projTr.sumClose + projOther.sumClose);
+  // Category goal projections (derived from service goal inputs)
+  const maintAsrRo = projMaint.sumAsrRo;
+  const maintSoldRo = projMaint.sumSoldRo;
 
-  const asrsPerRoGoal = _fmtRatio2(totalReqPct / 100);
-  const soldPerRoGoal = _fmtRatio2(totalClosePct / 100);
+  const flAsrRo = projFl.sumAsrRo;
+  const flSoldRo = projFl.sumSoldRo;
+
+  const brAsrRo = projBr.sumAsrRo;
+  const brSoldRo = projBr.sumSoldRo;
+
+  const trAsrRo = projTr.sumAsrRo;
+  const trSoldRo = projTr.sumSoldRo;
+
+  const otherAsrRo = projOther.sumAsrRo;
+  const otherSoldRo = projOther.sumSoldRo;
+
+  // Totals must be derived by adding category goals
+  const totalAsrRoGoal = (maintAsrRo + flAsrRo + brAsrRo + trAsrRo + otherAsrRo);
+  const totalSoldRoGoal = (maintSoldRo + flSoldRo + brSoldRo + trSoldRo + otherSoldRo);
+
+  const asrsPerRoGoal = _fmtRatio2(totalAsrRoGoal);
+  const soldPerRoGoal = _fmtRatio2(totalSoldRoGoal);
 
   // One big box; inside we render a 2x2 grid of quadrants
   app.innerHTML = `
@@ -552,9 +567,46 @@ function brakeRowHtml(key,label,mappedCat){
     }
     // keep ALL row enabled
     _setGoalRowDisabled("__FLUIDS_ALL", false);
+
+    // If apply-all is on, copy ALL FLUIDS values into each fluid service and persist
+    if(on){
+      const uEnc = encodeURIComponent("__FLUIDS_ALL");
+      const uReq = document.getElementById(`g_${uEnc}_req`);
+      const uClose = document.getElementById(`g_${uEnc}_close`);
+      const reqVal = uReq ? String(uReq.value||"") : "";
+      const closeVal = uClose ? String(uClose.value||"") : "";
+
+      for(const c of (FLUIDS||[])){
+        const cEnc = encodeURIComponent(c);
+        const tReq = document.getElementById(`g_${cEnc}_req`);
+        const tClose = document.getElementById(`g_${cEnc}_close`);
+        if(tReq) tReq.value = reqVal;
+        if(tClose) tClose.value = closeVal;
+        setGoalRaw(c, "req", reqVal);
+        setGoalRaw(c, "close", closeVal);
+      }
+    }
   }
   document.querySelectorAll('input[name="fl_apply_all"]').forEach(r=>{
     r.addEventListener("change", _applyFluidsApplyAll);
+  });
+
+  // When editing ALL FLUIDS while apply-all is on, live-propagate into each fluid service
+  ["req","close"].forEach(field=>{
+    const el = document.getElementById(`g_${encodeURIComponent("__FLUIDS_ALL")}_${field}`);
+    if(!el) return;
+    el.addEventListener("input", ()=>{
+      const yes = document.querySelector('input[name="fl_apply_all"][value="yes"]');
+      const on = !!(yes && yes.checked);
+      if(!on) return;
+      for(const c of (FLUIDS||[])){
+        const cEnc = encodeURIComponent(c);
+        const t = document.getElementById(`g_${cEnc}_${field}`);
+        if(t) t.value = el.value;
+        setGoalRaw(c, field, String(el.value||""));
+      }
+      equalizeGoalQuadrants();
+    });
   });
   _applyFluidsApplyAll();
 
@@ -672,36 +724,106 @@ function brakeRowHtml(key,label,mappedCat){
 function _wireBrakes(){
     const yes = document.querySelector('input[name="br_apply_all"][value="yes"]');
     const no  = document.querySelector('input[name="br_apply_all"][value="no"]');
+
+    const _brakeIds = (key)=>{
+      const k = encodeURIComponent(key);
+      return {
+        rReq:   `b_${k}_req_red`,
+        rClose: `b_${k}_close_red`,
+        yReq:   `b_${k}_req_yellow`,
+        yClose: `b_${k}_close_yellow`,
+      };
+    };
+
+    const _snapshotBrakeRow = (key)=>{
+      const row = document.querySelector(`.brakeRow[data-brake-key="${key}"]`);
+      if(!row) return;
+      if(row.dataset.snap === "1") return;
+      const ids = _brakeIds(key);
+      Object.values(ids).forEach(id=>{
+        const el = document.getElementById(id);
+        if(el) row.dataset["prev_"+id] = el.value;
+      });
+      row.dataset.snap = "1";
+    };
+
+    const _restoreBrakeRow = (key)=>{
+      const row = document.querySelector(`.brakeRow[data-brake-key="${key}"]`);
+      if(!row) return;
+      const ids = _brakeIds(key);
+      Object.values(ids).forEach(id=>{
+        const el = document.getElementById(id);
+        const prev = row.dataset["prev_"+id];
+        if(el && typeof prev === "string") el.value = prev;
+        delete row.dataset["prev_"+id];
+      });
+      delete row.dataset.snap;
+    };
+
+    const _copyBrakeFromTotal = (key)=>{
+      const src = _brakeIds("BRAKES_TOTAL");
+      const dst = _brakeIds(key);
+      [["rReq","rReq"],["rClose","rClose"],["yReq","yReq"],["yClose","yClose"]].forEach(([s,d])=>{
+        const sEl = document.getElementById(src[s]);
+        const dEl = document.getElementById(dst[d]);
+        if(sEl && dEl) dEl.value = sEl.value;
+      });
+    };
+
     const applyNow = ()=>{
       const applyAll = !!(yes && yes.checked);
+      setGoalRaw("__META_BRAKES","apply_all", applyAll ? "1" : "0");
+
+      if(applyAll){
+        ["BRAKES_FRONT","BRAKES_REAR"].forEach(k=>{
+          _snapshotBrakeRow(k);
+          _copyBrakeFromTotal(k);
+        });
+      }else{
+        ["BRAKES_FRONT","BRAKES_REAR"].forEach(k=>_restoreBrakeRow(k));
+      }
+
       _setRowDisabled("BRAKES_FRONT", applyAll);
       _setRowDisabled("BRAKES_REAR",  applyAll);
+
       _applyYellowGlobal();
+      equalizeGoalQuadrants();
     };
+
     if(yes) yes.addEventListener("change", applyNow);
     if(no)  no.addEventListener("change", applyNow);
 
-    // If universal is enabled, keep TWO/Four in sync as you edit the TOTAL row
+
+
+    // Keep TWO / FOUR in sync while editing TOTAL when universal is enabled
     ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
       const id = `t_${encodeURIComponent("TIRES_TOTAL2")}_${sfx}`;
       const el = document.getElementById(id);
-      if(el){
-        el.addEventListener("input", ()=>{
-          const applyAll = !!(document.querySelector('input[name="tr_apply_all"][value="yes"]')?.checked);
-          if(applyAll){
-            _copyTireFromTotal("TIRES_TWO");
-            _copyTireFromTotal("TIRES_FOUR");
-          }
-        });
-      }
+      if(!el) return;
+      el.addEventListener("input", ()=>{
+        const applyAll = !!(document.querySelector('input[name="tr_apply_all"][value="yes"]')?.checked);
+        if(applyAll){
+          _copyTireFromTotal("TIRES_TWO");
+          _copyTireFromTotal("TIRES_FOUR");
+        }
+      });
+    });
+    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
+      const id = `b_${encodeURIComponent("BRAKES_TOTAL")}_${sfx}`;
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener("input", ()=>{
+        const applyAll = !!(document.querySelector('input[name="br_apply_all"][value="yes"]')?.checked);
+        if(!applyAll) return;
+        _copyBrakeFromTotal("BRAKES_FRONT");
+        _copyBrakeFromTotal("BRAKES_REAR");
+      });
     });
 
-    
     const ry = document.getElementById("br_ry_global");
     if(ry) ry.addEventListener("change", ()=>{ _applyYellowGlobal(); equalizeGoalQuadrants(); });
 
     applyNow();
-    equalizeGoalQuadrants();
   }
 
 
