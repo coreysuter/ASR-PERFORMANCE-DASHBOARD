@@ -841,12 +841,20 @@ function renderTeam(team, st){
 
   // Goal metric selection (from dashboard header Goal dropdown)
   const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
-  const goalKey = (goalMetric === 'sold') ? 'close' : 'req';
-  const storedGoal = getGoalRaw('__META_GLOBAL', goalKey);
-  const goalTarget = (Number.isFinite(storedGoal) && storedGoal>0)
-    ? storedGoal
-    : (goalMetric === 'sold' ? (Number.isFinite(av.sold_pct_avg) ? av.sold_pct_avg : null)
-                             : (Number.isFinite(av.asr_per_ro_avg) ? av.asr_per_ro_avg : null));
+
+  // Two goal targets for row pills:
+  // - ASR GOAL uses __META_GLOBAL:req (fallback team avg ASRs/RO)
+  // - SOLD GOAL uses __META_GLOBAL:close (fallback team avg Sold%)
+  const asrGoalStored = getGoalRaw('__META_GLOBAL','req');
+  const soldGoalStored = getGoalRaw('__META_GLOBAL','close');
+
+  const asrGoalTarget = (Number.isFinite(asrGoalStored) && asrGoalStored>0)
+    ? asrGoalStored
+    : (Number.isFinite(av.asr_per_ro_avg) ? av.asr_per_ro_avg : null);
+
+  const soldGoalTarget = (Number.isFinite(soldGoalStored) && soldGoalStored>0)
+    ? soldGoalStored
+    : (Number.isFinite(av.sold_pct_avg) ? av.sold_pct_avg : null);
 
   // Comparison mode for pill shading (TEAM | STORE | GOAL)
   const compareMode = (st && st.compare) ? String(st.compare).toLowerCase() : 'team';
@@ -867,7 +875,8 @@ function renderTeam(team, st){
   // Baselines for comparison
   const baseAsrpr = (compareMode==="store") ? storeAv.asr_per_ro_avg : av.asr_per_ro_avg;
   const baseSoldPct = (compareMode==="store") ? storeAv.sold_pct_avg : av.sold_pct_avg;
-  const baseGoalRatio = (Number.isFinite(goalTarget) && goalTarget>0) ? (((goalMetric==='sold') ? baseSoldPct : baseAsrpr) / goalTarget) : null;
+  const baseAsrGoalRatio = (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 && Number.isFinite(baseAsrpr)) ? (baseAsrpr/asrGoalTarget) : null;
+  const baseSoldGoalRatio = (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 && Number.isFinite(baseSoldPct)) ? (baseSoldPct/soldGoalTarget) : null;
 
   const groupList = (compareMode==="store") ? storeTechs : techs;
 
@@ -920,21 +929,26 @@ function renderTeam(team, st){
     const asrpr = techAsrPerRo(t, st.filterKey);
     const soldpct = techSoldPct(t, st.filterKey);
 
-    const actualForGoal = (goalMetric === 'sold') ? soldpct : asrpr;
-    const goalRatio = (Number.isFinite(actualForGoal) && Number.isFinite(goalTarget) && goalTarget>0) ? (actualForGoal/goalTarget) : null;
-    const goalPctTxt = goalRatio==null ? '—' : fmtPct(goalRatio);
+    // Goal ratios (always show both ASR GOAL and SOLD GOAL)
+    const asrGoalRatio = (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
+    const soldGoalRatio = (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
+
+    const asrGoalTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
+    const soldGoalTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
 
     const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
     const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
 
     const compAsrBase = (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr;
     const compSoldAsrBase = (compareMode==='goal' && Number.isFinite(goalClose) && goalClose>0) ? goalClose : baseSoldAsr;
-    const compGoalBase = (compareMode==='goal') ? 1 : baseGoalRatio;
+    const compAsrGoalBase = (compareMode==='goal') ? 1 : baseAsrGoalRatio;
+    const compSoldGoalBase = (compareMode==='goal') ? 1 : baseSoldGoalRatio;
 
     const clsAsrpr = compClass(asrpr, compAsrBase);
     const clsSoldRo = compClass(soldRoVal, baseSoldRo);
     const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-    const clsGoal = compClass(goalRatio, compGoalBase);
+    const clsAsrGoal = compClass(asrGoalRatio, compAsrGoalBase);
+    const clsSoldGoal = compClass(soldGoalRatio, compSoldGoalBase);
 
     return `
       <div class="techRow dashTechRow">
@@ -960,7 +974,8 @@ function renderTeam(team, st){
             <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
             <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
             <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                    <div class=\"pill\"><div class=\"k\">Goal</div><div class=\"v\">${safe(goalPctTxt)}</div></div>
+                    <div class=\"pill${clsAsrGoal}\"><div class=\"k\">ASR GOAL</div><div class=\"v\">${safe(asrGoalTxt)}</div></div>
+            <div class=\"pill${clsSoldGoal}\"><div class=\"k\">SOLD GOAL</div><div class=\"v\">${safe(soldGoalTxt)}</div></div>
 </div>
 
           <div class="techMetaRight">
