@@ -35,6 +35,98 @@ function miniGauge(pct){
 }
 
 
+function _gradeFromPct100(pct100){
+  const n = Number(pct100);
+  if(!Number.isFinite(n)) return "—";
+  if(n >= 90) return "A";
+  if(n >= 80) return "B";
+  if(n >= 70) return "C";
+  if(n >= 60) return "D";
+  return "F";
+}
+
+function ensureSvcGaugeHoldStyles(){
+  try{
+    const ID = "svcGaugeHoldStyles_v1";
+    if(document.getElementById(ID)) return;
+    const st = document.createElement("style");
+    st.id = ID;
+    st.textContent = `
+      .svcGauge{ position:relative; display:inline-flex; align-items:center; justify-content:center; cursor:default; user-select:none; -webkit-user-select:none; }
+      .svcGauge .pctText{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center; text-align:center; line-height:1.05; }
+      .svcGauge .pctDefault{ display:flex; }
+      .svcGauge .pctAlt{ display:none; flex-direction:column; gap:2px; }
+      .svcGauge.showAlt .pctDefault{ display:none; }
+      .svcGauge.showAlt .pctAlt{ display:flex; }
+
+      .svcGauge .pctGrade{
+        font-size: 20px;
+        font-weight: 1000;
+        letter-spacing: 0.5px;
+      }
+      .svcGauge .pctAlt .pctMain{
+        font-size: 14px;
+        font-weight: 900;
+      }
+      .svcGauge .pctAlt .pctArrow{
+        font-size: 12px;
+        font-weight: 1000;
+        line-height: 1;
+      }
+      .svcGauge .pctAlt .pctSub{
+        font-size: 11px;
+        font-weight: 900;
+        opacity: 0.95;
+        letter-spacing: 0.4px;
+      }
+    `;
+    document.head.appendChild(st);
+  }catch(e){}
+}
+
+function initSvcGaugeHold(){
+  ensureSvcGaugeHoldStyles();
+  const HOLD_MS = 250; // press-and-hold threshold
+  const els = document.querySelectorAll('.svcGauge[data-p]');
+  els.forEach(el=>{
+    if(el.getAttribute("data-hold") === "1") return;
+    el.setAttribute("data-hold","1");
+    el.style.touchAction = "none";
+
+    let t = null;
+    let isDown = false;
+
+    const clear = ()=>{
+      if(t){ clearTimeout(t); t=null; }
+    };
+    const show = ()=>{
+      // Only show alt when we have valid alt content
+      if(el.querySelector(".pctAlt")) el.classList.add("showAlt");
+    };
+    const hide = ()=>{
+      el.classList.remove("showAlt");
+    };
+
+    el.addEventListener("pointerdown", (e)=>{
+      isDown = true;
+      clear();
+      // don't let long-press trigger text selection / drag
+      try{ el.setPointerCapture(e.pointerId); }catch(_){}
+      t = setTimeout(()=>{ if(isDown) show(); }, HOLD_MS);
+    });
+
+    const end = ()=>{
+      isDown = false;
+      clear();
+      hide();
+    };
+
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+    el.addEventListener("pointerleave", end);
+  });
+}
+
 function svcGauge(pct, label=""){
   // pct is a ratio vs comparison (e.g., 0.8 = 80% of benchmark). We show a ring gauge.
   const p = Number.isFinite(pct) ? Math.max(0, pct) : 0;
@@ -46,9 +138,19 @@ function svcGauge(pct, label=""){
   else if(p >= 0.60) cls = "gYellow";
 
   const lbl = String(label||"").trim();
-  const textHtml = lbl
-    ? `<span class="pctText pctStack"><span class="pctMain">${disp}%</span><span class="pctSub">${safe(lbl)}</span></span>`
-    : `<span class="pctText">${disp}%</span>`;
+
+  // DEFAULT: grade
+  const grade = _gradeFromPct100(disp);
+
+  // ALTERNATE: +/- vs baseline (assumes pct is ratio vs baseline, so 1.00 === baseline)
+  const basis = (lbl && /goal/i.test(lbl)) ? "GOAL" : "AVG";
+  const delta = Math.round((p - 1) * 100); // percent points over/under baseline
+  const absDelta = Math.abs(delta);
+  const arrow = (delta >= 0) ? "▲" : "▼";
+  const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
+
+  const defaultHtml = `<span class="pctText pctDefault"><span class="pctGrade">${safe(grade)}</span></span>`;
+  const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">${basis}</span></span>`;
 
   // SVG circle with r=15.915494... => circumference ≈ 100 (so we can use percent-based dash)
   return `<span class="svcGauge ${cls}" data-p="${ring}">
@@ -56,7 +158,8 @@ function svcGauge(pct, label=""){
       <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
       <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
     </svg>
-    ${textHtml}
+    ${defaultHtml}
+    ${altHtml}
   </span>`;
 }
 
@@ -73,6 +176,8 @@ function animateSvcGauges(){
       if(Number.isFinite(target)) el.style.setProperty('--p', String(Math.max(0, Math.min(100, target))));
     });
   });
+
+  try{ initSvcGaugeHold(); }catch(e){}
 }
 
 function initSectionToggles(){
