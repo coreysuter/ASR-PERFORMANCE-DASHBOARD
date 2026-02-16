@@ -670,12 +670,12 @@ const tb = getTeamBenchmarks(cat, team) || {};
     if(focusIsGoal){
       hdrPct = (focus==="asr_goal") ? pctGoalReq : pctGoalClose;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO")))}</div>
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASR%")))}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
 
-    const showFocusTag = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
+    const showFocusTag = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASR%");
 
     const compareLabel = (compareBasis==="store") ? "Store Avg" : "Team Avg";
 
@@ -780,7 +780,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASR%"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
