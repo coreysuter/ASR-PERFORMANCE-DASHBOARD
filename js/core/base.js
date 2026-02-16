@@ -749,6 +749,13 @@ function ensureDashTypographyOverrides(){
   color:#fff !important;
 }
 
+
+
+/* --- Tech rows only: shrink pills 10% (smaller) --- */
+.techRow.dashTechRow .pills{
+  transform:scale(0.9) !important;
+  transform-origin:left center !important;
+}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
