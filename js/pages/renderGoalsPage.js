@@ -119,17 +119,23 @@ function _fmtGoalNum(x){
   return n.toFixed(2);
 }
 // Outlined mini-goals box with a thin vertical divider
-function _miniGoalsBoxHtml(asrro, soldro){
+function _miniGoalsBoxHtml(asrro, soldro, asrId, soldId, asrLab="ASRs/RO", soldLab="SOLD"){
+  const asrVal = safe(_fmtGoalNum(asrro));
+  const soldVal = safe(_fmtGoalNum(soldro));
+  const asrSpan = asrId ? `<div id="${safe(asrId)}" style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>` :
+                          `<div style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>`;
+  const soldSpan = soldId ? `<div id="${safe(soldId)}" style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>` :
+                            `<div style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>`;
   return `
     <div class="miniGoalsBox" style="border:1px solid rgba(255,255,255,0.22); border-radius:10px; padding:8px 10px; display:flex; align-items:stretch; gap:10px; background:rgba(0,0,0,0.06);">
       <div style="min-width:88px; text-align:center; padding-right:10px;">
-        <div style="font-size:18px; font-weight:800; line-height:1;">${safe(_fmtGoalNum(asrro))}</div>
-        <div style="font-size:12px; opacity:0.9; margin-top:4px;">ASRs/RO</div>
+        ${asrSpan}
+        <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(asrLab)}</div>
       </div>
       <div style="width:1px; background:rgba(255,255,255,0.22);"></div>
       <div style="min-width:78px; text-align:center; padding-left:10px;">
-        <div style="font-size:18px; font-weight:800; line-height:1;">${safe(_fmtGoalNum(soldro))}</div>
-        <div style="font-size:12px; opacity:0.9; margin-top:4px;">SOLD</div>
+        ${soldSpan}
+        <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(soldLab)}</div>
       </div>
     </div>
   `;
@@ -177,12 +183,10 @@ function _calcGoalsForCats(cats){
       // Add synthetic row (hidden unless apply-all is enabled)
       const allRow = rowHtml("__FLUIDS_ALL","ALL FLUIDS").replace('class="goalRow tight', 'class="goalRow tight fluidsAllRow');
       const body = `
-        <div class="goalQuadTitle">${safe(title)}
-          <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-            <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-            <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-          </div>
-        </div>
+        <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div class="gqtL">${safe(title)}</div>
+        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
+      </div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
@@ -293,11 +297,9 @@ function brakeRowHtml(key,label,mappedCat){
 
   return `
     <div class="goalQuad brakes ${ryGlobal?'ry-on':'ry-off'}" data-quad="${safe(slug)}">
-      <div class="goalQuadTitle">${safe(title)}
-        <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-          <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-          <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-        </div>
+      <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div class="gqtL">${safe(title)}</div>
+        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
       </div>
       ${applyRow}
       <div class="goalQuadHeadRow">
@@ -403,12 +405,10 @@ function brakeRowHtml(key,label,mappedCat){
 
       return `
         <div class="goalQuad tires ${ryGlobal?'ry-on':'ry-off'}" data-quad="${safe(slug)}">
-          <div class="goalQuadTitle">${safe(title)}
-            <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-              <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-              <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-            </div>
-          </div>
+          <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div class="gqtL">${safe(title)}</div>
+        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
+      </div>
           ${applyRow}
           <div class="goalQuadHeadRow">
             <div class="ghName"></div>
@@ -427,12 +427,10 @@ function brakeRowHtml(key,label,mappedCat){
 
     return `
       <div class="goalQuad" data-quad="${safe(slug)}">
-        <div class="goalQuadTitle">${safe(title)}
-          <div class="goalQuadHdrStats" style="margin-top:6px; font-size:13px; opacity:.85;">
-            <span style="margin-right:14px;">ASRs/RO Goals: <b id="gh_${slug}_asrro">0.00</b></span>
-            <span>Sold/RO Goals: <b id="gh_${slug}_soldro">0.00</b></span>
-          </div>
-        </div>
+        <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div class="gqtL">${safe(title)}</div>
+        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
+      </div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
