@@ -422,27 +422,17 @@ function brakeRowHtml(key,label,mappedCat){
             <div class="goalsH1">GOALS</div>
                       </div>
 
-          <div class="goalsMidGoals" style="position:absolute; left:50%; transform:translateX(-50%); top:2px; text-align:center;">
-            <div style="font-size:12px; letter-spacing:.08em; opacity:.85; font-weight:800;">GOALS</div>
-            <div style="display:flex; gap:18px; margin-top:4px; justify-content:center;">
+          <div class="goalsMidGoals" style="margin-left:18px; text-align:center;">
+            <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
+            <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
               <div style="text-align:center;">
-                <div id="gh_mid_asrro" style="font-size:20px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:11px; opacity:.75; margin-top:2px;">ASRs/RO</div>
+                <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
+                <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
               </div>
               <div style="text-align:center;">
-                <div id="gh_mid_soldro" style="font-size:20px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:11px; opacity:.75; margin-top:2px;">SOLD</div>
+                <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
+                <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
               </div>
-            </div>
-          </div>
-          <div class="goalsTopStats" style="margin-left:auto; display:flex; gap:14px; align-items:flex-end; padding-bottom:2px;">
-            <div style="text-align:right;">
-              <div style="font-size:12px; opacity:.75;">ASRs/RO Goal</div>
-              <div id="gh_total_asrro" style="font-size:22px; font-weight:800; line-height:1;">0.00</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="font-size:12px; opacity:.75;">Sold/RO Goal</div>
-              <div id="gh_total_soldro" style="font-size:22px; font-weight:800; line-height:1;">0.00</div>
             </div>
           </div>
         </div>
@@ -546,9 +536,7 @@ function brakeRowHtml(key,label,mappedCat){
 
     const totalAsr = maint.asr + fluids.asr + brakes.asr + tires.asr;
     const totalSold = maint.sold + fluids.sold + brakes.sold + tires.sold;
-    _setHdr('gh_total_asrro', totalAsr);
-    _setHdr('gh_total_soldro', totalSold);
-    _setHdr('gh_mid_asrro', totalAsr);
+_setHdr('gh_mid_asrro', totalAsr);
     _setHdr('gh_mid_soldro', totalSold);
   }
 
