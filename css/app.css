@@ -1152,7 +1152,7 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.0625fr 2.0125fr; /* left header bigger, right panel even wider */
+  grid-template-columns: 1.0625fr 2.0125fr; /* left header -15%, right panel +15% */
 }
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
