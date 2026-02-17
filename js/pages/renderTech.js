@@ -1071,8 +1071,8 @@ function bandPctMarkup(counts){
 }
 
 const top3Panel = `
-  <div class="panel techPickPanel diagSection">
-    <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:12px">
+  <div class="panel techPickPanel" style="height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden" diagSection">
+    <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:12px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden">
       <!-- ASR row -->
       <div class="diagBandRow diagAsrRow" style="padding:12px;position:relative;padding-top:26px">
         <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;font-size:22px;line-height:1;letter-spacing:.4px">ASR</div>
@@ -1114,7 +1114,7 @@ const top3Panel = `
   </div>
 `;
 
-  const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
+  const headerWrap = `<div class="techHeaderWrap" style="display:grid;grid-template-columns:0.85fr 1.15fr;gap:14px;align-items:stretch;">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `<div class="techDetailsPage">${headerWrap}${sectionsHtml}</div>`;
   // Top/Bottom 3 clicks: jump to service card reliably
