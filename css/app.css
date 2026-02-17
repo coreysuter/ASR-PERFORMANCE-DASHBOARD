@@ -1650,146 +1650,39 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
-/* Technician Dashboard header: C1/C2/C3 on one row (3 equal columns) */
-.techHeaderPanel .dashTopRow{
-  display:grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 14px;
-  align-items:start;
+/* ============================
+   Tech Details page ONLY (scoped via renderTech.js wrapper)
+   Prevents changes from affecting Technician Dashboard
+   ============================ */
+.techDetailsPage .techHeaderWrap{
+  grid-template-columns: 0.85fr 1.15fr !important; /* Tech panel -15%, diag +15% */
+  align-items: stretch !important;
 }
-.techHeaderPanel .dashTopC{min-width:0;}
-.techHeaderPanel .dashTopC1{display:flex; gap:10px; align-items:flex-start;}
-.techHeaderPanel .dashTopC2{display:flex; justify-content:flex-start;}
-.techHeaderPanel .dashTopC3{display:flex; justify-content:flex-end;}
-/* Filters grid inside C2 */
-.techHeaderPanel .dashFilters2x2{
-  display:grid;
-  grid-template-columns: max-content max-content;
-  gap:10px 12px;
-  align-items:start;
-}
-/* Make selects shrink to content */
-.techHeaderPanel .dashFilters2x2 select{
-  width:auto;
-  min-width: 160px;
-}
-/* Pills container below title row */
-.techHeaderPanel .dashPills .pills{margin-top:10px;}
+.techDetailsPage .techHeaderWrap > .panel{ height:100% !important; }
 
-/* === Technician Dashboard header adjustments (C1 pills under team line, C3 focus stats like category headers) === */
-.techHeaderPanel .dashTopC1 .techNameWrap{display:flex;flex-direction:column;align-items:flex-start;}
-.techHeaderPanel .dashTopC1 .dashPills{margin-top:10px;}
-.techHeaderPanel .dashTopC1 .dashPills .pills{margin-top:0;}
-
-/* Focus stats (C3) mimic category header panels */
-.techHeaderPanel .dashFocusStats{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right;}
-.techHeaderPanel .dashFocusNum{font-size:36px;font-weight:1200;line-height:1;color:var(--text);}
-@media (max-width:700px){ .techHeaderPanel .dashFocusNum{font-size:30px;} }
-.techHeaderPanel .dashFocusNumSmall{font-size:28px;font-weight:1200;line-height:1;color:var(--text);}
-@media (max-width:700px){ .techHeaderPanel .dashFocusNumSmall{font-size:24px;} }
-.techHeaderPanel .dashFocusLbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted);}
-
-/* Make Technician Dashboard focus stats bold (C3) */
-.techHeaderPanel .dashTopC3 .focusStat .statVal,
-.techHeaderPanel .dashTopC3 .focusStat .statLbl{
-  font-weight: 1000 !important;
+/* Remove legacy hard 50% sizing so grid columns actually apply */
+.techDetailsPage .techHeaderPanel{
+  width:auto !important;
+  max-width:none !important;
+  flex:initial !important;
 }
 
-/* ===== PATCH (2026-02-16): Tech header width shift + equal-height columns =====
-   - TechName panel 15% narrower, Diag panel 15% wider
-   - Override any lingering 50% width constraints on techHeaderPanel
-   - Force equal-height stretch between the two panels
-   This block is intentionally last to override earlier rules.
-*/
-body.route-tech .techHeaderWrap{
-  display:grid !important;
-  grid-template-columns: 0.85fr 1.15fr !important;
-  gap:14px !important;
-  align-items:stretch !important;
-}
-@media (max-width: 980px){
-  body.route-tech .techHeaderWrap{ grid-template-columns:1fr !important; }
-}
-
-/* Remove legacy hard 50% sizing so the grid columns can control width */
-body.route-tech .techHeaderPanel{
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-}
-
-body.route-tech .techHeaderWrap > .panel{ height:100% !important; }
-body.route-tech .techHeaderPanel,
-body.route-tech .techPickPanel{
+/* Equal-height internals */
+.techDetailsPage .techHeaderPanel,
+.techDetailsPage .techPickPanel{
   height:100% !important;
   min-height:0 !important;
 }
 
-/* Tech header (left): natural flow (no auto push) */
-body.route-tech .techHeaderPanel .phead{
-  height:100% !important;
-  display:flex !important;
-  flex-direction:column !important;
-  min-height:0 !important;
-}
-body.route-tech .techHeaderPanel .pills{ margin-top:12px !important; }
-
-/* Diag (right): internal scroll so Bottom 3 cannot be clipped */
-body.route-tech .techPickPanel{
+/* Diag: internal scroll so Bottom 3 never clips (keep rounded corners) */
+.techDetailsPage .techPickPanel{
   overflow:hidden !important;
   display:flex !important;
   flex-direction:column !important;
   min-height:0 !important;
 }
-body.route-tech .techPickPanel .phead{
+.techDetailsPage .techPickPanel > .phead{
   flex:1 1 auto !important;
   min-height:0 !important;
   overflow:auto !important;
-}
-
-/* ================================
-   TECH DETAILS ONLY (scoped)
-   This avoids impacting Technician Dashboard.
-   ================================ */
-
-.techDetailsPage .techHeaderWrap{
-  /* keep your existing layout, only adjust column balance */
-  grid-template-columns: 0.85fr 1.15fr !important;
-  align-items: stretch !important;
-}
-
-/* Remove any legacy hard sizing so the grid controls width */
-.techDetailsPage .techHeaderPanel{
-  width: auto !important;
-  max-width: none !important;
-  min-width: 0 !important;
-}
-
-/* Ensure both panels stay equal-height */
-.techDetailsPage .techHeaderWrap > .panel{
-  height: 100% !important;
-}
-.techDetailsPage .techHeaderPanel,
-.techDetailsPage .techPickPanel{
-  height: 100% !important;
-  min-height: 0 !important;
-}
-
-/* Diag panel: allow internal scrolling so Bottom 3 never clips */
-.techDetailsPage .techPickPanel{
-  overflow: hidden !important; /* preserves rounded corners */
-  display: flex !important;
-  flex-direction: column !important;
-}
-.techDetailsPage .techPickPanel .phead{
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow: auto !important;
-}
-
-/* Mobile stack */
-@media (max-width: 980px){
-  .techDetailsPage .techHeaderWrap{
-    grid-template-columns: 1fr !important;
-  }
 }
