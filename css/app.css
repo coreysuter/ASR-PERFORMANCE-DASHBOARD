@@ -1701,7 +1701,8 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 */
 body.route-tech .techHeaderWrap{
   display:grid !important;
-  grid-template-columns: 0.85fr 1.15fr !important;
+  /* Give the diag section more horizontal room by shrinking the tech-name header column ~15% */
+  grid-template-columns: minmax(0,0.72fr) minmax(0,1.28fr) !important;
   gap:14px !important;
   align-items:stretch !important;
 }
@@ -1753,38 +1754,32 @@ body.route-tech .techPickPanel .phead{
 .techHeaderWrap > .panel{ min-width:0 !important; }
 .techPickPanel{ overflow-x:hidden !important; }
 .techPickPanel .phead{ overflow-x:hidden !important; }
-/* === Tech Details: shrink header panel ~15% (scoped) === */
-body.route-tech .techHeaderPanel .phead{
-  padding:15px 15px 10px !important; /* was ~18/18/12 */
+
+/* === TECH DETAILS: give the diag section more horizontal room (prevents top-right cutoff) === */
+/* NOTE: uses !important to override any inline grid-template-columns coming from renderTech.js */
+.techHeaderWrap{
+  grid-template-columns: minmax(0,0.70fr) minmax(0,1.30fr) !important;
 }
-body.route-tech .techTitleRow{ gap:12px !important; }
-body.route-tech .techTitlePinnedLeft{ gap:15px !important; }
-body.route-tech .hamburgerMini{
-  width:37px !important;
-  height:37px !important;
-  border-radius:12px !important;
-  font-size:19px !important;
+.techHeaderWrap > *{min-width:0}
+.techHeaderWrap .techHeaderPanel,
+.techHeaderWrap .techPickPanel{min-width:0}
+/* avoid long rows forcing overflow inside the panel (panels have overflow:hidden) */
+.techHeaderWrap .techPickPanel *{min-width:0}
+
+
+/* === TECH DETAILS: enforce column-based sizing (shrink left panel width) ===
+   The left header panel previously had width/max-width set to 50% which prevents the grid
+   split from actually shrinking the panel. These overrides ensure the grid controls sizing. */
+.techHeaderWrap .techHeaderPanel,
+.techHeaderWrap .techPickPanel{
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
 }
-body.route-tech .techH2Big{
-  font-size:31px !important; /* was 36 */
-  line-height:1.03 !important;
+/* Slightly stronger shrink (~15% less than original 1fr/1fr split) */
+.techHeaderWrap{
+  display: grid !important;
+  grid-template-columns: minmax(0,0.72fr) minmax(0,1.28fr) !important;
+  align-items: stretch !important;
 }
-@media (max-width: 820px){
-  body.route-tech .techH2Big{ font-size:24px !important; }
-}
-body.route-tech .techTeamLine{
-  font-size:12px !important;
-  margin-top:4px !important;
-}
-/* Pills inside tech header only */
-body.route-tech .techHeaderPanel .pills{ margin-top:10px !important; }
-body.route-tech .techHeaderPanel .pill{
-  padding:7px 10px !important;
-  gap:7px !important;
-}
-body.route-tech .techHeaderPanel .pill .k{
-  font-size:10px !important;
-}
-body.route-tech .techHeaderPanel .pill .v{
-  font-size:15px !important;
-}
+
