@@ -405,12 +405,6 @@ function ensureDashTypographyOverrides(){
 .catRank .rankLbl{font-size:11px !important; font-weight:900 !important; letter-spacing:.35px !important; text-transform:uppercase !important; opacity:.75 !important; margin-top:2px !important;}
 .catRank .rankNum.sub{font-size:28px !important;}
 .catRank .rankLbl.sub{font-size:10px !important;}
-
-/* Category header split (left pills / right focus stats) */
-.catHeader.catHeaderSplit{display:flex !important; justify-content:space-between !important; align-items:flex-start !important; gap:12px !important;}
-.catHdrLeft{display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:6px !important; min-width:0 !important;}
-.catHdrLeft .pills{margin-top:6px !important; justify-content:flex-start !important;}
-.catHdrRight{display:flex !important; justify-content:flex-end !important; align-items:flex-start !important; flex:0 0 auto !important;}
 @media (max-width: 700px){
   .catRank .rankNum{font-size:30px !important;}
   .catRank .rankNum.sub{font-size:24px !important;}
@@ -950,6 +944,15 @@ function ensureDashTypographyOverrides(){
 }
 .techRow.dashTechRow .pills{ min-width:0 !important; flex-wrap:nowrap !important; }
 
+
+
+/* Category header split (left pills / right focus stats) */
+.catHeader.catHeaderSplit{display:flex !important; justify-content:space-between !important; align-items:flex-start !important; gap:12px !important;}
+.catHdrLeft{display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:6px !important; min-width:0 !important;}
+.catHdrLeft .pills{margin-top:6px !important; justify-content:flex-start !important;}
+.catHdrLeft .dashPills2Row{display:flex !important; flex-direction:column !important; gap:8px !important; margin-top:6px !important;}
+.catHdrLeft .dashPills2Row .pills{margin-top:0 !important;}
+.catHdrRight{display:flex !important; justify-content:flex-end !important; align-items:flex-start !important; flex:0 0 auto !important;}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -1234,12 +1237,16 @@ function renderTeam(team, st){
             <div class="catTitle">${safe(team)}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
           </div>
-            <div class="pills">
-          <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
-          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
-          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
-        </div>
+            <div class="dashPills2Row">
+              <div class="pills">
+                <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
+                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
+              </div>
+              <div class="pills">
+                <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
+                <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
+              </div>
+            </div>
           </div>
           <div class="catHdrRight">
             <div class="catRank">
@@ -1255,31 +1262,7 @@ function renderTeam(team, st){
           </div>
         </div>
 
-        <div class="iconBar">
-          <button class="iconBtn" onclick="toggleTeamFilters('${safe(team)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
-          <div class="appliedInline">${appliedTextHtml}</div>
-          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${ICON_SEARCH}</button>
-        </div>
-
-        <div class="ctlPanel ${st.filtersOpen?"open":""}">
-          <div class="controls">
-            <div>
-              <label>Filter</label>
-              <select data-team="${safe(team)}" data-ctl="filter">
-                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-              </select>
-            </div>
-            <div>
-              <label>Focus</label>
-              <select data-team="${safe(team)}" data-ctl="sort">
-                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
-              </select>
-            </div>
-          </div>
-        </div>
+        <!-- Removed per-team filters from EXPRESS/KIA category panels (filters are controlled in the main header) -->
       </div>
       <div class="list">${rows || `<div class="notice">No technicians found.</div>`}</div>
     </div>
