@@ -50,7 +50,7 @@
     if(!Number.isFinite(pct)) return null;
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
-    return "green";
+    return null;
   }
 
   window.closeDiagPopup = closeDiagPopup;
@@ -82,55 +82,12 @@
       if(b !== band) continue;
       items.push({cat, val, pct});
     }
-    items.sort((a,b)=> (band==="green") ? (b.pct-a.pct) : (a.pct-b.pct));
+    items.sort((a,b)=>a.pct-b.pct);
 
     const title = (mode==="sold") ? "SOLD" : "ASR";
-
-    const isGreen = (band==="green");
-    const colorClass = (band==="red") ? "diagRed" : (band==="yellow" ? "diagYellow" : "diagGreen");
-    const popFill = (band==="red") ? "#ff4b4b" : (band==="yellow" ? "#ffbf2f" : "#22c55e");
+    const colorClass = (band==="red") ? "diagRed" : "diagYellow";
+    const popFill = (band==="red") ? "#ff4b4b" : "#ffbf2f";
     const lbl = (mode==="sold") ? "Sold%" : "ASR%";
-
-    const iconSvg = isGreen ? `
-      <svg viewBox="0 0 100 100" aria-hidden="true" style="width:34px;height:34px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
-        <circle cx="50" cy="50" r="46" fill="#22c55e" stroke="rgba(255,255,255,.22)" stroke-width="2"></circle>
-        <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
-      </svg>
-    ` : `
-      <svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
-        <defs>
-          <linearGradient id="popTriGrad-${mode}-${band}-${techId}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${(band==="red") ? "#ff8b8b" : "#ffd978"}"></stop>
-            <stop offset="100%" stop-color="${popFill}"></stop>
-          </linearGradient>
-          <radialGradient id="popTriHi-${mode}-${band}-${techId}" cx="35%" cy="20%" r="75%">
-            <stop offset="0%" stop-color="rgba(255,255,255,.55)"></stop>
-            <stop offset="55%" stop-color="rgba(255,255,255,.10)"></stop>
-            <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
-          </radialGradient>
-        </defs>
-        <path d="M50 0
-                 C53 0 55 2 56.5 4.5
-                 L99 85
-                 C101 88 99 91 95 91
-                 L5 91
-                 C1 91 -1 88 1 85
-                 L43.5 4.5
-                 C45 2 47 0 50 0Z"
-              fill="url(#popTriGrad-${mode}-${band}-${techId})"></path>
-        <path d="M50 6
-                 C52 6 54 7.2 55.2 9.6
-                 L92 80
-                 C94 83 92.2 86 88.4 86
-                 L11.6 86
-                 C7.8 86 6 83 8 80
-                 L44.8 9.6
-                 C46 7.2 48 6 50 6Z"
-              fill="url(#popTriHi-${mode}-${band}-${techId})"></path>
-        <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
-        <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
-      </svg>
-    `;
 
     const rows = items.length ? items.map((it, i)=>{
             const id = safeSvcIdLocal(it.cat);
@@ -161,7 +118,39 @@
 
     pop.innerHTML = `
       <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}${iconSvg}</div>
+        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}<svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
+  <defs>
+    <linearGradient id="popTriGrad-${mode}-${band}-${techId}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${(band==="red") ? "#ff8b8b" : "#ffd978"}"></stop>
+      <stop offset="100%" stop-color="${popFill}"></stop>
+    </linearGradient>
+    <radialGradient id="popTriHi-${mode}-${band}-${techId}" cx="35%" cy="20%" r="75%">
+      <stop offset="0%" stop-color="rgba(255,255,255,.55)"></stop>
+      <stop offset="55%" stop-color="rgba(255,255,255,.10)"></stop>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
+    </radialGradient>
+  </defs>
+  <path d="M50 0
+           C53 0 55 2 56.5 4.5
+           L99 85
+           C101 88 99 91 95 91
+           L5 91
+           C1 91 -1 88 1 85
+           L43.5 4.5
+           C45 2 47 0 50 0Z"
+        fill="url(#popTriGrad-${mode}-${band}-${techId})"></path>
+  <path d="M50 6
+           C52 6 54 7.2 55.2 9.6
+           L92 80
+           C94 83 92.2 86 88.4 86
+           L11.6 86
+           C7.8 86 6 83 8 80
+           L44.8 9.6
+           C46 7.2 48 6 50 6Z"
+        fill="url(#popTriHi-${mode}-${band}-${techId})"></path>
+  <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
+  <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
+</svg></div>
         <button class="diagPopClose" onclick="window.closeDiagPopup()" aria-label="Close"
           style="margin-left:6px;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
@@ -236,46 +225,6 @@ function renderTech(techId){
     `;
     document.head.appendChild(st);
   })();
-  // --- Tech Details only sizing: Header panel -20%, Diag section +20% (scoped; does NOT affect main dashboard) ---
-  (function ensureTechDetailsSizingCSS(){
-    if(document.getElementById('techDetailsSizeCSS')) return;
-    const st = document.createElement('style');
-    st.id = 'techDetailsSizeCSS';
-    st.textContent = `
-      /* Only apply on Tech Details pages (we toggle .techDetailsPage on <body>) */
-      .techDetailsPage .techHeaderWrap{
-        grid-template-columns: 0.8fr 1.2fr !important; /* header -20%, diag +20% */
-      }
-      /* tighten the tech header box a bit */
-      .techDetailsPage .techHeaderPanel .phead{
-        padding: 14px 14px 10px !important; /* was ~18/12 in global overrides */
-      }
-      .techDetailsPage .techH2Big{
-        font-size: 29px !important; /* ~36px * 0.8 */
-      }
-      @media (max-width: 820px){
-        .techDetailsPage .techH2Big{ font-size: 22px !important; }
-      }
-
-      /* give the diag section a touch more breathing room */
-      .techDetailsPage .techPickPanel.diagSection > .phead{
-        padding: 14px !important; /* was 12 */
-      }
-    `;
-    document.head.appendChild(st);
-
-    const apply = ()=>{
-      const h = location.hash || "";
-      const onTech = h.startsWith("#/tech/");
-      try{ document.body.classList.toggle("techDetailsPage", onTech); }catch(e){}
-    };
-    apply();
-    if(!window.__techDetailsPageSizingListener){
-      window.__techDetailsPageSizingListener = true;
-      window.addEventListener("hashchange", apply);
-    }
-  })();
-
 
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
@@ -289,7 +238,7 @@ function renderTech(techId){
 
   let filterKey = "total";
   let compareBasis = "team";
-  let focus = "asr"; // asr | sold | asr_goal | sold_goal
+  let focus = "asr"; // asr | sold
   let goalMetric = "asr"; // asr | sold (which goal set to reference when focus=goal)
 const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
@@ -303,7 +252,7 @@ const hash = location.hash || "";
       }
       if(k==="focus"){
         const vv = decodeURIComponent(v||"") || "asr";
-        focus = (vv==="sold"||vv==="asr"||vv==="asr_goal"||vv==="sold_goal") ? vv : "asr";
+        focus = (vv==="sold"||vv==="goal"||vv==="asr") ? vv : "asr";
       }
       if(k==="goal"){
         const vv = decodeURIComponent(v||"") || "asr";
@@ -325,7 +274,7 @@ const hash = location.hash || "";
 
   // Focus Rank Badge (replaces x/x rankings)
   function rankBadgeHtml(rank, total, focus, size="lg"){
-    const top = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
+    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
@@ -350,8 +299,6 @@ const s = t.summary?.[filterKey] || {};
     }
     return Array.from(cats);
   }
-  const focusIsGoal = (focus==="asr_goal" || focus==="sold_goal");
-
   const CAT_LIST = categoryUniverse();
 
   function buildBench(scopeTechs){
@@ -416,7 +363,7 @@ const s = t.summary?.[filterKey] || {};
                    C1 91 -1 88 1 85
                    L43.5 4.5
                    C45 2 47 0 50 0Z"
-                fill="url(#triGrad-${mode}-${band}-${t.id})" stroke="rgba(255,255,255,.22)" stroke-width="2"></path>
+                fill="url(#triGrad-${mode}-${band}-${t.id})"></path>
           <!-- highlight sheen -->
           <path d="M50 6
                    C52 6 54 7.2 55.2 9.6
@@ -431,38 +378,15 @@ const s = t.summary?.[filterKey] || {};
           <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
           <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
           <!-- count -->
-          <text x="${textX}" y="79" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
+          <text x="${textX}" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
 
-        </svg>
-      </button>
-    `;
-  }
-
-  function diagCheckBadge(num, mode){
-    const n = Number(num)||0;
-    if(!n) return "";
-    return `
-      <button class="diagTriBtn" data-tech="${t.id}" data-mode="${mode}" data-band="green" data-compare="${compareBasis}" aria-label="${mode.toUpperCase()} green services"
-        style="background:transparent;border:none;padding:0;cursor:pointer">
-        <svg viewBox="0 0 100 100" aria-hidden="true" style="width:64px;height:64px;display:block;filter:drop-shadow(0 14px 24px rgba(0,0,0,.40))">
-          <defs>
-            <radialGradient id="chkHi-${mode}-${t.id}" cx="35%" cy="25%" r="75%">
-              <stop offset="0%" stop-color="rgba(255,255,255,.45)"></stop>
-              <stop offset="55%" stop-color="rgba(255,255,255,.12)"></stop>
-              <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
-            </radialGradient>
-          </defs>
-          <circle cx="50" cy="50" r="46" fill="#22c55e" stroke="rgba(255,255,255,.22)" stroke-width="2"></circle>
-          <circle cx="50" cy="50" r="46" fill="url(#chkHi-${mode}-${t.id})"></circle>
-          <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
-          <text x="88" y="76" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
         </svg>
       </button>
     `;
   }
 
     function countBandsFor(mode){
-    let red=0, yellow=0, green=0;
+    let red=0, yellow=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
@@ -471,11 +395,11 @@ const s = t.summary?.[filterKey] || {};
       const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
-      if(pct >= 0.80) green++;
-      else if(pct >= 0.60) yellow++;
+      if(pct >= 0.80) continue;
+      if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow, green};
+    return {red, yellow};
   }
 
   // NOTE: Badge popups are handled by the global diag popup handler at the top of this file
@@ -507,7 +431,7 @@ const s = t.summary?.[filterKey] || {};
         let v = NaN;
         if(focus==="sold"){
           v = Number(c.close);
-        }else if(focusIsGoal){
+        }else if(focus==="goal"){
           const req = Number(c.req ?? NaN);
           const close = Number(c.close ?? NaN);
           const gReq = Number(getGoal(cat,"req"));
@@ -530,7 +454,7 @@ const s = t.summary?.[filterKey] || {};
     let me = NaN;
     if(focus==="sold"){
       me = Number(meC.close);
-    }else if(focusIsGoal){
+    }else if(focus==="goal"){
       const req = Number(meC.req);
       const close = Number(meC.close);
       const gReq = Number(getGoal(cat,"req"));
@@ -549,7 +473,7 @@ const s = t.summary?.[filterKey] || {};
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
   const filters = `
-    <div class="controls" style="margin-top:6px">
+    <div class="controls" style="margin-top:10px">
       <div>
         <label>Fluids</label>
         <select id="techFilter">
@@ -568,10 +492,9 @@ const s = t.summary?.[filterKey] || {};
       <div>
         <label>Focus</label>
         <select id="techFocus">
-          <option value="asr" ${focus==="asr"?"selected":""}>ASRS/RO</option>
-          <option value="sold" ${focus==="sold"?"selected":""}>SOLD%</option>
-          <option value="asr_goal" ${focus==="asr_goal"?"selected":""}>ASR GOAL</option>
-          <option value="sold_goal" ${focus==="sold_goal"?"selected":""}>SOLD GOAL</option>
+          <option value="asr" ${focus==="asr"?"selected":""}>ASR</option>
+          <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
+          <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
       <div>
@@ -599,25 +522,12 @@ const s = t.summary?.[filterKey] || {};
       }else{
         if(Number.isFinite(req) && Number.isFinite(gReq) && gReq>0){ sum += (req/gReq); n++; }
       }
-
-  // Goal score wrappers for Focus-specific goal dials
-  function techAsrGoalScore(x){
-    const prev = goalMetric;
-    try{ goalMetric = "asr"; return techGoalScore(x); }
-    finally{ goalMetric = prev; }
-  }
-  function techSoldGoalScore(x){
-    const prev = goalMetric;
-    try{ goalMetric = "sold"; return techGoalScore(x); }
-    finally{ goalMetric = prev; }
-  }
-
     }
     return n ? (sum/n) : null; // ratio (1.0 = 100% of goal)
   }
   const metricForRank = (x)=> {
     if(focus==="sold") return Number(techSoldPct(x, filterKey));
-    if(focusIsGoal) return Number(focus==="asr_goal" ? techAsrGoalScore(x) : techSoldGoalScore(x));
+    if(focus==="goal") return Number(techGoalScore(x));
     return Number(techAsrPerRo(x, filterKey));
   };
   const ordered = scopeTechs.slice().sort((a,b)=>{
@@ -629,8 +539,8 @@ const s = t.summary?.[filterKey] || {};
   const myV = metricForRank(t);
   const idx = Number.isFinite(myV) ? ordered.findIndex(o=>o.id===t.id) : -1;
   const overall = ordered.length ? {rank: (idx>=0?idx+1:null), total: ordered.length} : {rank:null,total:null};
-  const focusLbl = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
-  const focusVal = (focus==="sold") ? fmtPct(techSoldPct(t, filterKey)) : (focusIsGoal ? (focus==="asr_goal" ? fmtPct(techAsrGoalScore(t)) : fmtPct(techSoldGoalScore(t))) : fmt1(techAsrPerRo(t, filterKey),1));
+  const focusLbl = focus==="sold" ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
+  const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
   const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
@@ -741,15 +651,18 @@ const tb = getTeamBenchmarks(cat, team) || {};
     // Header gauge follows Focus:
     let hdrPct = pctCmpReq;
     if(focus==="sold") hdrPct = pctCmpClose;
-    if(focusIsGoal){
-      hdrPct = (focus==="asr_goal") ? pctGoalReq : pctGoalClose;
+    if(focus==="goal"){
+      const parts = [];
+      if(Number.isFinite(pctGoalReq)) parts.push(pctGoalReq);
+      if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
+      hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASR%")))}</div>
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%")))}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
 
-    const showFocusTag = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASR%");
+    const showFocusTag = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR/RO");
 
     const compareLabel = (compareBasis==="store") ? "Store Avg" : "Team Avg";
 
@@ -760,7 +673,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
           <div class="mbStat ${bandClass(pctCmpReq)}">${fmtPct(req)}</div>
         </div>
         <div class="mbRight">
-          ${(focusIsGoal) ? `
+          ${(focus==="goal") ? `
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
@@ -809,7 +722,7 @@ const soldBlock = `
           <div class="mbStat ${bandClass(pctCmpClose)}">${fmtPct(close)}</div>
         </div>
         <div class="mbRight">
-          ${(focusIsGoal) ? `
+          ${(focus==="goal") ? `
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
@@ -854,7 +767,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold" ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASR%"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
@@ -895,7 +808,7 @@ function sectionScoreForTech(sec, x){
     if(focus==="sold"){
       const v = Number(c.close);
       if(Number.isFinite(v)) vals.push(v);
-    }else if(focusIsGoal){
+    }else if(focus==="goal"){
       if(goalMetric==="sold"){
         const v = Number(c.close);
         const g = Number(getGoal(cat,"close"));
@@ -962,14 +875,12 @@ function sectionRankFor(sec){
       ? mean([pctGoalAsr,pctGoalSold].filter(n=>Number.isFinite(n)))
       : NaN;
 
-    const focusPct = (focus==="sold") ? pctSold : (focusIsGoal ? (focus==="asr_goal" ? pctGoalAsr : pctGoalSold) : pctAsr);
-    const focusLbl = (focus==="sold") ? "SOLD%" : (focusIsGoal ? (focus==="asr_goal" ? "ASR GOAL" : "SOLD GOAL") : "ASRS/RO");
+    const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? pctGoal : pctAsr);
+    const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASR");
 
-    // Section (MAINTENANCE / FLUIDS / BRAKES / TIRES) header mini dial label stays ASRS/RO
-    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASRS/RO")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"SOLD%")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-    const dialGoalAsr = Number.isFinite(pctGoalAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR GOAL")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-    const dialGoalSold = Number.isFinite(pctGoalSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"SOLD GOAL")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
     const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
     const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
@@ -981,7 +892,7 @@ return `
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
-                <div class="secMiniDials">${dialASR}${dialSold}${dialGoalAsr}${dialGoalSold}</div>
+                <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
               </div>
               <div class="sub"></div>
             </div>
@@ -1075,67 +986,65 @@ return `
     `;
   }
   const bandCounts_asr = countBandsFor('asr');
-const bandCounts_sold = countBandsFor('sold');
+  const bandCounts_sold = countBandsFor('sold');
 
-function bandPctMarkup(counts){
-  const tot = (counts?.red||0) + (counts?.yellow||0) + (counts?.green||0);
-  const pct = (n)=> tot ? Math.round((n/tot)*100) : 0;
-  return `
-    <div class="diagBandPctWrap" style="margin-top:10px;display:grid;gap:6px;font-size:16px;font-weight:800;line-height:1.05">
-      <div><span style="color:#ff4b4b">RED</span><span style="color:#ffffff"> = ${pct(counts.red)}%</span></div>
-      <div><span style="color:#ffbf2f">YELLOW</span><span style="color:#ffffff"> = ${pct(counts.yellow)}%</span></div>
-      <div><span style="color:#22c55e">GREEN</span><span style="color:#ffffff"> = ${pct(counts.green)}%</span></div>
+  // --- Tech Details only: header 20% smaller, diag section 20% larger ---
+  // Scoped to a wrapper class that exists only on this page so we don't affect the Technician Dashboard.
+  (function ensureTechHeaderResizeCSS(){
+    if(document.getElementById('techHeaderResizeCSS')) return;
+    const st = document.createElement('style');
+    st.id = 'techHeaderResizeCSS';
+    st.textContent = `
+      .techHeaderWrap.techHeaderWrap_082_122{display:grid;grid-template-columns:0.8fr 1.2fr;gap:14px;align-items:stretch}
+      .techHeaderWrap.techHeaderWrap_082_122 > .panel{height:100%}
+      @media (max-width: 980px){ .techHeaderWrap.techHeaderWrap_082_122{grid-template-columns:1fr} }
+    `;
+    document.head.appendChild(st);
+  })();
+
+
+  const top3Panel = `
+    <div class="panel techPickPanel diagSection">
+      <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
+        <!-- ASR row -->
+        <div class="diagBandRow" style="padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+                ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
+                ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+              </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
+            </div>
+            <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
+            <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
+          </div>
+        </div>
+        <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
+
+        <!-- SOLD row -->
+        <div class="diagBandRow" style="padding:12px">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+                ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+                ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+              </div>
+              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
+            </div>
+            <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+            <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
-}
 
-const top3Panel = `
-  <div class="panel techPickPanel diagSection">
-    <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:12px">
-      <!-- ASR row -->
-      <div class="diagBandRow diagAsrRow" style="padding:12px;position:relative;padding-top:26px">
-        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;font-size:22px;line-height:1;letter-spacing:.4px">ASR</div>
-        <div class="pickRow" style="display:grid;grid-template-columns:220px 0.85fr 0.85fr 0.2fr;gap:12px;align-items:start">
-          <div class="diagIconCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;width:100%">
-            <div class="diagIconRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;justify-content:flex-start;max-width:100%;padding-top:0">
-              ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
-              ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
-              ${diagCheckBadge(bandCounts_asr.green, "asr")}
-            </div>
-            ${bandPctMarkup(bandCounts_asr)}
-          </div>
-          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
-          <div class="pickSpacer"></div>
-        </div>
-      </div>
+  const headerWrap = `<div class="techHeaderWrap techHeaderWrap_082_122">${header}${top3Panel}</div>`;
 
-      <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
-
-      <!-- SOLD row -->
-      <div class="diagBandRow diagSoldRow" style="padding:12px;position:relative;padding-top:26px">
-        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;font-size:22px;line-height:1;letter-spacing:.4px">SOLD</div>
-        <div class="pickRow" style="display:grid;grid-template-columns:220px 0.85fr 0.85fr 0.2fr;gap:12px;align-items:start">
-          <div class="diagIconCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;width:100%">
-            <div class="diagIconRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;justify-content:flex-start;max-width:100%;padding-top:0">
-              ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
-              ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
-              ${diagCheckBadge(bandCounts_sold.green, "sold")}
-            </div>
-            ${bandPctMarkup(bandCounts_sold)}
-          </div>
-          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
-          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
-          <div class="pickSpacer"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-`;
-
-  const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
-
-  document.getElementById('app').innerHTML = `<div class="techDetailsPage">${headerWrap}${sectionsHtml}</div>`;
+  document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
   // Top/Bottom 3 clicks: jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){
