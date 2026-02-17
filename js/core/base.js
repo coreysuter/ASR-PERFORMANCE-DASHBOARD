@@ -944,6 +944,13 @@ function ensureDashTypographyOverrides(){
 }
 .techRow.dashTechRow .pills{ min-width:0 !important; flex-wrap:nowrap !important; }
 
+
+
+/* Category header split (left pills / right focus stats) */
+.catHeader.catHeaderSplit{display:flex !important; justify-content:space-between !important; align-items:flex-start !important; gap:12px !important;}
+.catHdrLeft{display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:6px !important; min-width:0 !important;}
+.catHdrLeft .pills{margin-top:6px !important; justify-content:flex-start !important;}
+.catHdrRight{display:flex !important; justify-content:flex-end !important; align-items:flex-start !important; flex:0 0 auto !important;}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
@@ -1222,12 +1229,21 @@ function renderTeam(team, st){
   return `
     <div class="panel">
       <div class="phead">
-        <div class="catHeader">
-          <div>
+        <div class="catHeader catHeaderSplit">
+          <div class="catHdrLeft">
+            <div>
             <div class="catTitle">${safe(team)}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
           </div>
-          <div class="catRank">
+            <div class="pills">
+          <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
+          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
+          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
+        </div>
+          </div>
+          <div class="catHdrRight">
+            <div class="catRank">
             <div class="rankMain">
               <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
               <div class="rankLbl">ASRs/RO</div>
@@ -1237,14 +1253,9 @@ function renderTeam(team, st){
               <div class="rankLbl sub">SOLD/RO</div>
             </div>
           </div>
+          </div>
         </div>
 
-        <div class="pills">
-          <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
-          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
-          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
-        </div>
         <div class="iconBar">
           <button class="iconBtn" onclick="toggleTeamFilters('${safe(team)}')" aria-label="Filters" title="Filters">${ICON_FILTER}</button>
           <div class="appliedInline">${appliedTextHtml}</div>
