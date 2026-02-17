@@ -763,11 +763,14 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
    - Top row: Title (left, flex-fit) + Focus stats (top-right)
    - Second row: Pills under title (left) + Filters in a 2x2 grid (middle)
 */
+.techHeaderPanel{position:relative;}
 .techHeaderPanel .dashHdrTop{
-  display:flex;
+  /* Only wrap the title width (do NOT stretch across the panel) */
+  display:inline-flex;
   align-items:flex-start;
-  justify-content:space-between;
+  justify-content:flex-start;
   gap:14px;
+  width:fit-content;
 }
 .techHeaderPanel .dashTitleRow{
   display:flex;
@@ -783,6 +786,10 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 }
 
 .techHeaderPanel .dashFocusTop{
+  /* Pull focus stats out of normal flow so dashHdrTop can shrink to title width */
+  position:absolute;
+  top:14px;
+  right:14px;
   display:flex;
   gap:14px;
   align-items:flex-end;
