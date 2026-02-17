@@ -1753,14 +1753,38 @@ body.route-tech .techPickPanel .phead{
 .techHeaderWrap > .panel{ min-width:0 !important; }
 .techPickPanel{ overflow-x:hidden !important; }
 .techPickPanel .phead{ overflow-x:hidden !important; }
-
-/* === TECH DETAILS: give the diag section more horizontal room (prevents top-right cutoff) === */
-/* NOTE: uses !important to override any inline grid-template-columns coming from renderTech.js */
-.techHeaderWrap{
-  grid-template-columns: minmax(0,0.70fr) minmax(0,1.30fr) !important;
+/* === Tech Details: shrink header panel ~15% (scoped) === */
+body.route-tech .techHeaderPanel .phead{
+  padding:15px 15px 10px !important; /* was ~18/18/12 */
 }
-.techHeaderWrap > *{min-width:0}
-.techHeaderWrap .techHeaderPanel,
-.techHeaderWrap .techPickPanel{min-width:0}
-/* avoid long rows forcing overflow inside the panel (panels have overflow:hidden) */
-.techHeaderWrap .techPickPanel *{min-width:0}
+body.route-tech .techTitleRow{ gap:12px !important; }
+body.route-tech .techTitlePinnedLeft{ gap:15px !important; }
+body.route-tech .hamburgerMini{
+  width:37px !important;
+  height:37px !important;
+  border-radius:12px !important;
+  font-size:19px !important;
+}
+body.route-tech .techH2Big{
+  font-size:31px !important; /* was 36 */
+  line-height:1.03 !important;
+}
+@media (max-width: 820px){
+  body.route-tech .techH2Big{ font-size:24px !important; }
+}
+body.route-tech .techTeamLine{
+  font-size:12px !important;
+  margin-top:4px !important;
+}
+/* Pills inside tech header only */
+body.route-tech .techHeaderPanel .pills{ margin-top:10px !important; }
+body.route-tech .techHeaderPanel .pill{
+  padding:7px 10px !important;
+  gap:7px !important;
+}
+body.route-tech .techHeaderPanel .pill .k{
+  font-size:10px !important;
+}
+body.route-tech .techHeaderPanel .pill .v{
+  font-size:15px !important;
+}
