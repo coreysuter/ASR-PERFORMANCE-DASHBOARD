@@ -241,26 +241,20 @@ function renderTech(techId){
     if(document.getElementById('techDetailsSizeCSS')) return;
     const st = document.createElement('style');
     st.id = 'techDetailsSizeCSS';
-    st.textContent = `      /* Tech Details only: shrink header panel 15% and grow diag section 15% */
-      .techDetailsPage .techHeaderWrap{
+    st.textContent = `
+      /* Tech Details ONLY: adjust top grid so header is -15% and diag is +15% */
+      body.route-tech .techHeaderWrap{
         grid-template-columns: 0.85fr 1.15fr !important;
       }
-      @media (max-width: 980px){
-        /* keep existing mobile stacking behavior */
-        .techDetailsPage .techHeaderWrap{ grid-template-columns: 1fr !important; }
-      }`;
-    document.head.appendChild(st);
 
-    const apply = ()=>{
-      const h = location.hash || "";
-      const onTech = h.startsWith("#/tech/");
-      try{ document.body.classList.toggle("techDetailsPage", onTech); }catch(e){}
-    };
-    apply();
-    if(!window.__techDetailsPageSizingListener){
-      window.__techDetailsPageSizingListener = true;
-      window.addEventListener("hashchange", apply);
-    }
+      /* Keep mobile layout stacked as designed */
+      @media (max-width: 980px){
+        body.route-tech .techHeaderWrap{
+          grid-template-columns: 1fr !important;
+        }
+      }
+    `;
+    document.head.appendChild(st);
   })();
 
 
