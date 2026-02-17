@@ -1709,6 +1709,14 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   .techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:24px;}
 }
 
-
-/* FIX: Technician Dashboard filters nudge (do not alter container layout) */
-.techHeaderPanel .dashTopC2 .dashFilters2x2{ margin-left:10px !important; }
+/* Technician Dashboard: C2 (filters) inset 10px from the left edge of C2.
+   Leaves blank space between end of C1 and where filters begin. */
+.techHeaderPanel .dashTopC2{
+  padding-left:10px !important;
+  box-sizing:border-box !important;
+}
+.techHeaderPanel .dashTopC2 .dashFilters2x2{
+  margin-left:0 !important;
+  justify-content:flex-start !important;
+  align-items:flex-start !important;
+}
