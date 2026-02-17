@@ -1708,3 +1708,7 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   .techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:30px;}
   .techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:24px;}
 }
+
+
+/* FIX: Technician Dashboard filters nudge (do not alter container layout) */
+.techHeaderPanel .dashTopC2 .dashFilters2x2{ margin-left:10px !important; }
