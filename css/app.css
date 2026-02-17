@@ -1694,10 +1694,12 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 .techHeaderPanel .dashTopC3 .focusStat .statLbl{
   font-weight: 1000 !important;
 }
+
 /* ===== PATCH (2026-02-16): Tech header width shift + equal-height columns =====
    - TechName panel 15% narrower, Diag panel 15% wider
+   - Override any lingering 50% width constraints on techHeaderPanel
    - Force equal-height stretch between the two panels
-   This block is intentionally last to override earlier "Stop forcing equal-height" rules.
+   This block is intentionally last to override earlier rules.
 */
 body.route-tech .techHeaderWrap{
   display:grid !important;
@@ -1706,31 +1708,33 @@ body.route-tech .techHeaderWrap{
   align-items:stretch !important;
 }
 @media (max-width: 980px){
-  body.route-tech .techHeaderWrap{
-    grid-template-columns:1fr !important;
-  }
+  body.route-tech .techHeaderWrap{ grid-template-columns:1fr !important; }
 }
-body.route-tech .techHeaderWrap > .panel{
-  height:100% !important;
+
+/* Remove legacy hard 50% sizing so the grid columns can control width */
+body.route-tech .techHeaderPanel{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
 }
+
+body.route-tech .techHeaderWrap > .panel{ height:100% !important; }
 body.route-tech .techHeaderPanel,
 body.route-tech .techPickPanel{
   height:100% !important;
   min-height:0 !important;
 }
 
-/* Tech header (left): keep content top-to-bottom without blank space weirdness */
+/* Tech header (left): natural flow (no auto push) */
 body.route-tech .techHeaderPanel .phead{
   height:100% !important;
   display:flex !important;
   flex-direction:column !important;
   min-height:0 !important;
 }
-body.route-tech .techHeaderPanel .pills{
-  margin-top:12px !important; /* no forced 'auto' push */
-}
+body.route-tech .techHeaderPanel .pills{ margin-top:12px !important; }
 
-/* Diag (right): allow internal scroll so Bottom 3 cannot be clipped */
+/* Diag (right): internal scroll so Bottom 3 cannot be clipped */
 body.route-tech .techPickPanel{
   overflow:hidden !important;
   display:flex !important;
