@@ -405,6 +405,12 @@ function ensureDashTypographyOverrides(){
 .catRank .rankLbl{font-size:11px !important; font-weight:900 !important; letter-spacing:.35px !important; text-transform:uppercase !important; opacity:.75 !important; margin-top:2px !important;}
 .catRank .rankNum.sub{font-size:28px !important;}
 .catRank .rankLbl.sub{font-size:10px !important;}
+
+/* Category header split (left pills / right focus stats) */
+.catHeader.catHeaderSplit{display:flex !important; justify-content:space-between !important; align-items:flex-start !important; gap:12px !important;}
+.catHdrLeft{display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:6px !important; min-width:0 !important;}
+.catHdrLeft .pills{margin-top:6px !important; justify-content:flex-start !important;}
+.catHdrRight{display:flex !important; justify-content:flex-end !important; align-items:flex-start !important; flex:0 0 auto !important;}
 @media (max-width: 700px){
   .catRank .rankNum{font-size:30px !important;}
   .catRank .rankNum.sub{font-size:24px !important;}
@@ -944,13 +950,6 @@ function ensureDashTypographyOverrides(){
 }
 .techRow.dashTechRow .pills{ min-width:0 !important; flex-wrap:nowrap !important; }
 
-
-
-/* Category header split (left pills / right focus stats) */
-.catHeader.catHeaderSplit{display:flex !important; justify-content:space-between !important; align-items:flex-start !important; gap:12px !important;}
-.catHdrLeft{display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:6px !important; min-width:0 !important;}
-.catHdrLeft .pills{margin-top:6px !important; justify-content:flex-start !important;}
-.catHdrRight{display:flex !important; justify-content:flex-end !important; align-items:flex-start !important; flex:0 0 auto !important;}
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
