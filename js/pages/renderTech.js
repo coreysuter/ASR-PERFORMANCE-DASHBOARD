@@ -391,7 +391,7 @@ const s = t.summary?.[filterKey] || {};
           <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
           <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
           <!-- count -->
-          <text x="${textX}" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
+          <text x="${textX}" y="79" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
 
         </svg>
       </button>
@@ -415,7 +415,7 @@ const s = t.summary?.[filterKey] || {};
           <circle cx="50" cy="50" r="46" fill="#22c55e"></circle>
           <circle cx="50" cy="50" r="46" fill="url(#chkHi-${mode}-${t.id})"></circle>
           <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
-          <text x="88" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
+          <text x="88" y="79" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
         </svg>
       </button>
     `;
