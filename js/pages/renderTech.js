@@ -385,8 +385,38 @@ const s = t.summary?.[filterKey] || {};
     `;
   }
 
-    function countBandsFor(mode){
-    let red=0, yellow=0;
+    
+
+function diagCheckBadge(n){
+  const nn = Number(n);
+  const label = `Good (${Number.isFinite(nn)?nn:0})`;
+  return `
+    <div class="diagCheckBadge" aria-label="${label}" title="${label}"
+      style="width:64px;height:64px;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"
+        style="display:block;filter:drop-shadow(0 14px 24px rgba(0,0,0,.40))">
+        <defs>
+          <radialGradient id="chkHi" cx="35%" cy="25%" r="70%">
+            <stop offset="0%" stop-color="rgba(255,255,255,.55)"/>
+            <stop offset="60%" stop-color="rgba(255,255,255,.10)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+          </radialGradient>
+          <linearGradient id="chkGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7CFFB0"/>
+            <stop offset="100%" stop-color="#1FCB6A"/>
+          </linearGradient>
+        </defs>
+        <circle cx="32" cy="32" r="28" fill="url(#chkGrad)"/>
+        <circle cx="32" cy="32" r="28" fill="url(#chkHi)"/>
+        <path d="M19 33.5l7.2 7.2L46 21.9" fill="none" stroke="#fff" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="54" y="54" fill="#fff" font-weight="1000" font-size="18" text-anchor="end">${Number.isFinite(nn)?Math.trunc(nn):0}</text>
+      </svg>
+    </div>
+  `;
+}
+
+function countBandsFor(mode){
+    let red=0, yellow=0, green=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
@@ -395,11 +425,11 @@ const s = t.summary?.[filterKey] || {};
       const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
-      if(pct >= 0.80) continue;
+      if(pct >= 0.80) { green++; continue; }
       if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow};
+    return {red, yellow, green};
   }
 
   // NOTE: Badge popups are handled by the global diag popup handler at the top of this file
@@ -1000,6 +1030,7 @@ return `
               <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
                 ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
                 ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+                ${diagCheckBadge(bandCounts_asr.green)}
               </div>
               <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
             </div>
@@ -1017,6 +1048,7 @@ return `
               <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
                 ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
                 ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+                ${diagCheckBadge(bandCounts_sold.green)}
               </div>
               <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
             </div>
