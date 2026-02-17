@@ -1668,6 +1668,8 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* 1: title + team shrink-wrap */
 .techHeaderPanel .dashC1 .techNameWrap{display:inline-flex; width:fit-content;}
 .techHeaderPanel .dashC1 .techH2Big{display:inline-block; width:fit-content;}
+/* Team line directly under title */
+.techHeaderPanel .dashC1 .techTeamLine{margin-top:2px !important;}
 
 /* 2: filters (2x2), hug content */
 .techHeaderPanel .dashFilters{
@@ -1682,20 +1684,23 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 
 /* 3: focus stats top-right */
 .techHeaderPanel .dashC3{justify-self:end;}
-.techHeaderPanel .dashFocusTop{align-items:flex-end; text-align:right;}
-.techHeaderPanel .dashFocusTop .big{font-size:36px; color:#fff;}
-.techHeaderPanel .dashFocusTop .overallMetric{font-size:28px; color:#fff; margin-top:8px;}
+.techHeaderPanel .dashFocusTop{display:flex; flex-direction:column; gap:10px; align-items:flex-end; text-align:right;}
+.techHeaderPanel .dashFocusTop .focusStat{display:flex; flex-direction:column; align-items:flex-end;}
+/* Match category header panels (ASRs/RO above SOLD/RO) */
+.techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:36px; font-weight:1200; line-height:1; color:#fff;}
+.techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:28px; font-weight:1200; line-height:1; color:#fff;}
+.techHeaderPanel .dashFocusTop .lbl{margin-top:6px; font-size:11px; font-weight:1000; letter-spacing:.2px; text-transform:uppercase; color:var(--muted);}
 
 /* 4: pills in 2 rows */
 .techHeaderPanel .dashC4{grid-column:1 / span 2;}
-.techHeaderPanel .dashPills2Row{display:flex; flex-direction:column; gap:10px;}
-.techHeaderPanel .dashPills2Row .pills{display:flex; gap:12px;}
+.techHeaderPanel .dashPills2Row{display:flex; flex-direction:column; gap:10px; align-items:flex-start; justify-content:flex-start;}
+.techHeaderPanel .dashPills2Row .pills{display:flex; gap:12px; margin-top:0;}
 
 @media (max-width:700px){
   .techHeaderPanel .dashGrid{grid-template-columns:1fr; grid-template-rows:auto auto auto auto;}
   .techHeaderPanel .dashC4{grid-column:1;}
   .techHeaderPanel .dashC3{justify-self:start;}
   .techHeaderPanel .dashFilters select{min-width:160px;}
-  .techHeaderPanel .dashFocusTop .big{font-size:30px;}
-  .techHeaderPanel .dashFocusTop .overallMetric{font-size:24px;}
+  .techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:30px;}
+  .techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:24px;}
 }

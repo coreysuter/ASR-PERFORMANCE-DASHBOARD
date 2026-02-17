@@ -89,11 +89,15 @@ function renderMain(){
 
           <!-- 3: focus stats (top-right) -->
           <div class="dashC dashC3">
-            <div class="overallBlock dashFocusTop">
-              <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-              <div class="tag">ASRs/RO</div>
-              <div class="overallMetric">${totalRos ? fmt1(totalSold/totalRos,2) : "—"}</div>
-              <div class="tag">SOLD/RO</div>
+            <div class="dashFocusTop">
+              <div class="focusStat focusPrimary">
+                <div class="num">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
+                <div class="lbl">ASRs/RO</div>
+              </div>
+              <div class="focusStat focusSecondary">
+                <div class="num">${totalRos ? fmt1(totalSold/totalRos,2) : "—"}</div>
+                <div class="lbl">SOLD/RO</div>
+              </div>
             </div>
           </div>
 
