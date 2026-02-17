@@ -757,45 +757,6 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techH2Big{font-size:32px;font-weight:1000;line-height:1.05;letter-spacing:.2px}
 .techH2Big .teamDot{opacity:.7;font-weight:900}
 .techTeamLine{margin-top:6px;font-size:16px;font-weight:900;opacity:.75;letter-spacing:.15px}
-
-/* Technician Dashboard header: title row flex-fit with inline filters */
-/* Scope to the Technician Dashboard header panel */
-.techHeaderPanel .techTitleRow{
-  align-items:flex-start;
-  flex-wrap:nowrap;
-}
-.techHeaderPanel .dashHdrRight{
-  margin-left:auto;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:10px;
-  min-width:0;
-}
-.techHeaderPanel .dashHdrRight .pills{
-  justify-content:flex-end;
-}
-.techHeaderPanel .dashHdrFilters{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  gap:6px;
-}
-.techHeaderPanel .dashHdrFilters .controls{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-.techHeaderPanel .dashHdrFilters .controls > div{min-width:160px;}
-@media (max-width: 820px){
-  .techHeaderPanel .techTitleRow{flex-wrap:wrap;}
-  .techHeaderPanel .dashHdrRight{align-items:flex-start; width:100%;}
-  .techHeaderPanel .dashHdrFilters{align-items:flex-start;}
-  .techHeaderPanel .dashHdrFilters .controls{justify-content:flex-start;}
-  .techHeaderPanel .dashHdrFilters .controls > div{min-width:150px;}
-}
 @media (max-width: 820px){
   .techH2Big{font-size:26px}
   .brandLogoMini{height:28px}
@@ -1689,68 +1650,6 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
-/* ===== Technician Dashboard header (3 containers across) ===== */
-.techHeaderPanel .dashTopRow{
-  display:grid !important;
-  grid-template-columns: auto 1fr auto !important;
-  column-gap:16px !important;
-  align-items:start !important;
-  position:relative !important;
-  width:100% !important;
-}
-.techHeaderPanel .dashTopC{min-width:0 !important; position:static !important;}
-.techHeaderPanel .dashTopC1{grid-column:1 !important;}
-.techHeaderPanel .dashTopC2{grid-column:2 !important;}
-.techHeaderPanel .dashTopC3{grid-column:3 !important; justify-self:end !important;}
-
-/* Title block should shrink to text width */
-.techHeaderPanel .dashTopC1 .techNameWrap{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:flex-start !important;
-  width:fit-content !important;
-  max-width:100% !important;
-}
-.techHeaderPanel .dashTopC1 .techTeamLine{margin-top:4px !important;}
-
-/* Filters: 2x2 grid, left-aligned inside C2, with +33% width */
-.techHeaderPanel .dashFilters2x2{
-  display:grid !important;
-  grid-template-columns: auto auto !important;
-  gap:10px 12px !important;
-  justify-content:start !important;
-  align-content:start !important;
-  margin-left:10px !important; /* 10px inside C2 */
-}
-.techHeaderPanel .dashFilters2x2 > div{display:flex !important; flex-direction:column !important;}
-.techHeaderPanel .dashFilters2x2 label{
-  font-size:11px !important;
-  color:var(--muted) !important;
-  font-weight:900 !important;
-  text-transform:uppercase !important;
-  letter-spacing:.2px !important;
-  margin-bottom:6px !important;
-}
-.techHeaderPanel .dashFilters2x2 select{
-  width:auto !important;
-  min-width:213px !important; /* ~160 * 1.33 */
-  padding:10px 10px !important;
-  border-radius:12px !important;
-  border:1px solid var(--border) !important;
-  background:rgba(0,0,0,.25) !important;
-  color:var(--text) !important;
-}
-
-/* Focus stats container stays top-right */
-.techHeaderPanel .dashTopC3{display:flex !important; flex-direction:column !important; align-items:flex-end !important;}
-
-@media (max-width: 820px){
-  .techHeaderPanel .dashTopRow{grid-template-columns:1fr !important; row-gap:12px !important;}
-  .techHeaderPanel .dashTopC3{justify-self:start !important; align-items:flex-start !important;}
-  .techHeaderPanel .dashFilters2x2{grid-template-columns: auto auto !important; margin-left:0 !important;}
-  .techHeaderPanel .dashFilters2x2 select{min-width:180px !important;}
-}
-
 /* === Technician Dashboard header: force C1/C2/C3 on same row, 3 equal columns === */
 .techHeaderPanel .dashTopRow{
   display:grid !important;
@@ -1767,7 +1666,4 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   display:block !important;
   position:relative !important;
 }
-/* prevent any child from forcing column width */
-.techHeaderPanel .dashTopC1 *{min-width:0;}
-.techHeaderPanel .dashTopC2 *{min-width:0;}
-.techHeaderPanel .dashTopC3 *{min-width:0;}
+.techHeaderPanel .dashTopC1 *,.techHeaderPanel .dashTopC2 *,.techHeaderPanel .dashTopC3 *{min-width:0 !important;}
