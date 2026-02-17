@@ -55,47 +55,52 @@ function renderMain(){
           </div>
         </div>
 
-        <div class="dashHdrBelow">
-          <div class="dashPillsBelowTitle">
-            <div class="pills">
-              <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-              <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-              <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-              <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+        <!-- Filters moved to the top of the Tech Header panel (always visible) -->
+        <div class="dashFiltersTop">
+          <div class="controls alwaysOpen">
+            <div>
+              <label>Filter</label>
+              <select data-scope="main" data-ctl="filter">
+                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+              </select>
+            </div>
+            <div>
+              <label>Focus</label>
+              <select data-scope="main" data-ctl="sort">
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+              </select>
+            </div>
+            <div>
+              <label>Goal</label>
+              <select data-scope="main" data-ctl="goal">
+                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
+              </select>
+            </div>
+            <div>
+              <label>Comparison</label>
+              <select data-scope="main" data-ctl="compare">
+                <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
+                <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
+                <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
+              </select>
             </div>
           </div>
+        </div>
 
-          <div class="dashFiltersMid">
-            <div class="controls alwaysOpen">
-              <div>
-                <label>Filter</label>
-                <select data-scope="main" data-ctl="filter">
-                  <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-                  <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-                  <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-                </select>
+        <div class="dashHdrBelow">
+          <div class="dashPillsBelowTitle">
+            <div class="pillsStack">
+              <div class="pillsRow pillsRow1">
+                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+                <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
               </div>
-              <div>
-                <label>Focus</label>
-                <select data-scope="main" data-ctl="sort">
-                  <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
-                  <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
-                </select>
-              </div>
-              <div>
-                <label>Goal</label>
-                <select data-scope="main" data-ctl="goal">
-                  <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-                  <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
-                </select>
-              </div>
-              <div>
-                <label>Comparison</label>
-                <select data-scope="main" data-ctl="compare">
-                  <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
-                  <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
-                  <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
-                </select>
+              <div class="pillsRow pillsRow2">
+                <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
               </div>
             </div>
           </div>
