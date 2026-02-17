@@ -47,8 +47,27 @@ function removeLegacyTopHeader(){
   }catch(e){}
 }
 
+function setRouteBodyClass(parts){
+  try{
+    const b = document.body;
+    if(!b) return;
+    // Remove existing route-* classes
+    Array.from(b.classList).forEach(c=>{
+      if(c.startsWith("route-")) b.classList.remove(c);
+    });
+    const root = (parts && parts.length) ? parts[0] : "";
+    if(!root){ b.classList.add("route-main"); return; }
+    if(root==="tech") b.classList.add("route-tech");
+    else if(root==="services") b.classList.add("route-services");
+    else if(root==="settings") b.classList.add("route-settings");
+    else if(root==="servicesHome") b.classList.add("route-servicesHome");
+    else b.classList.add("route-"+root);
+  }catch(e){}
+}
+
 function route(){
   const { parts, query } = parseHash();
+  setRouteBodyClass(parts);
   try{
     removeLegacyTopHeader();
     if(parts.length===0){ window.renderMain?.(); window.animateSvcGauges?.(); return; }

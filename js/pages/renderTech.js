@@ -243,13 +243,13 @@ function renderTech(techId){
     st.id = 'techDetailsSizeCSS';
     st.textContent = `
       /* Tech Details ONLY: adjust top grid so header is -15% and diag is +15% */
-      body.route-tech .techHeaderWrap{
+      .techHeaderWrap{
         grid-template-columns: 0.85fr 1.15fr !important;
       }
 
       /* Keep mobile layout stacked as designed */
       @media (max-width: 980px){
-        body.route-tech .techHeaderWrap{
+        .techHeaderWrap{
           grid-template-columns: 1fr !important;
         }
       }
