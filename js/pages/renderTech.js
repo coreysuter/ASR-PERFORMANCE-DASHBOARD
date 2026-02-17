@@ -222,6 +222,10 @@ function renderTech(techId){
       .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
       /* keep list rows from forcing overflow */
       .techPickPanel.diagSection .pickRow{min-height:0}
+
+      /* Tech Details header layout: give the right (diag) column more room and prevent overflow */
+      .techHeaderWrap{grid-template-columns:0.72fr 1.28fr !important;}
+      .techHeaderWrap > *{min-width:0 !important;}
     `;
     document.head.appendChild(st);
   })();
@@ -570,41 +574,41 @@ const header = `
             <div class="techTitleLeft">
               <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
             </div>
-            <div class="techNameWrap techNamePinned" style="min-width:0;max-width:272px;">
+            <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
               <div class="h2 techH2Big">${__nameHtml}</div>
               <div class="techTeamLine">${safe(team)}</div>
             </div>
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
             <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-              <div style="font-size:34px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
-              <div style="margin-top:3px;font-size:12px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
             </div>
             <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-  <div style="font-size:34px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
-  <div style="margin-top:3px;font-size:12px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
+  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
+  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
 </div>
 ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div></div>
-        <div class="pills" style="margin-top:7px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:10px 12px; align-items:start;">
-          <div class="pill" style="grid-column:1 / span 3; padding:10px 16px; gap:10px; width:fit-content; justify-self:start;">
-            <div class="k" style="font-size:14px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+        <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
+          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
           </div>
 
-          <div class="pill" style="padding:10px 16px; gap:10px;">
-            <div class="k" style="font-size:14px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-            <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
           </div>
 
-          <div class="pill" style="padding:10px 16px; gap:10px;">
-            <div class="k" style="font-size:14px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-            <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
           </div>
 
-          <div class="pill" style="padding:10px 16px; gap:10px;">
-            <div class="k" style="font-size:14px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:20px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
@@ -1028,7 +1032,8 @@ return `
     </div>
   `;
 
-  // Shrink the left header panel ~15% so the diag section has more horizontal room (prevents right-side clipping).
+  // Give the diag section more horizontal room by shrinking the left header column ~15%
+  // (this is the root cause of the top-right diag panel being clipped).
   const headerWrap = `<div class="techHeaderWrap" style="display:grid;grid-template-columns:0.72fr 1.28fr;gap:14px;align-items:stretch;">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
