@@ -1676,7 +1676,7 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   gap:10px 12px;
   justify-content:start;
   align-content:start;
-  margin-left:5px; /* move filters 5px to the right */
+  margin-left:10px; /* move filters 5px to the right */
 }
 .techHeaderPanel .dashFilters2x2 .fCell{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
 .techHeaderPanel .dashFilters2x2 label{
