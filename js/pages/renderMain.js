@@ -37,23 +37,35 @@ function renderMain(){
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="dashGrid">
-          <!-- 1: title + team -->
-          <div class="dashC dashC1">
-            <div class="titleRow techTitleRow">
+        <div class="dashTopGrid">
+          <!-- 1: title + team + stat pills (2 rows) -->
+          <div class="dashTopC dashTopC1">
+            <div class="techTitleRow">
               <div class="techTitleLeft">
                 <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
               </div>
               <div class="techNameWrap">
                 <div class="h2 techH2Big">Technician Dashboard</div>
                 <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
+
+                <div class="dashHeaderPills">
+                  <div class="pills">
+                    <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+                    <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+                  </div>
+                  <div class="pills">
+                    <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+                    <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
 
           <!-- 2: filters (2x2) -->
-          <div class="dashC dashC2">
-            <div class="dashFilters">
+          <div class="dashTopC dashTopC2">
+            <div class="dashFilters2x2">
               <div class="fCell">
                 <label>Filter</label>
                 <select data-scope="main" data-ctl="filter">
@@ -88,7 +100,7 @@ function renderMain(){
           </div>
 
           <!-- 3: focus stats (top-right) -->
-          <div class="dashC dashC3">
+          <div class="dashTopC dashTopC3">
             <div class="dashFocusTop">
               <div class="focusStat focusPrimary">
                 <div class="num">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
@@ -100,24 +112,6 @@ function renderMain(){
               </div>
             </div>
           </div>
-
-          <!-- 4: stat pills (two rows) -->
-          <div class="dashC dashC4">
-            <div class="dashPills2Row">
-              <div class="pills">
-                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-              </div>
-              <div class="pills">
-                <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-                <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5 + 6 reserved -->
-          <div class="dashC dashC5"></div>
-          <div class="dashC dashC6"></div>
         </div>
       </div>
     </div>
@@ -150,14 +144,6 @@ function renderMain(){
     el.addEventListener('input', apply);
   });
 }
-
-function toggleMainFilters(){
-  if(typeof UI==='undefined') return;
-  UI.mainFiltersOpen = !UI.mainFiltersOpen;
-  renderMain();
-}
-
-window.toggleMainFilters = toggleMainFilters;
 
 function buildTeamCategoryStats(team){
   const techs = byTeam(team);

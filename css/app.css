@@ -1651,61 +1651,51 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
 
-/* ==============================
-   Technician Dashboard header
-   3x2 grid: (1 title) (2 filters) (3 focus stats)
-             (4 stat pills) (5) (6)
-   ============================== */
-.techHeaderPanel .dashGrid{
+/* === Technician Dashboard header: 3 columns (single row), pills under title === */
+.techHeaderPanel .dashTopGrid{
   display:grid;
-  grid-template-columns:auto 1fr auto;
-  grid-template-rows:auto auto;
-  gap:12px 14px;
+  grid-template-columns: auto 1fr auto;
+  gap:14px;
   align-items:start;
 }
-.techHeaderPanel .dashC{min-width:0;}
+.techHeaderPanel .dashTopC1{min-width:0;}
+.techHeaderPanel .dashTopC2{min-width:0;}
+.techHeaderPanel .dashTopC3{min-width:0; display:flex; justify-content:flex-end;}
 
-/* 1: title + team shrink-wrap */
-.techHeaderPanel .dashC1 .techNameWrap{
-  display:inline-flex;
-  flex-direction:column;
-  align-items:flex-start;
-  width:fit-content;
-}
-.techHeaderPanel .dashC1 .techH2Big{display:inline-block; width:fit-content;}
-/* Team line directly under title */
-.techHeaderPanel .dashC1 .techTeamLine{margin-top:2px !important;}
+.techHeaderPanel .dashHeaderPills{margin-top:10px;}
+.techHeaderPanel .dashHeaderPills .pills{margin-top:8px;}
 
-/* 2: filters (2x2), hug content */
-.techHeaderPanel .dashFilters{
+/* Make the title wrap end where text ends (no stretching) */
+.techHeaderPanel .techNameWrap{flex:0 0 auto; min-width:0;}
+.techHeaderPanel .techH2Big{display:inline-block; width:fit-content;}
+
+/* Filters: match technician details page feel */
+.techHeaderPanel .dashFilters2x2{
   display:grid;
-  grid-template-columns:auto auto;
-  grid-auto-rows:auto;
-  gap:10px 14px;
+  grid-template-columns: auto auto;
+  gap:10px 12px;
   justify-content:start;
+  align-content:start;
 }
-.techHeaderPanel .dashFilters .fCell{display:flex; flex-direction:column; gap:6px;}
-.techHeaderPanel .dashFilters select{width:auto; min-width:190px; max-width:260px;}
-
-/* 3: focus stats top-right */
-.techHeaderPanel .dashC3{justify-self:end;}
-.techHeaderPanel .dashFocusTop{display:flex; flex-direction:column; gap:10px; align-items:flex-end; text-align:right;}
-.techHeaderPanel .dashFocusTop .focusStat{display:flex; flex-direction:column; align-items:flex-end;}
-/* Match category header panels (ASRs/RO above SOLD/RO) */
-.techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:36px; font-weight:1000; line-height:1; color:#fff;}
-.techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:28px; font-weight:1000; line-height:1; color:#fff;}
-.techHeaderPanel .dashFocusTop .lbl{margin-top:6px; font-size:11px; font-weight:1000; letter-spacing:.2px; text-transform:uppercase; color:var(--muted);}
-
-/* 4: pills in 2 rows */
-.techHeaderPanel .dashC4{grid-column:1 / span 2;}
-.techHeaderPanel .dashPills2Row{display:flex; flex-direction:column; gap:10px; align-items:flex-start; justify-content:flex-start;}
-.techHeaderPanel .dashPills2Row .pills{display:flex; gap:12px; margin-top:0;}
-
-@media (max-width:700px){
-  .techHeaderPanel .dashGrid{grid-template-columns:1fr; grid-template-rows:auto auto auto auto;}
-  .techHeaderPanel .dashC4{grid-column:1;}
-  .techHeaderPanel .dashC3{justify-self:start;}
-  .techHeaderPanel .dashFilters select{min-width:160px;}
-  .techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:30px;}
-  .techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:24px;}
+.techHeaderPanel .dashFilters2x2 .fCell{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+.techHeaderPanel .dashFilters2x2 label{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:900;
+  letter-spacing:.2px;
 }
+.techHeaderPanel .dashFilters2x2 select{
+  width:auto;
+  max-width:240px;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-weight:900;
+  font-size:12px;
+}
+
+/* Focus stats already styled; ensure top-right alignment */
+.techHeaderPanel .dashFocusTop{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+.techHeaderPanel .dashFocusTop .num{font-weight:1000;}
