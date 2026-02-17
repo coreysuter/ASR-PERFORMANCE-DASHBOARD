@@ -255,7 +255,7 @@ function renderTech(techId){
       }
     `;
     document.head.appendChild(st);
-  })()
+  })();
   // --- Tech Details header panel: shrink by ~15% (scoped to this page only) ---
   (function ensureTechDetailHeaderShrinkCSS(){
     if(document.getElementById('techDetailHeaderShrinkCSS')) return;
@@ -278,7 +278,6 @@ function renderTech(techId){
     `;
     document.head.appendChild(st);
   })();
-;
 
 
   const t = (DATA.techs||[]).find(x=>x.id===techId);
