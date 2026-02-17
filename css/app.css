@@ -858,8 +858,10 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 
 /* Middle container: filters (left edge of middle column) */
 .techHeaderPanel .dashFiltersMid{
-  display:block;
-  flex:0 0 auto;
+  position:absolute;
+  top:10px;
+  left:10px; /* 10px to the right */
+  align-self:flex-start;
 }
 .techHeaderPanel .dashFiltersMid .controls{
   display:grid;
