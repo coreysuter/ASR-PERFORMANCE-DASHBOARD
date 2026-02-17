@@ -1666,7 +1666,12 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 .techHeaderPanel .dashC{min-width:0;}
 
 /* 1: title + team shrink-wrap */
-.techHeaderPanel .dashC1 .techNameWrap{display:inline-flex; width:fit-content;}
+.techHeaderPanel .dashC1 .techNameWrap{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:flex-start;
+  width:fit-content;
+}
 .techHeaderPanel .dashC1 .techH2Big{display:inline-block; width:fit-content;}
 /* Team line directly under title */
 .techHeaderPanel .dashC1 .techTeamLine{margin-top:2px !important;}
@@ -1687,8 +1692,8 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 .techHeaderPanel .dashFocusTop{display:flex; flex-direction:column; gap:10px; align-items:flex-end; text-align:right;}
 .techHeaderPanel .dashFocusTop .focusStat{display:flex; flex-direction:column; align-items:flex-end;}
 /* Match category header panels (ASRs/RO above SOLD/RO) */
-.techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:36px; font-weight:1200; line-height:1; color:#fff;}
-.techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:28px; font-weight:1200; line-height:1; color:#fff;}
+.techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:36px; font-weight:1000; line-height:1; color:#fff;}
+.techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:28px; font-weight:1000; line-height:1; color:#fff;}
 .techHeaderPanel .dashFocusTop .lbl{margin-top:6px; font-size:11px; font-weight:1000; letter-spacing:.2px; text-transform:uppercase; color:var(--muted);}
 
 /* 4: pills in 2 rows */
