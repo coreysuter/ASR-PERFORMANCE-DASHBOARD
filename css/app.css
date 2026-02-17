@@ -1782,3 +1782,22 @@ body.route-tech .techPickPanel .phead{
   overflow-x:hidden !important;
   -webkit-overflow-scrolling:touch;
 }
+
+/* === FINAL OVERRIDE: Tech page header panel sizing + prevent horizontal scrollbar in diag === */
+.techHeaderWrap{
+  display:grid !important;
+  grid-template-columns: 0.85fr 1.15fr !important; /* tech -15%, diag +15% */
+  align-items: stretch !important;
+  gap:14px !important;
+}
+.techHeaderWrap > .panel{ height:100% !important; min-width:0 !important; }
+.techHeaderPanel, .techPickPanel{ height:100% !important; min-width:0 !important; width:auto !important; max-width:none !important; }
+
+/* Keep rounded corners but never show horizontal scrollbar */
+.techPickPanel{ overflow:hidden !important; }
+.techPickPanel > .phead{
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+.techPickPanel *{ box-sizing:border-box; }
