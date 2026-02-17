@@ -738,7 +738,23 @@ function ensureDashTypographyOverrides(){
   color:#fff !important;
 }
 
-`;
+
+
+/* Category header split: two-row pills + right-side stacked stats */
+.catHeaderSplit{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;}
+.catHdrLeft{flex:1 1 auto;min-width:0;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;}
+.catHdrLeft .pills2Row{display:flex;flex-direction:column;gap:8px;}
+.catHdrLeft .pills2Row .pillsRow{display:flex;gap:10px;flex-wrap:nowrap;}
+.catHdrRight{flex:0 0 auto;display:flex;justify-content:flex-end;align-items:flex-start;}
+.catRankStack{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.catStatBlock{display:flex;flex-direction:column;align-items:flex-end;line-height:1;}
+.catStatBlock .rankNum.asrNum{font-size:36px;font-weight:1000;}
+.catStatBlock .rankNum.soldNum{font-size:28px;font-weight:1000;}
+.catStatBlock .rankLbl{margin-top:4px;font-size:12px;opacity:.7;font-weight:900;letter-spacing:.4px;text-transform:uppercase;}
+@media (max-width:700px){
+  .catStatBlock .rankNum.asrNum{font-size:30px;}
+  .catStatBlock .rankNum.soldNum{font-size:24px;}
+}`;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
     style.textContent = css;
@@ -824,12 +840,24 @@ function teamAsrPerRo(teamTechs, filterKey){
   }
   return ros>0 ? (asr/ros) : null;
 }
+function teamSoldPerRo(teamTechs, filterKey){
+  let sold=0, ros=0;
+  for(const t of (teamTechs||[])){
+    const r=Number(t.ros);
+    const s=Number(t?.summary?.[filterKey]?.sold);
+    if(Number.isFinite(r) && r>0) ros+=r;
+    if(Number.isFinite(s)) sold+=s;
+  }
+  return ros>0 ? (sold/ros) : null;
+}
+
 function teamAverages(teamTechs, filterKey){
   return {
     ros_avg: mean(teamTechs.map(t=>t.ros)),
     odo_avg: mean(teamTechs.map(t=>t.odo)),
     asr_total_avg: mean(teamTechs.map(t=>t.summary?.[filterKey]?.asr)),
     asr_per_ro_avg: teamAsrPerRo(teamTechs, filterKey),
+    sold_per_ro_avg: teamSoldPerRo(teamTechs, filterKey),
     sold_pct_avg: mean(teamTechs.map(t=>techSoldPct(t, filterKey))),
     sold_avg: mean(teamTechs.map(t=>t.summary?.[filterKey]?.sold)),
   };
@@ -989,18 +1017,28 @@ function renderTeam(team, st){
             <div class="catTitle">${safe(team)}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
           </div>
-            <div class="pills">
-          <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
-          <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
-          <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
-        </div>
+            <div class="pills pills2Row">
+              <div class="pillsRow">
+                <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
+                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
+              </div>
+              <div class="pillsRow">
+                <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
+                <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
+              </div>
+            </div>
           </div>
           <div class="catHdrRight">
-            <div class="catRank">
-            <div class="rankNum">${st.sortBy==="sold_pct" ? fmtPct(av.sold_pct_avg) : fmt1(av.asr_per_ro_avg,1)}</div>
-            <div class="rankLbl">${st.sortBy==="sold_pct" ? "SOLD%" : "ASRs/RO"}</div>
-          </div>
+            <div class="catRankStack">
+              <div class="catStatBlock">
+                <div class="rankNum asrNum">${fmt1(av.asr_per_ro_avg,1)}</div>
+                <div class="rankLbl">ASRs/RO</div>
+              </div>
+              <div class="catStatBlock">
+                <div class="rankNum soldNum">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+                <div class="rankLbl">SOLD/RO</div>
+              </div>
+            </div>
           </div>
         </div>
 
