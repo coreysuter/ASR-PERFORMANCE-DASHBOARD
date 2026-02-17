@@ -1676,6 +1676,7 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   gap:10px 12px;
   justify-content:start;
   align-content:start;
+  margin-left:5px; /* move filters 5px to the right */
 }
 .techHeaderPanel .dashFilters2x2 .fCell{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
 .techHeaderPanel .dashFilters2x2 label{
@@ -1696,6 +1697,14 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   font-size:12px;
 }
 
-/* Focus stats already styled; ensure top-right alignment */
+/* Focus stats: match EXPRESS/KIA category header styling */
 .techHeaderPanel .dashFocusTop{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
-.techHeaderPanel .dashFocusTop .num{font-weight:1000;}
+.techHeaderPanel .dashFocusTop .focusStat{display:flex;flex-direction:column;align-items:flex-end;}
+.techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:36px;line-height:1;font-weight:1000;color:#fff;}
+.techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:28px;line-height:1;font-weight:1000;color:#fff;margin-top:2px;}
+.techHeaderPanel .dashFocusTop .lbl{font-size:12px;font-weight:1000;letter-spacing:.3px;text-transform:uppercase;opacity:.75;}
+
+@media (max-width: 700px){
+  .techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:30px;}
+  .techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:24px;}
+}
