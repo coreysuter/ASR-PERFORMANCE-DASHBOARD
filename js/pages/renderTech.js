@@ -1095,7 +1095,7 @@ const top3Panel = `
 
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
-  document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+  document.getElementById('app').innerHTML = `<div class="techDetailsPage">${headerWrap}${sectionsHtml}</div>`;
   // Top/Bottom 3 clicks: jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){

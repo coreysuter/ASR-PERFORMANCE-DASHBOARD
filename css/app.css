@@ -745,8 +745,8 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 body.route-tech .top{display:none !important;}
 body.route-tech .techH2{font-size:33px;line-height:1.05;}
 @media (max-width: 820px){ body.route-tech .techH2{font-size:26px;} }
-body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width:420px;}
-@media (max-width: 820px){ body.route-tech .techHeaderPanel{display:block;min-width:0;width:100%;max-width:100%;} }
+body.route-tech .techDetailsPage .techHeaderPanel{display:block;width:50%;max-width:50%;min-width:420px;}
+@media (max-width: 820px){ body.route-tech .techDetailsPage .techHeaderPanel{display:block;min-width:0;width:100%;max-width:100%;} }
 .techTitleRow{display:flex;align-items:flex-start;gap:14px}
 .techTitleLeft{display:flex;align-items:center;gap:10px;padding-top:6px;flex:0 0 auto}
 .hamburgerMini{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:14px;
@@ -1002,6 +1002,19 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
 .pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
+/* ===== v240: dial text with arrow + short label ===== */
+.pctStack2{flex-direction:column;gap:1px}
+.pctStack2 .pctMain{font-size:calc(var(--sz,64px)/5.1);font-weight:1000;line-height:1}
+.pctStack2 .pctArrow{
+  margin-top:2px;
+  font-size:calc(var(--sz,64px)/6.0);
+  line-height:1;
+  font-weight:1200;
+  color:var(--gCol);
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
+}
+.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
+
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1104,11 +1117,11 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .route-tech .secFocusDial .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
 
 /* === Tech details: Top/Bottom 3 panel (scoped; does not affect other pages) === */
-.techHeaderWrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.techDetailsPage .techHeaderWrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 @media (max-width: 980px){ .techHeaderWrap{grid-template-columns:1fr;} }
 
-.techPickPanel{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:18px;overflow:hidden}
-.techPickPanel .phead{padding:12px}
+.techDetailsPage .techPickPanel{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.techDetailsPage .techPickPanel .phead{padding:12px}
 
 .pickHdrRow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
 .pickHdrLabel{font-size:18px;font-weight:1000;letter-spacing:.2px;opacity:.92}
@@ -1121,15 +1134,15 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pickList{display:flex;flex-direction:column;gap:6px}
 
 /* Use the same compact look as technician rows on category pages */
-body.route-tech .techPickPanel .techRow{
+body.route-tech .techDetailsPage .techPickPanel .techRow{
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.10);
   border-radius:12px;
   padding:6px 10px;
   margin:0;
 }
-body.route-tech .techPickPanel .techRowLeft a{max-width:220px}
-body.route-tech .techPickPanel .mini{font-size:12px}
+body.route-tech .techDetailsPage .techPickPanel .techRowLeft a{max-width:220px}
+body.route-tech .techDetailsPage .techPickPanel .mini{font-size:12px}
 
 /* Highlight target tile when clicked */
 .flashPick{
@@ -1138,19 +1151,19 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 }
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
-body.route-tech .techHeaderWrap{
+body.route-tech .techDetailsPage .techHeaderWrap{
   grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
 }
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
-body.route-tech .techHeaderPanel{
+body.route-tech .techDetailsPage .techHeaderPanel{
   width:100% !important;
   max-width:100% !important;
   min-width:0 !important;
 }
 
 /* Make the tech header box feel larger */
-body.route-tech .techHeaderPanel .phead{
+body.route-tech .techDetailsPage .techHeaderPanel .phead{
   padding:18px 18px 12px !important;
 }
 
@@ -1163,29 +1176,18 @@ body.route-tech .techH2Big{
 }
 
 /* Ensure right panel fills its grid column */
-body.route-tech .techPickPanel{
+body.route-tech .techDetailsPage .techPickPanel{
   width:100% !important;
 }
 
 /* === v5: equal-height header panels + larger Top/Bottom headings + thumbs icons === */
-body.route-tech .techHeaderWrap{align-items:stretch;}
-body.route-tech .techHeaderWrap > .panel{height:100%;}
-body.route-tech .techHeaderPanel,
-body.route-tech .techPickPanel{height:100%;}
-body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
+body.route-tech .techDetailsPage .techHeaderWrap{align-items:stretch;}
+body.route-tech .techDetailsPage .techHeaderWrap > .panel{height:100%;}
+body.route-tech .techDetailsPage .techHeaderPanel,
+body.route-tech .techDetailsPage .techPickPanel{height:100%;}
+body.route-tech .techDetailsPage .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
 /* ensure the pills/filters don't force overflow weirdness */
-body.route-tech .techHeaderPanel .pills{margin-top:auto;}
-
-/* Prevent Bottom 3 lists from getting clipped inside the diag section.
-   Keep the outer panel rounded (overflow hidden) but allow the inner content
-   to scroll when the equal-height header panels constrain the available height. */
-body.route-tech .techPickPanel{overflow:hidden;}
-body.route-tech .techPickPanel .phead{
-  height:100%;
-  overflow:auto;
-  overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-}
+body.route-tech .techDetailsPage .techHeaderPanel .pills{margin-top:auto;}
 
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
@@ -1409,58 +1411,58 @@ body.route-tech .catTitle .meta{
    =============================== */
 
 /* Stop forcing equal-height columns in the tech header row */
-body.route-tech .techHeaderWrap{
+body.route-tech .techDetailsPage .techHeaderWrap{
   align-items:flex-start !important;
 }
-body.route-tech .techHeaderWrap > .panel{
+body.route-tech .techDetailsPage .techHeaderWrap > .panel{
   height:auto !important;
 }
-body.route-tech .techHeaderPanel,
-body.route-tech .techPickPanel{
+body.route-tech .techDetailsPage .techHeaderPanel,
+body.route-tech .techDetailsPage .techPickPanel{
   height:auto !important;
 }
 
 /* Let the tech header content size naturally (no giant empty area below filters) */
-body.route-tech .techHeaderPanel .phead{
+body.route-tech .techDetailsPage .techHeaderPanel .phead{
   height:auto !important;
   display:block !important;
 }
-body.route-tech .techHeaderPanel .pills{
+body.route-tech .techDetailsPage .techHeaderPanel .pills{
   margin-top:12px !important;
 }
 
 /* Restore Top/Bottom panel to the original behavior (ASR row over SOLD row) */
-body.route-tech .techPickPanel .phead{
+body.route-tech .techDetailsPage .techPickPanel .phead{
   display:block !important;
   grid-template-columns:unset !important;
   gap:unset !important;
   align-items:unset !important;
 }
-body.route-tech .techPickPanel .pickRow{
+body.route-tech .techDetailsPage .techPickPanel .pickRow{
   margin-top:14px !important;
 }
-body.route-tech .techPickPanel .pickRow:first-child{
+body.route-tech .techDetailsPage .techPickPanel .pickRow:first-child{
   margin-top:0 !important;
 }
 
 /* === FIX: Top/Bottom 3 rows too tall (force compact rows like reference) === */
-body.route-tech .techPickPanel .pickBox{
+body.route-tech .techDetailsPage .techPickPanel .pickBox{
   height:auto !important;
   min-height:0 !important;
 }
-body.route-tech .techPickPanel .pickList{
+body.route-tech .techDetailsPage .techPickPanel .pickList{
   display:flex !important;
   flex-direction:column !important;
   gap:6px !important;
   height:auto !important;
 }
-body.route-tech .techPickPanel .pickList > .techRow{
+body.route-tech .techDetailsPage .techPickPanel .pickList > .techRow{
   flex:0 0 auto !important;
   height:auto !important;
   min-height:unset !important;
   align-items:center !important;
 }
-body.route-tech .techPickPanel .techRow{
+body.route-tech .techDetailsPage .techPickPanel .techRow{
   padding:6px 12px !important;
 }
 
@@ -1520,7 +1522,7 @@ body.route-tech .techPickPanel .techRow{
    =========================== */
 
 /* Ensure the left side (rank + service name + %) stays on a single horizontal line */
-body.route-tech .techPickPanel .pickList .techRow{
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow{
   display:flex !important;
   align-items:center !important;
   justify-content:space-between !important;
@@ -1528,7 +1530,7 @@ body.route-tech .techPickPanel .pickList .techRow{
 }
 
 /* Left cluster: rank + name + mini metric inline */
-body.route-tech .techPickPanel .pickList .techRow > div:first-child{
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow > div:first-child{
   display:flex !important;
   align-items:center !important;
   gap:10px !important;
@@ -1536,17 +1538,17 @@ body.route-tech .techPickPanel .pickList .techRow > div:first-child{
 }
 
 /* Prevent the mini metric (ASR%/Sold%) from dropping to a 2nd line */
-body.route-tech .techPickPanel .pickList .techRow > div:first-child .mini{
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow > div:first-child .mini{
   margin:0 !important;
   white-space:nowrap !important;
 }
 
 /* Keep the service name to one line (ellipsis if too long) */
-body.route-tech .techPickPanel .pickList .techRow a,
-body.route-tech .techPickPanel .pickList .techRow .tbJump,
-body.route-tech .techPickPanel .pickList .techRow .nm,
-body.route-tech .techPickPanel .pickList .techRow span,
-body.route-tech .techPickPanel .pickList .techRow button{
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow a,
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow .tbJump,
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow .nm,
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow span,
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow button{
   white-space:nowrap !important;
   overflow:hidden !important;
   text-overflow:ellipsis !important;
@@ -1554,8 +1556,8 @@ body.route-tech .techPickPanel .pickList .techRow button{
 }
 
 /* Right-side metric: never wrap */
-body.route-tech .techPickPanel .pickList .techRow > .mini,
-body.route-tech .techPickPanel .pickList .techRow > div:last-child{
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow > .mini,
+body.route-tech .techDetailsPage .techPickPanel .pickList .techRow > div:last-child{
   white-space:nowrap !important;
 }
 
@@ -1648,60 +1650,99 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
+/* Technician Dashboard header: C1/C2/C3 on one row (3 equal columns) */
+.techHeaderPanel .dashTopRow{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 14px;
+  align-items:start;
+}
+.techHeaderPanel .dashTopC{min-width:0;}
+.techHeaderPanel .dashTopC1{display:flex; gap:10px; align-items:flex-start;}
+.techHeaderPanel .dashTopC2{display:flex; justify-content:flex-start;}
+.techHeaderPanel .dashTopC3{display:flex; justify-content:flex-end;}
+/* Filters grid inside C2 */
+.techHeaderPanel .dashFilters2x2{
+  display:grid;
+  grid-template-columns: max-content max-content;
+  gap:10px 12px;
+  align-items:start;
+}
+/* Make selects shrink to content */
+.techHeaderPanel .dashFilters2x2 select{
+  width:auto;
+  min-width: 160px;
+}
+/* Pills container below title row */
+.techHeaderPanel .dashPills .pills{margin-top:10px;}
 
-/* ===== PATCH: Tech Details diag panel should not clip (allow internal scroll) ===== */
-body.route-tech .techPickPanel{
-  overflow:hidden !important;          /* keep rounded corners */
-  display:flex !important;
-  flex-direction:column !important;
+/* === Technician Dashboard header adjustments (C1 pills under team line, C3 focus stats like category headers) === */
+.techHeaderPanel .dashTopC1 .techNameWrap{display:flex;flex-direction:column;align-items:flex-start;}
+.techHeaderPanel .dashTopC1 .dashPills{margin-top:10px;}
+.techHeaderPanel .dashTopC1 .dashPills .pills{margin-top:0;}
+
+/* Focus stats (C3) mimic category header panels */
+.techHeaderPanel .dashFocusStats{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right;}
+.techHeaderPanel .dashFocusNum{font-size:36px;font-weight:1200;line-height:1;color:var(--text);}
+@media (max-width:700px){ .techHeaderPanel .dashFocusNum{font-size:30px;} }
+.techHeaderPanel .dashFocusNumSmall{font-size:28px;font-weight:1200;line-height:1;color:var(--text);}
+@media (max-width:700px){ .techHeaderPanel .dashFocusNumSmall{font-size:24px;} }
+.techHeaderPanel .dashFocusLbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted);}
+
+/* Make Technician Dashboard focus stats bold (C3) */
+.techHeaderPanel .dashTopC3 .focusStat .statVal,
+.techHeaderPanel .dashTopC3 .focusStat .statLbl{
+  font-weight: 1000 !important;
 }
-body.route-tech .techPickPanel > .phead{
-  flex:1 1 auto !important;
-  min-height:0 !important;             /* critical for flex children to scroll */
-  overflow:auto !important;
-  overflow-x:hidden !important;
-  -webkit-overflow-scrolling:touch;
+
+/* ===== PATCH (2026-02-16): Tech header width shift + equal-height columns =====
+   - TechName panel 15% narrower, Diag panel 15% wider
+   - Override any lingering 50% width constraints on techHeaderPanel
+   - Force equal-height stretch between the two panels
+   This block is intentionally last to override earlier rules.
+*/
+body.route-tech .techDetailsPage .techHeaderWrap{
+  display:grid !important;
+  grid-template-columns: 0.85fr 1.15fr !important;
+  gap:14px !important;
+  align-items:stretch !important;
 }
-/* Ensure inner rows can shrink to fit without forcing overflow */
-body.route-tech .techPickPanel .pickRow,
-body.route-tech .techPickPanel .pickGrid2{
+@media (max-width: 980px){
+  body.route-tech .techDetailsPage .techHeaderWrap{ grid-template-columns:1fr !important; }
+}
+
+/* Remove legacy hard 50% sizing so the grid columns can control width */
+body.route-tech .techDetailsPage .techHeaderPanel{
+  width:100% !important;
+  max-width:100% !important;
+  min-width:0 !important;
+}
+
+body.route-tech .techDetailsPage .techHeaderWrap > .panel{ height:100% !important; }
+body.route-tech .techDetailsPage .techHeaderPanel,
+body.route-tech .techDetailsPage .techPickPanel{
+  height:100% !important;
   min-height:0 !important;
 }
 
+/* Tech header (left): natural flow (no auto push) */
+body.route-tech .techDetailsPage .techHeaderPanel .phead{
+  height:100% !important;
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:0 !important;
+}
+body.route-tech .techDetailsPage .techHeaderPanel .pills{ margin-top:12px !important; }
 
-
-
-/* ===============================
-   OVERRIDE (LATEST): Tech header columns + equal-height stretch
-   - TechName panel -15%
-   - Diag panel +15%
-   - Force equal height (stretch) on Tech route
-   Placed at END to beat earlier FIX blocks.
-   =============================== */
-body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.0625fr 2.0125fr !important; /* 1.25*0.85, 1.75*1.15 */
-  align-items: stretch !important;
+/* Diag (right): internal scroll so Bottom 3 cannot be clipped */
+body.route-tech .techDetailsPage .techPickPanel{
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+  min-height:0 !important;
 }
-body.route-tech .techHeaderWrap > .panel{
-  height: 100% !important;
-}
-body.route-tech .techHeaderPanel,
-body.route-tech .techPickPanel{
-  height: 100% !important;
-}
-/* Remove legacy 50% width constraint so grid sizing applies */
-body.route-tech .techHeaderPanel{
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-}
-/* Keep header content from forcing overflow; allow natural layout */
-body.route-tech .techHeaderPanel .phead{
-  height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-}
-/* If you want pills anchored, keep auto; otherwise comment out */
-body.route-tech .techHeaderPanel .pills{
-  margin-top: auto !important;
+body.route-tech .techDetailsPage .techPickPanel .phead{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow:auto !important;
 }
