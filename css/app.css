@@ -1750,3 +1750,24 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   .techHeaderPanel .dashFilters2x2{grid-template-columns: auto auto !important; margin-left:0 !important;}
   .techHeaderPanel .dashFilters2x2 select{min-width:180px !important;}
 }
+
+/* === Technician Dashboard header: force C1/C2/C3 on same row, 3 equal columns === */
+.techHeaderPanel .dashTopRow{
+  display:grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  column-gap: 14px !important;
+  align-items: start !important;
+}
+.techHeaderPanel .dashTopC1,
+.techHeaderPanel .dashTopC2,
+.techHeaderPanel .dashTopC3{
+  width:auto !important;
+  min-width:0 !important;
+  max-width:none !important;
+  display:block !important;
+  position:relative !important;
+}
+/* prevent any child from forcing column width */
+.techHeaderPanel .dashTopC1 *{min-width:0;}
+.techHeaderPanel .dashTopC2 *{min-width:0;}
+.techHeaderPanel .dashTopC3 *{min-width:0;}
