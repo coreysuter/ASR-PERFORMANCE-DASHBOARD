@@ -409,7 +409,7 @@ function diagCheckBadge(n){
         <circle cx="32" cy="32" r="28" fill="url(#chkGrad)"/>
         <circle cx="32" cy="32" r="28" fill="url(#chkHi)"/>
         <path d="M19 33.5l7.2 7.2L46 21.9" fill="none" stroke="#fff" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
-        <text x="54" y="54" fill="#fff" font-weight="1000" font-size="18" text-anchor="end">${Number.isFinite(nn)?Math.trunc(nn):0}</text>
+        <text x="52" y="46" fill="#fff" font-weight="1000" font-size="12" text-anchor="end">${Number.isFinite(nn)?Math.trunc(nn):0}</text>
       </svg>
     </div>
   `;
@@ -1019,6 +1019,20 @@ return `
   const bandCounts_sold = countBandsFor('sold');
 
 
+
+  function bandLegend(counts){
+    const r = Number(counts?.red)||0, y = Number(counts?.yellow)||0, g = Number(counts?.green)||0;
+    const tot = r+y+g;
+    const pct = (n)=> tot>0 ? Math.round((n/tot)*100) : 0;
+    return `
+      <div class="diagBandLegend" style="margin-top:10px;display:grid;gap:4px;align-self:flex-start;font-weight:900;letter-spacing:.3px">
+        <div style="color:#ff4b4b">RED = ${pct(r)}%</div>
+        <div style="color:#ffbf2f">YELLOW = ${pct(y)}%</div>
+        <div style="color:#1fcb6a">GREEN = ${pct(g)}%</div>
+      </div>
+    `;
+  }
+
   const top3Panel = `
     <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
@@ -1032,7 +1046,7 @@ return `
                 ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
                 ${diagCheckBadge(bandCounts_asr.green)}
               </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
+              ${bandLegend(bandCounts_asr)}
             </div>
             <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
@@ -1050,7 +1064,7 @@ return `
                 ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
                 ${diagCheckBadge(bandCounts_sold.green)}
               </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
+              ${bandLegend(bandCounts_sold)}
             </div>
             <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
