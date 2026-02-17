@@ -860,7 +860,8 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techHeaderPanel .dashFiltersMid{
   position:absolute;
   top:10px;
-  left:10px; /* 10px to the right */
+  left:0px; /* anchored to mid container left */
+  padding-left:10px; /* 10px inside the mid container */
   align-self:flex-start;
 }
 .techHeaderPanel .dashFiltersMid .controls{
