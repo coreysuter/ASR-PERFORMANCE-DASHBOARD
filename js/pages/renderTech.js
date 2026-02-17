@@ -236,6 +236,46 @@ function renderTech(techId){
     `;
     document.head.appendChild(st);
   })();
+  // --- Tech Details only sizing: Header panel -20%, Diag section +20% (scoped; does NOT affect main dashboard) ---
+  (function ensureTechDetailsSizingCSS(){
+    if(document.getElementById('techDetailsSizeCSS')) return;
+    const st = document.createElement('style');
+    st.id = 'techDetailsSizeCSS';
+    st.textContent = `
+      /* Only apply on Tech Details pages (we toggle .techDetailsPage on <body>) */
+      .techDetailsPage .techHeaderWrap{
+        grid-template-columns: 0.8fr 1.2fr !important; /* header -20%, diag +20% */
+      }
+      /* tighten the tech header box a bit */
+      .techDetailsPage .techHeaderPanel .phead{
+        padding: 14px 14px 10px !important; /* was ~18/12 in global overrides */
+      }
+      .techDetailsPage .techH2Big{
+        font-size: 29px !important; /* ~36px * 0.8 */
+      }
+      @media (max-width: 820px){
+        .techDetailsPage .techH2Big{ font-size: 22px !important; }
+      }
+
+      /* give the diag section a touch more breathing room */
+      .techDetailsPage .techPickPanel.diagSection > .phead{
+        padding: 14px !important; /* was 12 */
+      }
+    `;
+    document.head.appendChild(st);
+
+    const apply = ()=>{
+      const h = location.hash || "";
+      const onTech = h.startsWith("#/tech/");
+      try{ document.body.classList.toggle("techDetailsPage", onTech); }catch(e){}
+    };
+    apply();
+    if(!window.__techDetailsPageSizingListener){
+      window.__techDetailsPageSizingListener = true;
+      window.addEventListener("hashchange", apply);
+    }
+  })();
+
 
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
