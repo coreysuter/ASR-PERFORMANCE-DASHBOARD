@@ -37,82 +37,71 @@ function renderMain(){
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="dashTopGrid">
-          <!-- 1: title + team + stat pills (2 rows) -->
+        <div class="dashTopRow">
           <div class="dashTopC dashTopC1">
-            <div class="techTitleRow">
-              <div class="techTitleLeft">
-                <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-              </div>
-              <div class="techNameWrap">
-                <div class="h2 techH2Big">Technician Dashboard</div>
-                <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
-
-                <div class="dashHeaderPills">
-                  <div class="pills">
-                    <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-                    <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-                  </div>
-                  <div class="pills">
-                    <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-                    <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
-                  </div>
-                </div>
-
-              </div>
+            <div class="techTitleLeft">
+              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+            </div>
+            <div class="techNameWrap">
+              <div class="h2 techH2Big">Technician Dashboard</div>
+              <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
             </div>
           </div>
 
-          <!-- 2: filters (2x2) -->
           <div class="dashTopC dashTopC2">
-            <div class="dashFilters2x2">
-              <div class="fCell">
-                <label>Filter</label>
-                <select data-scope="main" data-ctl="filter">
-                  <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-                  <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-                  <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-                </select>
-              </div>
-              <div class="fCell">
-                <label>Focus</label>
-                <select data-scope="main" data-ctl="sort">
-                  <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
-                  <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
-                </select>
-              </div>
-              <div class="fCell">
-                <label>Goal</label>
-                <select data-scope="main" data-ctl="goal">
-                  <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-                  <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
-                </select>
-              </div>
-              <div class="fCell">
-                <label>Comparison</label>
-                <select data-scope="main" data-ctl="compare">
-                  <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
-                  <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
-                  <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
-                </select>
-              </div>
+            <div class="controls dashFilters2x2">
+            <div>
+              <label>Filter</label>
+              <select data-scope="main" data-ctl="filter">
+                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+              </select>
+            </div>
+            <div>
+              <label>Focus</label>
+              <select data-scope="main" data-ctl="sort">
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+              </select>
+            </div>
+            <div>
+              <label>Goal</label>
+              <select data-scope="main" data-ctl="goal">
+                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
+              </select>
+            </div>
+            <div>
+              <label>Comparison</label>
+              <select data-scope="main" data-ctl="compare">
+                <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
+                <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
+                <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
+              </select>
             </div>
           </div>
+          </div>
 
-          <!-- 3: focus stats (top-right) -->
           <div class="dashTopC dashTopC3">
-            <div class="dashFocusTop">
-              <div class="focusStat focusPrimary">
-                <div class="num">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-                <div class="lbl">ASRs/RO</div>
-              </div>
-              <div class="focusStat focusSecondary">
-                <div class="num">${totalRos ? fmt1(totalSold/totalRos,2) : "—"}</div>
-                <div class="lbl">SOLD/RO</div>
-              </div>
-            </div>
+            <div class="overallBlock">
+            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
+            <div class="tag">Avg ASR/RO (Store)</div>
+            <div class="overallMetric">${fmtPct(soldPct)}</div>
+            <div class="tag">Sold% (Store)</div>
+          </div>
           </div>
         </div>
+
+        <div class="dashPills">
+          <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+        </div>
+        </div>
+      </div></div>
       </div>
     </div>
   `;
@@ -144,6 +133,14 @@ function renderMain(){
     el.addEventListener('input', apply);
   });
 }
+
+function toggleMainFilters(){
+  if(typeof UI==='undefined') return;
+  UI.mainFiltersOpen = !UI.mainFiltersOpen;
+  renderMain();
+}
+
+window.toggleMainFilters = toggleMainFilters;
 
 function buildTeamCategoryStats(team){
   const techs = byTeam(team);

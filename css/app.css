@@ -1650,20 +1650,28 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
-/* === Technician Dashboard header: force C1/C2/C3 on same row, 3 equal columns === */
+/* Technician Dashboard header: C1/C2/C3 on one row (3 equal columns) */
 .techHeaderPanel .dashTopRow{
-  display:grid !important;
-  grid-template-columns: 1fr 1fr 1fr !important;
-  column-gap: 14px !important;
-  align-items: start !important;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 14px;
+  align-items:start;
 }
-.techHeaderPanel .dashTopC1,
-.techHeaderPanel .dashTopC2,
-.techHeaderPanel .dashTopC3{
-  width:auto !important;
-  min-width:0 !important;
-  max-width:none !important;
-  display:block !important;
-  position:relative !important;
+.techHeaderPanel .dashTopC{min-width:0;}
+.techHeaderPanel .dashTopC1{display:flex; gap:10px; align-items:flex-start;}
+.techHeaderPanel .dashTopC2{display:flex; justify-content:flex-start;}
+.techHeaderPanel .dashTopC3{display:flex; justify-content:flex-end;}
+/* Filters grid inside C2 */
+.techHeaderPanel .dashFilters2x2{
+  display:grid;
+  grid-template-columns: max-content max-content;
+  gap:10px 12px;
+  align-items:start;
 }
-.techHeaderPanel .dashTopC1 *,.techHeaderPanel .dashTopC2 *,.techHeaderPanel .dashTopC3 *{min-width:0 !important;}
+/* Make selects shrink to content */
+.techHeaderPanel .dashFilters2x2 select{
+  width:auto;
+  min-width: 160px;
+}
+/* Pills container below title row */
+.techHeaderPanel .dashPills .pills{margin-top:10px;}
