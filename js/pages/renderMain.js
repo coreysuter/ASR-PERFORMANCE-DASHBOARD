@@ -24,7 +24,6 @@ function renderMain(){
   const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPct = totalAsr ? (totalSold/totalAsr) : null;
-  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
   const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
@@ -36,29 +35,39 @@ function renderMain(){
   const appliedTextHtml = (typeof renderFiltersText === 'function') ? renderFiltersText([filterLabel, focusLabel, goalLabel, compareLabel]) : "";
 
   const header = `
-    <div class="panel techHeaderPanel">
+    <div class="panel mainHeaderPanel">
       <div class="phead">
-        <div class="dashTopRow">
-          <div class="dashTopC dashTopC1">
-            <div class="techTitleLeft">
-              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-            </div>
-            <div class="techNameWrap">
-              <div class="h2 techH2Big">Technician Dashboard</div>
-              <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
-            <div class="dashPills">
-              <div class="pills">
-              <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-              <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-              <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-              <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
-            </div>
-            </div>
-            </div>
+        <div class="titleRow techTitleRow">
+          <div class="techTitleLeft">
+            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
+          <div class="techNameWrap">
+            <div class="h2 techH2Big">Technician Dashboard</div>
+            <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
+          </div>
+          <div class="overallBlock">
+            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
+            <div class="tag">Avg ASR/RO (Store)</div>
+            <div class="overallMetric">${fmtPct(soldPct)}</div>
+            <div class="tag">Sold% (Store)</div>
+          </div>
+        </div>
 
-          <div class="dashTopC dashTopC2">
-            <div class="controls dashFilters2x2">
+        <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+        </div>
+
+        <div class="iconBar">
+          <button class="iconBtn" onclick="toggleMainFilters()" aria-label="Filters" title="Filters">${typeof ICON_FILTER!=='undefined' ? ICON_FILTER : '⏷'}</button>
+          <div class="appliedInline">${appliedTextHtml}</div>
+          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
+        </div>
+
+        <div class="ctlPanel ${(typeof UI!=='undefined' && UI.mainFiltersOpen)?"open":""}">
+          <div class="controls">
             <div>
               <label>Filter</label>
               <select data-scope="main" data-ctl="filter">
@@ -90,31 +99,7 @@ function renderMain(){
               </select>
             </div>
           </div>
-          </div>
-
-          <div class="dashTopC dashTopC3">
-            <div class="dashFocusStats">
-              <div class="dashFocusStat">
-                <div class="dashFocusNum">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-                <div class="dashFocusLbl">ASRs/RO</div>
-              </div>
-              <div class="dashFocusStat">
-                <div class="dashFocusNum dashFocusNumSmall">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div>
-                <div class="dashFocusLbl">SOLD/RO</div>
-              </div>
-            </div>
-          </div>
         </div>
-
-        <div class="dashPillsRemoved" style="display:none">
-          <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
-        </div>
-        </div>
-      </div></div>
       </div>
     </div>
   `;
