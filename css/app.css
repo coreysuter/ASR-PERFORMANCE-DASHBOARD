@@ -757,6 +757,45 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techH2Big{font-size:32px;font-weight:1000;line-height:1.05;letter-spacing:.2px}
 .techH2Big .teamDot{opacity:.7;font-weight:900}
 .techTeamLine{margin-top:6px;font-size:16px;font-weight:900;opacity:.75;letter-spacing:.15px}
+
+/* Technician Dashboard header: title row flex-fit with inline filters */
+/* Scope to the Technician Dashboard header panel */
+.techHeaderPanel .techTitleRow{
+  align-items:flex-start;
+  flex-wrap:nowrap;
+}
+.techHeaderPanel .dashHdrRight{
+  margin-left:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+  min-width:0;
+}
+.techHeaderPanel .dashHdrRight .pills{
+  justify-content:flex-end;
+}
+.techHeaderPanel .dashHdrFilters{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
+}
+.techHeaderPanel .dashHdrFilters .controls{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.techHeaderPanel .dashHdrFilters .controls > div{min-width:160px;}
+@media (max-width: 820px){
+  .techHeaderPanel .techTitleRow{flex-wrap:wrap;}
+  .techHeaderPanel .dashHdrRight{align-items:flex-start; width:100%;}
+  .techHeaderPanel .dashHdrFilters{align-items:flex-start;}
+  .techHeaderPanel .dashHdrFilters .controls{justify-content:flex-start;}
+  .techHeaderPanel .dashHdrFilters .controls > div{min-width:150px;}
+}
 @media (max-width: 820px){
   .techH2Big{font-size:26px}
   .brandLogoMini{height:28px}
@@ -1002,6 +1041,19 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
 .pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
+/* ===== v240: dial text with arrow + short label ===== */
+.pctStack2{flex-direction:column;gap:1px}
+.pctStack2 .pctMain{font-size:calc(var(--sz,64px)/5.1);font-weight:1000;line-height:1}
+.pctStack2 .pctArrow{
+  margin-top:2px;
+  font-size:calc(var(--sz,64px)/6.0);
+  line-height:1;
+  font-weight:1200;
+  color:var(--gCol);
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
+}
+.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
+
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1139,7 +1191,7 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.0625fr 2.0125fr; /* left -15%, right +15% */
+  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
 }
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
@@ -1636,31 +1688,4 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 }
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
-
-
-/* ===== FIX: Tech Details diag panel should never clip Bottom 3 (force internal scroll) =====
-   This block is intentionally placed at the VERY END of app.css so it wins over all prior rules.
-*/
-body.route-tech .techHeaderWrap{ align-items:stretch !important; }
-body.route-tech .techHeaderWrap > .panel{ height:100% !important; }
-
-/* Keep rounded corners on the outer panel, but allow inner content to scroll */
-body.route-tech .techPickPanel{
-  height:100% !important;
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-
-/* Make the phead the scroll container. Use flex+gap so existing rows keep spacing. */
-body.route-tech .techPickPanel > .phead{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow:auto !important;
-  overflow-x:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-  gap:14px !important;
-  -webkit-overflow-scrolling:touch;
-}
 
