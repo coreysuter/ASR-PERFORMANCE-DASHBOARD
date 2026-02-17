@@ -1675,3 +1675,16 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 }
 /* Pills container below title row */
 .techHeaderPanel .dashPills .pills{margin-top:10px;}
+
+/* === Technician Dashboard header adjustments (C1 pills under team line, C3 focus stats like category headers) === */
+.techHeaderPanel .dashTopC1 .techNameWrap{display:flex;flex-direction:column;align-items:flex-start;}
+.techHeaderPanel .dashTopC1 .dashPills{margin-top:10px;}
+.techHeaderPanel .dashTopC1 .dashPills .pills{margin-top:0;}
+
+/* Focus stats (C3) mimic category header panels */
+.techHeaderPanel .dashFocusStats{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right;}
+.techHeaderPanel .dashFocusNum{font-size:36px;font-weight:1200;line-height:1;color:var(--text);}
+@media (max-width:700px){ .techHeaderPanel .dashFocusNum{font-size:30px;} }
+.techHeaderPanel .dashFocusNumSmall{font-size:28px;font-weight:1200;line-height:1;color:var(--text);}
+@media (max-width:700px){ .techHeaderPanel .dashFocusNumSmall{font-size:24px;} }
+.techHeaderPanel .dashFocusLbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted);}
