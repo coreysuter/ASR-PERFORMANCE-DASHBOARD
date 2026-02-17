@@ -50,7 +50,7 @@
     if(!Number.isFinite(pct)) return null;
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
-    return null;
+    return "green";
   }
 
   window.closeDiagPopup = closeDiagPopup;
@@ -82,12 +82,55 @@
       if(b !== band) continue;
       items.push({cat, val, pct});
     }
-    items.sort((a,b)=>a.pct-b.pct);
+    items.sort((a,b)=> (band==="green") ? (b.pct-a.pct) : (a.pct-b.pct));
 
     const title = (mode==="sold") ? "SOLD" : "ASR";
-    const colorClass = (band==="red") ? "diagRed" : "diagYellow";
-    const popFill = (band==="red") ? "#ff4b4b" : "#ffbf2f";
+
+    const isGreen = (band==="green");
+    const colorClass = (band==="red") ? "diagRed" : (band==="yellow" ? "diagYellow" : "diagGreen");
+    const popFill = (band==="red") ? "#ff4b4b" : (band==="yellow" ? "#ffbf2f" : "#22c55e");
     const lbl = (mode==="sold") ? "Sold%" : "ASR%";
+
+    const iconSvg = isGreen ? `
+      <svg viewBox="0 0 100 100" aria-hidden="true" style="width:34px;height:34px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
+        <circle cx="50" cy="50" r="46" fill="#22c55e"></circle>
+        <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    ` : `
+      <svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
+        <defs>
+          <linearGradient id="popTriGrad-${mode}-${band}-${techId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${(band==="red") ? "#ff8b8b" : "#ffd978"}"></stop>
+            <stop offset="100%" stop-color="${popFill}"></stop>
+          </linearGradient>
+          <radialGradient id="popTriHi-${mode}-${band}-${techId}" cx="35%" cy="20%" r="75%">
+            <stop offset="0%" stop-color="rgba(255,255,255,.55)"></stop>
+            <stop offset="55%" stop-color="rgba(255,255,255,.10)"></stop>
+            <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
+          </radialGradient>
+        </defs>
+        <path d="M50 0
+                 C53 0 55 2 56.5 4.5
+                 L99 85
+                 C101 88 99 91 95 91
+                 L5 91
+                 C1 91 -1 88 1 85
+                 L43.5 4.5
+                 C45 2 47 0 50 0Z"
+              fill="url(#popTriGrad-${mode}-${band}-${techId})"></path>
+        <path d="M50 6
+                 C52 6 54 7.2 55.2 9.6
+                 L92 80
+                 C94 83 92.2 86 88.4 86
+                 L11.6 86
+                 C7.8 86 6 83 8 80
+                 L44.8 9.6
+                 C46 7.2 48 6 50 6Z"
+              fill="url(#popTriHi-${mode}-${band}-${techId})"></path>
+        <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
+        <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
+      </svg>
+    `;
 
     const rows = items.length ? items.map((it, i)=>{
             const id = safeSvcIdLocal(it.cat);
@@ -118,39 +161,7 @@
 
     pop.innerHTML = `
       <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}<svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
-  <defs>
-    <linearGradient id="popTriGrad-${mode}-${band}-${techId}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${(band==="red") ? "#ff8b8b" : "#ffd978"}"></stop>
-      <stop offset="100%" stop-color="${popFill}"></stop>
-    </linearGradient>
-    <radialGradient id="popTriHi-${mode}-${band}-${techId}" cx="35%" cy="20%" r="75%">
-      <stop offset="0%" stop-color="rgba(255,255,255,.55)"></stop>
-      <stop offset="55%" stop-color="rgba(255,255,255,.10)"></stop>
-      <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
-    </radialGradient>
-  </defs>
-  <path d="M50 0
-           C53 0 55 2 56.5 4.5
-           L99 85
-           C101 88 99 91 95 91
-           L5 91
-           C1 91 -1 88 1 85
-           L43.5 4.5
-           C45 2 47 0 50 0Z"
-        fill="url(#popTriGrad-${mode}-${band}-${techId})"></path>
-  <path d="M50 6
-           C52 6 54 7.2 55.2 9.6
-           L92 80
-           C94 83 92.2 86 88.4 86
-           L11.6 86
-           C7.8 86 6 83 8 80
-           L44.8 9.6
-           C46 7.2 48 6 50 6Z"
-        fill="url(#popTriHi-${mode}-${band}-${techId})"></path>
-  <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"></rect>
-  <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"></circle>
-</svg></div>
+        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}${iconSvg}</div>
         <button class="diagPopClose" onclick="window.closeDiagPopup()" aria-label="Close"
           style="margin-left:6px;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
@@ -387,8 +398,31 @@ const s = t.summary?.[filterKey] || {};
     `;
   }
 
+  function diagCheckBadge(num, mode){
+    const n = Number(num)||0;
+    if(!n) return "";
+    return `
+      <button class="diagTriBtn" data-tech="${t.id}" data-mode="${mode}" data-band="green" data-compare="${compareBasis}" aria-label="${mode.toUpperCase()} green services"
+        style="background:transparent;border:none;padding:0;cursor:pointer">
+        <svg viewBox="0 0 100 100" aria-hidden="true" style="width:64px;height:64px;display:block;filter:drop-shadow(0 14px 24px rgba(0,0,0,.40))">
+          <defs>
+            <radialGradient id="chkHi-${mode}-${t.id}" cx="35%" cy="25%" r="75%">
+              <stop offset="0%" stop-color="rgba(255,255,255,.45)"></stop>
+              <stop offset="55%" stop-color="rgba(255,255,255,.12)"></stop>
+              <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="46" fill="#22c55e"></circle>
+          <circle cx="50" cy="50" r="46" fill="url(#chkHi-${mode}-${t.id})"></circle>
+          <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
+          <text x="92" y="92" fill="#fff" font-weight="1000" font-size="24" text-anchor="end">${fmtInt(n)}</text>
+        </svg>
+      </button>
+    `;
+  }
+
     function countBandsFor(mode){
-    let red=0, yellow=0;
+    let red=0, yellow=0, green=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
@@ -397,11 +431,11 @@ const s = t.summary?.[filterKey] || {};
       const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
-      if(pct >= 0.80) continue;
-      if(pct >= 0.60) yellow++;
+      if(pct >= 0.80) green++;
+      else if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow};
+    return {red, yellow, green};
   }
 
   // NOTE: Badge popups are handled by the global diag popup handler at the top of this file
@@ -1015,6 +1049,7 @@ return `
               <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
                 ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
                 ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+                ${diagCheckBadge(bandCounts_asr.green, "asr")}
               </div>
               <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
             </div>
@@ -1032,6 +1067,7 @@ return `
               <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
                 ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
                 ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+                ${diagCheckBadge(bandCounts_sold.green, "sold")}
               </div>
               <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
             </div>
