@@ -222,6 +222,14 @@ function renderTech(techId){
       .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
       /* keep list rows from forcing overflow */
       .techPickPanel.diagSection .pickRow{min-height:0}
+
+      /* Diag legend: only color the RED/YELLOW/GREEN words; everything else stays white */
+      .techPickPanel.diagSection .diagBandLegend{color:#fff}
+      .techPickPanel.diagSection .diagBandLegend .legendRest{color:#fff}
+      .techPickPanel.diagSection .diagBandLegend .legendName{font-weight:1000}
+      .techPickPanel.diagSection .diagBandLegend .legendRed{color:#ff4b4b}
+      .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
+      .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
     `;
     document.head.appendChild(st);
   })();
@@ -1025,10 +1033,10 @@ return `
     const tot = r+y+g;
     const pct = (n)=> tot>0 ? Math.round((n/tot)*100) : 0;
     return `
-      <div class="diagBandLegend" style="margin-top:10px;display:grid;gap:4px;align-self:flex-start;font-weight:900;letter-spacing:.3px">
-        <div style="color:#ff4b4b">RED = ${pct(r)}%</div>
-        <div style="color:#ffbf2f">YELLOW = ${pct(y)}%</div>
-        <div style="color:#1fcb6a">GREEN = ${pct(g)}%</div>
+      <div class="diagBandLegend" style="margin-top:10px;display:grid;gap:4px;align-self:flex-start;justify-self:start;width:100%;font-weight:900;letter-spacing:.3px;font-size:12px;text-align:left">
+        <div><span class="legendName legendRed">RED</span><span class="legendRest"> - ${pct(r)}%</span></div>
+        <div><span class="legendName legendYellow">YELLOW</span><span class="legendRest"> - ${pct(y)}%</span></div>
+        <div><span class="legendName legendGreen">GREEN</span><span class="legendRest"> - ${pct(g)}%</span></div>
       </div>
     `;
   }
@@ -1040,7 +1048,7 @@ return `
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start;font-size:22px">ASR</div>
               <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
                 ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
                 ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
@@ -1058,7 +1066,7 @@ return `
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start;font-size:22px">SOLD</div>
               <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
                 ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
                 ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
