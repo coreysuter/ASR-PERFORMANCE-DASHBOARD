@@ -255,7 +255,30 @@ function renderTech(techId){
       }
     `;
     document.head.appendChild(st);
+  })()
+  // --- Tech Details header panel: shrink by ~15% (scoped to this page only) ---
+  (function ensureTechDetailHeaderShrinkCSS(){
+    if(document.getElementById('techDetailHeaderShrinkCSS')) return;
+    const st = document.createElement('style');
+    st.id = 'techDetailHeaderShrinkCSS';
+    st.textContent = `
+      /* Tech Details ONLY (this page): shrink header panel ~15% */
+      .techDetailHeaderPanel .phead{padding:12px 12px 8px !important;}
+      .techDetailHeaderPanel .techTitlePinnedLeft{gap:15px !important;}
+      .techDetailHeaderPanel .techRankPinned{gap:10px !important; top:0 !important;}
+      .techDetailHeaderPanel .hdrNum{font-size:34px !important;}
+      .techDetailHeaderPanel .hdrLbl{font-size:12px !important; margin-top:3px !important;}
+      .techDetailHeaderPanel .pills{margin-top:7px !important;}
+      .techDetailHeaderPanel .pill{padding:10px 15px !important;}
+      .techDetailHeaderPanel .pill .k{font-size:14px !important;}
+      .techDetailHeaderPanel .pill .v{font-size:20px !important;}
+      @media (max-width: 980px){
+        .techDetailHeaderPanel .phead{padding:11px 11px 7px !important;}
+      }
+    `;
+    document.head.appendChild(st);
   })();
+;
 
 
   const t = (DATA.techs||[]).find(x=>x.id===techId);
@@ -634,7 +657,7 @@ const s = t.summary?.[filterKey] || {};
 
   
 const header = `
-    <div class="panel techHeaderPanel">
+    <div class="panel techHeaderPanel techDetailHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
           <div class="techTitlePinnedLeft" style="display:flex;align-items:flex-start;gap:18px;min-width:0;flex:1 1 auto;">
@@ -648,12 +671,12 @@ const header = `
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
             <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
-              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+              <div class="hdrNum" style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
+              <div class="hdrLbl" style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
             </div>
             <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
-  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
+  <div class="hdrNum" style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
+  <div class="hdrLbl" style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
 </div>
 ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div></div>
