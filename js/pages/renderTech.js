@@ -1035,49 +1035,63 @@ return `
     `;
   }
   const bandCounts_asr = countBandsFor('asr');
-  const bandCounts_sold = countBandsFor('sold');
+const bandCounts_sold = countBandsFor('sold');
 
+function bandPctMarkup(counts){
+  const tot = (counts?.red||0) + (counts?.yellow||0) + (counts?.green||0);
+  const pct = (n)=> tot ? Math.round((n/tot)*100) : 0;
+  return `
+    <div class="diagBandPctWrap" style="margin-top:10px;display:grid;gap:6px;font-size:22px;font-weight:800;line-height:1.05">
+      <div><span style="color:#ff4b4b">RED</span><span style="color:#ffffff"> = ${pct(counts.red)}%</span></div>
+      <div><span style="color:#ffbf2f">YELLOW</span><span style="color:#ffffff"> = ${pct(counts.yellow)}%</span></div>
+      <div><span style="color:#22c55e">GREEN</span><span style="color:#ffffff"> = ${pct(counts.green)}%</span></div>
+    </div>
+  `;
+}
 
-  const top3Panel = `
-    <div class="panel techPickPanel diagSection">
-      <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
-        <!-- ASR row -->
-        <div class="diagBandRow" style="padding:12px">
-          <div class="pickRow" style="display:grid;grid-template-columns:170px 0.9fr 0.9fr 0.2fr;gap:12px;align-items:stretch">
-            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:6px">
-                ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
-                ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
-                ${diagCheckBadge(bandCounts_asr.green, "asr")}
-              </div>
-</div>
-            <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
-            <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
-            <div class="pickSpacer"></div>
+const top3Panel = `
+  <div class="panel techPickPanel diagSection">
+    <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:12px">
+      <!-- ASR row -->
+      <div class="diagBandRow diagAsrRow" style="padding:12px;position:relative;padding-top:26px">
+        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;letter-spacing:.4px">ASR</div>
+        <div class="pickRow" style="display:grid;grid-template-columns:220px 0.85fr 0.85fr 0.2fr;gap:12px;align-items:start">
+          <div class="diagIconCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;width:100%">
+            <div class="diagIconRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;justify-content:flex-start;max-width:100%;padding-top:0">
+              ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
+              ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
+              ${diagCheckBadge(bandCounts_asr.green, "asr")}
+            </div>
+            ${bandPctMarkup(bandCounts_asr)}
           </div>
+          <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
+          <div class="pickSpacer"></div>
         </div>
-        <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
+      </div>
 
-        <!-- SOLD row -->
-        <div class="diagBandRow" style="padding:12px">
-          <div class="pickRow" style="display:grid;grid-template-columns:170px 0.9fr 0.9fr 0.2fr;gap:12px;align-items:stretch">
-            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:6px">
-                ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
-                ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
-                ${diagCheckBadge(bandCounts_sold.green, "sold")}
-              </div>
-</div>
-            <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
-            <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
-            <div class="pickSpacer"></div>
+      <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
+
+      <!-- SOLD row -->
+      <div class="diagBandRow diagSoldRow" style="padding:12px;position:relative;padding-top:26px">
+        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;letter-spacing:.4px">SOLD</div>
+        <div class="pickRow" style="display:grid;grid-template-columns:220px 0.85fr 0.85fr 0.2fr;gap:12px;align-items:start">
+          <div class="diagIconCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;width:100%">
+            <div class="diagIconRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;justify-content:flex-start;max-width:100%;padding-top:0">
+              ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
+              ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
+              ${diagCheckBadge(bandCounts_sold.green, "sold")}
+            </div>
+            ${bandPctMarkup(bandCounts_sold)}
           </div>
+          <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
+          <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
+          <div class="pickSpacer"></div>
         </div>
       </div>
     </div>
-  `;
+  </div>
+`;
 
   const headerWrap = `<div class="techHeaderWrap">${header}${top3Panel}</div>`;
 
