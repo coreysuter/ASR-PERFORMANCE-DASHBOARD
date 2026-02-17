@@ -1041,7 +1041,7 @@ function bandPctMarkup(counts){
   const tot = (counts?.red||0) + (counts?.yellow||0) + (counts?.green||0);
   const pct = (n)=> tot ? Math.round((n/tot)*100) : 0;
   return `
-    <div class="diagBandPctWrap" style="margin-top:10px;display:grid;gap:6px;font-size:22px;font-weight:800;line-height:1.05">
+    <div class="diagBandPctWrap" style="margin-top:10px;display:grid;gap:6px;font-size:16px;font-weight:800;line-height:1.05">
       <div><span style="color:#ff4b4b">RED</span><span style="color:#ffffff"> = ${pct(counts.red)}%</span></div>
       <div><span style="color:#ffbf2f">YELLOW</span><span style="color:#ffffff"> = ${pct(counts.yellow)}%</span></div>
       <div><span style="color:#22c55e">GREEN</span><span style="color:#ffffff"> = ${pct(counts.green)}%</span></div>
@@ -1054,7 +1054,7 @@ const top3Panel = `
     <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:12px">
       <!-- ASR row -->
       <div class="diagBandRow diagAsrRow" style="padding:12px;position:relative;padding-top:26px">
-        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;letter-spacing:.4px">ASR</div>
+        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;font-size:22px;line-height:1;letter-spacing:.4px">ASR</div>
         <div class="pickRow" style="display:grid;grid-template-columns:220px 0.85fr 0.85fr 0.2fr;gap:12px;align-items:start">
           <div class="diagIconCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;width:100%">
             <div class="diagIconRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;justify-content:flex-start;max-width:100%;padding-top:0">
@@ -1074,7 +1074,7 @@ const top3Panel = `
 
       <!-- SOLD row -->
       <div class="diagBandRow diagSoldRow" style="padding:12px;position:relative;padding-top:26px">
-        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;letter-spacing:.4px">SOLD</div>
+        <div class="pickHdrLabel" style="position:absolute;left:12px;top:6px;margin:0;font-weight:900;font-size:22px;line-height:1;letter-spacing:.4px">SOLD</div>
         <div class="pickRow" style="display:grid;grid-template-columns:220px 0.85fr 0.85fr 0.2fr;gap:12px;align-items:start">
           <div class="diagIconCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;width:100%">
             <div class="diagIconRow" style="display:flex;flex-direction:row;gap:10px;align-items:flex-start;justify-content:flex-start;max-width:100%;padding-top:0">
