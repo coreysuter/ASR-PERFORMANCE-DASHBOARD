@@ -93,7 +93,7 @@
 
     const iconSvg = isGreen ? `
       <svg viewBox="0 0 100 100" aria-hidden="true" style="width:34px;height:34px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
-        <circle cx="50" cy="50" r="46" fill="#22c55e"></circle>
+        <circle cx="50" cy="50" r="46" fill="#22c55e" stroke="rgba(255,255,255,.22)" stroke-width="2"></circle>
         <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
       </svg>
     ` : `
@@ -376,7 +376,7 @@ const s = t.summary?.[filterKey] || {};
                    C1 91 -1 88 1 85
                    L43.5 4.5
                    C45 2 47 0 50 0Z"
-                fill="url(#triGrad-${mode}-${band}-${t.id})"></path>
+                fill="url(#triGrad-${mode}-${band}-${t.id})" stroke="rgba(255,255,255,.22)" stroke-width="2"></path>
           <!-- highlight sheen -->
           <path d="M50 6
                    C52 6 54 7.2 55.2 9.6
@@ -412,7 +412,7 @@ const s = t.summary?.[filterKey] || {};
               <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
             </radialGradient>
           </defs>
-          <circle cx="50" cy="50" r="46" fill="#22c55e"></circle>
+          <circle cx="50" cy="50" r="46" fill="#22c55e" stroke="rgba(255,255,255,.22)" stroke-width="2"></circle>
           <circle cx="50" cy="50" r="46" fill="url(#chkHi-${mode}-${t.id})"></circle>
           <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
           <text x="88" y="76" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
@@ -509,7 +509,7 @@ const s = t.summary?.[filterKey] || {};
     return {rank: idx>=0?idx+1:null, total: vals.length};
   }
   const filters = `
-    <div class="controls" style="margin-top:10px">
+    <div class="controls" style="margin-top:6px">
       <div>
         <label>Fluids</label>
         <select id="techFilter">
@@ -1043,36 +1043,36 @@ return `
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
-          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
-            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 0.9fr 0.9fr 0.2fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start">
               <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">ASR</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:6px">
                 ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
                 ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
                 ${diagCheckBadge(bandCounts_asr.green, "asr")}
               </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg recs</div>
-            </div>
+</div>
             <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
+            <div class="pickSpacer"></div>
           </div>
         </div>
         <div class="diagDivider" style="height:1px;background:rgba(255,255,255,.12);margin:0 12px"></div>
 
         <!-- SOLD row -->
         <div class="diagBandRow" style="padding:12px">
-          <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
-            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+          <div class="pickRow" style="display:grid;grid-template-columns:170px 0.9fr 0.9fr 0.2fr;gap:12px;align-items:stretch">
+            <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start">
               <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start">SOLD</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
+              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:6px">
                 ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
                 ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
                 ${diagCheckBadge(bandCounts_sold.green, "sold")}
               </div>
-              <div class="diagUnderTitle" style="margin-top:8px;font-weight:400;font-style:italic;color:rgba(255,255,255,.70);font-size:14px;letter-spacing:.2px">below avg sold</div>
-            </div>
+</div>
             <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>
+            <div class="pickSpacer"></div>
           </div>
         </div>
       </div>
