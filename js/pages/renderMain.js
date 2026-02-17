@@ -43,6 +43,42 @@ function renderMain(){
             </div>
           </div>
 
+          <!-- Filters moved LEFT beside the title/name (always visible) -->
+          <div class="dashFiltersTop">
+            <div class="controls alwaysOpen">
+              <div>
+                <label>Filter</label>
+                <select data-scope="main" data-ctl="filter">
+                  <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+                  <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+                  <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+                </select>
+              </div>
+              <div>
+                <label>Focus</label>
+                <select data-scope="main" data-ctl="sort">
+                  <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
+                  <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+                </select>
+              </div>
+              <div>
+                <label>Goal</label>
+                <select data-scope="main" data-ctl="goal">
+                  <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+                  <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
+                </select>
+              </div>
+              <div>
+                <label>Comparison</label>
+                <select data-scope="main" data-ctl="compare">
+                  <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
+                  <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
+                  <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div class="dashFocusTop">
             <div class="focusStat">
               <div class="focusVal">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
@@ -51,42 +87,6 @@ function renderMain(){
             <div class="focusStat">
               <div class="focusVal">${soldPerRo===null ? "—" : fmt1(soldPerRo,1)}</div>
               <div class="focusLbl">SOLD/RO</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Filters moved to the top of the Tech Header panel (always visible) -->
-        <div class="dashFiltersTop">
-          <div class="controls alwaysOpen">
-            <div>
-              <label>Filter</label>
-              <select data-scope="main" data-ctl="filter">
-                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-              </select>
-            </div>
-            <div>
-              <label>Focus</label>
-              <select data-scope="main" data-ctl="sort">
-                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
-              </select>
-            </div>
-            <div>
-              <label>Goal</label>
-              <select data-scope="main" data-ctl="goal">
-                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
-              </select>
-            </div>
-            <div>
-              <label>Comparison</label>
-              <select data-scope="main" data-ctl="compare">
-                <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
-                <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
-                <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
-              </select>
             </div>
           </div>
         </div>

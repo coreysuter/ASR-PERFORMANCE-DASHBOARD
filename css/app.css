@@ -754,6 +754,29 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
   font-size:22px;line-height:1}
 .brandLogoMini{display:none !important;}
 .techNameWrap{flex:1 1 auto;min-width:0}
+
+/* Technician Dashboard header: place filters beside title and enlarge them ~33% */
+.dashHdrTop{
+  align-items:flex-start;
+}
+.dashFiltersTop{
+  margin-left:12px;
+  width:auto;
+  display:block;
+  transform:scale(1.33);
+  transform-origin:left top;
+}
+.dashFiltersTop .controls.alwaysOpen{
+  display:grid;
+  grid-template-columns:repeat(2, max-content);
+  gap:8px 12px;
+}
+.dashFiltersTop label{
+  display:block;
+}
+.dashFiltersTop select{
+  width:auto;
+}
 .techH2Big{font-size:32px;font-weight:1000;line-height:1.05;letter-spacing:.2px}
 .techH2Big .teamDot{opacity:.7;font-weight:900}
 .techTeamLine{margin-top:6px;font-size:16px;font-weight:900;opacity:.75;letter-spacing:.15px}
