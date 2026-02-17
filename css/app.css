@@ -1765,21 +1765,3 @@ body.route-tech .techPickPanel .phead{
 .techHeaderWrap .techPickPanel{min-width:0}
 /* avoid long rows forcing overflow inside the panel (panels have overflow:hidden) */
 .techHeaderWrap .techPickPanel *{min-width:0}
-
-
-/* === TECH DETAILS: enforce column-based sizing (shrink left panel width) ===
-   The left header panel previously had width/max-width set to 50% which prevents the grid
-   split from actually shrinking the panel. These overrides ensure the grid controls sizing. */
-.techHeaderWrap .techHeaderPanel,
-.techHeaderWrap .techPickPanel{
-  width: 100% !important;
-  max-width: none !important;
-  min-width: 0 !important;
-}
-/* Slightly stronger shrink (~15% less than original 1fr/1fr split) */
-.techHeaderWrap{
-  display: grid !important;
-  grid-template-columns: minmax(0,0.72fr) minmax(0,1.28fr) !important;
-  align-items: stretch !important;
-}
-
