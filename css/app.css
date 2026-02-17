@@ -1152,8 +1152,22 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
+  /* Give the right "diag section" noticeably more room so it doesn't get clipped.
+     This effectively shrinks the left header panel by ~15% (relative to the previous split). */
+  grid-template-columns: 1fr 1.8fr;
 }
+
+/* Prevent any inner grids/rows from forcing horizontal overflow (cut-off) in the diag section */
+body.route-tech .techHeaderWrap > .panel{min-width:0 !important;}
+body.route-tech .techPickPanel.diagSection,
+body.route-tech .techPickPanel.diagSection .phead{min-width:0 !important;}
+body.route-tech .techPickPanel.diagSection .pickGrid2{
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+}
+body.route-tech .techPickPanel.diagSection .pickBox{min-width:0 !important;}
+body.route-tech .techPickPanel.diagSection .techRow,
+body.route-tech .techPickPanel.diagSection .techRowLeft,
+body.route-tech .techPickPanel.diagSection .techRowRight{min-width:0 !important;}
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
 body.route-tech .techHeaderPanel{
@@ -1743,61 +1757,13 @@ body.route-tech .techPickPanel .phead{
   overflow:auto !important;
 }
 
-/* ===== OVERRIDE: Tech header columns + equal-height (scoped by techHeaderWrap class) =====
-   Your router does not set body.route-tech, so we scope to .techHeaderWrap directly.
-   - TechName panel -15%
-   - Diag panel +15%
-   - Equal-height stretch between the two panels
-*/
+
+/* === FORCE Tech panel widths (no body class dependency) === */
 .techHeaderWrap{
   display:grid !important;
-  grid-template-columns: 1.0625fr 2.0125fr !important;
-  gap:14px !important;
-  align-items:stretch !important;
-}
-@media (max-width: 980px){
-  .techHeaderWrap{ grid-template-columns:1fr !important; }
-}
-.techHeaderWrap > .panel{ height:100% !important; }
-.techHeaderPanel,
-.techPickPanel{ height:100% !important; min-height:0 !important; }
-
-/* Remove legacy width constraints that can block grid sizing */
-.techHeaderPanel{
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-}
-
-/* Diag panel: prevent clipping */
-.techPickPanel{
-  overflow:hidden !important;
-  display:flex !important;
-  flex-direction:column !important;
-}
-.techPickPanel > .phead{
-  flex:1 1 auto !important;
-  min-height:0 !important;
-  overflow:auto !important;
-  overflow-x:hidden !important;
-  -webkit-overflow-scrolling:touch;
-}
-
-/* === FINAL OVERRIDE: Tech page header panel sizing + prevent horizontal scrollbar in diag === */
-.techHeaderWrap{
-  display:grid !important;
-  grid-template-columns: 0.85fr 1.15fr !important; /* tech -15%, diag +15% */
+  grid-template-columns: 0.85fr 1.15fr !important;
   align-items: stretch !important;
-  gap:14px !important;
 }
-.techHeaderWrap > .panel{ height:100% !important; min-width:0 !important; }
-.techHeaderPanel, .techPickPanel{ height:100% !important; min-width:0 !important; width:auto !important; max-width:none !important; }
-
-/* Keep rounded corners but never show horizontal scrollbar */
-.techPickPanel{ overflow:hidden !important; }
-.techPickPanel > .phead{
-  min-height:0 !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-}
-.techPickPanel *{ box-sizing:border-box; }
+.techHeaderWrap > .panel{ min-width:0 !important; }
+.techPickPanel{ overflow-x:hidden !important; }
+.techPickPanel .phead{ overflow-x:hidden !important; }
