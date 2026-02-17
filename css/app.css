@@ -758,43 +758,83 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techH2Big .teamDot{opacity:.7;font-weight:900}
 .techTeamLine{margin-top:6px;font-size:16px;font-weight:900;opacity:.75;letter-spacing:.15px}
 
-/* Technician Dashboard header: title row flex-fit with inline filters */
-/* Scope to the Technician Dashboard header panel */
-.techHeaderPanel .techTitleRow{
-  align-items:flex-start;
-  flex-wrap:nowrap;
-}
-.techHeaderPanel .dashHdrRight{
-  margin-left:auto;
+/* Technician Dashboard header (main page)
+   Layout:
+   - Top row: Title (left, flex-fit) + Focus stats (top-right)
+   - Second row: Pills under title (left) + Filters in a 2x2 grid (middle)
+*/
+.techHeaderPanel .dashHdrTop{
   display:flex;
-  flex-direction:column;
-  align-items:flex-end;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+}
+.techHeaderPanel .dashTitleRow{
+  display:flex;
+  align-items:flex-start;
   gap:10px;
   min-width:0;
 }
-.techHeaderPanel .dashHdrRight .pills{
-  justify-content:flex-end;
+/* Title block should end where the text ends */
+.techHeaderPanel .techNameWrap{
+  flex:0 0 auto;
+  width:fit-content;
+  min-width:0;
 }
-.techHeaderPanel .dashHdrFilters{
-  width:100%;
+
+.techHeaderPanel .dashFocusTop{
   display:flex;
-  flex-direction:column;
+  gap:14px;
   align-items:flex-end;
-  gap:6px;
-}
-.techHeaderPanel .dashHdrFilters .controls{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
   justify-content:flex-end;
+  text-align:right;
+  flex:0 0 auto;
 }
-.techHeaderPanel .dashHdrFilters .controls > div{min-width:160px;}
+.techHeaderPanel .dashFocusTop .focusVal{
+  font-size:36px;
+  font-weight:1200;
+  line-height:1;
+  color:var(--text);
+}
+.techHeaderPanel .dashFocusTop .focusLbl{
+  margin-top:6px;
+  font-size:11px;
+  font-weight:1000;
+  letter-spacing:.2px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.techHeaderPanel .dashHdrBelow{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:14px;
+  align-items:start;
+}
+.techHeaderPanel .dashPillsBelowTitle .pills{
+  margin-top:0;
+}
+
+/* Filters: 2 columns x 2 rows, selects shrink to content */
+.techHeaderPanel .dashFiltersMid .controls{
+  display:grid;
+  grid-template-columns:auto auto;
+  gap:10px 12px;
+  margin-top:0;
+  justify-content:start;
+}
+.techHeaderPanel .dashFiltersMid .controls > div{min-width:0;}
+.techHeaderPanel .dashFiltersMid select{
+  width:auto;
+  min-width:150px;
+  max-width:220px;
+}
 @media (max-width: 820px){
-  .techHeaderPanel .techTitleRow{flex-wrap:wrap;}
-  .techHeaderPanel .dashHdrRight{align-items:flex-start; width:100%;}
-  .techHeaderPanel .dashHdrFilters{align-items:flex-start;}
-  .techHeaderPanel .dashHdrFilters .controls{justify-content:flex-start;}
-  .techHeaderPanel .dashHdrFilters .controls > div{min-width:150px;}
+  .techHeaderPanel .dashHdrBelow{grid-template-columns:1fr;}
+  .techHeaderPanel .dashFocusTop .focusVal{font-size:30px;}
+  .techHeaderPanel .dashFiltersMid .controls{grid-template-columns:auto auto;}
+  .techHeaderPanel .dashFiltersMid select{min-width:140px; max-width:100%;}
 }
 @media (max-width: 820px){
   .techH2Big{font-size:26px}
