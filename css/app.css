@@ -1152,22 +1152,8 @@ body.route-tech .techPickPanel .mini{font-size:12px}
 
 /* === v4: widen tech header + Top/Bottom panel (tech details only) === */
 body.route-tech .techHeaderWrap{
-  /* Give the right "diag section" noticeably more room so it doesn't get clipped.
-     This effectively shrinks the left header panel by ~15% (relative to the previous split). */
-  grid-template-columns: 1fr 1.8fr;
+  grid-template-columns: 1.25fr 1.75fr; /* left header bigger, right panel even wider */
 }
-
-/* Prevent any inner grids/rows from forcing horizontal overflow (cut-off) in the diag section */
-body.route-tech .techHeaderWrap > .panel{min-width:0 !important;}
-body.route-tech .techPickPanel.diagSection,
-body.route-tech .techPickPanel.diagSection .phead{min-width:0 !important;}
-body.route-tech .techPickPanel.diagSection .pickGrid2{
-  grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
-}
-body.route-tech .techPickPanel.diagSection .pickBox{min-width:0 !important;}
-body.route-tech .techPickPanel.diagSection .techRow,
-body.route-tech .techPickPanel.diagSection .techRowLeft,
-body.route-tech .techPickPanel.diagSection .techRowRight{min-width:0 !important;}
 
 /* The tech name header panel was previously constrained to 50% width in older rules */
 body.route-tech .techHeaderPanel{
@@ -1767,3 +1753,14 @@ body.route-tech .techPickPanel .phead{
 .techHeaderWrap > .panel{ min-width:0 !important; }
 .techPickPanel{ overflow-x:hidden !important; }
 .techPickPanel .phead{ overflow-x:hidden !important; }
+
+/* === TECH DETAILS: give the diag section more horizontal room (prevents top-right cutoff) === */
+/* NOTE: uses !important to override any inline grid-template-columns coming from renderTech.js */
+.techHeaderWrap{
+  grid-template-columns: minmax(0,0.70fr) minmax(0,1.30fr) !important;
+}
+.techHeaderWrap > *{min-width:0}
+.techHeaderWrap .techHeaderPanel,
+.techHeaderWrap .techPickPanel{min-width:0}
+/* avoid long rows forcing overflow inside the panel (panels have overflow:hidden) */
+.techHeaderWrap .techPickPanel *{min-width:0}
