@@ -757,107 +757,6 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techH2Big{font-size:32px;font-weight:1000;line-height:1.05;letter-spacing:.2px}
 .techH2Big .teamDot{opacity:.7;font-weight:900}
 .techTeamLine{margin-top:6px;font-size:16px;font-weight:900;opacity:.75;letter-spacing:.15px}
-
-/* Technician Dashboard header (main page)
-   Layout:
-   - Top row: Title (left, flex-fit) + Focus stats (top-right)
-   - Second row: Pills under title (left) + Filters in a 2x2 grid (middle)
-*/
-.techHeaderPanel{position:relative;}
-.techHeaderPanel .dashHdrTop{
-  /* Only wrap the title width (do NOT stretch across the panel) */
-  display:inline-flex;
-  align-items:flex-start;
-  justify-content:flex-start;
-  gap:14px;
-  width:fit-content;
-}
-.techHeaderPanel .dashTitleRow{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  min-width:0;
-}
-/* Title block should end where the text ends */
-.techHeaderPanel .techNameWrap{
-  flex:0 0 auto;
-  width:fit-content;
-  min-width:0;
-}
-
-.techHeaderPanel .dashFocusTop{
-  /* Pull focus stats out of normal flow so dashHdrTop can shrink to title width */
-  position:absolute;
-  top:14px;
-  right:14px;
-  display:flex;
-  gap:14px;
-  align-items:flex-end;
-  justify-content:flex-end;
-  text-align:right;
-  flex:0 0 auto;
-}
-
-/* Filters moved to the top of the Tech Header panel (left of focus stats) */
-.techHeaderPanel .dashFiltersTop{
-  position:absolute;
-  top:14px;
-  right:360px; /* leave room for the top-right focus stats */
-  display:block;
-}
-.techHeaderPanel .dashFiltersTop .controls{
-  display:grid;
-  grid-template-columns:auto auto;
-  gap:8px 10px;
-  align-items:end;
-  justify-content:start;
-}
-.techHeaderPanel .dashFiltersTop .controls > div{min-width:0;}
-.techHeaderPanel .dashFiltersTop select{
-  width:auto;
-  min-width:120px;   /* ~50% narrower than before */
-  max-width:160px;
-}
-.techHeaderPanel .dashFocusTop .focusVal{
-  font-size:36px;
-  font-weight:1200;
-  line-height:1;
-  color:var(--text);
-}
-.techHeaderPanel .dashFocusTop .focusLbl{
-  margin-top:6px;
-  font-size:11px;
-  font-weight:1000;
-  letter-spacing:.2px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-
-.techHeaderPanel .dashHdrBelow{
-  margin-top:10px;
-  display:block;
-}
-
-/* Pills live in a stack below the title */
-.techHeaderPanel .dashPillsBelowTitle .pillsStack{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:0;
-}
-.techHeaderPanel .dashPillsBelowTitle .pillsRow{
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-/* Sold% row should sit under the first pill (ROs) */
-.techHeaderPanel .dashPillsBelowTitle .pillsRow2{justify-content:flex-start;}
-
-@media (max-width: 820px){
-  .techHeaderPanel .dashFocusTop .focusVal{font-size:30px;}
-  .techHeaderPanel .dashFiltersTop{position:static; margin-top:10px; right:auto;}
-  .techHeaderPanel .dashFiltersTop select{min-width:110px; max-width:100%;}
-}
 @media (max-width: 820px){
   .techH2Big{font-size:26px}
   .brandLogoMini{height:28px}
@@ -1752,8 +1651,60 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
 
+/* === Technician Dashboard header: 3 columns (single row), pills under title === */
+.techHeaderPanel .dashTopGrid{
+  display:grid;
+  grid-template-columns: auto 1fr auto;
+  gap:14px;
+  align-items:start;
+}
+.techHeaderPanel .dashTopC1{min-width:0;}
+.techHeaderPanel .dashTopC2{min-width:0;}
+.techHeaderPanel .dashTopC3{min-width:0; display:flex; justify-content:flex-end;}
 
-/* Nudge Technician Dashboard filters 10px right (mid container) */
-.techHeaderPanel .dashTopC2 .dashFilters2x2{
-  margin-left:10px !important;
+.techHeaderPanel .dashHeaderPills{margin-top:10px;}
+.techHeaderPanel .dashHeaderPills .pills{margin-top:8px;}
+
+/* Make the title wrap end where text ends (no stretching) */
+.techHeaderPanel .techNameWrap{flex:0 0 auto; min-width:0;}
+.techHeaderPanel .techH2Big{display:inline-block; width:fit-content;}
+
+/* Filters: match technician details page feel */
+.techHeaderPanel .dashFilters2x2{
+  display:grid;
+  grid-template-columns: auto auto;
+  gap:10px 12px;
+  justify-content:start;
+  align-content:start;
+  margin-left:10px; /* move filters 5px to the right */
+}
+.techHeaderPanel .dashFilters2x2 .fCell{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+.techHeaderPanel .dashFilters2x2 label{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:900;
+  letter-spacing:.2px;
+}
+.techHeaderPanel .dashFilters2x2 select{
+  width:auto;
+  max-width:240px;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  font-weight:900;
+  font-size:12px;
+}
+
+/* Focus stats: match EXPRESS/KIA category header styling */
+.techHeaderPanel .dashFocusTop{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+.techHeaderPanel .dashFocusTop .focusStat{display:flex;flex-direction:column;align-items:flex-end;}
+.techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:36px;line-height:1;font-weight:1000;color:#fff;}
+.techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:28px;line-height:1;font-weight:1000;color:#fff;margin-top:2px;}
+.techHeaderPanel .dashFocusTop .lbl{font-size:12px;font-weight:1000;letter-spacing:.3px;text-transform:uppercase;opacity:.75;}
+
+@media (max-width: 700px){
+  .techHeaderPanel .dashFocusTop .focusPrimary .num{font-size:30px;}
+  .techHeaderPanel .dashFocusTop .focusSecondary .num{font-size:24px;}
 }
