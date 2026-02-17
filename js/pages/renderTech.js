@@ -415,7 +415,7 @@ const s = t.summary?.[filterKey] || {};
           <circle cx="50" cy="50" r="46" fill="#22c55e"></circle>
           <circle cx="50" cy="50" r="46" fill="url(#chkHi-${mode}-${t.id})"></circle>
           <path d="M28 52 L44 68 L74 34" fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"></path>
-          <text x="88" y="86" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
+          <text x="88" y="82" fill="#fff" font-weight="1000" font-size="20" text-anchor="end">${fmtInt(n)}</text>
         </svg>
       </button>
     `;
