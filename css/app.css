@@ -1002,19 +1002,6 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
 .pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
-/* ===== v240: dial text with arrow + short label ===== */
-.pctStack2{flex-direction:column;gap:1px}
-.pctStack2 .pctMain{font-size:calc(var(--sz,64px)/5.1);font-weight:1000;line-height:1}
-.pctStack2 .pctArrow{
-  margin-top:2px;
-  font-size:calc(var(--sz,64px)/6.0);
-  line-height:1;
-  font-weight:1200;
-  color:var(--gCol);
-  filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
-}
-.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
-
 /* ===== v231: watermark ===== */
 #buildWatermark{
   position:fixed;top:14px;right:14px;z-index:2147483647;
@@ -1188,6 +1175,17 @@ body.route-tech .techPickPanel{height:100%;}
 body.route-tech .techHeaderPanel .phead{height:100%; display:flex; flex-direction:column;}
 /* ensure the pills/filters don't force overflow weirdness */
 body.route-tech .techHeaderPanel .pills{margin-top:auto;}
+
+/* Prevent Bottom 3 lists from getting clipped inside the diag section.
+   Keep the outer panel rounded (overflow hidden) but allow the inner content
+   to scroll when the equal-height header panels constrain the available height. */
+body.route-tech .techPickPanel{overflow:hidden;}
+body.route-tech .techPickPanel .phead{
+  height:100%;
+  overflow:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+}
 
 /* Make the Top/Bottom titles larger */
 body.route-tech .pickMiniHdr{
@@ -1650,47 +1648,50 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 /* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
 .serviceCard .techList .techRow .mini br{display:none !important;}
 
-/* Technician Dashboard header: C1/C2/C3 on one row (3 equal columns) */
-.techHeaderPanel .dashTopRow{
-  display:grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  column-gap: 14px;
-  align-items:start;
-}
-.techHeaderPanel .dashTopC{min-width:0;}
-.techHeaderPanel .dashTopC1{display:flex; gap:10px; align-items:flex-start;}
-.techHeaderPanel .dashTopC2{display:flex; justify-content:flex-start;}
-.techHeaderPanel .dashTopC3{display:flex; justify-content:flex-end;}
-/* Filters grid inside C2 */
-.techHeaderPanel .dashFilters2x2{
-  display:grid;
-  grid-template-columns: max-content max-content;
-  gap:10px 12px;
-  align-items:start;
-}
-/* Make selects shrink to content */
-.techHeaderPanel .dashFilters2x2 select{
-  width:auto;
-  min-width: 160px;
-}
-/* Pills container below title row */
-.techHeaderPanel .dashPills .pills{margin-top:10px;}
 
-/* === Technician Dashboard header adjustments (C1 pills under team line, C3 focus stats like category headers) === */
-.techHeaderPanel .dashTopC1 .techNameWrap{display:flex;flex-direction:column;align-items:flex-start;}
-.techHeaderPanel .dashTopC1 .dashPills{margin-top:10px;}
-.techHeaderPanel .dashTopC1 .dashPills .pills{margin-top:0;}
+/* ===== PATCH: Tech Details diag panel should not clip (allow internal scroll) ===== */
+body.route-tech .techPickPanel{
+  overflow:hidden !important;          /* keep rounded corners */
+  display:flex !important;
+  flex-direction:column !important;
+}
+body.route-tech .techPickPanel > .phead{
+  flex:1 1 auto !important;
+  min-height:0 !important;             /* critical for flex children to scroll */
+  overflow:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch;
+}
+/* Ensure inner rows can shrink to fit without forcing overflow */
+body.route-tech .techPickPanel .pickRow,
+body.route-tech .techPickPanel .pickGrid2{
+  min-height:0 !important;
+}
 
-/* Focus stats (C3) mimic category header panels */
-.techHeaderPanel .dashFocusStats{display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right;}
-.techHeaderPanel .dashFocusNum{font-size:36px;font-weight:1200;line-height:1;color:var(--text);}
-@media (max-width:700px){ .techHeaderPanel .dashFocusNum{font-size:30px;} }
-.techHeaderPanel .dashFocusNumSmall{font-size:28px;font-weight:1200;line-height:1;color:var(--text);}
-@media (max-width:700px){ .techHeaderPanel .dashFocusNumSmall{font-size:24px;} }
-.techHeaderPanel .dashFocusLbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted);}
-
-/* Make Technician Dashboard focus stats bold (C3) */
-.techHeaderPanel .dashTopC3 .focusStat .statVal,
-.techHeaderPanel .dashTopC3 .focusStat .statLbl{
-  font-weight: 1000 !important;
+/* ===== Tech details header width + equal-height (TECHNAME -15%, DIAG +15%) =====
+   Scoped to tech details only. Placed at end so it overrides earlier "height:auto" fixes.
+*/
+body.route-tech .techHeaderWrap{
+  display:grid !important;
+  /* Previous: 1.25fr 1.75fr. Apply -15% / +15% => 1.0625fr 2.0125fr */
+  grid-template-columns: 1.0625fr 2.0125fr !important;
+  gap:14px !important;
+  align-items:stretch !important;
+}
+@media (max-width: 980px){
+  body.route-tech .techHeaderWrap{grid-template-columns:1fr !important;}
+}
+/* Force both panels to stretch to the same height */
+body.route-tech .techHeaderWrap > .panel{
+  height:100% !important;
+}
+body.route-tech .techHeaderPanel,
+body.route-tech .techPickPanel{
+  height:100% !important;
+}
+/* Make inner headers fill so their backgrounds match height */
+body.route-tech .techHeaderPanel .phead,
+body.route-tech .techPickPanel .phead{
+  height:100% !important;
+  min-height:0 !important;
 }
