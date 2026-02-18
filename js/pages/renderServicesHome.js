@@ -1,5 +1,5 @@
 function renderServicesHome(){
-  // Services Dashboard (Categories + Individual Services)
+  // Services Dashboard (Categories)
   try{ document.body.classList.add("route-tech"); }catch(e){}
   try{ document.body.classList.add("route-servicesHome"); }catch(e){}
   try{ document.body.classList.add("route-services"); }catch(e){}
@@ -358,10 +358,8 @@ function renderServicesHome(){
   `;
 
   const catsHtml = categoryRows.map(categoryRowHtml).join("");
-  const svcsHtml = sortedServices.map(serviceRowHtml).join("");
-
   const body = `
-    <div class="servicesDashGrid">
+    <div class="servicesDashGrid" style="grid-template-columns:1fr">
       <div class="panel">
         <div class="phead">
           <div class="h2" style="font-size:22px;font-weight:1200;letter-spacing:.2px">Categories</div>
@@ -369,16 +367,6 @@ function renderServicesHome(){
         </div>
         <div class="list svcList">
           ${catsHtml || `<div class="notice">No categories found.</div>`}
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="phead">
-          <div class="h2" style="font-size:22px;font-weight:1200;letter-spacing:.2px">Services</div>
-          <div class="sub" style="margin-top:6px">Ranked by <b>${focusIsSold ? "Sold%" : "ASRs/RO"}</b></div>
-        </div>
-        <div class="list svcList">
-          ${svcsHtml || `<div class="notice">No services found.</div>`}
         </div>
       </div>
     </div>
