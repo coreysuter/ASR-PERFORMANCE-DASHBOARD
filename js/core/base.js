@@ -1067,8 +1067,6 @@ function renderTeam(team, st){
   const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
 
-  const focusIsSold = st.sortBy === "sold_pct";
-
   // Goal metric selection (from dashboard header Goal dropdown)
   const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
 
@@ -1139,15 +1137,15 @@ function renderTeam(team, st){
 
   const list=techs.slice();
   list.sort((a,b)=>{
-    const na = focusIsSold ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
-    const nb = focusIsSold ? Number(techSoldPct(b, st.filterKey)) : Number(techAsrPerRo(b, st.filterKey));
+    const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
+    const nb = st.sortBy==="sold_pct" ? Number(techSoldPct(b, st.filterKey)) : Number(techAsrPerRo(b, st.filterKey));
     return (Number.isFinite(nb)?nb:-999) - (Number.isFinite(na)?na:-999);
   });
 
   // ranking follows the selected Focus (ASR/RO or Sold%)
   const ranked = list.slice().sort((a,b)=>{
-    const na = focusIsSold ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
-    const nb = focusIsSold ? Number(techSoldPct(b, st.filterKey)) : Number(techAsrPerRo(b, st.filterKey));
+    const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
+    const nb = st.sortBy==="sold_pct" ? Number(techSoldPct(b, st.filterKey)) : Number(techAsrPerRo(b, st.filterKey));
     return (Number.isFinite(nb)?nb:-999) - (Number.isFinite(na)?na:-999);
   });
   const rankIndex = new Map();
@@ -1210,13 +1208,13 @@ function renderTeam(team, st){
 
             <div class="pillGroup pillGroupB">
               <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-              <div class="pill${clsSoldRo}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+              <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
               <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
             </div>
           </div>
 
           <div class="techMetaRight">
-            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (focusIsSold ? "sold" : "asr"), "sm")}
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
           </div>
         </div>
       </div>
@@ -1227,7 +1225,7 @@ function renderTeam(team, st){
 
   const appliedParts = [
     `${filterLabel}`,
-    (focusIsSold ? "Focus: Sold" : "Focus: ASR/RO")
+    (st.sortBy==="sold_pct" ? "Focus: Sold" : "Focus: ASR/RO")
   ];
   const appliedTextHtml = renderFiltersText(appliedParts);
 
@@ -1259,12 +1257,12 @@ function renderTeam(team, st){
           <div class="catHdrRight">
             <div class="catRank">
               <div class="rankMain">
-                <div class="rankNum">${focusIsSold ? (Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—") : fmt1(av.asr_per_ro_avg,1)}</div>
-                <div class="rankLbl">${focusIsSold ? "SOLD/RO" : "ASRs/RO"}</div>
+                <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
+                <div class="rankLbl">ASRs/RO</div>
               </div>
               <div class="rankSub">
-                <div class="rankNum sub">${focusIsSold ? fmt1(av.asr_per_ro_avg,1) : (Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—")}</div>
-                <div class="rankLbl sub">${focusIsSold ? "ASRs/RO" : "SOLD/RO"}</div>
+                <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+                <div class="rankLbl sub">SOLD/RO</div>
               </div>
             </div>
           </div>

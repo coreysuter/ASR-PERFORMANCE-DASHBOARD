@@ -2045,8 +2045,3 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   font-size:14px !important;
   color:rgba(234,240,255,.7) !important; /* grey */
 }
-
-
-/* === PATCH Step 1 (2026-02-18): Category header focus stack === */
-.catRank .rankNum.sub{ color: var(--text) !important; }
-.catRank .rankLbl.sub{ color: var(--muted) !important; }
