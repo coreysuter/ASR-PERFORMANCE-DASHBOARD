@@ -1423,6 +1423,23 @@ body.route-tech .catTitle .meta{
 body.route-tech .techHeaderWrap{
   align-items:flex-start !important;
 }
+
+/* ===============================
+   EXPRESS / KIA main headers: stat pills placement
+   - Move pills to the very top of the header row
+   - Nudge slightly to the right
+   =============================== */
+
+.catHeaderSplit .catHdrMid{
+  align-self:flex-start;
+  justify-content:flex-start;
+  margin-top:-10px;      /* pull pills to very top */
+  margin-left:14px;      /* slight right nudge */
+}
+
+.catHeaderSplit .dashPills2Row{
+  margin-top:0;
+}
 body.route-tech .techHeaderWrap > .panel{
   height:auto !important;
 }
