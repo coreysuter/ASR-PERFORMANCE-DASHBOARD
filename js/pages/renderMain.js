@@ -1,8 +1,7 @@
 function renderMain(){
   const app=document.getElementById('app');
 
-  // Main header owns the team filters now
-  if(typeof UI !== 'undefined' && UI.mainFiltersOpen===undefined) UI.mainFiltersOpen=false;
+  // Main header filters are always visible (no collapse)
 
   // keep Express/Kia in sync
   if(state && state.EXPRESS && state.KIA){
@@ -24,40 +23,40 @@ function renderMain(){
   const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPct = totalAsr ? (totalSold/totalAsr) : null;
-  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
   const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
   const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
-  // (Removed applied filter summary text per request)
+  const appliedTextHtml = "";
 
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <div class="dashHdrTop">
-          <div class="dashTitleRow">
+        <div class="titleRow techTitleRow">
+          <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-            <div class="techNameWrap">
-              <div class="h2 techH2Big">Technician Dashboard</div>
-              <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
-            </div>
           </div>
-
-          <div class="dashFocusTop">
-            <div class="focusStat">
-              <div class="focusVal">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-              <div class="focusLbl">ASRs/RO</div>
-            </div>
-            <div class="focusStat">
-              <div class="focusVal">${soldPerRo===null ? "—" : fmt1(soldPerRo,1)}</div>
-              <div class="focusLbl">SOLD/RO</div>
-            </div>
+          <div class="techNameWrap">
+            <div class="h2 techH2Big">Technician Dashboard</div>
+            <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
+          </div>
+          <div class="overallBlock">
+            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
+            <div class="tag">Avg ASR/RO (Store)</div>
+            <div class="overallMetric">${fmtPct(soldPct)}</div>
+            <div class="tag">Sold% (Store)</div>
           </div>
         </div>
 
-        <!-- Filters moved to the top of the Tech Header panel (always visible) -->
-        <div class="dashFiltersTop">
-          <div class="controls alwaysOpen">
+        <div class="pills">
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+        </div>
+
+        <div class="mainFiltersBar">
+          <div class="controls mainAlwaysOpen">
             <div>
               <label>Filter</label>
               <select data-scope="main" data-ctl="filter">
@@ -69,7 +68,7 @@ function renderMain(){
             <div>
               <label>Focus</label>
               <select data-scope="main" data-ctl="sort">
-                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
                 <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
               </select>
             </div>
@@ -89,21 +88,7 @@ function renderMain(){
               </select>
             </div>
           </div>
-        </div>
-
-        <div class="dashHdrBelow">
-          <div class="dashPillsBelowTitle">
-            <div class="pillsStack">
-              <div class="pillsRow pillsRow1">
-                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-                <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-              </div>
-              <div class="pillsRow pillsRow2">
-                <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
-              </div>
-            </div>
-          </div>
+          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
       </div>
     </div>
@@ -136,6 +121,8 @@ function renderMain(){
     el.addEventListener('input', apply);
   });
 }
+
+// Filters are always visible; no toggle.
 
 function buildTeamCategoryStats(team){
   const techs = byTeam(team);
