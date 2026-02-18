@@ -45,21 +45,28 @@ function renderMain(){
           </div>
           
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px">
+            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
               <div class="h2 techH2Big">Technician Dashboard</div>
-            <div class="pills" style="margin-left:18px">
-              <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmtPct(soldPerRo)}</div></div>
-            </div>
+
+              <!-- Header stat pills (top row next to title) -->
+              <div class="pills" style="margin-left:28px;transform:scale(1.5);transform-origin:left top">
+                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+                <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+                <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmtPct(soldPerRo)}</div></div>
+              </div>
             </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
-            <div class="big" style="display:block;font-size:38px;line-height:1.05;color:#fff">${topStatVal===null ? "—" : (focusIsSold ? fmtPct(topStatVal) : fmt1(topStatVal,1))}</div>
+            <div class="big" style="display:block;font-size:38px;line-height:1.05;color:#fff">
+              ${topStatVal===null ? "—" : (focusIsSold ? fmtPct(topStatVal) : fmt1(topStatVal,1))}
+            </div>
             <div class="tag">${topStatLbl}</div>
-            <div class="overallMetric" style="display:block;font-size:28px;line-height:1.05;color:rgba(255,255,255,.55);font-weight:900">${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}</div>
+
+            <div class="overallMetric" style="display:block;font-size:28px;line-height:1.05;color:rgba(255,255,255,.55);font-weight:900">
+              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}
+            </div>
             <div class="tag">${subStatLbl}</div>
           </div>
         </div>
@@ -68,7 +75,7 @@ function renderMain(){
           <div class="controls mainAlwaysOpen">
             <div>
               <label>Filter</label>
-              <select data-scope="main" data-ctl="filter">
+              <select data-scope="main" data-ctl="filter" style="min-width:108px !important;max-width:168px !important">
                 <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
                 <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
                 <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
@@ -76,21 +83,21 @@ function renderMain(){
             </div>
             <div>
               <label>Focus</label>
-              <select data-scope="main" data-ctl="sort">
+              <select data-scope="main" data-ctl="sort" style="min-width:108px !important;max-width:168px !important">
                 <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
                 <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
               </select>
             </div>
             <div>
               <label>Goal</label>
-              <select data-scope="main" data-ctl="goal">
+              <select data-scope="main" data-ctl="goal" style="min-width:108px !important;max-width:168px !important">
                 <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
                 <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
               </select>
             </div>
             <div>
               <label>Comparison</label>
-              <select data-scope="main" data-ctl="compare">
+              <select data-scope="main" data-ctl="compare" style="min-width:108px !important;max-width:168px !important">
                 <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
                 <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
                 <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
