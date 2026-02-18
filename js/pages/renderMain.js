@@ -24,7 +24,9 @@ function renderMain(){
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
-  const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+  
+  const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
+const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
   const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const appliedTextHtml = "";
@@ -67,7 +69,7 @@ function renderMain(){
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmtPct(soldPerRo)}</div></div>
+          <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
             </div>
             </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
@@ -75,12 +77,12 @@ function renderMain(){
           <div class="overallBlock">
             <!-- app.css hides .overallBlock .big with !important; use a different class name -->
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topStatVal===null ? "—" : (focusIsSold ? fmtPct(topStatVal) : fmt1(topStatVal,1))}
+              ${topStatVal===null ? "—" : (focusIsSold ? fmt1(topStatVal,2) : fmt1(topStatVal,1))}
             </div>
             <div class="tag">${topStatLbl}</div>
 
             <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}
+              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmt1(subStatVal,2))}
             </div>
             <div class="tag">${subStatLbl}</div>
           </div>

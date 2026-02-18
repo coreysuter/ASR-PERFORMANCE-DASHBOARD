@@ -1261,7 +1261,7 @@ function renderTeam(team, st){
                 <div class="rankLbl">ASRs/RO</div>
               </div>
               <div class="rankSub">
-                <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+                <div class="rankNum sub" style="color:#fff">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
                 <div class="rankLbl sub">SOLD/RO</div>
               </div>
             </div>
