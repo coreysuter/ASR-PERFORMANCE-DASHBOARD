@@ -22,12 +22,19 @@ function renderMain(){
   const totalAsr = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
   const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
-  const soldPct = totalAsr ? (totalSold/totalAsr) : null;
+  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
   const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
   const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const appliedTextHtml = "";
+
+  // Header (top-right) stats: reorder and restyle by Focus
+  const focusIsSold = st.sortBy === "sold_pct";
+  const topStatVal = focusIsSold ? soldPerRo : asrPerRo;
+  const topStatLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
+  const subStatVal = focusIsSold ? asrPerRo : soldPerRo;
+  const subStatLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
 
   const header = `
     <div class="panel techHeaderPanel">
@@ -40,20 +47,20 @@ function renderMain(){
           <div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px">
               <div class="h2 techH2Big">Technician Dashboard</div>
-            <div class="pills" style="margin-left:-50px">
+            <div class="pills" style="margin-left:18px">
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+          <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmtPct(soldPerRo)}</div></div>
             </div>
             </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
-            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-            <div class="tag">Avg ASR/RO (Store)</div>
-            <div class="overallMetric">${fmtPct(soldPct)}</div>
-            <div class="tag">Sold% (Store)</div>
+            <div class="big" style="display:block;font-size:38px;line-height:1.05;color:#fff">${topStatVal===null ? "—" : (focusIsSold ? fmtPct(topStatVal) : fmt1(topStatVal,1))}</div>
+            <div class="tag">${topStatLbl}</div>
+            <div class="overallMetric" style="display:block;font-size:28px;line-height:1.05;color:rgba(255,255,255,.55);font-weight:900">${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}</div>
+            <div class="tag">${subStatLbl}</div>
           </div>
         </div>
 
@@ -71,7 +78,7 @@ function renderMain(){
               <label>Focus</label>
               <select data-scope="main" data-ctl="sort">
                 <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
               </select>
             </div>
             <div>
