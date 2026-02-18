@@ -70,7 +70,7 @@ function renderMain(){
               <label>Focus</label>
               <select data-scope="main" data-ctl="sort">
                 <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
               </select>
             </div>
             <div>
