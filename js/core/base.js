@@ -1067,8 +1067,6 @@ function renderTeam(team, st){
   const techs=byTeam(team);
   const av=teamAverages(techs, st.filterKey);
 
-  const focusIsSold = (st && st.sortBy === \"sold_pct\");
-
   // Goal metric selection (from dashboard header Goal dropdown)
   const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
 
@@ -1183,17 +1181,19 @@ function renderTeam(team, st){
     return `
       <div class="techRow dashTechRow">
         <div class="dashLeft">
-          <div class="val name" style="font-size:16px">
+          <div class="val name" style="font-size:22px">
             <a href="#/tech/${encodeURIComponent(t.id)}" style="text-decoration:none;color:inherit" onclick="return goTech(${JSON.stringify(t.id)})">${safe(t.name)}</a>
           </div>
 
           <div class="techNameStats">
             <div class="tnRow tnRow1">
               <span class="tnMini"><span class="tnLbl">AVG ODO</span><span class="tnVal">${fmtInt(t.odo)}</span></span>
+              <span class="miniDot">•</span>
               <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(t.ros)}</span></span>
             </div>
             <div class="tnRow tnRow2">
               <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
+              <span class="miniDot">•</span>
               <span class="tnMini"><span class="tnLbl">SOLD</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
             </div>
           </div>
@@ -1225,7 +1225,7 @@ function renderTeam(team, st){
 
   const appliedParts = [
     `${filterLabel}`,
-    (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO")
+    (st.sortBy==="sold_pct" ? "Focus: Sold" : "Focus: ASR/RO")
   ];
   const appliedTextHtml = renderFiltersText(appliedParts);
 
@@ -1236,33 +1236,37 @@ function renderTeam(team, st){
         <div class="catHeader catHeaderSplit">
           <div class="catHdrLeft">
             <div>
-            <div class="catTitle">${safe(team)}</div>
-            <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
+              <div class="catTitle" style="font-size:32px">${safe(team)}</div>
+              <div class="muted svcMetaLine" style="margin-top:2px;color:rgba(255,255,255,.55)">${fmtInt(techs.length)} Technicians</div>
+            </div>
           </div>
-            <div class="dashPills2Row">
-              <div class="pills">
-                <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
-                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
+
+          <div class="catHdrMid">
+            <div class="dashPills2Row catDashPills">
+              <div class="pills pillsTop">
+                <div class="pill"><div class="k">AVG ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
+                <div class="pill"><div class="k">AVG ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
+                <div class="pill roPill"><div class="k">AVG ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
               </div>
-              <div class="pills">
-                <div class="pill"><div class="k">Total ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
-                <div class="pill"><div class="k">${st.sortBy==="sold_pct" ? "ASR/RO" : "Sold %"}</div><div class="v">${st.sortBy==="sold_pct" ? fmt1(av.asr_per_ro_avg,1) : fmtPct(av.sold_pct_avg)}</div></div>
+              <div class="pills pillsBottom">
+                <div class="pill"><div class="k">SOLD</div><div class="v">${fmtPct(av.sold_pct_avg)}</div></div>
               </div>
             </div>
           </div>
+
           <div class="catHdrRight">
             <div class="catRank">
-            <div class="rankMain">
-              <div class="rankNum">${focusIsSold ? (Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—") : fmt1(av.asr_per_ro_avg,1)}</div>
-              <div class="rankLbl">${focusIsSold ? "SOLD/RO" : "ASRs/RO"}</div>
-            </div>
-            <div class="rankSub">
-              <div class="rankNum sub">${focusIsSold ? fmt1(av.asr_per_ro_avg,1) : (Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—")}</div>
-              <div class="rankLbl sub">${focusIsSold ? "ASRs/RO" : "SOLD/RO"}</div>
+              <div class="rankMain">
+                <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
+                <div class="rankLbl">ASRs/RO</div>
+              </div>
+              <div class="rankSub">
+                <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+                <div class="rankLbl sub">SOLD/RO</div>
+              </div>
             </div>
           </div>
-          </div>
-        </div>
+</div>
 
         <!-- Removed per-team filters from EXPRESS/KIA category panels (filters are controlled in the main header) -->
       </div>

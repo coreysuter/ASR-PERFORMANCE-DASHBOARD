@@ -111,52 +111,6 @@ function renderGoalsPage(){
     `;
   }
 
-
-// ---- Mini Goals helpers (category headers) ----
-function _fmtGoalNum(x){
-  const n = Number(x);
-  if(!Number.isFinite(n)) return "0.00";
-  return n.toFixed(2);
-}
-// Outlined mini-goals box with a thin vertical divider
-function _miniGoalsBoxHtml(asrro, soldro, asrId, soldId, asrLab="ASRs/RO", soldLab="SOLD"){
-  const asrVal = safe(_fmtGoalNum(asrro));
-  const soldVal = safe(_fmtGoalNum(soldro));
-  const asrSpan = asrId ? `<div id="${safe(asrId)}" style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>` :
-                          `<div style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>`;
-  const soldSpan = soldId ? `<div id="${safe(soldId)}" style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>` :
-                            `<div style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>`;
-  return `
-    <div class="miniGoalsBox" style="border:1px solid rgba(255,255,255,0.22); border-radius:10px; padding:8px 10px; display:flex; align-items:stretch; gap:10px; background:rgba(0,0,0,0.06);">
-      <div style="min-width:88px; text-align:center; padding-right:10px;">
-        ${asrSpan}
-        <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(asrLab)}</div>
-      </div>
-      <div style="width:1px; background:rgba(255,255,255,0.22);"></div>
-      <div style="min-width:78px; text-align:center; padding-left:10px;">
-        ${soldSpan}
-        <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(soldLab)}</div>
-      </div>
-    </div>
-  `;
-}
-// Calculate goals for a list of service categories:
-// ASRs/RO = sum(ASR%/100); Sold/RO = sum((ASR%/100)*(Sold%/100))
-function _calcGoalsForCats(cats){
-  let asrro = 0;
-  let soldro = 0;
-  (cats||[]).forEach(cat=>{
-    const asrPct = Number(getGoalRaw(cat,"req"));
-    const soldPct = Number(getGoalRaw(cat,"close"));
-    const asrDec = Number.isFinite(asrPct) ? (asrPct/100) : 0;
-    const soldDec = Number.isFinite(soldPct) ? (soldPct/100) : 0;
-    asrro += asrDec;
-    soldro += (asrDec * soldDec);
-  });
-  return { asrro, soldro };
-}
-
-
   function quadHtml(title, cats, includeLeftovers=false, isBrakes=false, isTires=false){
     const list = (cats||[]).slice();
     let rows = list.map(c=>rowHtml(c)).join("");
@@ -167,8 +121,6 @@ function _calcGoalsForCats(cats){
       `;
     }
 
-
-    const slug = String(title||"other").toLowerCase().replace(/[^a-z0-9]+/g, "_");
 
     // Fluids quadrant: optional "ONE GOAL FOR ALL RECS?" toggle with synthetic ALL FLUIDS row
     if(String(title||"").toLowerCase()==="fluids"){
@@ -183,10 +135,7 @@ function _calcGoalsForCats(cats){
       // Add synthetic row (hidden unless apply-all is enabled)
       const allRow = rowHtml("__FLUIDS_ALL","ALL FLUIDS").replace('class="goalRow tight', 'class="goalRow tight fluidsAllRow');
       const body = `
-        <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
-        <div class="gqtL">${safe(title)}</div>
-        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
-      </div>
+        <div class="goalQuadTitle">${safe(title)}</div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
@@ -198,7 +147,7 @@ function _calcGoalsForCats(cats){
           ${rows}
         </div>
       `;
-      return `<div class="goalQuad" data-quad="${safe(slug)}">${body}</div>`;
+      return `<div class="goalQuad">${body}</div>`;
     }
 
     // Brakes quadrant: TOTAL + FRONT + REAR with Apply-to-all and Red/Yellow toggle
@@ -295,12 +244,11 @@ function brakeRowHtml(key,label,mappedCat){
     `;
   }
 
+  // Inline rows directly in the template below to avoid any scope/ordering issues.
+
   return `
-    <div class="goalQuad brakes ${ryGlobal?'ry-on':'ry-off'}" data-quad="${safe(slug)}">
-      <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
-        <div class="gqtL">${safe(title)}</div>
-        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
-      </div>
+    <div class="goalQuad brakes ${ryGlobal?'ry-on':'ry-off'}">
+      <div class="goalQuadTitle">${safe(title)}</div>
       ${applyRow}
       <div class="goalQuadHeadRow">
         <div class="ghName"></div>
@@ -403,12 +351,11 @@ function brakeRowHtml(key,label,mappedCat){
         `;
       }
 
+      // Inline rows directly in the template below to avoid any scope/ordering issues.
+
       return `
-        <div class="goalQuad tires ${ryGlobal?'ry-on':'ry-off'}" data-quad="${safe(slug)}">
-          <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
-        <div class="gqtL">${safe(title)}</div>
-        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
-      </div>
+        <div class="goalQuad tires ${ryGlobal?'ry-on':'ry-off'}">
+          <div class="goalQuadTitle">${safe(title)}</div>
           ${applyRow}
           <div class="goalQuadHeadRow">
             <div class="ghName"></div>
@@ -426,11 +373,8 @@ function brakeRowHtml(key,label,mappedCat){
     let applyRow = "";
 
     return `
-      <div class="goalQuad" data-quad="${safe(slug)}">
-        <div class="goalQuadTitle" style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
-        <div class="gqtL">${safe(title)}</div>
-        ${_miniGoalsBoxHtml(0,0,"gh_"+slug+"_asrro","gh_"+slug+"_soldro")}
-      </div>
+      <div class="goalQuad">
+        <div class="goalQuadTitle">${safe(title)}</div>
         ${applyRow}
         <div class="goalQuadHeadRow">
           <div class="ghName"></div>
@@ -446,30 +390,11 @@ function brakeRowHtml(key,label,mappedCat){
   app.innerHTML = `
     <div class="panel goalsBig halfPage">
       <div class="goalsBigTop">
-        <div class="goalsTitleRow" style="position:relative; display:flex; align-items:flex-start; gap:14px; width:100%;">
-          <div style="display:flex; align-items:flex-start; gap:12px;">
-            <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
-            <div>
-              <div class="goalsH1">GOALS</div>
-            </div>
-          </div>
-
-          <!-- top-right container inside GOALSBIGTOP -->
-          <div class="goalsBigTopRight" style="margin-left:auto; display:flex; justify-content:flex-end; flex:1;">
-            <div class="goalsMidGoals" style="text-align:center; border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:10px 14px; flex-shrink:0;">
-              <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
-              <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
-                <div style="text-align:center;">
-                  <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                  <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
-                </div>
-                <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
-                <div style="text-align:center;">
-                  <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                  <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
-                </div>
-              </div>
-            </div>
+        <div class="goalsTitleRow">
+          <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
+          <div>
+            <div class="goalsH1">GOALS</div>
+            <div class="sub" style="margin-top:4px">Set goals for each service. Values populate the “Goal:” lines throughout the dashboard.</div>
           </div>
         </div>
       </div>
@@ -484,118 +409,6 @@ function brakeRowHtml(key,label,mappedCat){
   `;
 
 
-  // -------------------- Live projections for category + total goals --------------------
-  // Category ASRs/RO Goal = sum over services of (ASR% / 100)
-  // Category Sold/RO Goal = sum over services of (ASR%/100) * (Sold%/100)
-  // Total goals = sum of category goals
-  function _pctToNum(v){
-    if(v==null) return 0;
-    const s = String(v).trim().replace(/%/g, "").replace(/,/g, "");
-    if(!s) return 0;
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function _sumGenericQuad(quadSlug){
-    const quad = document.querySelector(`.goalQuad[data-quad="${quadSlug}"]`);
-    if(!quad) return { asr: 0, sold: 0 };
-    let asr = 0;
-    let sold = 0;
-
-    // Sum actual service rows (exclude synthetic ALL row)
-    quad.querySelectorAll('.goalRow.tight').forEach(row=>{
-      if(row.classList.contains('fluidsAllRow')) return;
-      const req = row.querySelector('input[id$="_req"]');
-      const close = row.querySelector('input[id$="_close"]');
-      if(!req || !close) return;
-      const asrPct = _pctToNum(req.value);
-      const soldPct = _pctToNum(close.value);
-      const asrRo = asrPct/100;
-      const soldRo = asrRo*(soldPct/100);
-      asr += asrRo;
-      sold += soldRo;
-    });
-    return { asr, sold };
-  }
-
-  function _sumBrakes(){
-    const keys = ["BRAKES_TOTAL","BRAKES_FRONT","BRAKES_REAR"];
-    let asr = 0;
-    let sold = 0;
-    keys.forEach(k=>{
-      const enc = encodeURIComponent(k);
-      const asrPct = _pctToNum(document.getElementById(`b_${enc}_req_red`)?.value);
-      const soldPct = _pctToNum(document.getElementById(`b_${enc}_close_red`)?.value);
-      const asrRo = asrPct/100;
-      const soldRo = asrRo*(soldPct/100);
-      asr += asrRo;
-      sold += soldRo;
-    });
-    return { asr, sold };
-  }
-
-  function _sumTires(){
-    const keys = ["TIRES_TOTAL2","TIRES_TWO","TIRES_FOUR"];
-    let asr = 0;
-    let sold = 0;
-    keys.forEach(k=>{
-      const enc = encodeURIComponent(k);
-      const asrPct = _pctToNum(document.getElementById(`t_${enc}_req_red`)?.value);
-      const soldPct = _pctToNum(document.getElementById(`t_${enc}_close_red`)?.value);
-      const asrRo = asrPct/100;
-      const soldRo = asrRo*(soldPct/100);
-      asr += asrRo;
-      sold += soldRo;
-    });
-    return { asr, sold };
-  }
-
-  function _setHdr(id, val){
-    const el = document.getElementById(id);
-    if(el) el.textContent = Number(val||0).toFixed(2);
-  }
-
-  function recomputeGoals(){
-    const maint = _sumGenericQuad('maintenance');
-    const fluids = _sumGenericQuad('fluids');
-    const brakes = _sumBrakes();
-    const tires = _sumTires();
-
-    _setHdr('gh_maintenance_asrro', maint.asr);
-    _setHdr('gh_maintenance_soldro', maint.sold);
-    _setHdr('gh_fluids_asrro', fluids.asr);
-    _setHdr('gh_fluids_soldro', fluids.sold);
-    _setHdr('gh_brakes_asrro', brakes.asr);
-    _setHdr('gh_brakes_soldro', brakes.sold);
-    _setHdr('gh_tires_asrro', tires.asr);
-    _setHdr('gh_tires_soldro', tires.sold);
-
-    const totalAsr = maint.asr + fluids.asr + brakes.asr + tires.asr;
-    const totalSold = maint.sold + fluids.sold + brakes.sold + tires.sold;
-_setHdr('gh_mid_asrro', totalAsr);
-    _setHdr('gh_mid_soldro', totalSold);
-  }
-
-  let _rgRAF = 0;
-  function _scheduleRecompute(){
-    if(_rgRAF) cancelAnimationFrame(_rgRAF);
-    _rgRAF = requestAnimationFrame(()=>{
-      _rgRAF = 0;
-      recomputeGoals();
-    });
-  }
-
-  // Run once after paint
-  requestAnimationFrame(recomputeGoals);
-
-  // Live update whenever any input changes on this page
-  const _goalsPanel = document.querySelector('.panel.goalsBig');
-  if(_goalsPanel){
-    _goalsPanel.addEventListener('input', _scheduleRecompute, true);
-    _goalsPanel.addEventListener('change', _scheduleRecompute, true);
-  }
-
-
   // Wire up Fluids controls (Apply-to-all)
   function _setGoalRowDisabled(cat, disabled){
     const id = "row_"+encodeURIComponent(cat);
@@ -604,52 +417,25 @@ _setHdr('gh_mid_asrro', totalAsr);
     row.classList.toggle("rowDisabled", !!disabled);
     row.querySelectorAll("input").forEach(inp=>{ inp.disabled = !!disabled; });
   }
-  function _copyFluidsFromAll(targetCat){
-    const uEnc = encodeURIComponent("__FLUIDS_ALL");
-    const tEnc = encodeURIComponent(targetCat);
-    const uReq = document.getElementById(`g_${uEnc}_req`);
-    const uClose = document.getElementById(`g_${uEnc}_close`);
-    const tReq = document.getElementById(`g_${tEnc}_req`);
-    const tClose = document.getElementById(`g_${tEnc}_close`);
-    if(tReq && uReq) tReq.value = uReq.value;
-    if(tClose && uClose) tClose.value = uClose.value;
-  }
-
   function _applyFluidsApplyAll(){
     const yes = document.querySelector('input[name="fl_apply_all"][value="yes"]');
     const on = !!(yes && yes.checked);
     setGoalRaw("__META_FLUIDS","apply_all", on ? 1 : 0);
-
+    // show/hide synthetic row
     const wrap = document.querySelector('.fluidsAllRow')?.parentElement;
     if(wrap) wrap.classList.toggle("hidden", !on);
 
+    // disable all fluid service rows when apply-all is on
     for(const c of (FLUIDS||[])){
       _setGoalRowDisabled(c, on);
-      if(on) _copyFluidsFromAll(c);
     }
+    // keep ALL row enabled
     _setGoalRowDisabled("__FLUIDS_ALL", false);
-    _scheduleRecompute();
   }
   document.querySelectorAll('input[name="fl_apply_all"]').forEach(r=>{
     r.addEventListener("change", _applyFluidsApplyAll);
   });
   _applyFluidsApplyAll();
-
-  // When apply-all is ON, keep each fluids service in sync as you edit ALL FLUIDS
-  (function _wireFluidsAllInputs(){
-    const uEnc = encodeURIComponent("__FLUIDS_ALL");
-    ["req","close"].forEach(f=>{
-      const el = document.getElementById(`g_${uEnc}_${f}`);
-      if(!el) return;
-      el.addEventListener("input", ()=>{
-        const on = !!(document.querySelector('input[name="fl_apply_all"][value="yes"]')?.checked);
-        if(on){
-          (FLUIDS||[]).forEach(c=>_copyFluidsFromAll(c));
-          _scheduleRecompute();
-        }
-      });
-    });
-  })();
 
   // Wire up Brakes controls (Apply-to-all + Red/Yellow toggles)
   function _setRowDisabled(brakeKey, disabled){
@@ -762,17 +548,6 @@ _setHdr('gh_mid_asrro', totalAsr);
     applyNow();
   }
 
-
-  function _copyBrakeFromTotal(toKey){
-    const tEnc = encodeURIComponent("BRAKES_TOTAL");
-    const dEnc = encodeURIComponent(toKey);
-    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
-      const src = document.getElementById(`b_${tEnc}_${sfx}`);
-      const dst = document.getElementById(`b_${dEnc}_${sfx}`);
-      if(src && dst) dst.value = src.value;
-    });
-  }
-
 function _wireBrakes(){
     const yes = document.querySelector('input[name="br_apply_all"][value="yes"]');
     const no  = document.querySelector('input[name="br_apply_all"][value="no"]');
@@ -780,32 +555,11 @@ function _wireBrakes(){
       const applyAll = !!(yes && yes.checked);
       _setRowDisabled("BRAKES_FRONT", applyAll);
       _setRowDisabled("BRAKES_REAR",  applyAll);
-      if(applyAll){
-        _copyBrakeFromTotal("BRAKES_FRONT");
-        _copyBrakeFromTotal("BRAKES_REAR");
-      }
       _applyYellowGlobal();
-      _scheduleRecompute();
     };
     if(yes) yes.addEventListener("change", applyNow);
     if(no)  no.addEventListener("change", applyNow);
 
-
-    // When apply-all is ON, keep FRONT/REAR in sync as you edit TOTAL
-    ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
-      const id = `b_${encodeURIComponent("BRAKES_TOTAL")}_${sfx}`;
-      const el = document.getElementById(id);
-      if(el){
-        el.addEventListener("input", ()=>{
-          const applyAll = !!(document.querySelector('input[name="br_apply_all"][value="yes"]')?.checked);
-          if(applyAll){
-            _copyBrakeFromTotal("BRAKES_FRONT");
-            _copyBrakeFromTotal("BRAKES_REAR");
-            _scheduleRecompute();
-          }
-        });
-      }
-    });
     // If universal is enabled, keep TWO/Four in sync as you edit the TOTAL row
     ["req_red","close_red","req_yellow","close_yellow"].forEach(sfx=>{
       const id = `t_${encodeURIComponent("TIRES_TOTAL2")}_${sfx}`;
@@ -1005,6 +759,8 @@ window.addEventListener("resize", ()=>{
   const saveBtn = document.getElementById("saveGoalsAll");
   if(saveBtn){
     saveBtn.addEventListener("click", ()=>{
+      const __silent = (window.__silentGoalsSave===true);
+      window.__silentGoalsSave = false;
       // Save everything we rendered (including leftovers + brakes special keys)
       const catsToSave = Array.from(new Set([
         ...MAINT, ...FLUIDS, ...BRAKES, ...TIRES, ...leftovers
@@ -1163,6 +919,7 @@ if(ryOn){
 
       // Persist
       if(typeof persistGoals==="function") persistGoals();
+      if(!__silent){
 
       const old = saveBtn.textContent;
       saveBtn.textContent = "Saved";
@@ -1171,7 +928,27 @@ if(ryOn){
         saveBtn.textContent = old;
         saveBtn.disabled = false;
       }, 900);
+      }
     });
+
+    // Auto-persist on any edit so switching pages doesn't wipe inputs
+    let __autoSaveT = null;
+    const __scheduleAutoSave = ()=>{
+      clearTimeout(__autoSaveT);
+      __autoSaveT = setTimeout(()=>{
+        try{
+          window.__silentGoalsSave = true;
+          saveBtn.click(); // reuses existing save routine
+        }catch(_e){}
+      }, 150);
+    };
+
+    // Listen for changes within the Goals panel (inputs + toggles)
+    const __goalsPanel = document.querySelector(".goalsBig");
+    if(__goalsPanel){
+      __goalsPanel.addEventListener("input", __scheduleAutoSave, true);
+      __goalsPanel.addEventListener("change", __scheduleAutoSave, true);
+    }
   }
 }
 /* -------------------- Services & Settings routing helpers -------------------- */

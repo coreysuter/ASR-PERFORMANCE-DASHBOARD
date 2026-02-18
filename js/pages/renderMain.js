@@ -1,12 +1,6 @@
 function renderMain(){
   const app=document.getElementById('app');
 
-  // Ensure state exists (prevents "ReferenceError: state is not defined" if script load order changes)
-  const state = window.state || (window.state = {});
-  state.EXPRESS = state.EXPRESS || {};
-  state.KIA = state.KIA || {};
-
-
   // Main header filters are always visible (no collapse)
 
   // keep Express/Kia in sync
@@ -28,7 +22,6 @@ function renderMain(){
   const totalAsr = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
   const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
-  const soldPct = totalAsr ? (totalSold/totalAsr) : null;
   const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
   const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
@@ -36,39 +29,60 @@ function renderMain(){
   const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const appliedTextHtml = "";
 
-  // The "status" block (top-right) should prioritize the currently focused metric.
-  const focusIsSold = (st.sortBy === "sold_pct");
-  const topVal = focusIsSold ? soldPerRo : asrPerRo;
-  const topLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
-  const botVal = focusIsSold ? asrPerRo : soldPerRo;
-  const botLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
-  const topValText = (topVal===null ? "—" : fmt1(topVal,1));
-  const botValText = (botVal===null ? "—" : fmt1(botVal,1));
+  // Top-right status block shows the Focus stat on top (bigger/white), non-focus below (smaller/grey)
+  const focusIsSold = st.sortBy === "sold_pct";
+  const topStatVal = focusIsSold ? soldPerRo : asrPerRo;
+  const topStatLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
+  const subStatVal = focusIsSold ? asrPerRo : soldPerRo;
+  const subStatLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
 
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
+        <style>
+          /* Keep pills in the top row and prevent overlap with the title */
+          .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
+          .techHeaderPanel .techH2Big{flex:0 0 auto !important;}
+          .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
+
+          /* Tech header stat pills sizing (requested) */
+          .techHeaderPanel .pills .pill .v{font-size:24px !important;line-height:1.05 !important;}
+          .techHeaderPanel .pills .pill .k{font-size:16px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;}
+
+          /* Make the header filters 30% wider than the base app.css sizing */
+          .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen select{
+            min-width:152px !important;
+            max-width:237px !important;
+          }
+        </style>
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
+          
           <div class="techNameWrap">
-            <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
-              <div class="h2 techH2Big" style="margin-right:auto">Technician Dashboard</div>
-              <div class="pills" style="margin-top:0">
-                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-                <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-                <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
-              </div>
+            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
+              <div class="h2 techH2Big">Technician Dashboard</div>
+            <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
+              <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmtPct(soldPerRo)}</div></div>
+            </div>
             </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
-            <div class="big" style="display:block !important;font-size:38px;color:#fff;line-height:1.05">${topValText}</div>
-            <div class="tag">${topLbl}</div>
-            <div class="overallMetric" style="font-size:28px;color:rgba(255,255,255,.60);line-height:1.05;font-weight:900">${botValText}</div>
-            <div class="tag">${botLbl}</div>
+            <!-- app.css hides .overallBlock .big with !important; use a different class name -->
+            <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
+              ${topStatVal===null ? "—" : (focusIsSold ? fmtPct(topStatVal) : fmt1(topStatVal,1))}
+            </div>
+            <div class="tag">${topStatLbl}</div>
+
+            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
+              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}
+            </div>
+            <div class="tag">${subStatLbl}</div>
           </div>
         </div>
 
