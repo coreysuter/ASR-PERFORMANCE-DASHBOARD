@@ -40,16 +40,19 @@ function renderMain(){
     <div class="panel techHeaderPanel">
       <div class="phead">
         <style>
-          /* Tech header stat pills sizing */
+          /* Keep pills in the top row and prevent overlap with the title */
           .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
-          .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;}
-          .techHeaderPanel .pills .pill .v{font-size:28px !important;line-height:1.05 !important;}
-          .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;}
+          .techHeaderPanel .techH2Big{flex:0 0 auto !important;}
+          .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
+
+          /* Tech header stat pills sizing (requested) */
+          .techHeaderPanel .pills .pill .v{font-size:24px !important;line-height:1.05 !important;}
+          .techHeaderPanel .pills .pill .k{font-size:16px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;}
 
           /* Make the header filters 30% wider than the base app.css sizing */
           .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen select{
-            min-width:117px !important;
-            max-width:182px !important;
+            min-width:152px !important;
+            max-width:237px !important;
           }
         </style>
         <div class="titleRow techTitleRow">
@@ -60,11 +63,11 @@ function renderMain(){
           <div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
               <div class="h2 techH2Big">Technician Dashboard</div>
-            <div class="pills" style="margin-left:18px;display:flex;gap:10px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
+            <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div></div>
+          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmtPct(soldPerRo)}</div></div>
             </div>
             </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
@@ -72,12 +75,12 @@ function renderMain(){
           <div class="overallBlock">
             <!-- app.css hides .overallBlock .big with !important; use a different class name -->
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topStatVal===null ? "—" : (focusIsSold ? fmt1(topStatVal,2) : fmt1(topStatVal,1))}
+              ${topStatVal===null ? "—" : (focusIsSold ? fmtPct(topStatVal) : fmt1(topStatVal,1))}
             </div>
             <div class="tag">${topStatLbl}</div>
 
-            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:rgba(255,255,255,.55);font-weight:1000">
-              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmt1(subStatVal,2))}
+            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
+              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}
             </div>
             <div class="tag">${subStatLbl}</div>
           </div>
@@ -100,7 +103,13 @@ function renderMain(){
                 <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
               </select>
             </div>
-            
+            <div>
+              <label>Goal</label>
+              <select data-scope="main" data-ctl="goal">
+                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
+              </select>
+            </div>
             <div>
               <label>Comparison</label>
               <select data-scope="main" data-ctl="compare">
@@ -109,16 +118,6 @@ function renderMain(){
                 <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
               </select>
             </div>
-            ${compareMode==="goal" ? `
-            <div>
-              <label>Goal</label>
-              <select data-scope="main" data-ctl="goal">
-                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
-              </select>
-            </div>
-            ` : ``}
-
           </div>
           <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
