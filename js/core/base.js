@@ -1208,7 +1208,7 @@ function renderTeam(team, st){
 
             <div class="pillGroup pillGroupB">
               <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-              <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+              <div class="pill${clsSoldRo}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
               <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
             </div>
           </div>
@@ -1260,10 +1260,11 @@ function renderTeam(team, st){
                 <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
                 <div class="rankLbl">ASRs/RO</div>
               </div>
-              <div class="rankSub">
-                <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
-                <div class="rankLbl sub">SOLD/RO</div>
-              </div>
+            <div class="rankSub">
+              <!-- Bottom focus stat value should be WHITE; label stays grey -->
+              <div class="rankNum sub" style="color:var(--text)">${Number.isFinite(av.sold_pct_avg) ? fmtPct(av.sold_pct_avg) : "—"}</div>
+              <div class="rankLbl sub">SOLD/ASR</div>
+            </div>
             </div>
           </div>
 </div>
