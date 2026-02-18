@@ -115,15 +115,6 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 @media (max-width: 980px){
   .catHeader{grid-template-columns:1fr}
 .catHdrRight{display:flex;align-items:center;gap:10px}
-
-/* Main dashboard team headers (EXPRESS/KIA): allow a middle column for stat pills on the top row */
-.catHeaderSplit .catHdrMid{
-  flex: 1 1 auto;
-  min-width: 0;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-}
 .svcGaugeWrap{flex:0 0 auto}
   .benchGrid4{grid-template-columns:1fr 1fr}
   .detailLower{grid-template-columns:1fr}
@@ -1423,23 +1414,6 @@ body.route-tech .catTitle .meta{
 body.route-tech .techHeaderWrap{
   align-items:flex-start !important;
 }
-
-/* ===============================
-   EXPRESS / KIA main headers: stat pills placement
-   - Move pills to the very top of the header row
-   - Nudge slightly to the right
-   =============================== */
-
-.catHeaderSplit .catHdrMid{
-  align-self:flex-start;
-  justify-content:flex-start;
-  margin-top:-10px;      /* pull pills to very top */
-  margin-left:14px;      /* slight right nudge */
-}
-
-.catHeaderSplit .dashPills2Row{
-  margin-top:0;
-}
 body.route-tech .techHeaderWrap > .panel{
   height:auto !important;
 }
@@ -1963,7 +1937,11 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 }
 
 
-/* STEP1: Category header focus stats - bottom value white, label stays grey */
-.catHeader .catRank .rankSub .rankNum.sub{color:#fff !important;}
-/* keep label grey */
-.catHeader .catRank .rankSub .rankLbl.sub{color:rgba(255,255,255,.55) !important;}
+/* === PATCH 2026-02-18: Category header focus stats bottom value white === */
+.catHeaderSplit .catRank .rankNum.sub{
+  color: var(--text) !important;
+}
+/* Ensure sub-label stays grey */
+.catHeaderSplit .catRank .rankLbl.sub{
+  color: var(--muted) !important;
+}
