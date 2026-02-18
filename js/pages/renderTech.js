@@ -719,9 +719,9 @@ const tb = getTeamBenchmarks(cat, team) || {};
     const compareLabel = (compareBasis==="store") ? "Store Avg" : "Team Avg";
 
     const asrBlock = `
-      <div class="metricBlock">
+      <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
-          <div class="mbKicker">ASR/RO%</div>
+          <div class="mbKicker">ASR/RO</div>
           <div class="mbStat ${bandClass(pctCmpReq)}">${fmtPct(req)}</div>
         </div>
         <div class="mbRight">
@@ -768,7 +768,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
     `;
 
 const soldBlock = `
-      <div class="metricBlock">
+      <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
           <div class="mbKicker">Sold%</div>
           <div class="mbStat ${bandClass(pctCmpClose)}">${fmtPct(close)}</div>
