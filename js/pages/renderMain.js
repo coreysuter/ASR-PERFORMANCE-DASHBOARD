@@ -23,6 +23,7 @@ function renderMain(){
   const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPct = totalAsr ? (totalSold/totalAsr) : null;
+  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
   const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
@@ -41,10 +42,10 @@ function renderMain(){
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
-            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-            <div class="tag">Avg ASR/RO (Store)</div>
-            <div class="overallMetric">${fmtPct(soldPct)}</div>
-            <div class="tag">Sold% (Store)</div>
+            <div class="big" style="display:block !important">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
+            <div class="tag">ASRs/RO</div>
+            <div class="overallMetric">${soldPerRo===null ? "—" : fmt1(soldPerRo,1)}</div>
+            <div class="tag">Sold/RO</div>
           </div>
         </div>
 
