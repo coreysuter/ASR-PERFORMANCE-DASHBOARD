@@ -1,6 +1,12 @@
 function renderMain(){
   const app=document.getElementById('app');
 
+  // Ensure state exists (prevents "ReferenceError: state is not defined" if script load order changes)
+  const state = window.state || (window.state = {});
+  state.EXPRESS = state.EXPRESS || {};
+  state.KIA = state.KIA || {};
+
+
   // Main header filters are always visible (no collapse)
 
   // keep Express/Kia in sync
@@ -30,6 +36,15 @@ function renderMain(){
   const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const appliedTextHtml = "";
 
+  // The "status" block (top-right) should prioritize the currently focused metric.
+  const focusIsSold = (st.sortBy === "sold_pct");
+  const topVal = focusIsSold ? soldPerRo : asrPerRo;
+  const topLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
+  const botVal = focusIsSold ? asrPerRo : soldPerRo;
+  const botLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
+  const topValText = (topVal===null ? "—" : fmt1(topVal,1));
+  const botValText = (botVal===null ? "—" : fmt1(botVal,1));
+
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
@@ -38,22 +53,23 @@ function renderMain(){
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
           <div class="techNameWrap">
-            <div class="h2 techH2Big">Technician Dashboard</div>
+            <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+              <div class="h2 techH2Big" style="margin-right:auto">Technician Dashboard</div>
+              <div class="pills" style="margin-top:0">
+                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+                <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+                <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+              </div>
+            </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
-            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-            <div class="tag">Avg ASR/RO (Store)</div>
-            <div class="overallMetric">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div>
-            <div class="tag">Sold/RO</div>
+            <div class="big" style="display:block !important;font-size:38px;color:#fff;line-height:1.05">${topValText}</div>
+            <div class="tag">${topLbl}</div>
+            <div class="overallMetric" style="font-size:28px;color:rgba(255,255,255,.60);line-height:1.05;font-weight:900">${botValText}</div>
+            <div class="tag">${botLbl}</div>
           </div>
-        </div>
-
-        <div class="pills">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">SOLD/ASR</div><div class="v">${fmtPct(soldPct)}</div></div>
         </div>
 
         <div class="mainFiltersBar">
@@ -70,7 +86,7 @@ function renderMain(){
               <label>Focus</label>
               <select data-scope="main" data-ctl="sort">
                 <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
               </select>
             </div>
             <div>
