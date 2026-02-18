@@ -94,7 +94,7 @@
       const onClick = `event.preventDefault(); window.closeDiagPopup(); const el=document.getElementById('${id}'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'});`;
       const nm = (typeof window.catLabel==="function") ? window.catLabel(it.cat) : it.cat;
       return `
-        <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer">
+        <button class="diagPopRowBtn" type="button" data-target="${id}" data-catraw="${escHtml(it.cat)}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer">
           <span class="rankNum">${i+1}.</span>
           <span class="tbName" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(nm)}</span>
           <span class="tbVal" style="margin-left:auto;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${lbl} ${fmtPctLocal(it.val)}</span>
@@ -160,17 +160,36 @@
     `;
     document.body.appendChild(pop);
 
-    // Row clicks: jump to service and close popup
+    // Row clicks: expand minimized section (if needed), jump to service, then close popup
     pop.addEventListener("click", (e)=> {
       const btn = e.target && e.target.closest ? e.target.closest(".diagPopRowBtn") : null;
       if(!btn) return;
+
+      // Prefer the global helper (it expands collapsed sections consistently)
+      const catRaw = btn.getAttribute("data-catraw") || "";
+      if(catRaw && typeof window.jumpToService === "function"){
+        window.jumpToService(catRaw);
+        window.closeDiagPopup && window.closeDiagPopup();
+        return;
+      }
+
+      // Fallback: expand the containing panel and scroll to the target element
       const targetId = btn.getAttribute("data-target");
       if(targetId){
         const el = document.getElementById(targetId);
-        if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+        if(el){
+          const panel = el.closest(".panel");
+          if(panel && panel.classList && panel.classList.contains("secCollapsed")){
+            panel.classList.remove("secCollapsed");
+            const tg = panel.querySelector(".secHeadRow .secToggle");
+            if(tg) tg.textContent = "−";
+          }
+          el.scrollIntoView({behavior:"smooth", block:"start"});
+        }
       }
       window.closeDiagPopup && window.closeDiagPopup();
     }, true);
+
 
 
     const r = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect() : ((ev && ev.target && ev.target.getBoundingClientRect) ? ev.target.getBoundingClientRect() : {left:20,top:20,right:20});
@@ -999,7 +1018,7 @@ return `
           <span class="rankNum" style="font-size:14px;font-weight:700">${idx}.</span>
           <button type="button"
             class="tbJump"
-            data-cat="${safeSvcId(item.cat)}"
+            data-cat="${safeSvcId(item.cat)}" data-catraw="${safe(item.cat)}"
             style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;font:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">
             ${safe(item.label)}
           </button>
@@ -1087,33 +1106,35 @@ return `
   const headerWrap = `<div class="techHeaderWrap" style="display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
-  // Top/Bottom 3 clicks: jump to service card reliably
+  // Top/Bottom 3 clicks: expand minimized section (if needed) and jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){
     tp.addEventListener('click', (e)=>{
       const b = e.target && e.target.closest ? e.target.closest('.tbJump') : null;
       if(!b) return;
       e.preventDefault();
+
+      const catRaw = b.getAttribute('data-catraw') || "";
+      if(catRaw && typeof window.jumpToService === "function"){
+        window.jumpToService(catRaw);
+        return;
+      }
+
       const id = b.getAttribute('data-cat');
       if(!id) return;
       const el = document.getElementById(id);
-      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      if(el){
+        const panel = el.closest(".panel");
+        if(panel && panel.classList && panel.classList.contains("secCollapsed")){
+          panel.classList.remove("secCollapsed");
+          const tg = panel.querySelector(".secHeadRow .secToggle");
+          if(tg) tg.textContent = "−";
+        }
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
     }, true);
   }
 
-  animateSvcGauges();
-  initSectionToggles();
-
-  const sel = document.getElementById('techFilter');
-  if(sel){
-    sel.addEventListener('change', ()=>{
-      const v = sel.value || "total";
-      const c = encodeURIComponent(compareBasis||"team");
-      const fo = encodeURIComponent(focus||"asr");
-      const g = encodeURIComponent(goalMetric||"asr");
-      location.hash = `#/tech/${encodeURIComponent(t.id)}?filter=${encodeURIComponent(v)}&compare=${c}&focus=${fo}&goal=${g}`;
-    });
-  }
 
   const compSel = document.getElementById('compareBasis');
   if(compSel){
