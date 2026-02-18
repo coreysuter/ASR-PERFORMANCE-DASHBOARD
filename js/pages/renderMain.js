@@ -45,9 +45,9 @@ function renderMain(){
           </div>
           
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap">
               <div class="h2 techH2Big">Technician Dashboard</div>
-            <div class="pills" style="margin-left:14px;transform:scale(.75);transform-origin:left top">
+            <div class="pills" style="margin-left:14px;transform:scale(1.875);transform-origin:left top;white-space:nowrap">
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
