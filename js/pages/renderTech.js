@@ -709,7 +709,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
       if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
       hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%")))}</div>
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR")))}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
@@ -770,7 +770,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
 const soldBlock = `
       <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
-          <div class="mbKicker">Sold%</div>
+          <div class="mbKicker">Sold</div>
           <div class="mbStat ${bandClass(pctCmpClose)}">${fmtPct(close)}</div>
         </div>
         <div class="mbRight">
@@ -819,7 +819,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal%":"ASR%"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
@@ -936,6 +936,10 @@ function sectionRankFor(sec){
     const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
     const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
+    const topStatVal = (focus==="sold") ? fmtPct(secStats.avgClose) : (focus==="goal" ? fmtPct(pctGoal) : fmt1(secStats.sumReq,1));
+    const topStatTitle = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASRs/RO");
+    const botStatVal = (focus==="sold") ? fmt1(secStats.sumReq,1) : fmtPct(secStats.avgClose);
+    const botStatTitle = (focus==="sold") ? "ASRs/RO" : "Sold";
     const rows = __cats.map(cat=>renderCategoryRectSafe(cat, compareBasis)).join("");
 return `
       <div class="panel">
@@ -948,10 +952,16 @@ return `
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
-                <div class="big">${fmt1(secStats.sumReq,1)}</div>
-                <div class="tag">ASRs/RO</div>
-                <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
+            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
+                <div class="secStatBlock">
+                  <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
+                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>
+                </div>
+                <div class="secStatBlock" style="margin-top:10px">
+                  <div class="secStatVal" style="font-size:28px;font-weight:1000;line-height:1;color:rgba(255,255,255,.78)">${botStatVal}</div>
+                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.55)">${botStatTitle}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
