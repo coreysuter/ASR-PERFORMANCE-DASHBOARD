@@ -45,6 +45,12 @@ function renderMain(){
           .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;}
           .techHeaderPanel .pills .pill .v{font-size:28px !important;line-height:1.05 !important;}
           .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;}
+
+          /* Make the header filters 30% wider than the base app.css sizing */
+          .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen select{
+            min-width:117px !important;
+            max-width:182px !important;
+          }
         </style>
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
