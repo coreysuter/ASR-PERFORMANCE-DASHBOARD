@@ -1234,9 +1234,13 @@ function renderTeam(team, st){
         <div class="catHeader catHeaderSplit">
           <div class="catHdrLeft">
             <div>
-            <div class="catTitle">${safe(team)}</div>
-            <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
+              <div class="catTitle">${safe(team)}</div>
+              <div class="muted svcMetaLine" style="margin-top:2px">${fmtInt(techs.length)} Technicians</div>
+            </div>
           </div>
+
+          <!-- Stat pills moved to the TOP ROW (between the header and the right-side stats) -->
+          <div class="catHdrMid">
             <div class="dashPills2Row">
               <div class="pills">
                 <div class="pill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
@@ -1248,17 +1252,18 @@ function renderTeam(team, st){
               </div>
             </div>
           </div>
+
           <div class="catHdrRight">
             <div class="catRank">
-            <div class="rankMain">
-              <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
-              <div class="rankLbl">ASRs/RO</div>
+              <div class="rankMain">
+                <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
+                <div class="rankLbl">ASRs/RO</div>
+              </div>
+              <div class="rankSub">
+                <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+                <div class="rankLbl sub">SOLD/RO</div>
+              </div>
             </div>
-            <div class="rankSub">
-              <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
-              <div class="rankLbl sub">SOLD/RO</div>
-            </div>
-          </div>
           </div>
         </div>
 
