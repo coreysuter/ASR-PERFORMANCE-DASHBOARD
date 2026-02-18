@@ -43,7 +43,8 @@ function renderMain(){
           /* Tech header stat pills sizing */
           .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
           .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;}
-          .techHeaderPanel .pills .pill .v{font-size:32px !important;line-height:1.05 !important;}
+          .techHeaderPanel .pills .pill .v{font-size:28px !important;line-height:1.05 !important;}
+          .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;}
         </style>
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
