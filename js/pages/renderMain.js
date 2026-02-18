@@ -1,8 +1,7 @@
 function renderMain(){
   const app=document.getElementById('app');
 
-  // Main header owns the team filters now
-  if(typeof UI !== 'undefined' && UI.mainFiltersOpen===undefined) UI.mainFiltersOpen=false;
+  // Main header filters are always visible (no collapse)
 
   // keep Express/Kia in sync
   if(state && state.EXPRESS && state.KIA){
@@ -28,14 +27,10 @@ function renderMain(){
   const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
   const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
-  const filterLabel = st.filterKey==="without_fluids" ? "Without Fluids" : (st.filterKey==="fluids_only" ? "Fluids Only" : "With Fluids (Total)");
-  const focusLabel = (st.sortBy==="sold_pct" ? "Focus: Sold%" : "Focus: ASR/RO");
-  const goalLabel = `Goal: ${goalMetric==="sold" ? "Sold" : "ASR"}`;
-  const compareLabel = `Compare: ${compareMode.toUpperCase()}`;
-  const appliedTextHtml = (typeof renderFiltersText === 'function') ? renderFiltersText([filterLabel, focusLabel, goalLabel, compareLabel]) : "";
+  const appliedTextHtml = "";
 
   const header = `
-    <div class="panel mainHeaderPanel">
+    <div class="panel techHeaderPanel">
       <div class="phead">
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
@@ -60,14 +55,8 @@ function renderMain(){
           <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
         </div>
 
-        <div class="iconBar">
-          <button class="iconBtn" onclick="toggleMainFilters()" aria-label="Filters" title="Filters">${typeof ICON_FILTER!=='undefined' ? ICON_FILTER : '⏷'}</button>
-          <div class="appliedInline">${appliedTextHtml}</div>
-          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
-        </div>
-
-        <div class="ctlPanel ${(typeof UI!=='undefined' && UI.mainFiltersOpen)?"open":""}">
-          <div class="controls">
+        <div class="mainFiltersBar">
+          <div class="controls mainAlwaysOpen">
             <div>
               <label>Filter</label>
               <select data-scope="main" data-ctl="filter">
@@ -99,6 +88,7 @@ function renderMain(){
               </select>
             </div>
           </div>
+          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
       </div>
     </div>
@@ -132,13 +122,7 @@ function renderMain(){
   });
 }
 
-function toggleMainFilters(){
-  if(typeof UI==='undefined') return;
-  UI.mainFiltersOpen = !UI.mainFiltersOpen;
-  renderMain();
-}
-
-window.toggleMainFilters = toggleMainFilters;
+// Filters are always visible; no toggle.
 
 function buildTeamCategoryStats(team){
   const techs = byTeam(team);

@@ -181,7 +181,7 @@
           const panel = el.closest(".panel");
           if(panel && panel.classList && panel.classList.contains("secCollapsed")){
             panel.classList.remove("secCollapsed");
-            const tg = panel.querySelector(".secHeadRow .secToggle");
+            const tg = panel.querySelector(".secToggle");
             if(tg) tg.textContent = "−";
           }
           el.scrollIntoView({behavior:"smooth", block:"start"});
@@ -953,7 +953,9 @@ return `
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
+            <div class="secHdrRight">
+              <button class="secToggle" type="button" aria-label="Collapse section" style="width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-weight:1000;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">−</button>
+              <div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right">
                 <div class="big">${fmt1(secStats.sumReq,1)}</div>
                 <div class="tag">ASRs/RO</div>
                 <div style="margin-top:6px;text-align:right;color:var(--muted);font-weight:900;font-size:13px">Sold%: <b style="color:var(--text)">${fmtPct(secStats.avgClose)}</b></div></div>
@@ -990,7 +992,11 @@ return `
     const el = document.getElementById(id);
     if(!el){ console.warn("jumpToService: not found", id); return false; }
     const sec = el.closest(".sectionFrame") || el.closest(".panel") || null;
-    if(sec && sec.classList && sec.classList.contains("secCollapsed")) sec.classList.remove("secCollapsed");
+    if(sec && sec.classList && sec.classList.contains("secCollapsed")){
+      sec.classList.remove("secCollapsed");
+      const tg = sec.querySelector && sec.querySelector(".secToggle");
+      if(tg) tg.textContent = "−";
+    }
     el.scrollIntoView({behavior:"smooth", block:"start"});
     if(el.classList){
       el.classList.add("flashPick");
@@ -1106,6 +1112,27 @@ return `
   const headerWrap = `<div class="techHeaderWrap" style="display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
+
+  // Section expand/collapse buttons
+  const appRoot = document.getElementById('app');
+  if(appRoot){
+    appRoot.addEventListener('click', (e)=>{
+      const btn = e.target && e.target.closest ? e.target.closest('.secToggle') : null;
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const panel = btn.closest('.panel');
+      if(!panel) return;
+      const isCollapsed = panel.classList.contains('secCollapsed');
+      if(isCollapsed){
+        panel.classList.remove('secCollapsed');
+        btn.textContent = '−';
+      }else{
+        panel.classList.add('secCollapsed');
+        btn.textContent = '+';
+      }
+    }, true);
+  }
   // Top/Bottom 3 clicks: expand minimized section (if needed) and jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){
@@ -1124,12 +1151,12 @@ return `
       if(!id) return;
       const el = document.getElementById(id);
       if(el){
-        const panel = el.closest(".panel");
-        if(panel && panel.classList && panel.classList.contains("secCollapsed")){
-          panel.classList.remove("secCollapsed");
-          const tg = panel.querySelector(".secHeadRow .secToggle");
-          if(tg) tg.textContent = "−";
-        }
+          const panel = el.closest(".panel");
+          if(panel && panel.classList && panel.classList.contains("secCollapsed")){
+            panel.classList.remove("secCollapsed");
+            const tg = panel.querySelector(".secToggle");
+            if(tg) tg.textContent = "−";
+          }
         el.scrollIntoView({behavior:'smooth', block:'start'});
       }
     }, true);
