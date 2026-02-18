@@ -1535,21 +1535,6 @@ body.route-tech .techPickPanel .pickList .techRow > div:first-child{
   align-items:center !important;
   gap:10px !important;
   min-width:0 !important; /* enable ellipsis */
-  flex:1 1 auto !important; /* allow the left cluster to shrink */
-}
-
-/* FIX: long service names in Bottom 3 can overflow unless the name button is allowed to shrink */
-body.route-tech .techPickPanel .techRowLeft{
-  flex:1 1 auto !important;
-  min-width:0 !important;
-}
-body.route-tech .techPickPanel .techRowLeft .rankNum{
-  flex:0 0 auto !important;
-}
-body.route-tech .techPickPanel .techRowLeft .tbJump{
-  flex:1 1 auto !important;
-  min-width:0 !important;
-  display:block !important;
 }
 
 /* Prevent the mini metric (ASR%/Sold%) from dropping to a 2nd line */
@@ -1716,7 +1701,8 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
 */
 body.route-tech .techHeaderWrap{
   display:grid !important;
-  grid-template-columns: 0.85fr 1.15fr !important;
+  /* Give the diag section more horizontal room by shrinking the tech-name header column ~15% */
+  grid-template-columns: minmax(0,0.72fr) minmax(0,1.28fr) !important;
   gap:14px !important;
   align-items:stretch !important;
 }
@@ -1768,3 +1754,184 @@ body.route-tech .techPickPanel .phead{
 .techHeaderWrap > .panel{ min-width:0 !important; }
 .techPickPanel{ overflow-x:hidden !important; }
 .techPickPanel .phead{ overflow-x:hidden !important; }
+
+/* === TECH DETAILS: give the diag section more horizontal room (prevents top-right cutoff) === */
+/* NOTE: uses !important to override any inline grid-template-columns coming from renderTech.js */
+.techHeaderWrap{
+  grid-template-columns: minmax(0,0.70fr) minmax(0,1.30fr) !important;
+}
+.techHeaderWrap > *{min-width:0}
+.techHeaderWrap .techHeaderPanel,
+.techHeaderWrap .techPickPanel{min-width:0}
+/* avoid long rows forcing overflow inside the panel (panels have overflow:hidden) */
+.techHeaderWrap .techPickPanel *{min-width:0}
+
+
+/* === TECH DETAILS: enforce column-based sizing (shrink left panel width) ===
+   The left header panel previously had width/max-width set to 50% which prevents the grid
+   split from actually shrinking the panel. These overrides ensure the grid controls sizing. */
+.techHeaderWrap .techHeaderPanel,
+.techHeaderWrap .techPickPanel{
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+/* Slightly stronger shrink (~15% less than original 1fr/1fr split) */
+.techHeaderWrap{
+  display: grid !important;
+  grid-template-columns: minmax(0,0.72fr) minmax(0,1.28fr) !important;
+  align-items: stretch !important;
+}
+
+
+/* === TECH DETAILS: Top/Bottom 3 boxes breathing room from icons === */
+/* Move the two TB boxes (columns 2 & 3) slightly to the right so triangle/check icons don't feel cramped */
+.techPickPanel.diagSection .pickRow > div:nth-child(2),
+.techPickPanel.diagSection .pickRow > div:nth-child(3){
+  margin-left: 10px !important;
+}
+/* Optional: a touch more inter-column space without affecting other grids */
+.techPickPanel.diagSection .pickRow{ 
+  column-gap: 18px !important;
+}
+
+/* === Main header filters: always visible + shorter dropdowns (added) === */
+/* Ensure the left side (rank + service name + %) stays on a single horizontal line */
+body.route-tech .techPickPanel .pickList .techRow{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  flex-wrap:nowrap !important;
+}
+
+/* Left cluster: rank + name + mini metric inline */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important; /* enable ellipsis */
+}
+
+/* Prevent the mini metric (ASR%/Sold%) from dropping to a 2nd line */
+body.route-tech .techPickPanel .pickList .techRow > div:first-child .mini{
+  margin:0 !important;
+  white-space:nowrap !important;
+}
+
+/* Keep the service name to one line (ellipsis if too long) */
+body.route-tech .techPickPanel .pickList .techRow a,
+body.route-tech .techPickPanel .pickList .techRow .tbJump,
+body.route-tech .techPickPanel .pickList .techRow .nm,
+body.route-tech .techPickPanel .pickList .techRow span,
+body.route-tech .techPickPanel .pickList .techRow button{
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  max-width:100% !important;
+}
+
+/* Right-side metric: never wrap */
+body.route-tech .techPickPanel .pickList .techRow > .mini,
+body.route-tech .techPickPanel .pickList .techRow > div:last-child{
+  white-space:nowrap !important;
+}
+
+
+/* =====================================================================================
+   FIX: ServicesHome technician list rows must be ONE LINE (ONLY .serviceCard .techList)
+   - ServicesHome service tiles render the meta (.mini) under the name, causing 2 rows.
+   - We keep everything on a single flex row: rank + name (ellipsis) + meta (no wrap).
+   ===================================================================================== */
+
+.serviceCard .techList .techRow{
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+}
+
+/* The common ServicesHome structure: an inner wrapper containing rank + link + .mini */
+.serviceCard .techList .techRow > div:first-child{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+
+/* If a dedicated left wrapper exists, treat it the same */
+.serviceCard .techList .techRow .techRowLeft{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+
+/* Tech name: single line with ellipsis */
+.serviceCard .techList .techRow a{
+  display:block !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* Meta line: must stay inline on the SAME row */
+.serviceCard .techList .techRow .mini{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin-left:auto !important;
+  white-space:nowrap !important;
+}
+.serviceCard .techList .techRow .mini *{white-space:nowrap !important;}
+
+
+/* ===== ServicesHome ONLY: keep technician row truly one-line (prevent inner wrapping) ===== */
+.serviceCard .techList .techRow{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+  min-width:0 !important;            /* allow children to shrink/ellipsis */
+}
+.serviceCard .techList .techRowLeft{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+.serviceCard .techList .techRowLeft .rankNum{
+  flex:0 0 auto !important;
+}
+.serviceCard .techList .techRowLeft a{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+/* The right-side meta MUST NOT wrap to a second line */
+.serviceCard .techList .techRow .mini{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  text-align:right !important;
+}
+/* If any <br> somehow sneaks in, hide it (forces one-line rendering) */
+.serviceCard .techList .techRow .mini br{display:none !important;}
+
+
+/* === Main Technician Dashboard header filters: always visible + shorter fields (70% shorter) === */
+.techHeaderPanel .mainFiltersBar{margin-top:10px; display:flex; align-items:flex-end; gap:12px;}
+.techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;}
+.techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen > div{min-width:0;}
+.techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen select{
+  width:auto !important;
+  min-width:90px !important;
+  max-width:140px !important;
+}
