@@ -30,6 +30,15 @@ function renderMain(){
   const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const appliedTextHtml = "";
 
+  // The "status" block (top-right) should prioritize the currently focused metric.
+  const focusIsSold = (st.sortBy === "sold_pct");
+  const topVal = focusIsSold ? soldPerRo : asrPerRo;
+  const topLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
+  const botVal = focusIsSold ? asrPerRo : soldPerRo;
+  const botLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
+  const topValText = (topVal===null ? "—" : fmt1(topVal,1));
+  const botValText = (botVal===null ? "—" : fmt1(botVal,1));
+
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
@@ -42,10 +51,10 @@ function renderMain(){
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
-            <div class="big" style="display:block !important">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
-            <div class="tag">ASRs/RO</div>
-            <div class="overallMetric">${soldPerRo===null ? "—" : fmt1(soldPerRo,1)}</div>
-            <div class="tag">Sold/RO</div>
+            <div class="big" style="display:block !important;font-size:38px;color:#fff;line-height:1.05">${topValText}</div>
+            <div class="tag">${topLbl}</div>
+            <div class="overallMetric" style="font-size:28px;color:rgba(255,255,255,.60);line-height:1.05;font-weight:900">${botValText}</div>
+            <div class="tag">${botLbl}</div>
           </div>
         </div>
 
