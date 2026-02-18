@@ -1002,6 +1002,106 @@ window.addEventListener("resize", ()=>{
   _eqT = setTimeout(equalizeGoalQuadrants, 80);
 });
 
+
+  // -------------------- Auto-persist on edit (prevents losing inputs when navigating) --------------------
+  let _autoSaveTimer = null;
+  function _autoSaveNow(){
+    // Pull current DOM values into the goals store
+    const inputs = Array.from(document.querySelectorAll(".panel.goalsBig input.goalMini"));
+
+    inputs.forEach(inp=>{
+      const id = inp.id || "";
+      const val = inp.value;
+
+      // Generic goal inputs: g_<cat>_req / g_<cat>_close
+      if(id.startsWith("g_")){
+        const m = id.match(/^g_(.+?)_(req|close)$/);
+        if(!m) return;
+        const cat = decodeURIComponent(m[1]);
+        const field = m[2];
+        setGoalRaw(cat, field, inputToGoal(val));
+        return;
+      }
+
+      // Brakes inputs: b_<key>_req_red, b_<key>_close_red, b_<key>_req_yellow, b_<key>_close_yellow
+      if(id.startsWith("b_")){
+        const m = id.match(/^b_(.+?)_(req_red|close_red|req_yellow|close_yellow)$/);
+        if(!m) return;
+        const key = decodeURIComponent(m[1]);
+        const suf = m[2];
+        const map = {
+          "req_red":"req",
+          "close_red":"close",
+          "req_yellow":"req_y",
+          "close_yellow":"close_y",
+        };
+        const field = map[suf];
+        setGoalRaw(key, field, inputToGoal(val));
+
+        // Mirror to dataset category names (so other pages that read the category goals stay in sync)
+        const mapped =
+          (key==="BRAKES_TOTAL" && BRAKES_FOUND?.total) ? BRAKES_FOUND.total :
+          (key==="BRAKES_FRONT" && BRAKES_FOUND?.front) ? BRAKES_FOUND.front :
+          (key==="BRAKES_REAR"  && BRAKES_FOUND?.rear)  ? BRAKES_FOUND.rear  :
+          null;
+        if(mapped) setGoalRaw(mapped, field, inputToGoal(val));
+        return;
+      }
+
+      // Tires inputs: t_<key>_req_red, t_<key>_close_red, t_<key>_req_yellow, t_<key>_close_yellow
+      if(id.startsWith("t_")){
+        const m = id.match(/^t_(.+?)_(req_red|close_red|req_yellow|close_yellow)$/);
+        if(!m) return;
+        const key = decodeURIComponent(m[1]);
+        const suf = m[2];
+        const map = {
+          "req_red":"req",
+          "close_red":"close",
+          "req_yellow":"req_y",
+          "close_yellow":"close_y",
+        };
+        const field = map[suf];
+        setGoalRaw(key, field, inputToGoal(val));
+
+        const mapped =
+          (key==="TIRES_TOTAL2" && TIRES_FOUND?.total) ? TIRES_FOUND.total :
+          (key==="TIRES_TWO"    && TIRES_FOUND?.two)   ? TIRES_FOUND.two   :
+          (key==="TIRES_FOUR"   && TIRES_FOUND?.four)  ? TIRES_FOUND.four  :
+          null;
+        if(mapped) setGoalRaw(mapped, field, inputToGoal(val));
+        return;
+      }
+    });
+
+    // Also persist the apply-all / toggle meta states (these are already set in their own handlers,
+    // but doing it here makes the auto-save robust if the browser missed an event)
+    try{
+      const flOn = !!(document.querySelector('input[name="fl_apply_all"][value="yes"]')?.checked);
+      setGoalRaw("__META_FLUIDS","apply_all", flOn ? "1" : "0");
+      const brOn = !!(document.querySelector('input[name="br_apply_all"][value="yes"]')?.checked);
+      setGoalRaw("__META_BRAKES","apply_all", brOn ? "1" : "0");
+      const trOn = !!(document.querySelector('input[name="tr_apply_all"][value="yes"]')?.checked);
+      setGoalRaw("__META_TIRES","apply_all", trOn ? "1" : "0");
+      const brRy = !!(document.getElementById("br_ry_global")?.checked);
+      setGoalRaw("__META_BRAKES","ry", brRy ? "1" : "0");
+      const trRy = !!(document.getElementById("tr_ry_global")?.checked);
+      setGoalRaw("__META_TIRES","ry", trRy ? "1" : "0");
+    }catch(_e){}
+
+    if(typeof persistGoals==="function") persistGoals();
+  }
+
+  function _scheduleAutoSave(){
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(_autoSaveNow, 250);
+  }
+
+  // Auto-save on any edit/change within the goals panel
+  if(_goalsPanel){
+    _goalsPanel.addEventListener("input", _scheduleAutoSave, true);
+    _goalsPanel.addEventListener("change", _scheduleAutoSave, true);
+  }
+
   const saveBtn = document.getElementById("saveGoalsAll");
   if(saveBtn){
     saveBtn.addEventListener("click", ()=>{
