@@ -36,8 +36,17 @@ function renderMain(){
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
+          
           <div class="techNameWrap">
-            <div class="h2 techH2Big">Technician Dashboard</div>
+            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px">
+              <div class="h2 techH2Big">Technician Dashboard</div>
+            <div class="pills" style="margin-left:-50px">
+              <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
+          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
+            </div>
+            </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
@@ -46,13 +55,6 @@ function renderMain(){
             <div class="overallMetric">${fmtPct(soldPct)}</div>
             <div class="tag">Sold% (Store)</div>
           </div>
-        </div>
-
-        <div class="pills" style="margin-left:-50px">
-          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">Avg ASR/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold %</div><div class="v">${fmtPct(soldPct)}</div></div>
         </div>
 
         <div class="mainFiltersBar">
