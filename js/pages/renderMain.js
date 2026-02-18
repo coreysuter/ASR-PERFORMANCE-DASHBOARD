@@ -79,7 +79,7 @@ function renderMain(){
             </div>
             <div class="tag">${topStatLbl}</div>
 
-            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:rgba(255,255,255,.55);font-weight:1000">
+            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
               ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}
             </div>
             <div class="tag">${subStatLbl}</div>

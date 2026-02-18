@@ -765,7 +765,7 @@ body.route-tech .techHeaderPanel{display:block;width:50%;max-width:50%;min-width
 .techNameWrap{flex:1 1 auto;min-width:0}
 .techH2Big{font-size:32px;font-weight:1000;line-height:1.05;letter-spacing:.2px}
 .techH2Big .teamDot{opacity:.7;font-weight:900}
-.techTeamLine{margin-top:6px;font-size:16px;font-weight:900;opacity:.75;letter-spacing:.15px}
+.techTeamLine{margin-top:6px;font-size:22px;font-weight:900;opacity:.75;letter-spacing:.15px}
 @media (max-width: 820px){
   .techH2Big{font-size:26px}
   .brandLogoMini{height:28px}
@@ -1960,4 +1960,68 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   width:auto !important;
   min-width:90px !important;
   max-width:140px !important;
+}
+
+
+
+/* === PATCH 2026-02-18: Dashboard + Team header typography + pills sizing === */
+
+/* 1) Technician Dashboard header stat pills: title 16px (grey), number 24px */
+.techHeaderPanel .phead .pills .pill .k{
+  font-size:16px !important;
+  color:rgba(255,255,255,.55) !important;
+  line-height:1.05 !important;
+}
+.techHeaderPanel .phead .pills .pill .v{
+  font-size:24px !important;
+  line-height:1.05 !important;
+}
+
+/* 2) Keep dashboard filters wider (prevents “short again” regressions) */
+.techHeaderPanel .phead .mainFiltersBar .controls.mainAlwaysOpen select{
+  min-width:130px !important;
+  max-width:200px !important;
+}
+
+/* 3) Top-right Focus stats: make the LOWER (non-focus) value white (keep labels grey) */
+.techHeaderPanel .overallBlock .bigSub,
+.techHeaderPanel .dashFocusNumSmall{
+  color:var(--text) !important;
+}
+
+/* 4) EXPRESS / KIA category headers: team name 32px, technician count grey */
+.catHeaderSplit .catTitle{
+  font-size:32px !important;
+  line-height:1.05 !important;
+}
+.catHeaderSplit .svcMetaLine{
+  color:var(--muted) !important;
+}
+
+/* 5) Technician list rows (main dashboard): tech names 22px */
+.techRow.dashTechRow .techRowLeft a{
+  font-size:22px !important;
+  font-weight:900 !important;
+  line-height:1.1 !important;
+}
+
+/* 6) Mini-stats line under tech names: keep grey + consistent dot spacing */
+.techRow.dashTechRow .mini{
+  color:var(--muted) !important;
+  font-weight:900 !important;
+}
+.techRow.dashTechRow .mini .midDot{
+  margin:0 6px;
+  color:var(--muted);
+}
+
+/* === PATCH 2026-02-18: Category header pills sizing === */
+/* Category (EXPRESS/KIA) header stat pills: number 16px, label 12px */
+.catHeaderSplit .pills .pill .k{
+  font-size:12px !important;
+  color:var(--muted) !important;
+}
+.catHeaderSplit .pills .pill .v{
+  font-size:16px !important;
+  line-height:1 !important;
 }
