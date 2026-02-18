@@ -39,15 +39,21 @@ function renderMain(){
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
+        <style>
+          /* Tech header stat pills sizing */
+          .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
+          .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;}
+          .techHeaderPanel .pills .pill .v{font-size:32px !important;line-height:1.05 !important;}
+        </style>
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
           
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap">
+            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
               <div class="h2 techH2Big">Technician Dashboard</div>
-            <div class="pills" style="margin-left:14px;transform:scale(1.875);transform-origin:left top;white-space:nowrap">
+            <div class="pills" style="margin-left:18px;display:flex;gap:10px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
