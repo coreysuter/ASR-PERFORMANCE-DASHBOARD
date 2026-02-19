@@ -106,13 +106,6 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
               </select>
             </div>
             <div>
-              <label>Goal</label>
-              <select data-scope="main" data-ctl="goal">
-                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
-              </select>
-            </div>
-            <div>
               <label>Comparison</label>
               <select data-scope="main" data-ctl="compare">
                 <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
@@ -120,6 +113,15 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
                 <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
               </select>
             </div>
+            ${compareMode==="goal" ? `
+            <div>
+              <label>Goal</label>
+              <select data-scope="main" data-ctl="goal">
+                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
+              </select>
+            </div>
+            ` : ""}
           </div>
           <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
