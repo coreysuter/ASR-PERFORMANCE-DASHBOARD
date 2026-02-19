@@ -232,10 +232,7 @@ function fmtPctPlain(v){
 
 // Focus Rank Badge (matches Technician Details page)
 function rankBadgeHtmlDash(rank, total, focus, size="sm"){
-  let top = "ASR%";
-  if(focus==="sold") top = "SOLD%";
-  if(focus==="goal_asr") top = "ASR GOAL";
-  if(focus==="goal_sold") top = "SOLD GOAL";
+  const top = (focus==="sold") ? "SOLD%" : "ASR%";
   const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
   const t = (total===null || total===undefined || total==="") ? "—" : total;
   const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
@@ -1073,6 +1070,9 @@ function renderTeam(team, st){
   // Goal metric selection (from dashboard header Goal dropdown)
   const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
 
+  const focusIsGoal = (st && st.sortBy) === 'goal';
+  const focusIsSold = (st && st.sortBy) === 'sold_pct';
+
   // Two goal targets for row pills:
   // - ASR GOAL uses __META_GLOBAL:req (fallback team avg ASRs/RO)
   // - SOLD GOAL uses __META_GLOBAL:close (fallback team avg Sold%)
@@ -1138,33 +1138,29 @@ function renderTeam(team, st){
   }
 
 
-  
-  function focusValue(tt){
-    if(st.sortBy==="sold_pct") return Number(techSoldPct(tt, st.filterKey));
-    if(st.sortBy==="goal"){
-      const asrpr = techAsrPerRo(tt, st.filterKey);
-      const soldpct = techSoldPct(tt, st.filterKey);
-      const asrRatio = (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
-      const soldRatio = (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
-      return (goalMetric==="sold") ? Number(soldRatio) : Number(asrRatio);
-    }
-    return Number(techAsrPerRo(tt, st.filterKey));
-  }
-
   const list=techs.slice();
+  function _sortVal(tt){
+    const asrpr = techAsrPerRo(tt, st.filterKey);
+    const soldpct = techSoldPct(tt, st.filterKey);
+    if(st.sortBy==="goal"){
+      if(goalMetric==="sold"){
+        return (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
+      }
+      return (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
+    }
+    if(st.sortBy==="sold_pct") return soldpct;
+    return asrpr;
+  }
   list.sort((a,b)=>{
-    const na = focusValue(a);
-    const nb = focusValue(b);
+    const na = Number(_sortVal(a));
+    const nb = Number(_sortVal(b));
     return (Number.isFinite(nb)?nb:-999) - (Number.isFinite(na)?na:-999);
   });
 
-  // ranking follows the selected Focus (ASR/RO, Sold%, or Goal ratio)
+  // ranking follows the selected Focus (ASR/RO, Sold, or Goal)
   const ranked = list.slice().sort((a,b)=>{
-    const na = focusValue(a);
-    const nb = focusValue(b);
-    return (Number.isFinite(nb)?nb:-999) - (Number.isFinite(na)?na:-999);
-  });
-    const nb = st.sortBy==="sold_pct" ? Number(techSoldPct(b, st.filterKey)) : Number(techAsrPerRo(b, st.filterKey));
+    const na = Number(_sortVal(a));
+    const nb = Number(_sortVal(b));
     return (Number.isFinite(nb)?nb:-999) - (Number.isFinite(na)?na:-999);
   });
   const rankIndex = new Map();
@@ -1220,53 +1216,20 @@ function renderTeam(team, st){
 
         <div class="dashRight">
           <div class="pills">
-            ${(()=>{
-              const goalFocus = (st.sortBy==="goal");
-              const bigAsr = goalFocus && goalMetric!=="sold";
-              const bigSold = goalFocus && goalMetric==="sold";
-              if(goalFocus){
-                return `
-                  <div class="pillGroup pillGroupA">
-                    <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                    <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                    <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-                  </div>
-                `;
-              }
-              return `
-                <div class="pillGroup pillGroupA">
-                  <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                  <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                </div>
+            <div class="pillGroup pillGroupA">
+              <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+              <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+            </div>
 
-                <div class="pillGroup pillGroupB">
-                  <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                  <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-                  <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                </div>
-              `;
-            })()}
-          </div>
-              <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+            <div class="pillGroup pillGroupB">
+              <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+              <div class="pill${clsSoldRo}"><div class="k">SOLD/ASR</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
               <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
             </div>
           </div>
 
           <div class="techMetaRight">
-            ${(()=>{
-              if(st.sortBy==="goal"){
-                const bigAsr = goalMetric!=="sold";
-                const bigSold = goalMetric==="sold";
-                return `
-                  <div class="pills" style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;margin-bottom:10px">
-                    <div class="pill${clsAsrGoal}${bigAsr ? ' goalBig' : ''}" style="${bigAsr ? 'transform:scale(1.10);transform-origin:right center;' : ''}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                    <div class="pill${clsSoldGoal}${bigSold ? ' goalBig' : ''}" style="${bigSold ? 'transform:scale(1.10);transform-origin:right center;' : ''}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                  </div>
-                `;
-              }
-              return ``;
-            })()}
-            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="goal" ? (goalMetric==="sold" ? "goal_sold" : "goal_asr") : (st.sortBy==="sold_pct" ? "sold" : "asr")), "sm")}
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="goal" ? (goalMetric==="sold" ? "sold" : "asr") : (st.sortBy==="sold_pct" ? "sold" : "asr")), "sm")}
           </div>
         </div>
       </div>
@@ -1277,7 +1240,7 @@ function renderTeam(team, st){
 
   const appliedParts = [
     `${filterLabel}`,
-    (st.sortBy==="goal" ? `Focus: Goal (${goalMetric==="sold" ? "Sold" : "ASR"})` : (st.sortBy==="sold_pct" ? "Focus: Sold" : "Focus: ASR/RO"))
+    (st.sortBy==="sold_pct" ? "Focus: Sold" : "Focus: ASR/RO")
   ];
   const appliedTextHtml = renderFiltersText(appliedParts);
 
@@ -1312,10 +1275,11 @@ function renderTeam(team, st){
                 <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
                 <div class="rankLbl">ASRs/RO</div>
               </div>
-              <div class="rankSub">
-                <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
-                <div class="rankLbl sub">SOLD/RO</div>
-              </div>
+            <div class="rankSub">
+              <!-- Bottom focus stat value should be WHITE; label stays grey -->
+              <div class="rankNum sub" style="color:var(--text)">${Number.isFinite(av.sold_pct_avg) ? fmtPct(av.sold_pct_avg) : "—"}</div>
+              <div class="rankLbl sub">SOLD/ASR</div>
+            </div>
             </div>
           </div>
 </div>
@@ -1327,10 +1291,16 @@ function renderTeam(team, st){
   `;
 }
 
-const state = (window.state = window.state || {});
-// Preserve any previously-set keys (e.g., compare) while applying defaults
-state.EXPRESS = Object.assign({filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false, compare:"team"}, state.EXPRESS || {});
-state.KIA     = Object.assign({filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false, compare:"team"}, state.KIA || {});
+const state = (window.state = window.state || {
+  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team", filtersOpen:false},
+  KIA: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team", filtersOpen:false},
+});
+state.EXPRESS = state.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team", filtersOpen:false};
+state.KIA = state.KIA || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team", filtersOpen:false};
+if(state.EXPRESS.compare===undefined) state.EXPRESS.compare = "team";
+if(state.KIA.compare===undefined) state.KIA.compare = "team";
+// expose state for module scripts (app.js)
+window.state = state;
 
 
 function toggleTeamFilters(team){

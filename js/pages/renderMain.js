@@ -1,11 +1,15 @@
 function renderMain(){
-
-  // Ensure shared state exists (prevents "state is not defined" if base.js/app.js load order changes)
-  const state = (window.state = window.state || {});
-  state.EXPRESS = state.EXPRESS || { filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team" };
-  state.KIA     = state.KIA     || { filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team" };
-
   const app=document.getElementById('app');
+
+  // Ensure shared state exists even if base.js hasn't run yet
+  const state = (window.state = window.state || {
+    EXPRESS:{filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"},
+    KIA:{filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"}
+  });
+  state.EXPRESS = state.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+  state.KIA = state.KIA || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+  if(state.EXPRESS.compare===undefined) state.EXPRESS.compare = "team";
+  if(state.KIA.compare===undefined) state.KIA.compare = "team";
 
   // Main header filters are always visible (no collapse)
 
@@ -30,19 +34,14 @@ function renderMain(){
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
-  const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+  const st = state.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
-  const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
-
-  // If Focus is GOAL, force Comparison to GOAL
-  if(st.sortBy==="goal"){
-    if(state.EXPRESS) state.EXPRESS.compare="goal";
-    if(state.KIA) state.KIA.compare="goal";
-  }
-
+  let compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
+  if(focusIsGoal){ compareMode = "goal"; st.compare = "goal"; }
   const appliedTextHtml = "";
 
   // Top-right status block shows the Focus stat on top (bigger/white), non-focus below (smaller/grey)
+  const focusIsGoal = st.sortBy === "goal";
   const focusIsSold = st.sortBy === "sold_pct";
   const topStatVal = focusIsSold ? soldPerRo : asrPerRo;
   const topStatLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
@@ -101,52 +100,41 @@ function renderMain(){
 
         <div class="mainFiltersBar">
           <div class="controls mainAlwaysOpen">
-            ${(()=>{
-              const focus = st.sortBy;
-              const showGoal = (focus==="goal");
-              const compareLocked = showGoal;
-              const compareVal = compareLocked ? "goal" : compareMode;
-              return `
-                <div>
-                  <label>Filter</label>
-                  <select data-scope="main" data-ctl="filter">
-                    <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-                    <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-                    <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label>Focus</label>
-                  <select data-scope="main" data-ctl="sort">
-                    <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
-                    <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
-                    <option value="goal" ${st.sortBy==="goal"?"selected":""}>Goal</option>
-                  </select>
-                </div>
-
-                ${showGoal ? `
-                <div>
-                  <label>Goal</label>
-                  <select data-scope="main" data-ctl="goal">
-                    <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-                    <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
-                  </select>
-                </div>
-                ` : ``}
-
-                <div style="${compareLocked ? 'opacity:.55;pointer-events:none;' : ''}">
-                  <label>Comparison</label>
-                  <select data-scope="main" data-ctl="compare" ${compareLocked ? 'disabled' : ''}>
-                    <option value="team" ${compareVal==="team"?"selected":""}>TEAM</option>
-                    <option value="store" ${compareVal==="store"?"selected":""}>STORE</option>
-                    <option value="goal" ${compareVal==="goal"?"selected":""}>GOAL</option>
-                  </select>
-                </div>
-              `;
-            })()}
+            <div>
+              <label>Filter</label>
+              <select data-scope="main" data-ctl="filter">
+                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
+              </select>
+            </div>
+            <div>
+              <label>Focus</label>
+              <select data-scope="main" data-ctl="sort">
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
+                <option value="goal" ${st.sortBy==="goal"?"selected":""}>Goal</option>
+              </select>
+            </div>
+            ${focusIsGoal ? `
+            <div>
+              <label>Goal</label>
+              <select data-scope="main" data-ctl="goal">
+                <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
+                <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
+              </select>
+            </div>
+            ` : ``}
+            <div>
+              <label>Comparison</label>
+              <select data-scope="main" data-ctl="compare" ${focusIsGoal ? 'disabled style="opacity:.55;filter:grayscale(1)"' : ''}>
+                <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
+                <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
+                <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
+              </select>
+            </div>
           </div>
-          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
+          <button class="iconBtn pushRight onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
       </div>
     </div>
