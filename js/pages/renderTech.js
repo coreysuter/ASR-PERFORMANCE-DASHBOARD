@@ -477,52 +477,51 @@ function countBandsFor(mode){
 
   function rankFor(cat){
     const CMP_TECHS = (compareBasis==="team") ? TEAM_TECHS : STORE_TECHS;
-    const vals = CMP_TECHS
-      .map(x=>{
-        const c = x.categories?.[cat] || {};
-        let v = NaN;
-        if(focus==="sold"){
-          v = Number(c.close);
-        }else if(focus==="goal"){
-          const req = Number(c.req ?? NaN);
-          const close = Number(c.close ?? NaN);
-          const gReq = Number(getGoal(cat,"req"));
-          const gClose = Number(getGoal(cat,"close"));
-          // Use the goal metric chosen in the Goal dropdown.
-          if(goalMetric==="sold"){
-            v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
-          }else{
-            v = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
-          }
-        }else{
-          v = Number(c.req);
-        }
-        return {id:x.id, v};
-      })
-      .filter(o=>Number.isFinite(o.v))
-      .sort((a,b)=>b.v-a.v);
+    const total = CMP_TECHS.length || 0;
 
-    const meC = t.categories?.[cat] || {};
-    let me = NaN;
-    if(focus==="sold"){
-      me = Number(meC.close);
-    }else if(focus==="goal"){
-      const req = Number(meC.req);
-      const close = Number(meC.close);
-      const gReq = Number(getGoal(cat,"req"));
-      const gClose = Number(getGoal(cat,"close"));
-      if(goalMetric==="sold"){
-        me = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+    function scoreForTech(x){
+      const c = x.categories?.[cat] || {};
+      let v = NaN;
+
+      if(focus==="sold"){
+        v = Number(c.close);
+      }else if(focus==="goal"){
+        const req = Number(c.req);
+        const close = Number(c.close);
+        const gReq = Number(getGoal(cat,"req"));
+        const gClose = Number(getGoal(cat,"close"));
+
+        // Rank by the selected goal metric only (ASR Goal or Sold Goal)
+        if(goalMetric==="sold"){
+          v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+        }else{
+          v = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+        }
       }else{
-        me = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+        // ASR focus (ASR/RO)
+        v = Number(c.req);
       }
-    }else{
-      me = Number(meC.req);
+
+      // Missing/invalid data should always rank last.
+      return Number.isFinite(v) ? v : -Infinity;
     }
 
-    if(!Number.isFinite(me) || !vals.length) return null;
-    const idx = vals.findIndex(o=>o.id===t.id);
-    return {rank: idx>=0?idx+1:null, total: vals.length};
+    const scored = CMP_TECHS.map(x=>({id:x.id, v: scoreForTech(x)}));
+
+    scored.sort((a,b)=>{
+      if(a.v === b.v) return 0;
+      // Descending: higher v ranks better. -Infinity sinks to bottom.
+      return (a.v < b.v) ? 1 : -1;
+    });
+
+    const meScore = scoreForTech(t);
+    if(!total) return {rank:null, total:0};
+
+    // If I have no data, rank is last.
+    if(meScore === -Infinity) return {rank: total, total};
+
+    const idx = scored.findIndex(o=>o.id===t.id);
+    return {rank: (idx>=0 ? idx+1 : total), total};
   }
   const filters = `
     <div class="controls" style="margin-top:10px">
