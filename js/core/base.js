@@ -973,7 +973,7 @@ function ensureDashTypographyOverrides(){
 
 /* === Requested: EXPRESS/KIA category header pills font sizing === */
 .catDashPills .pill .v{font-size:22px !important; line-height:1.05 !important;}
-.catDashPills .pill .k{font-size:18px !important; line-height:1.05 !important;}
+.catDashPills .pill .k{font-size:14px !important; line-height:1.05 !important; text-transform:none !important;}
 
 /* === Requested: Technician mini stats under names (tnVal/tnLbl) === */
 .techRow .techNameStats .tnVal{font-size:15px !important; line-height:1 !important;}
@@ -1263,14 +1263,14 @@ function renderTeam(team, st){
 
           <div class="techNameStats">
             <div class="tnRow tnRow1">
-              <span class="tnMini"><span class="tnLbl">AVG ODO</span><span class="tnVal">${fmtInt(t.odo)}</span></span>
+              <span class="tnMini"><span class="tnLbl">Avg ODO</span><span class="tnVal">${fmtInt(t.odo)}</span></span>
               <span class="miniDot">•</span>
               <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(t.ros)}</span></span>
             </div>
             <div class="tnRow tnRow2">
               <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
               <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">SOLD</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
+              <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
             </div>
           </div>
         </div>
@@ -1341,12 +1341,13 @@ function renderTeam(team, st){
           <div class="catHdrMid">
             <div class="dashPills2Row catDashPills">
               <div class="pills pillsTop">
-                <div class="pill"><div class="k">AVG ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
-                <div class="pill"><div class="k">AVG ASR</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
-                <div class="pill roPill"><div class="k">AVG ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
+                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(av.odo_avg)}</div></div>
+                <div class="pill roPill"><div class="k">Avg ROs</div><div class="v">${fmtInt(av.ros_avg)}</div></div>
+                <div class="pill"><div class="k">Avg ASRs</div><div class="v">${fmtInt(av.asr_total_avg)}</div></div>
               </div>
               <div class="pills pillsBottom">
-                <div class="pill"><div class="k">SOLD</div><div class="v">${fmtPct(av.sold_pct_avg)}</div></div>
+                <div class="pill"><div class="k">Avg Sold</div><div class="v">${fmtInt(av.sold_avg)}</div></div>
+                <div class="pill"><div class="k">Sold/ASR</div><div class="v">${fmtPct(av.sold_pct_avg)}</div></div>
               </div>
             </div>
           </div>
