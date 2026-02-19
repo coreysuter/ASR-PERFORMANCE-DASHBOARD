@@ -13,7 +13,7 @@ function renderMain(){
     /* Scope EVERYTHING to main technician dashboard only */
     /* Add breathing room so the header panel never visually overlaps the two team panels */
     .pageTechDash .techHeaderPanel{
-      margin-bottom:18px !important;
+      margin-bottom:14px !important;
       position:relative !important;
       z-index:2 !important;
     }
