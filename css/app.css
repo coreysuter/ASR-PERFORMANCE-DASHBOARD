@@ -2133,3 +2133,7 @@ body.route-tech .techHeaderPanel .pills .pill .k{
 .route-tech .secHdrStats .dashFocusLbl{
   color:var(--muted) !important;
 }
+
+/* renderTech section headers actually use .secStatVal / .secStatTitle with inline colors */
+body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#fff !important;}
+body.route-tech .secHdrStats .secStatTitle{color:rgba(255,255,255,.55) !important;}
