@@ -232,7 +232,10 @@ function fmtPctPlain(v){
 
 // Focus Rank Badge (matches Technician Details page)
 function rankBadgeHtmlDash(rank, total, focus, size="sm"){
-  const top = (focus==="sold") ? "SOLD%" : "ASR%";
+  let top = "ASR%";
+  if(focus==="sold") top = "SOLD%";
+  if(focus==="goal_asr") top = "ASR GOAL";
+  if(focus==="goal_sold") top = "SOLD GOAL";
   const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
   const t = (total===null || total===undefined || total==="") ? "—" : total;
   const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
@@ -436,6 +439,13 @@ function ensureDashTypographyOverrides(){
   transform:scale(1.1);
   transform-origin:center;
 }
+
+/* Goal focus: only the selected goal pill is ~10% larger */
+.techRow .pill.goalFocusSel{
+  transform:scale(1.1);
+  transform-origin:center;
+}
+
 
 @media (max-width: 700px){
   .techRow .techMetaRight{right:12px;top:12px;}
@@ -1075,6 +1085,7 @@ function renderTeam(team, st){
 
   // Goal metric selection (from dashboard header Goal dropdown)
   const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
+  const focusIsGoal = (st && st.sortBy) ? String(st.sortBy) === "goal" : false;
 
   // Two goal targets for row pills:
   // - ASR GOAL uses __META_GLOBAL:req (fallback team avg ASRs/RO)
@@ -1143,15 +1154,46 @@ function renderTeam(team, st){
 
   const list=techs.slice();
   list.sort((a,b)=>{
-    const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
-    const nb = st.sortBy==="sold_pct" ? Number(techSoldPct(b, st.filterKey)) : Number(techAsrPerRo(b, st.filterKey));
+    const asrA = techAsrPerRo(a, st.filterKey);
+    const asrB = techAsrPerRo(b, st.filterKey);
+    const soldA = techSoldPct(a, st.filterKey);
+    const soldB = techSoldPct(b, st.filterKey);
+
+    // Goal focus ranks by (actual / goal) for the selected goal metric.
+    const score = (t, asrpr, soldpct)=>{
+      if(!focusIsGoal){
+        return (st.sortBy==="sold_pct") ? soldpct : asrpr;
+      }
+      if(goalMetric==="sold"){
+        return (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
+      }
+      return (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
+    };
+
+    const na = score(a, asrA, soldA);
+    const nb = score(b, asrB, soldB);
     return (Number.isFinite(nb)?nb:-999) - (Number.isFinite(na)?na:-999);
   });
 
-  // ranking follows the selected Focus (ASR/RO or Sold%)
+  // ranking follows the selected Focus (ASR/RO, Sold%, or Goal)
   const ranked = list.slice().sort((a,b)=>{
-    const na = st.sortBy==="sold_pct" ? Number(techSoldPct(a, st.filterKey)) : Number(techAsrPerRo(a, st.filterKey));
-    const nb = st.sortBy==="sold_pct" ? Number(techSoldPct(b, st.filterKey)) : Number(techAsrPerRo(b, st.filterKey));
+    const asrA = techAsrPerRo(a, st.filterKey);
+    const asrB = techAsrPerRo(b, st.filterKey);
+    const soldA = techSoldPct(a, st.filterKey);
+    const soldB = techSoldPct(b, st.filterKey);
+
+    const score = (t, asrpr, soldpct)=>{
+      if(!focusIsGoal){
+        return (st.sortBy==="sold_pct") ? soldpct : asrpr;
+      }
+      if(goalMetric==="sold"){
+        return (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
+      }
+      return (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
+    };
+
+    const na = score(a, asrA, soldA);
+    const nb = score(b, asrB, soldB);
     return (Number.isFinite(nb)?nb:-999) - (Number.isFinite(na)?na:-999);
   });
   const rankIndex = new Map();
@@ -1173,11 +1215,8 @@ function renderTeam(team, st){
     const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
     const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
 
-    // Pill shading is controlled by Comparison mode.
-    // If Comparison is GOAL, only shade the pills for the selected Goal metric (ASR or Sold).
+    // Pill shading is controlled by Comparison mode only (TEAM | STORE | GOAL).
     const inGoalMode = compareMode==='goal';
-    const shadeAsr = !inGoalMode || goalMetric==='asr';
-    const shadeSold = !inGoalMode || goalMetric==='sold';
 
     const compAsrBase = (compareMode==='goal')
       ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : (Number.isFinite(goalReq)&&goalReq>0 ? goalReq : baseAsrpr))
@@ -1187,13 +1226,13 @@ function renderTeam(team, st){
       ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : (Number.isFinite(goalClose)&&goalClose>0 ? goalClose : baseSoldAsr))
       : baseSoldAsr;
 
-    const clsAsrpr   = shadeAsr  ? compClass(asrpr, compAsrBase) : "";
-    const clsAsrGoal = shadeAsr  ? compClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio) : "";
+    const clsAsrpr   = compClass(asrpr, compAsrBase);
+    const clsAsrGoal = compClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio);
 
-    const clsSoldAsr = shadeSold ? compClass(soldAsrRatio, compSoldAsrBase) : "";
-    // SOLD/RO baseline comes from the selected comparison group (TEAM or STORE). In GOAL mode we leave SOLD/RO unshaded.
+    const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
+    // SOLD/RO has no goal target; keep it unshaded in GOAL comparison mode.
     const clsSoldRo  = (inGoalMode ? "" : compClass(soldRoVal, baseSoldRo));
-    const clsSoldGoal= shadeSold ? compClass(soldGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio) : "";
+    const clsSoldGoal= compClass(soldGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio);
 
     const focusIsSold = st.sortBy === "sold_pct";
 
@@ -1220,8 +1259,18 @@ function renderTeam(team, st){
 
           <div class="dashRight">
           <div class="pills">
-            ${/* Non-focus group first, Focus group last (closest to rank badge) */""}
-            ${focusIsSold ? `
+            ${/* Focus ordering (closest to rank badge) */""}
+            ${focusIsGoal ? `
+              <div class="pillGroup pillGroupNonGoal">
+                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+                <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+              </div>
+              <div class="pillGroup pillGroupGoal">
+                <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+                <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
+              </div>
+            ` : (focusIsSold ? `
               <div class="pillGroup pillGroupA">
                 <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
                 <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
@@ -1241,11 +1290,10 @@ function renderTeam(team, st){
                 <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
                 <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
               </div>
-            `}
-          </div>
+            `)}          </div>
 
           <div class="techMetaRight">
-            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (st.sortBy==="sold_pct" ? "sold" : "asr"), "sm")}
+            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", (focusIsGoal ? (goalMetric==="sold" ? "goal_sold" : "goal_asr") : (st.sortBy==="sold_pct" ? "sold" : "asr")), "sm")}
           </div>
         </div>
       </div>
