@@ -595,8 +595,10 @@ function countBandsFor(mode){
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
   const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
-  const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
-  const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? `(${(__soldOfAsr*100).toFixed(1)}%)` : "";
+  const __rosTotal = Number(t.ros);
+  // Sold/RO shown as a decimal (e.g., 0.42) instead of a percent.
+  const __soldPerRoDec = (Number.isFinite(__soldTotal) && Number.isFinite(__rosTotal) && __rosTotal>0) ? (__soldTotal/__rosTotal) : NaN;
+  const __soldPerRoDecTxt = Number.isFinite(__soldPerRoDec) ? `(${__soldPerRoDec.toFixed(2)})` : "";
   const __asrPerRoVal = techAsrPerRo(t, filterKey);
   const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
@@ -656,7 +658,7 @@ ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldPerRoDecTxt}</span></div>
           </div>
         </div>
 
@@ -1021,15 +1023,15 @@ const __agg = __cats.reduce((a,cat)=>{
 const __secROs = (__agg.roN>0) ? __agg.ro : Number(t.ros ?? 0);
 const __secASRs = __agg.asr;
 const __secSold = __agg.sold;
-const __soldOfAsr = (Number.isFinite(__secASRs) && __secASRs>0 && Number.isFinite(__secSold)) ? (__secSold/__secASRs) : NaN;
-const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? ((__soldOfAsr*100).toFixed(1) + "%") : "—";
+const __soldPerRo = (Number.isFinite(__secROs) && __secROs>0 && Number.isFinite(__secSold)) ? (__secSold/__secROs) : NaN;
+const __soldPerRoTxt = Number.isFinite(__soldPerRo) ? (__soldPerRo.toFixed(2)) : "—";
 
 const __secHeaderPills = `
   <div class="secNamePills pills">
     <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
     <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
     <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
-    <div class="pill"><div class="k">Sold/ASR</div><div class="v">${__soldOfAsrTxt}</div></div>
+    <div class="pill"><div class="k">Sold/RO</div><div class="v">${__soldPerRoTxt}</div></div>
   </div>
 `;
 
