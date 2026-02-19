@@ -97,6 +97,11 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             min-width:152px !important;
             max-width:237px !important;
           }
+        
+          /* Dropdown text color (requested): black text in selects only */
+          .techHeaderPanel .mainFiltersBar select{color:#000 !important;}
+          .techHeaderPanel .mainFiltersBar select option{color:#000 !important;}
+
         </style>
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
@@ -143,9 +148,9 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             <div>
               <label>Focus</label>
               <select data-scope="main" data-ctl="sort">
-                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
+                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
                 <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
-                <option value="goal" ${st.sortBy==="goal"?"selected":""}>GOAL</option>
+                <option value="goal" ${st.sortBy==="goal"?"selected":""}>Goal</option>
               </select>
             </div>
             ${focusIsGoal ? `
@@ -159,18 +164,18 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             <div>
               <label>Comparison</label>
               <select data-scope="main" data-ctl="compare" disabled style="opacity:.55;filter:grayscale(1);cursor:not-allowed">
-                <option value="team">TEAM</option>
-                <option value="store">STORE</option>
-                <option value="goal" selected>GOAL</option>
+                <option value="team">Team</option>
+                <option value="store">Store</option>
+                <option value="goal" selected>Goal</option>
               </select>
             </div>
             ` : `
             <div>
               <label>Comparison</label>
               <select data-scope="main" data-ctl="compare">
-                <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
-                <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
-                <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
+                <option value="team" ${compareMode==="team"?"selected":""}>Team</option>
+                <option value="store" ${compareMode==="store"?"selected":""}>Store</option>
+                <option value="goal" ${compareMode==="goal"?"selected":""}>Goal</option>
               </select>
             </div>
             `}
