@@ -1175,25 +1175,37 @@ return `
   }
   const bandCounts_asr = countBandsFor('asr');
   const bandCounts_sold = countBandsFor('sold');
+
+
+
   // Big clickable pie chart (replaces triangle/check icons + legend)
   function diagPieChart(counts, mode){
     const red = Math.max(0, Number(counts?.red)||0);
     const yellow = Math.max(0, Number(counts?.yellow)||0);
     const green = Math.max(0, Number(counts?.green)||0);
     const total = red + yellow + green;
+    const pct = (n)=> total>0 ? Math.round((n/total)*100) : 0;
 
     // SVG helpers
     const cx = 80, cy = 80, rad = 70; // viewBox 0..160
     const toRad = (deg)=> (deg*Math.PI/180);
-    const polar = (angDeg, r=rad)=>({
-      x: cx + r * Math.cos(toRad(angDeg)),
-      y: cy + r * Math.sin(toRad(angDeg))
+    const polar = (angDeg)=>({
+      x: cx + rad * Math.cos(toRad(angDeg)),
+      y: cy + rad * Math.sin(toRad(angDeg))
     });
     const arcPath = (a0, a1)=>{
       const p0 = polar(a0);
       const p1 = polar(a1);
       const large = (Math.abs(a1-a0) > 180) ? 1 : 0;
       return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
+    };
+    const labelAt = (a0, a1)=>{
+      const mid = (a0 + a1) / 2;
+      const rr = rad * 0.58;
+      return {
+        x: cx + rr * Math.cos(toRad(mid)),
+        y: cy + rr * Math.sin(toRad(mid))
+      };
     };
 
     const parts = [
@@ -1202,81 +1214,17 @@ return `
       {band:"green", n:green, fill:"#1fcb6a"},
     ].filter(p=>p.n>0);
 
-    // No data
+    // If no data, show a neutral ring with 0/0
     if(total<=0 || !parts.length){
       return `
         <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
           <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="#fff" stroke-width="1" />
-            <text x="80" y="80" text-anchor="middle" dominant-baseline="middle" class="diagPieNum">0</text>
-          </svg>
+            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="3" />
+            <text x="80" y="78" text-anchor="middle" fill="#fff" font-weight="1000" font-size="18">0</text>
+</svg>
         </div>
       `;
     }
-
-    // Start at -90deg (12 o'clock)
-    let ang = -90;
-    const slices = [];
-    for(const p of parts){
-      const span = (p.n/total) * 360;
-      const a0 = ang;
-      const a1 = ang + span;
-      ang = a1;
-
-      const mid = (a0 + a1) / 2;
-
-      // Decide if label fits inside slice
-      const isTiny = span < 28; // small angular span -> label outside
-      const insideR = rad * 0.56;
-      const outsideR = rad * 1.08;
-
-      const inPos = polar(mid, insideR);
-      const outPos = polar(mid, outsideR);
-      const edgePos = polar(mid, rad);
-
-      const rightSide = Math.cos(toRad(mid)) >= 0;
-      const lx = (isTiny ? outPos.x : inPos.x);
-      const ly = (isTiny ? outPos.y : inPos.y);
-
-      slices.push({
-        ...p,
-        span,
-        mid,
-        path: arcPath(a0, a1),
-        isTiny,
-        lx, ly,
-        ex: edgePos.x, ey: edgePos.y,
-        anchor: isTiny ? (rightSide ? "start" : "end") : "middle",
-      });
-    }
-
-    return `
-      <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
-        <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-          <g>
-            ${slices.map(s=>`
-              <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
-                d="${s.path}" fill="${s.fill}" stroke="#fff" stroke-width="1" />
-            `).join('')}
-          </g>
-
-          ${slices.map(s=>{
-            const x = s.lx.toFixed(2), y = s.ly.toFixed(2);
-            const xLine = s.ex.toFixed(2), yLine = s.ey.toFixed(2);
-            const xTxt = s.isTiny ? (s.anchor==="start" ? (s.lx+3).toFixed(2) : (s.lx-3).toFixed(2)) : x;
-            return `
-              ${s.isTiny ? `<line class="diagPieLeader" x1="${xLine}" y1="${yLine}" x2="${x}" y2="${y}" />` : ``}
-              <text class="diagPieTxt" x="${xTxt}" y="${y}" text-anchor="${s.anchor}" dominant-baseline="middle">
-                <tspan class="diagPieNum">${s.n}</tspan>
-              </text>
-            `;
-          }).join('')}
-
-          <circle cx="80" cy="80" r="70" fill="none" stroke="#fff" stroke-width="1" />
-        </svg>
-      </div>
-    `;
-  }
 
     // Start at -90deg (12 o'clock)
     let ang = -90;
@@ -1306,18 +1254,17 @@ return `
           <g filter="url(#diagPieShadow)">
             ${slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
-                d="${s.path}" fill="${s.fill}" />
+                d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="3" stroke-linejoin="round" />
             `).join('')}
           </g>
 
           ${slices.map(s=>`
             <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${(s.ly-4).toFixed(2)}" text-anchor="middle">
               <tspan class="diagPieNum">${s.n}</tspan>
-              <tspan x="${s.lx.toFixed(2)}" dy="18" class="diagPiePct">${pct(s.n)}%</tspan>
-            </text>
+              </text>
           `).join('')}
 
-          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="2" />
+          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="3" />
         </svg>
       </div>
     `;
