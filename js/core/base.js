@@ -1327,12 +1327,10 @@ function renderTeam(team, st){
   `;
 }
 
-const state = {
-  EXPRESS: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
-  KIA: {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false},
-};
-// expose state for module scripts (app.js)
-window.state = state;
+const state = (window.state = window.state || {});
+// Preserve any previously-set keys (e.g., compare) while applying defaults
+state.EXPRESS = Object.assign({filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false, compare:"team"}, state.EXPRESS || {});
+state.KIA     = Object.assign({filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", filtersOpen:false, compare:"team"}, state.KIA || {});
 
 
 function toggleTeamFilters(team){
