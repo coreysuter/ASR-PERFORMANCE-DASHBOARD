@@ -2137,39 +2137,3 @@ body.route-tech .techHeaderPanel .pills .pill .k{
 /* renderTech section headers actually use .secStatVal / .secStatTitle with inline colors */
 body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#fff !important;}
 body.route-tech .secHdrStats .secStatTitle{color:rgba(255,255,255,.55) !important;}
-
-
-/* === PATCH 2026-02-18: renderTech category header mini dials (supports 4 dials + variable sizes) ===
-   renderTech now shows mini dials for: ASR, Sold, ASR Goal, Sold Goal.
-   We must allow per-dial --sz (e.g., goal dials at 44px) and prevent overflow/clipping when 4 dials exist.
-*/
-body.route-tech .secSubRow{
-  flex-wrap:wrap !important;             /* allow dials to wrap if needed */
-  row-gap:10px !important;
-}
-body.route-tech .secSubRow .sub{
-  flex:1 1 360px !important;            /* keep filter text readable */
-  min-width:260px !important;
-}
-
-/* Mini dials container */
-body.route-tech .secMiniDials{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-end !important;
-  flex-wrap:wrap !important;
-  column-gap:18px !important;
-  row-gap:12px !important;
-}
-
-/* Respect per-dial inline --sz (JS sets --sz:44px for goal dials). Default to 74px otherwise. */
-body.route-tech .secMiniDials .svcGaugeWrap{
-  width:var(--sz,74px) !important;
-  height:var(--sz,74px) !important;
-  flex:0 0 var(--sz,74px) !important;
-}
-body.route-tech .secMiniDials .svcGauge{
-  --sz:var(--sz,74px) !important;
-  width:var(--sz,74px) !important;
-  height:var(--sz,74px) !important;
-}
