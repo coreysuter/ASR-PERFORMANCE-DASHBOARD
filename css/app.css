@@ -1177,9 +1177,11 @@ body.route-tech .techHeaderPanel .phead{
 }
 
 /* Slightly larger tech name on desktop */
-body.route-tech .techH2Big{font-size:34px !important;}
+body.route-tech .techH2Big{
+  font-size:36px !important;
+}
 @media (max-width: 820px){
-  body.route-tech .techH2Big{font-size:34px !important;}
+  body.route-tech .techH2Big{font-size:28px !important;}
 }
 
 /* Ensure right panel fills its grid column */
@@ -1235,7 +1237,6 @@ body.route-tech .catTitle .meta{
 /* === Rank badge (PROPORTION-LOCKED to your Paint mock) === */
 .rankFocusBadge{
   /* Size */
-  /* default size */
   --w: 80px;
   --h: 80px;
   --r: 18px;
@@ -1348,26 +1349,12 @@ body.route-tech .catTitle .meta{
 
 /* small version for service tiles */
 .rankFocusBadge.sm{
-  /* default size */
   --w: 74px;
   --h: 68px;
   --r: 16px;
 
   /* keep same relative divider proportions */
   --padX: 12px;
-}
-
-
-/* === Technician Dashboard only: +15% rank badge === */
-.techDashPage .rankFocusBadge{
-  --w: 92px;
-  --h: 92px;
-  --r: 21px;
-}
-.techDashPage .rankFocusBadge.sm{
-  --w: 85px;
-  --h: 78px;
-  --r: 18px;
 }
 
 
@@ -2068,6 +2055,9 @@ body.route-tech .svcTitle{
   line-height:1.08 !important;
 }
 
+/* === Tech header panel: technician name size === */
+body.route-tech .techH2Big{font-size:34px !important;}
+
 /* === Service category cards: metric typography === */
 .metricBlock .mbKicker{font-size:16px !important;}
 .metricBlock .mbLbl{font-size:14px !important;}
@@ -2087,7 +2077,6 @@ body.route-tech .svcTitle{
   color:var(--muted) !important;
 }
 
-
 /* === Service category cards: metric block dividers (ASR/RO vs Team Avg/Goal/Top Performer) === */
 .metricBlockDivided{gap:0 !important;}
 .metricBlockDivided .mbLeft{
@@ -2104,3 +2093,83 @@ body.route-tech .svcTitle{
   border-top:1px solid rgba(255,255,255,.22) !important;  /* thin grey horizontal lines */
 }
 
+
+/* === Scoped: Main Technician Dashboard (renderMain) typography overrides === */
+.pageTechDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
+.pageTechDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;text-transform:none !important;color:rgba(255,255,255,.55) !important;}
+
+/* EXPRESS/KIA category header pills */
+.pageTechDash .catHeaderSplit .pill .v,
+.pageTechDash .catHeaderSplit .pill .v *{font-size:22px !important;line-height:1.05 !important;}
+.pageTechDash .catHeaderSplit .pill .k,
+.pageTechDash .catHeaderSplit .pill .k *{font-size:14px !important;line-height:1.05 !important;text-transform:none !important;}
+
+/* Mini stats under technician names (tech rows) */
+.pageTechDash .techRow .cell .val{font-size:15px !important;line-height:1.05 !important;}
+.pageTechDash .techRow .cell .lbl{font-size:11px !important;line-height:1.05 !important;text-transform:none !important;}
+
+/* Rank badge +15% (dashboard tech rows only) */
+.pageTechDash .techRow .rankFocusBadge{transform:scale(1.15);transform-origin:center center;}
+/* === PATCH 2026-02-18: Tech details header pills + category header bottom focus stat === */
+/* Tech Details / Group pages (body.route-tech): header pills sizing */
+body.route-tech .techHeaderPanel .pills .pill .v{
+  font-size:22px !important;
+  line-height:1.05 !important;
+}
+body.route-tech .techHeaderPanel .pills .pill .k{
+  font-size:14px !important;
+  line-height:1.05 !important;
+  color:rgba(255,255,255,.55) !important;
+  text-transform:none !important;
+}
+
+/* Category title rows (section headers): bottom (secondary) focus stat value white, title stays grey */
+.route-tech .secHdrStats .statVal.secondary,
+.route-tech .secHdrStats .statVal.small,
+.route-tech .secHdrStats .dashFocusNumSmall{
+  color:var(--text) !important;
+}
+.route-tech .secHdrStats .statLbl,
+.route-tech .secHdrStats .dashFocusLbl{
+  color:var(--muted) !important;
+}
+
+/* renderTech section headers actually use .secStatVal / .secStatTitle with inline colors */
+body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#fff !important;}
+body.route-tech .secHdrStats .secStatTitle{color:rgba(255,255,255,.55) !important;}
+
+
+/* === PATCH 2026-02-18: renderTech category header mini dials (supports 4 dials + variable sizes) ===
+   renderTech now shows mini dials for: ASR, Sold, ASR Goal, Sold Goal.
+   We must allow per-dial --sz (e.g., goal dials at 44px) and prevent overflow/clipping when 4 dials exist.
+*/
+body.route-tech .secSubRow{
+  flex-wrap:wrap !important;             /* allow dials to wrap if needed */
+  row-gap:10px !important;
+}
+body.route-tech .secSubRow .sub{
+  flex:1 1 360px !important;            /* keep filter text readable */
+  min-width:260px !important;
+}
+
+/* Mini dials container */
+body.route-tech .secMiniDials{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  flex-wrap:wrap !important;
+  column-gap:18px !important;
+  row-gap:12px !important;
+}
+
+/* Respect per-dial inline --sz (JS sets --sz:44px for goal dials). Default to 74px otherwise. */
+body.route-tech .secMiniDials .svcGaugeWrap{
+  width:var(--sz,74px) !important;
+  height:var(--sz,74px) !important;
+  flex:0 0 var(--sz,74px) !important;
+}
+body.route-tech .secMiniDials .svcGauge{
+  --sz:var(--sz,74px) !important;
+  width:var(--sz,74px) !important;
+  height:var(--sz,74px) !important;
+}
