@@ -2234,3 +2234,19 @@ body.route-tech .diagPieWrap{cursor:pointer}
 body.route-tech .diagPieSvg{overflow:visible}
 body.route-tech .diagPieSlice{cursor:pointer; transition:filter 120ms ease, opacity 120ms ease}
 body.route-tech .diagPieSlice:hover{filter:brightness(1.22)}
+/* === PATCH 2026-02-19: Tech Details panels slightly lighter (NO catCard changes) === */
+body.route-tech .panel{
+  background: linear-gradient(180deg, rgba(22,30,58,.96), rgba(14,20,44,.96)) !important;
+}
+
+/* === PATCH 2026-02-19: Restore thin white slice separators + ring on diag pie === */
+body.route-tech .diagPieSlice{
+  stroke: rgba(255,255,255,.70);
+  stroke-width: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+body.route-tech .diagPieRing{
+  stroke: rgba(255,255,255,.78);
+  stroke-width: 1.0;
+  vector-effect: non-scaling-stroke;
+}
