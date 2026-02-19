@@ -2045,3 +2045,50 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   font-size:14px !important;
   color:rgba(234,240,255,.7) !important; /* grey */
 }
+
+/* === Service category cards: service title size (Rotate, Alignment, etc.) === */
+body.route-tech .svcName,
+body.route-tech .serviceName,
+body.route-tech .svcTitle{
+  font-size:26px !important;
+  font-weight:var(--HB) !important;
+  line-height:1.08 !important;
+}
+
+/* === Tech header panel: technician name size === */
+body.route-tech .techH2Big{font-size:34px !important;}
+
+/* === Service category cards: metric typography === */
+.metricBlock .mbKicker{font-size:16px !important;}
+.metricBlock .mbLbl{font-size:14px !important;}
+
+/* === Technician Dashboard: lower (non-focus) stat values white, titles stay grey === */
+.techHeaderPanel .dashFocusNumSmall,
+.techHeaderPanel .overallBlock .bigSub,
+.techHeaderPanel .overallBlock .subNum,
+.techHeaderPanel .focusStat .statVal.small,
+.techHeaderPanel .focusStat .statVal.secondary{
+  color:var(--text) !important;
+}
+.techHeaderPanel .dashFocusLbl,
+.techHeaderPanel .overallBlock .tag,
+.techHeaderPanel .focusStat .statLbl,
+.techHeaderPanel .focusStat .statTitle{
+  color:var(--muted) !important;
+}
+
+/* === Service category cards: metric block dividers (ASR/RO vs Team Avg/Goal/Top Performer) === */
+.metricBlockDivided{gap:0 !important;}
+.metricBlockDivided .mbLeft{
+  padding-right:14px !important;
+  border-right:1px solid rgba(255,255,255,.22) !important; /* thin grey vertical line */
+}
+.metricBlockDivided .mbRight{
+  padding-left:14px !important;
+}
+.metricBlockDivided .mbRight .mbRow{
+  padding:6px 0 !important;
+}
+.metricBlockDivided .mbRight .mbRow + .mbRow{
+  border-top:1px solid rgba(255,255,255,.22) !important;  /* thin grey horizontal lines */
+}
