@@ -2227,3 +2227,20 @@ body.route-tech .techPickPanel.diagSection .diagPieSvg{width:142px;height:142px;
 body.route-tech .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:700;font-size:20px}
 body.route-tech .techPickPanel.diagSection .diagPieLeader{stroke:rgba(255,255,255,.9);stroke-width:1}
 body.route-tech .techPickPanel.diagSection .diagPieRing{stroke:rgba(255,255,255,.85);stroke-width:1.2}
+/* === Diag pie interactions (tech details only) === */
+body.route-tech .techPickPanel.diagSection .diagPieWrap,
+body.route-tech .techPickPanel.diagSection .diagPieSvg{
+  cursor:pointer;
+}
+body.route-tech .techPickPanel.diagSection .diagPieSlice{
+  cursor:pointer;
+  transition:filter 140ms ease, opacity 140ms ease, transform 140ms ease;
+  opacity:.92;
+  transform-origin:50% 50%;
+}
+body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
+  opacity:1;
+  filter:brightness(1.35) drop-shadow(0 6px 10px rgba(0,0,0,.35));
+  transform:scale(1.02);
+}
+
