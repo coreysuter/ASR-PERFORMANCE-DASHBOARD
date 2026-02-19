@@ -57,6 +57,10 @@ function router(){
     renderSettingsHome();
     return;
   }
+  if(h==="#/servicesDash" || h.startsWith("#/servicesDash?") || h==="#/servicesDashboard" || h.startsWith("#/servicesDashboard?")){
+    window.renderServicesDashboard?.();
+    return;
+  }
   if(h==="#/services" || h.startsWith("#/services?") || h==="#/servicesHome" || h.startsWith("#/servicesHome?")){
     // Services main page
     window.renderServicesHome?.();
