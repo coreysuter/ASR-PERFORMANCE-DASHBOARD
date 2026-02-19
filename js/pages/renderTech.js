@@ -549,14 +549,13 @@ function countBandsFor(mode){
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
-      ${focus==="goal" ? `
       <div>
         <label>Goal</label>
         <select id="techGoalMetric">
           <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
           <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
         </select>
-      </div>` : ``}
+      </div>
     </div>
   `;
 
@@ -955,43 +954,52 @@ const dialFocus = Number.isFinite(focusPct)
   ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>`
   : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
-// --- Section header mini-dials: always show exactly 3 (exclude the current focus dial).
+// --- Section header mini-dials: always show exactly 3.
 // Minis sit immediately LEFT of the focus dial (we render minis BEFORE the focus dial).
-// Adjacency rules (right-most mini sits next to the focus dial):
-//   * Focus=ASR/RO  -> ASR Goal mini next to ASR focus dial
-//   * Focus=Sold    -> Sold Goal mini next to Sold focus dial
-//   * Focus=Goal + Goal=ASR  -> ASR mini next to ASR Goal focus dial
-//   * Focus=Goal + Goal=Sold -> Sold mini next to Sold Goal focus dial
-const _miniMap = {
-  ASR: dialASR,
-  Sold: dialSold,
-  ASRGoal: dialGoalAsr,
-  SoldGoal: dialGoalSold
-};
+// The mini dial closest to the focus dial should be:
+//   * Focus=ASR/RO  -> Sold
+//   * Focus=Goal    -> ASR or Sold (depending on goalMetric)
+//   * Focus=Sold    -> ASR
+let mASR = dialASR, mSold = dialSold, mGAsr = dialGoalAsr, mGSold = dialGoalSold;
 
-// Remove the mini that matches the current focus dial
+// Remove the mini dial that matches the current focus dial
 if(focus==="sold"){
-  _miniMap.Sold = "";
+  mSold = "";
 }else if(focus==="goal"){
-  if(goalMetric==="sold") _miniMap.SoldGoal = "";
-  else _miniMap.ASRGoal = "";
+  if(goalMetric==="sold") mGSold = "";
+  else mGAsr = "";
 }else{
   // ASR / RO focus
-  _miniMap.ASR = "";
+  mASR = "";
 }
 
-// Which mini should be closest to the focus dial?
-let _adjKey = "Sold";
-if(focus==="sold") _adjKey = "SoldGoal";
-else if(focus==="goal") _adjKey = (goalMetric==="sold") ? "Sold" : "ASR";
-else _adjKey = "ASRGoal";
+// Order minis so the "adjacent" mini is last (right-most), next to the focus dial
+let adjacent = "";
+if(focus==="goal"){
+  adjacent = (goalMetric==="sold") ? mSold : mASR;
+}else if(focus==="sold"){
+  adjacent = mASR;
+}else{
+  adjacent = mSold;
+}
 
-// Build the 3 minis in a stable order, forcing the adjacent one to be last.
-const _baseOrder = ["ASR","Sold","ASRGoal","SoldGoal"];
-const _rest = _baseOrder.filter(k => k !== _adjKey && _miniMap[k]);
-const minisOrdered = _rest.map(k => _miniMap[k]);
-
-if(_miniMap[_adjKey]) minisOrdered.push(_miniMap[_adjKey]);
+// Build mini-dial order explicitly so the mini closest to the focus dial is correct.
+// IMPORTANT: When focus is ASR or Sold, the *corresponding* Goal mini (ASR Goal for ASR focus,
+// Sold Goal for Sold focus) should be the next-closest mini to the focus dial.
+let minisOrdered = [];
+if(focus==="goal"){
+  // Focus is Goal -> last (closest) mini is the corresponding non-goal metric (ASR or Sold)
+  // (we already removed the matching goal mini above)
+  const otherStat = (goalMetric==="sold") ? mASR : mSold;
+  const remainingGoal = (goalMetric==="sold") ? mGAsr : mGSold;
+  minisOrdered = [otherStat, remainingGoal, adjacent].filter(Boolean);
+}else if(focus==="sold"){
+  // Focus is Sold -> ASR mini closest; Sold Goal should be next-closest among the goal minis
+  minisOrdered = [mGAsr, mGSold, adjacent].filter(Boolean);
+}else{
+  // Focus is ASR/RO -> Sold mini closest; ASR Goal should be next-closest among the goal minis
+  minisOrdered = [mGSold, mGAsr, adjacent].filter(Boolean);
+}
 
 const miniHtml = `<div class="secMiniDials">${minisOrdered.join("")}</div>`;
 
@@ -1023,7 +1031,6 @@ const __secHeaderPills = `
     <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
     <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
     <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
-    <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
     <div class="pill"><div class="k">Sold/RO</div><div class="v">${__soldPerRoTxt}</div></div>
   </div>
 `;
