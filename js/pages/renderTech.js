@@ -981,24 +981,22 @@ if(focus==="goal"){
   adjacent = mSold;
 }
 
-// Build mini-dial order explicitly so the mini closest to the focus dial is correct,
-// and (when focus is ASR or Sold) the currently-selected Goal mini is the next-closest.
-const goalNear = (goalMetric==="sold") ? mGSold : mGAsr;
-const goalFar  = (goalMetric==="sold") ? mGAsr : mGSold;
-
+// Build mini-dial order explicitly so the mini closest to the focus dial is correct.
+// IMPORTANT: When focus is ASR or Sold, the *corresponding* Goal mini (ASR Goal for ASR focus,
+// Sold Goal for Sold focus) should be the next-closest mini to the focus dial.
 let minisOrdered = [];
 if(focus==="goal"){
-  // Adjacent mini is the corresponding non-goal metric (ASR or Sold) next to the Goal focus dial
+  // Focus is Goal -> last (closest) mini is the corresponding non-goal metric (ASR or Sold)
   // (we already removed the matching goal mini above)
   const otherStat = (goalMetric==="sold") ? mASR : mSold;
   const remainingGoal = (goalMetric==="sold") ? mGAsr : mGSold;
   minisOrdered = [otherStat, remainingGoal, adjacent].filter(Boolean);
 }else if(focus==="sold"){
-  // Focus is Sold -> ASR mini closest; keep the selected goal mini next-closest
-  minisOrdered = [goalFar, goalNear, adjacent].filter(Boolean);
+  // Focus is Sold -> ASR mini closest; Sold Goal should be next-closest among the goal minis
+  minisOrdered = [mGAsr, mGSold, adjacent].filter(Boolean);
 }else{
-  // Focus is ASR/RO -> Sold mini closest; keep the selected goal mini next-closest
-  minisOrdered = [goalFar, goalNear, adjacent].filter(Boolean);
+  // Focus is ASR/RO -> Sold mini closest; ASR Goal should be next-closest among the goal minis
+  minisOrdered = [mGSold, mGAsr, adjacent].filter(Boolean);
 }
 
 const miniHtml = `<div class="secMiniDials">${minisOrdered.join("")}</div>`;
