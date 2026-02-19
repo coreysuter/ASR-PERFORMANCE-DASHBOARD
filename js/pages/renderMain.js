@@ -1,4 +1,10 @@
 function renderMain(){
+
+  // Ensure shared state exists (prevents "state is not defined" if base.js/app.js load order changes)
+  const state = (window.state = window.state || {});
+  state.EXPRESS = state.EXPRESS || { filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team" };
+  state.KIA     = state.KIA     || { filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team" };
+
   const app=document.getElementById('app');
 
   // Main header filters are always visible (no collapse)
