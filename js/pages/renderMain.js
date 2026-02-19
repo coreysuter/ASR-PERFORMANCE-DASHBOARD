@@ -22,78 +22,36 @@ function renderMain(){
   const totalAsr = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
   const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
-  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
+  const soldPct = totalAsr ? (totalSold/totalAsr) : null;
 
-  
-  const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
-  const focusIsGoal = st.sortBy === "goal";
+  const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
-  // If Focus=GOAL, force Comparison=GOAL (and keep both teams in sync)
-  if(focusIsGoal){
-    state.EXPRESS.compare = "goal";
-    state.KIA.compare = "goal";
-  }
-  // Comparison mode (forced to GOAL when Focus=GOAL)
-  const compareMode = focusIsGoal ? "goal" : ((st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team"));
+  const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const appliedTextHtml = "";
-
-  // Top-right status block shows the Focus stat on top (bigger/white), non-focus below (smaller/grey)
-  const focusIsSold = st.sortBy === "sold_pct";
-  // (focusIsGoal defined above)
-  const topStatVal = focusIsSold ? soldPerRo : asrPerRo;
-  const topStatLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
-  const subStatVal = focusIsSold ? asrPerRo : soldPerRo;
-  const subStatLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
 
   const header = `
     <div class="panel techHeaderPanel">
       <div class="phead">
-        <style>
-          /* Keep pills in the top row and prevent overlap with the title */
-          .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
-          .techHeaderPanel .techH2Big{flex:0 0 auto !important;}
-          .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
-
-          /* Tech header stat pills sizing (requested) */
-          .techHeaderPanel .pills .pill .v{font-size:24px !important;line-height:1.05 !important;}
-          .techHeaderPanel .pills .pill .k{font-size:16px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;}
-
-          /* Make the header filters 30% wider than the base app.css sizing */
-          .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen select{
-            min-width:152px !important;
-            max-width:237px !important;
-          }
-        </style>
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
             <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
           </div>
-          
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
-              <div class="h2 techH2Big">Technician Dashboard</div>
-            <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
-              <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
-          <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div></div>
-            </div>
-            </div>
+            <div class="h2 techH2Big">Technician Dashboard</div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
-            <!-- app.css hides .overallBlock .big with !important; use a different class name -->
-            <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topStatVal===null ? "—" : (focusIsSold ? fmt1(topStatVal,2) : fmt1(topStatVal,1))}
-            </div>
-            <div class="tag">${topStatLbl}</div>
-
-            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmt1(subStatVal,2))}
-            </div>
-            <div class="tag">${subStatLbl}</div>
+            <div class="big">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div>
+            <div class="tag">Avg ASR/RO (Store)</div>
+            <div class="overallMetric">${fmtPct(soldPct)}</div>
+            <div class="tag">Sold% (Store)</div>
           </div>
+        </div>
+
+        <div class="pills">
+          <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
+          <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+          <div class="pill"><div class="k">SOLD/ASR</div><div class="v">${fmtPct(soldPct)}</div></div>
         </div>
 
         <div class="mainFiltersBar">
@@ -110,11 +68,9 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
               <label>Focus</label>
               <select data-scope="main" data-ctl="sort">
                 <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
-                <option value="goal" ${st.sortBy==="goal"?"selected":""}>GOAL</option>
+                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold%</option>
               </select>
             </div>
-            ${focusIsGoal ? `
             <div>
               <label>Goal</label>
               <select data-scope="main" data-ctl="goal">
@@ -124,22 +80,12 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             </div>
             <div>
               <label>Comparison</label>
-              <select data-scope="main" data-ctl="compare" disabled style="opacity:.55;filter:grayscale(1);cursor:not-allowed">
-                <option value="team">TEAM</option>
-                <option value="store">STORE</option>
-                <option value="goal" selected>GOAL</option>
-              </select>
-            </div>
-            ` : `
-            <div>
-              <label>Comparison</label>
               <select data-scope="main" data-ctl="compare">
                 <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
                 <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
                 <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
               </select>
             </div>
-            `}
           </div>
           <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
