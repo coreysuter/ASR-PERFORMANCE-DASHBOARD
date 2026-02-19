@@ -2092,3 +2092,22 @@ body.route-tech .techH2Big{font-size:34px !important;}
 .metricBlockDivided .mbRight .mbRow + .mbRow{
   border-top:1px solid rgba(255,255,255,.22) !important;  /* thin grey horizontal lines */
 }
+
+
+/* === Scoped: Main Technician Dashboard (renderMain) typography overrides === */
+.pageTechDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
+.pageTechDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;text-transform:none !important;color:rgba(255,255,255,.55) !important;}
+
+/* EXPRESS/KIA category header pills */
+.pageTechDash .catHeaderSplit .pill .v,
+.pageTechDash .catHeaderSplit .pill .v *{font-size:22px !important;line-height:1.05 !important;}
+.pageTechDash .catHeaderSplit .pill .k,
+.pageTechDash .catHeaderSplit .pill .k *{font-size:14px !important;line-height:1.05 !important;text-transform:none !important;}
+
+/* Mini stats under technician names (tech rows) */
+.pageTechDash .techRow .cell .val{font-size:15px !important;line-height:1.05 !important;}
+.pageTechDash .techRow .cell .lbl{font-size:11px !important;line-height:1.05 !important;text-transform:none !important;}
+
+/* Rank badge +15% (dashboard tech rows only) */
+.pageTechDash .techRow .rankFocusBadge{transform:scale(1.15);transform-origin:center center;}
+

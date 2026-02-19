@@ -1,4 +1,29 @@
 function renderMain(){
+
+// Dashboard-only style overrides (must run after base.css injections)
+(function ensureTechDashOverrides(){
+  const id = "techDashOverrides";
+  let el = document.getElementById(id);
+  if(!el){
+    el = document.createElement("style");
+    el.id = id;
+    document.head.appendChild(el);
+  }
+  el.textContent = `
+    /* Scope EVERYTHING to main technician dashboard only */
+    .pageTechDash .techRow .techNameStats .tnLbl{
+      font-size:11px !important;
+      line-height:1.05 !important;
+      text-transform:none !important;
+      letter-spacing:.2px !important;
+    }
+    .pageTechDash .techRow .techNameStats .tnVal{
+      font-size:15px !important;
+      line-height:1.05 !important;
+    }
+  `;
+})();
+
   const app=document.getElementById('app');
 
   // Main header filters are always visible (no collapse)
@@ -148,7 +173,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
     </div>
   `;
 
-  app.innerHTML = `${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div>`;
+  app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
     const ctl=el.getAttribute('data-ctl');
