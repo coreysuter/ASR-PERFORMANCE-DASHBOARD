@@ -1002,6 +1002,37 @@ if(focus==="goal"){
 const miniHtml = `<div class="secMiniDials">${minisOrdered.join("")}</div>`;
 
 const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
+
+/* --- Section header pills (next to section name) ---
+   We aggregate within this section (only the categories listed in the section).
+   Avg ODO comes from the technician-level odo (consistent across sections).
+*/
+const __agg = __cats.reduce((a,cat)=>{
+  const c = t.categories?.[cat] || {};
+  const ro = Number(c.ro);
+  const asr = Number(c.asr);
+  const sold = Number(c.sold);
+  if(Number.isFinite(ro)) { a.ro += ro; a.roN++; }
+  if(Number.isFinite(asr)) a.asr += asr;
+  if(Number.isFinite(sold)) a.sold += sold;
+  return a;
+},{ro:0, roN:0, asr:0, sold:0});
+
+const __secROs = (__agg.roN>0) ? __agg.ro : Number(t.ros ?? 0);
+const __secASRs = __agg.asr;
+const __secSold = __agg.sold;
+const __soldOfAsr = (Number.isFinite(__secASRs) && __secASRs>0 && Number.isFinite(__secSold)) ? (__secSold/__secASRs) : NaN;
+const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? ((__soldOfAsr*100).toFixed(1) + "%") : "—";
+
+const __secHeaderPills = `
+  <div class="secNamePills pills">
+    <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
+    <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
+    <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
+    <div class="pill"><div class="k">Sold/ASR</div><div class="v">${__soldOfAsrTxt}</div></div>
+  </div>
+`;
+
     const topStatVal = (focus==="sold") ? fmtPct(secStats.avgClose) : (focus==="goal" ? fmtPct(pctGoal) : fmt1(secStats.sumReq,1));
     const topStatTitle = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASRs/RO");
     const botStatVal = (focus==="sold") ? fmt1(secStats.sumReq,1) : fmtPct(secStats.avgClose);
@@ -1014,6 +1045,7 @@ return `
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
+                ${__secHeaderPills}
                 
               </div>
               <div class="sub"></div>

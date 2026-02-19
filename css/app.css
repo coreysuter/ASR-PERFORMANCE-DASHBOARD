@@ -2157,3 +2157,32 @@ body.route-tech .secHdrRight .secMiniDials .svcGaugeWrap{
 body.route-tech .svcGauge .pctTitle{
   white-space:normal;
 }
+
+
+/* === renderTech: section header pills next to section name (Avg ODO / ROs / ASRs / Sold/ASR) === */
+
+body.route-tech .secNamePills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-left:6px;
+  margin-top:2px;
+}
+body.route-tech .secNamePills .pill{
+  padding:7px 12px;
+  gap:8px;
+}
+body.route-tech .secNamePills .pill .v{
+  font-size:22px !important;
+  font-weight:1000 !important;
+  line-height:1.05 !important;
+  color:var(--text) !important;
+}
+body.route-tech .secNamePills .pill .k{
+  font-size:14px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  color:rgba(255,255,255,.55) !important;
+  text-transform:none !important;
+  letter-spacing:.2px;
+}
