@@ -2110,4 +2110,26 @@ body.route-tech .techH2Big{font-size:34px !important;}
 
 /* Rank badge +15% (dashboard tech rows only) */
 .pageTechDash .techRow .rankFocusBadge{transform:scale(1.15);transform-origin:center center;}
+/* === PATCH 2026-02-18: Tech details header pills + category header bottom focus stat === */
+/* Tech Details / Group pages (body.route-tech): header pills sizing */
+body.route-tech .techHeaderPanel .pills .pill .v{
+  font-size:22px !important;
+  line-height:1.05 !important;
+}
+body.route-tech .techHeaderPanel .pills .pill .k{
+  font-size:14px !important;
+  line-height:1.05 !important;
+  color:rgba(255,255,255,.55) !important;
+  text-transform:none !important;
+}
 
+/* Category title rows (section headers): bottom (secondary) focus stat value white, title stays grey */
+.route-tech .secHdrStats .statVal.secondary,
+.route-tech .secHdrStats .statVal.small,
+.route-tech .secHdrStats .dashFocusNumSmall{
+  color:var(--text) !important;
+}
+.route-tech .secHdrStats .statLbl,
+.route-tech .secHdrStats .dashFocusLbl{
+  color:var(--muted) !important;
+}
