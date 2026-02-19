@@ -709,7 +709,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
       if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
       hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?(goalMetric==="sold"?"Sold Goal":"ASR Goal"):"ASR")))}</div>
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR")))}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
@@ -819,7 +819,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?(goalMetric==="sold"?"Sold Goal":"ASR Goal"):"ASR"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
@@ -923,47 +923,71 @@ function sectionRankFor(sec){
 
     const pctGoalAsr = (Number.isFinite(asrVal) && Number.isFinite(goalReq) && goalReq>0) ? (asrVal/goalReq) : NaN;
     const pctGoalSold = (Number.isFinite(soldVal) && Number.isFinite(goalClose) && goalClose>0) ? (soldVal/goalClose) : NaN;
-    // Focus=Goal must reflect the selected goal metric (ASR vs Sold) instead of averaging both.
-    const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? (goalMetric==="sold" ? pctGoalSold : pctGoalAsr) : pctAsr);
-    const focusLbl = (focus==="sold")
-      ? "Sold"
-      : (focus==="goal" ? (goalMetric==="sold" ? "Sold Goal" : "ASR Goal") : "ASR");
+    const pctGoal = [pctGoalAsr,pctGoalSold].filter(n=>Number.isFinite(n)).length
+      ? mean([pctGoalAsr,pctGoalSold].filter(n=>Number.isFinite(n)))
+      : NaN;
 
-    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    
+const goalFocusPct = (goalMetric==="sold") ? pctGoalSold : pctGoalAsr;
+const goalFocusLbl = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
 
-    // Two Goal mini dials (ASR Goal + Sold Goal)
-    const dialGoalASR = Number.isFinite(pctGoalAsr)
-      ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-    const dialGoalSold = Number.isFinite(pctGoalSold)
-      ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+// Focus dial: when focus=goal, use the selected goal metric (ASR Goal or Sold Goal)
+const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? goalFocusPct : pctAsr);
+const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? goalFocusLbl : "ASR");
 
-    const dialFocus = Number.isFinite(focusPct)
-      ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
+const dialASR = Number.isFinite(pctAsr)
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+const dialSold = Number.isFinite(pctSold)
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+const dialGoalAsr = Number.isFinite(pctGoalAsr)
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+const dialGoalSold = Number.isFinite(pctGoalSold)
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
 
-    // Mini dials should always total 3: remove whichever metric is already shown as the large focus dial.
-    // - Focus ASR  -> hide ASR mini
-    // - Focus Sold -> hide Sold mini
-    // - Focus Goal -> hide the matching goal mini (ASR Goal vs Sold Goal)
-    const isAsrFocus = (focus!=="sold" && focus!=="goal");
-    const miniASR = isAsrFocus ? "" : dialASR;
-    const miniSold = (focus==="sold") ? "" : dialSold;
+const dialFocus = Number.isFinite(focusPct)
+  ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
-    // When the focus dial is showing a specific goal dial, remove that same goal mini dial.
-    const miniGoalDials = (focus==="goal")
-      ? (goalMetric==="sold" ? dialGoalASR : dialGoalSold)
-      : (dialGoalASR + dialGoalSold);
+// --- Section header mini-dials: always show exactly 3.
+// Minis sit immediately LEFT of the focus dial (we render minis BEFORE the focus dial).
+// The mini dial closest to the focus dial should be:
+//   * Focus=ASR/RO  -> Sold
+//   * Focus=Goal    -> ASR or Sold (depending on goalMetric)
+//   * Focus=Sold    -> ASR
+let mASR = dialASR, mSold = dialSold, mGAsr = dialGoalAsr, mGSold = dialGoalSold;
 
-    const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
-    const topStatVal = (focus==="sold")
-      ? fmtPct(secStats.avgClose)
-      : (focus==="goal" ? fmtPct(focusPct) : fmt1(secStats.sumReq,1));
-    const topStatTitle = (focus==="sold")
-      ? "Sold"
-      : (focus==="goal" ? (goalMetric==="sold" ? "Sold Goal" : "ASR Goal") : "ASRs/RO");
+// Remove the mini dial that matches the current focus dial
+if(focus==="sold"){
+  mSold = "";
+}else if(focus==="goal"){
+  if(goalMetric==="sold") mGSold = "";
+  else mGAsr = "";
+}else{
+  // ASR / RO focus
+  mASR = "";
+}
+
+// Order minis so the "adjacent" mini is last (right-most), next to the focus dial
+let adjacent = "";
+if(focus==="goal"){
+  adjacent = (goalMetric==="sold") ? mSold : mASR;
+}else if(focus==="sold"){
+  adjacent = mASR;
+}else{
+  adjacent = mSold;
+}
+
+const pool = [mASR, mSold, mGAsr, mGSold].filter(Boolean);
+const others = pool.filter(x=>x!==adjacent);
+const miniHtml = `<div class="secMiniDials">${[...others, adjacent].filter(Boolean).join("")}</div>`;
+
+const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
+    const topStatVal = (focus==="sold") ? fmtPct(secStats.avgClose) : (focus==="goal" ? fmtPct(pctGoal) : fmt1(secStats.sumReq,1));
+    const topStatTitle = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASRs/RO");
     const botStatVal = (focus==="sold") ? fmt1(secStats.sumReq,1) : fmtPct(secStats.avgClose);
     const botStatTitle = (focus==="sold") ? "ASRs/RO" : "Sold";
     const rows = __cats.map(cat=>renderCategoryRectSafe(cat, compareBasis)).join("");
@@ -974,10 +998,11 @@ return `
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
+                
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secMiniDials">${miniASR}${miniSold}${miniGoalDials}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
+            <div class="secHdrRight">${miniHtml}<div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
                 <div class="secStatBlock">
                   <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
                   <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>

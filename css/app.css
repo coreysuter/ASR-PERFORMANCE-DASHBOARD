@@ -2139,12 +2139,21 @@ body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#fff !im
 body.route-tech .secHdrStats .secStatTitle{color:rgba(255,255,255,.55) !important;}
 
 
-/* ===== v280_UNIQUE: move category mini dials next to focus dial (renderTech only) ===== */
-.route-tech .secHdrRight{display:flex !important;align-items:center !important;justify-content:flex-end !important;gap:22px !important;}
-.route-tech .secHdrRight .secFocusDial{order:0 !important;}
-.route-tech .secHdrRight .secMiniDials{order:1 !important;display:flex !important;align-items:center !important;gap:26px !important;flex:0 0 auto !important;}
-.route-tech .secHdrRight .secHdrRank{order:2 !important;}
-.route-tech .secHdrRight .secHdrStats{order:3 !important;text-align:right !important;}
-/* Ensure mini dial sizing remains correct when moved into right cluster */
-.route-tech .secHdrRight .secMiniDials .svcGaugeWrap{width:74px !important;height:74px !important;flex:0 0 74px !important;}
-.route-tech .secHdrRight .secMiniDials .svcGauge{--sz:74px !important;width:74px !important;height:74px !important;}
+/* === renderTech: section header right cluster (mini dials + focus dial) === */
+body.route-tech .secHdrRight{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+body.route-tech .secHdrRight .secMiniDials{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:nowrap;
+}
+body.route-tech .secHdrRight .secMiniDials .svcGaugeWrap{
+  flex:0 0 auto;
+}
+body.route-tech .svcGauge .pctTitle{
+  white-space:normal;
+}
