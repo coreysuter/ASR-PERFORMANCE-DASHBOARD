@@ -1177,9 +1177,11 @@ body.route-tech .techHeaderPanel .phead{
 }
 
 /* Slightly larger tech name on desktop */
-body.route-tech .techH2Big{font-size:34px !important;}
+body.route-tech .techH2Big{
+  font-size:36px !important;
+}
 @media (max-width: 820px){
-  body.route-tech .techH2Big{font-size:34px !important;}
+  body.route-tech .techH2Big{font-size:28px !important;}
 }
 
 /* Ensure right panel fills its grid column */
@@ -2043,68 +2045,3 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   font-size:14px !important;
   color:rgba(234,240,255,.7) !important; /* grey */
 }
-
-/* === Service category cards: service title size (Rotate, Alignment, etc.) === */
-body.route-tech .svcName,
-body.route-tech .serviceName,
-body.route-tech .svcTitle{
-  font-size:26px !important;
-  font-weight:var(--HB) !important;
-  line-height:1.08 !important;
-}
-
-/* === Service category cards: metric typography === */
-.metricBlock .mbKicker{font-size:16px !important;}
-.metricBlock .mbLbl{font-size:14px !important;}
-
-/* === Technician Dashboard: lower (non-focus) stat values white, titles stay grey === */
-.techHeaderPanel .dashFocusNumSmall,
-.techHeaderPanel .overallBlock .bigSub,
-.techHeaderPanel .overallBlock .subNum,
-.techHeaderPanel .focusStat .statVal.small,
-.techHeaderPanel .focusStat .statVal.secondary{
-  color:var(--text) !important;
-}
-.techHeaderPanel .dashFocusLbl,
-.techHeaderPanel .overallBlock .tag,
-.techHeaderPanel .focusStat .statLbl,
-.techHeaderPanel .focusStat .statTitle{
-  color:var(--muted) !important;
-}
-
-
-/* === Service category cards: metric block dividers (ASR/RO vs Team Avg/Goal/Top Performer) === */
-.metricBlockDivided{gap:0 !important;}
-.metricBlockDivided .mbLeft{
-  padding-right:14px !important;
-  border-right:1px solid rgba(255,255,255,.22) !important; /* thin grey vertical line */
-}
-.metricBlockDivided .mbRight{
-  padding-left:14px !important;
-}
-.metricBlockDivided .mbRight .mbRow{
-  padding:6px 0 !important;
-}
-.metricBlockDivided .mbRight .mbRow + .mbRow{
-  border-top:1px solid rgba(255,255,255,.22) !important;  /* thin grey horizontal lines */
-}
-
-
-/* === PATCH 2026-02-18 (v2): Dashboard typography + pill updates (MAIN DASHBOARD ONLY) === */
-/* Scope everything to the main dashboard route so other pages (Tech Details, Services, etc.) are unaffected. */
-body.route-main .techHeaderPanel .pills .pill .v{ font-size:26px !important; line-height:1.05 !important; }
-body.route-main .techHeaderPanel .pills .pill .k{ font-size:18px !important; line-height:1.05 !important; color:rgba(255,255,255,.55) !important; }
-
-/* EXPRESS / KIA header pills (team category headers on main dashboard) */
-body.route-main .catHeaderSplit .pill .v,
-body.route-main .catHeaderSplit .pills .pill .v{ font-size:22px !important; line-height:1 !important; }
-body.route-main .catHeaderSplit .pill .k,
-body.route-main .catHeaderSplit .pills .pill .k{ font-size:18px !important; line-height:1.05 !important; color:rgba(234,240,255,.7) !important; }
-
-/* Technician row mini stats (left block under tech name) */
-body.route-main .techRow .techNameStats .tnVal{ font-size:15px !important; }
-body.route-main .techRow .techNameStats .tnLbl{ font-size:11px !important; }
-
-/* Tech row rank badge: +15% size (dashboard only) */
-body.route-main .techRow.dashTechRow .rankFocusBadge.sm{ transform:scale(1.15); transform-origin:top right; }
-
