@@ -549,7 +549,7 @@ function countBandsFor(mode){
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
-      <div style="display:${focus===\"goal\"?\"block\":\"none\"}">
+      <div>
         <label>Goal</label>
         <select id="techGoalMetric">
           <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
