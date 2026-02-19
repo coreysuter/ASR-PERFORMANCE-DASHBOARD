@@ -2045,18 +2045,3 @@ body.route-tech .techPickPanel .pickList .techRow > div:last-child{
   font-size:14px !important;
   color:rgba(234,240,255,.7) !important; /* grey */
 }
-
-
-/* === Technician Dashboard ONLY: enlarge ranking badge by 15% === */
-body:not(.route-tech) .techRow.dashTechRow .rankFocusBadge{
-  /* 80px -> 92px */
-  --w:92px;
-  --h:92px;
-  --r:21px;
-}
-body:not(.route-tech) .techRow.dashTechRow .rankFocusBadge.sm{
-  /* 74x68 -> ~85x78 */
-  --w:85px;
-  --h:78px;
-  --r:18px;
-}

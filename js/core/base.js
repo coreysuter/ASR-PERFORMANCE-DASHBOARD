@@ -401,10 +401,6 @@ function ensureDashTypographyOverrides(){
 .catTitle{font-size:28px;}
 @media (max-width: 700px){ .catTitle{font-size:26px;} }
 
-/* EXPRESS / KIA header stat pills (requested) */
-.catDashPills .pill .v{font-size:22px !important;line-height:1.05 !important;}
-.catDashPills .pill .k{font-size:18px !important;line-height:1.05 !important;}
-
 /* Team header stats layout (dashboard) */
 .catRank{display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:8px !important;}
 .catRank .rankMain, .catRank .rankSub{display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:2px !important;}
@@ -496,14 +492,14 @@ function ensureDashTypographyOverrides(){
 .techRow .techNameStats .tnRow2{gap:14px !important;}
 .techRow .techNameStats .tnMini{display:inline-flex !important; align-items:baseline !important; gap:8px !important;}
 .techRow .techNameStats .tnLbl{
-  font-size:11px !important;
+  font-size:10px !important;
   color:var(--muted) !important;
   font-weight:900 !important;
   letter-spacing:.2px !important;
   text-transform:uppercase !important;
 }
 .techRow .techNameStats .tnVal{
-  font-size:15px !important;
+  font-size:16px !important;
   font-weight:1000 !important;
   line-height:1 !important;
 }
