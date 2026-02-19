@@ -27,34 +27,35 @@
         <label for="menuToggle" class="menuClose" aria-label="Close menu" title="Close">✕</label>
       </div>
 
-      <a class="menuLink topLink" href="#/">Technician Dashboard</a>
+      <a class="menuLink topLink" href="#/"><span class="mIcon">🔧</span>Technician Dashboard</a>
 
+      <!-- Team pickers (collapsible) -->
       <details class="menuGroup" open>
-        <summary><span class="mIcon">🔧</span>Technicians</summary>
-
-        <details class="menuSub" open>
-          <summary>Express</summary>
-          <div id="menuTechListExpress"></div>
-        </details>
-
-        <details class="menuSub">
-          <summary>Kia</summary>
-          <div id="menuTechListKia"></div>
-        </details>
+        <summary style="font-weight:1300;font-size:15px">Express</summary>
+        <div id="menuTechListExpress"></div>
       </details>
 
+      <details class="menuGroup">
+        <summary>Kia</summary>
+        <div id="menuTechListKia"></div>
+      </details>
+
+      <!-- Services dashboard link (triangle icon) -->
+      <a class="menuLink" href="#/servicesHome">
+        <span class="mIcon asrIcon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
+            <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+            <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
+            <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
+          </svg>
+        </span>
+        Services Dashboard
+      </a>
+
+      <!-- Categories (collapsible, sits below Services Dashboard) -->
       <details class="menuGroup" open>
-        <summary>
-          <span class="mIcon asrIcon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
-              <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
-              <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
-              <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
-            </svg>
-          </span>
-          Services
-        </summary>
-        <div id="asrMenuLinks"></div>
+        <summary>Categories</summary>
+        <div id="menuCategoryLinks"></div>
       </details>
 
       <details class="menuGroup">

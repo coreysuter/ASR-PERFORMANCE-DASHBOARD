@@ -22,19 +22,19 @@ function renderCategoryRectSafe(cat, compareBasis){
 
 
 function populateAsrMenuLinks(){
-  const host = document.getElementById("asrMenuLinks");
+  // Menu now has a dedicated Categories container.
+  // Keep backward compatibility with older builds by falling back to #asrMenuLinks.
+  const host = document.getElementById("menuCategoryLinks") || document.getElementById("asrMenuLinks");
   if(!host) return;
   const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
   const links = [];
-
-  // Main Services page link above categories
-  links.push(`<a class="menuLink" href="#/servicesHome">Services</a>`);
 
   for(const sec of secs){
     const name = String(sec?.name || "").trim();
     if(!name) continue;
     const key = name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
-    links.push(`<a class="menuLink" href="#/group/${encodeURIComponent(key)}">${safe(name)}</a>`);
+    // Render categories with the same styling/indent as technician names.
+    links.push(`<a class="menuLink menuTechLink" href="#/group/${encodeURIComponent(key)}">${safe(name)}</a>`);
   }
   host.innerHTML = links.join("");
 }

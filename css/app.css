@@ -353,6 +353,35 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .menuGroup summary{display:flex;align-items:center;gap:6px;}
 .menuGroup>summary{cursor:pointer;font-weight:1100;list-style:none}
 .menuGroup>summary::-webkit-details-marker{display:none}
+
+/* Menu expand/collapse indicator (+ / −) */
+.menuGroup>summary::before{
+  content:"+";
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:14px;
+  height:14px;
+  margin-right:2px;
+  font-weight:1200;
+  opacity:.9;
+}
+.menuGroup[open]>summary::before{content:"−";}
+
+.menuSub>summary{list-style:none;cursor:pointer}
+.menuSub>summary::-webkit-details-marker{display:none}
+.menuSub>summary::before{
+  content:"+";
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:12px;
+  height:12px;
+  margin-right:6px;
+  font-weight:1200;
+  opacity:.85;
+}
+.menuSub[open]>summary::before{content:"−";}
 .menuLink{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);text-decoration:none;color:var(--text);background:rgba(0,0,0,.18);font-weight:900}
 .menuLink:hover{background:rgba(0,0,0,.28)}
 
