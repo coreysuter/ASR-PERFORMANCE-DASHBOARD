@@ -24,23 +24,13 @@ function renderMain(){
   const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
   const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
-  
-  const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
-  const focusIsGoal = st.sortBy === "goal";
+  const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
-  // If Focus=GOAL, force Comparison=GOAL (and keep both teams in sync)
-  if(focusIsGoal){
-    state.EXPRESS.compare = "goal";
-    state.KIA.compare = "goal";
-  }
-  // Comparison mode (forced to GOAL when Focus=GOAL)
-  const compareMode = focusIsGoal ? "goal" : ((st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team"));
+  const compareMode = (st.compare === "store") ? "store" : (st.compare === "goal" ? "goal" : "team");
   const appliedTextHtml = "";
 
   // Top-right status block shows the Focus stat on top (bigger/white), non-focus below (smaller/grey)
   const focusIsSold = st.sortBy === "sold_pct";
-  // (focusIsGoal defined above)
   const topStatVal = focusIsSold ? soldPerRo : asrPerRo;
   const topStatLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
   const subStatVal = focusIsSold ? asrPerRo : soldPerRo;
@@ -77,7 +67,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
           <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
           <div class="pill"><div class="k">ASRs/RO</div><div class="v">${asrPerRo===null ? "—" : fmt1(asrPerRo,1)}</div></div>
-          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div></div>
+          <div class="pill"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmtPct(soldPerRo)}</div></div>
             </div>
             </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
@@ -85,12 +75,12 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
           <div class="overallBlock">
             <!-- app.css hides .overallBlock .big with !important; use a different class name -->
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topStatVal===null ? "—" : (focusIsSold ? fmt1(topStatVal,2) : fmt1(topStatVal,1))}
+              ${topStatVal===null ? "—" : (focusIsSold ? fmtPct(topStatVal) : fmt1(topStatVal,1))}
             </div>
             <div class="tag">${topStatLbl}</div>
 
             <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmt1(subStatVal,2))}
+              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmtPct(subStatVal))}
             </div>
             <div class="tag">${subStatLbl}</div>
           </div>
@@ -111,10 +101,8 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
               <select data-scope="main" data-ctl="sort">
                 <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO (default)</option>
                 <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
-                <option value="goal" ${st.sortBy==="goal"?"selected":""}>GOAL</option>
               </select>
             </div>
-            ${focusIsGoal ? `
             <div>
               <label>Goal</label>
               <select data-scope="main" data-ctl="goal">
@@ -124,22 +112,12 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             </div>
             <div>
               <label>Comparison</label>
-              <select data-scope="main" data-ctl="compare" disabled style="opacity:.55;filter:grayscale(1);cursor:not-allowed">
-                <option value="team">TEAM</option>
-                <option value="store">STORE</option>
-                <option value="goal" selected>GOAL</option>
-              </select>
-            </div>
-            ` : `
-            <div>
-              <label>Comparison</label>
               <select data-scope="main" data-ctl="compare">
                 <option value="team" ${compareMode==="team"?"selected":""}>TEAM</option>
                 <option value="store" ${compareMode==="store"?"selected":""}>STORE</option>
                 <option value="goal" ${compareMode==="goal"?"selected":""}>GOAL</option>
               </select>
             </div>
-            `}
           </div>
           <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
@@ -147,7 +125,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
     </div>
   `;
 
-  app.innerHTML = `${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div>`;
+  app.innerHTML = `<div class="techDashPage">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
     const ctl=el.getAttribute('data-ctl');
