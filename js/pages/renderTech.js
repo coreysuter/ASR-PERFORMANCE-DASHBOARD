@@ -944,7 +944,15 @@ function sectionRankFor(sec){
       ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>`
       : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
-    // When the focus dial is showing a specific goal dial, remove that same mini goal dial.
+    // Mini dials should always total 3: remove whichever metric is already shown as the large focus dial.
+    // - Focus ASR  -> hide ASR mini
+    // - Focus Sold -> hide Sold mini
+    // - Focus Goal -> hide the matching goal mini (ASR Goal vs Sold Goal)
+    const isAsrFocus = (focus!=="sold" && focus!=="goal");
+    const miniASR = isAsrFocus ? "" : dialASR;
+    const miniSold = (focus==="sold") ? "" : dialSold;
+
+    // When the focus dial is showing a specific goal dial, remove that same goal mini dial.
     const miniGoalDials = (focus==="goal")
       ? (goalMetric==="sold" ? dialGoalASR : dialGoalSold)
       : (dialGoalASR + dialGoalSold);
@@ -966,7 +974,7 @@ return `
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
-                <div class="secMiniDials">${dialASR}${dialSold}${miniGoalDials}</div>
+                <div class="secMiniDials">${miniASR}${miniSold}${miniGoalDials}</div>
               </div>
               <div class="sub"></div>
             </div>
