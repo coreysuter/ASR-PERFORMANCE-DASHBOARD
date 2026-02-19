@@ -86,10 +86,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
           /* Keep pills in the top row and prevent overlap with the title */
           .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
           .techHeaderPanel .techH2Big{flex:0 0 auto !important;}
-          .techHeaderPanel .pills{display:grid !important;grid-template-columns:repeat(3, auto) !important;grid-auto-rows:auto !important;gap:12px !important;white-space:normal !important;flex:0 0 auto !important;}
-
-          .techHeaderPanel .pills .pill:nth-child(4){grid-column:1;grid-row:2;}
-          .techHeaderPanel .pills .pill:nth-child(5){grid-column:2;grid-row:2;}
+          .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
 
           /* Tech header stat pills sizing (requested) */
           .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
@@ -116,7 +113,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
           <div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
               <div class="h2 techH2Big">Technician Dashboard</div>
-            <div class="pills" style="margin-left:34px;">
+            <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
               <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
               <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
