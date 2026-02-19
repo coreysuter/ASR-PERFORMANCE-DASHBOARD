@@ -9,6 +9,10 @@ function renderSettingsHome(){
           </div>
         </div>
         <div class="list" style="margin-top:10px;display:grid;gap:10px">
+          <a class="menuLink" href="#/servicesDash" style="display:block;border-radius:14px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid rgba(255,255,255,.08);padding:12px 14px;text-decoration:none;color:inherit">
+            <div style="font-weight:1000;letter-spacing:.2px">Services Dashboard</div>
+            <div class="sub" style="margin-top:4px">Category panels + service tiles with Focus/Goal/Team filters.</div>
+          </a>
           <a class="menuLink" href="#/settings/goals" style="display:block;border-radius:14px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid rgba(255,255,255,.08);padding:12px 14px;text-decoration:none;color:inherit">
             <div style="font-weight:1000;letter-spacing:.2px">Goals</div>
             <div class="sub" style="margin-top:4px">Set goal thresholds used on technician + service pages.</div>
