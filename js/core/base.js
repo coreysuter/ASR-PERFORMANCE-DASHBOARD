@@ -431,6 +431,12 @@ function ensureDashTypographyOverrides(){
   border-radius:14px;
 }
 
+/* Focus behavior: make the selected Focus pill group ~10% larger */
+.techRow .pillGroup.focusGroup .pill{
+  transform:scale(1.1);
+  transform-origin:center;
+}
+
 @media (max-width: 700px){
   .techRow .techMetaRight{right:12px;top:12px;}
   .techRow .pills{padding-right:86px;}
@@ -1167,16 +1173,29 @@ function renderTeam(team, st){
     const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
     const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
 
-    const compAsrBase = (compareMode==='goal' && Number.isFinite(goalReq) && goalReq>0) ? goalReq : baseAsrpr;
-    const compSoldAsrBase = (compareMode==='goal' && Number.isFinite(goalClose) && goalClose>0) ? goalClose : baseSoldAsr;
-    const compAsrGoalBase = (compareMode==='goal') ? 1 : baseAsrGoalRatio;
-    const compSoldGoalBase = (compareMode==='goal') ? 1 : baseSoldGoalRatio;
+    // Pill shading is controlled by Comparison mode.
+    // If Comparison is GOAL, only shade the pills for the selected Goal metric (ASR or Sold).
+    const inGoalMode = compareMode==='goal';
+    const shadeAsr = !inGoalMode || goalMetric==='asr';
+    const shadeSold = !inGoalMode || goalMetric==='sold';
 
-    const clsAsrpr = compClass(asrpr, compAsrBase);
-    const clsSoldRo = compClass(soldRoVal, baseSoldRo);
-    const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-    const clsAsrGoal = compClass(asrGoalRatio, compAsrGoalBase);
-    const clsSoldGoal = compClass(soldGoalRatio, compSoldGoalBase);
+    const compAsrBase = (compareMode==='goal')
+      ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : (Number.isFinite(goalReq)&&goalReq>0 ? goalReq : baseAsrpr))
+      : baseAsrpr;
+
+    const compSoldAsrBase = (compareMode==='goal')
+      ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : (Number.isFinite(goalClose)&&goalClose>0 ? goalClose : baseSoldAsr))
+      : baseSoldAsr;
+
+    const clsAsrpr   = shadeAsr  ? compClass(asrpr, compAsrBase) : "";
+    const clsAsrGoal = shadeAsr  ? compClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio) : "";
+
+    const clsSoldAsr = shadeSold ? compClass(soldAsrRatio, compSoldAsrBase) : "";
+    // SOLD/RO baseline comes from the selected comparison group (TEAM or STORE). In GOAL mode we leave SOLD/RO unshaded.
+    const clsSoldRo  = (inGoalMode ? "" : compClass(soldRoVal, baseSoldRo));
+    const clsSoldGoal= shadeSold ? compClass(soldGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio) : "";
+
+    const focusIsSold = st.sortBy === "sold_pct";
 
     return `
       <div class="techRow dashTechRow">
@@ -1199,18 +1218,30 @@ function renderTeam(team, st){
           </div>
         </div>
 
-        <div class="dashRight">
+          <div class="dashRight">
           <div class="pills">
-            <div class="pillGroup pillGroupA">
-              <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-              <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
-            </div>
-
-            <div class="pillGroup pillGroupB">
-              <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-              <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-              <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
-            </div>
+            ${/* Non-focus group first, Focus group last (closest to rank badge) */""}
+            ${focusIsSold ? `
+              <div class="pillGroup pillGroupA">
+                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+                <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+              </div>
+              <div class="pillGroup pillGroupB focusGroup">
+                <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+                <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
+              </div>
+            ` : `
+              <div class="pillGroup pillGroupB">
+                <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR%</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+                <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
+              </div>
+              <div class="pillGroup pillGroupA focusGroup">
+                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+                <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+              </div>
+            `}
           </div>
 
           <div class="techMetaRight">
@@ -1256,14 +1287,25 @@ function renderTeam(team, st){
 
           <div class="catHdrRight">
             <div class="catRank">
-              <div class="rankMain">
-                <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
-                <div class="rankLbl">ASRs/RO</div>
-              </div>
-              <div class="rankSub">
-                <div class="rankNum sub" style="color:#fff">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
-                <div class="rankLbl sub">SOLD/RO</div>
-              </div>
+              ${st.sortBy==="sold_pct" ? `
+                <div class="rankMain">
+                  <div class="rankNum">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+                  <div class="rankLbl">SOLD/RO</div>
+                </div>
+                <div class="rankSub">
+                  <div class="rankNum sub">${fmt1(av.asr_per_ro_avg,1)}</div>
+                  <div class="rankLbl sub">ASRs/RO</div>
+                </div>
+              ` : `
+                <div class="rankMain">
+                  <div class="rankNum">${fmt1(av.asr_per_ro_avg,1)}</div>
+                  <div class="rankLbl">ASRs/RO</div>
+                </div>
+                <div class="rankSub">
+                  <div class="rankNum sub">${Number.isFinite(av.sold_per_ro_avg) ? fmt1(av.sold_per_ro_avg,2) : "—"}</div>
+                  <div class="rankLbl sub">SOLD/RO</div>
+                </div>
+              `}
             </div>
           </div>
 </div>
