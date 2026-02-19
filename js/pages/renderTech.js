@@ -981,9 +981,27 @@ if(focus==="goal"){
   adjacent = mSold;
 }
 
-const pool = [mASR, mSold, mGAsr, mGSold].filter(Boolean);
-const others = pool.filter(x=>x!==adjacent);
-const miniHtml = `<div class="secMiniDials">${[...others, adjacent].filter(Boolean).join("")}</div>`;
+// Build mini-dial order explicitly so the mini closest to the focus dial is correct,
+// and (when focus is ASR or Sold) the currently-selected Goal mini is the next-closest.
+const goalNear = (goalMetric==="sold") ? mGSold : mGAsr;
+const goalFar  = (goalMetric==="sold") ? mGAsr : mGSold;
+
+let minisOrdered = [];
+if(focus==="goal"){
+  // Adjacent mini is the corresponding non-goal metric (ASR or Sold) next to the Goal focus dial
+  // (we already removed the matching goal mini above)
+  const otherStat = (goalMetric==="sold") ? mASR : mSold;
+  const remainingGoal = (goalMetric==="sold") ? mGAsr : mGSold;
+  minisOrdered = [otherStat, remainingGoal, adjacent].filter(Boolean);
+}else if(focus==="sold"){
+  // Focus is Sold -> ASR mini closest; keep the selected goal mini next-closest
+  minisOrdered = [goalFar, goalNear, adjacent].filter(Boolean);
+}else{
+  // Focus is ASR/RO -> Sold mini closest; keep the selected goal mini next-closest
+  minisOrdered = [goalFar, goalNear, adjacent].filter(Boolean);
+}
+
+const miniHtml = `<div class="secMiniDials">${minisOrdered.join("")}</div>`;
 
 const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
     const topStatVal = (focus==="sold") ? fmtPct(secStats.avgClose) : (focus==="goal" ? fmtPct(pctGoal) : fmt1(secStats.sumReq,1));
