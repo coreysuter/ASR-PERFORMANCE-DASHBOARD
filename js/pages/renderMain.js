@@ -98,8 +98,10 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             max-width:237px !important;
           }
         
-          /* Dropdown text color (requested): black text in selects only */
-          .techHeaderPanel .mainFiltersBar select{color:#000 !important;}
+          /* Dropdown text colors:
+             - selected value (collapsed field): white
+             - dropdown list options: black */
+          .techHeaderPanel .mainFiltersBar select{color:#fff !important;}
           .techHeaderPanel .mainFiltersBar select option{color:#000 !important;}
 
         </style>
