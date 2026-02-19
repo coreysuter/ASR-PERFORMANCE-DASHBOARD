@@ -29,7 +29,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .techRow{padding:10px 10px;border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.18);margin-bottom:10px}
 .rowGrid{display:grid;grid-template-columns: 1.6fr repeat(5, .9fr);gap:10px;align-items:center}
 @media(max-width:920px){ .rowGrid{grid-template-columns: 1.4fr 1fr 1fr;} .hideSm{display:none} .controls{grid-template-columns:1fr} }
-.cell .lbl{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.2px;text-transform:uppercase}
+.cell .lbl{display:block;color:var(--muted);font-size:20px;font-weight:900;letter-spacing:.2px;text-transform:uppercase}
 .cell .val{display:block;font-size:14px;font-weight:900;margin-top:2px}
 .name a{color:var(--text)}
 .name a:visited{color:var(--text)}
@@ -99,7 +99,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .teamStat .lbl{margin-top:6px;font-size:11px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
 
 /* ranking suffix */
-.byAsr{font-size:10px;font-style:italic;font-weight:800;color:var(--muted);margin-left:4px;opacity:.9}
+.byAsr{font-size:20px;font-style:italic;font-weight:800;color:var(--muted);margin-left:4px;opacity:.9}
 
 /* === Side-by-side teams on desktop === */
 .teamsGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
@@ -143,8 +143,8 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .benchHdrTile{height:100%}
 .benchInner{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .benchNum{font-size:18px;font-weight:1200;line-height:1}
-.benchLbl{margin-top:6px;font-size:10px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
-.benchNoteSmall{margin-top:8px;font-size:10px;font-style:italic;color:var(--muted);line-height:1.2}
+.benchLbl{margin-top:6px;font-size:20px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
+.benchNoteSmall{margin-top:8px;font-size:20px;font-style:italic;color:var(--muted);line-height:1.2}
 .rightStats{display:flex;gap:14px;align-items:flex-end;text-align:right}
 @media (max-width: 1200px){
   .benchHdrGrid{grid-template-columns:1fr 1fr 1fr}
@@ -161,8 +161,8 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .benchHdr{font-size:11px;letter-spacing:.2px;text-transform:uppercase;font-weight:1100;color:var(--muted)}
 .benchInner2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .benchNum{font-size:18px;font-weight:1200;line-height:1}
-.benchLbl{margin-top:6px;font-size:10px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
-.benchNote{margin-top:8px;font-size:10px;font-style:italic;color:var(--muted)}
+.benchLbl{margin-top:6px;font-size:20px;font-weight:1000;letter-spacing:.2px;text-transform:uppercase;color:var(--muted)}
+.benchNote{margin-top:8px;font-size:20px;font-style:italic;color:var(--muted)}
 @media (max-width: 980px){ .benchTiles{grid-template-columns:1fr} }
 
 /* === Details page tweaks (rank-only header + goals text + split benchmark boxes) === */
@@ -179,7 +179,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .benchCompact{display:grid;grid-template-columns:repeat(2, minmax(0,1fr));gap:8px}
 .benchCompact .statTile{padding:8px;border-radius:12px;min-height:58px}
 .benchCompact .tVal{font-size:18px}
-.benchCompact .tLbl{font-size:10px}
+.benchCompact .tLbl{font-size:20px}
 .benchCompact .benchNote{font-size:9px;margin-top:6px}
 @media (max-width: 720px){
   .detailLower.twoColBench{grid-template-columns:1fr !important}
@@ -195,7 +195,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .techStack{display:grid;grid-template-columns:260px;justify-content:start;gap:8px;margin-top:10px}
 .techStack .statTile{min-height:58px;padding:8px;border-radius:12px}
 .techStack .tVal{font-size:18px}
-.techStack .tLbl{font-size:10px}
+.techStack .tLbl{font-size:20px}
 
 /* === Size hierarchy: technician tiles slightly larger than benchmark tiles === */
 .benchCompact .statTile{min-height:56px;padding:8px}
@@ -227,7 +227,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .svcGaugeWrap{flex:0 0 auto}
 .catTitle{font-size:30px;font-weight:var(--HB);line-height:1.06;letter-spacing:.2px}
 .catRank{font-size:16px;font-weight:1100;text-align:right;white-space:nowrap}
-.catRank .byAsr{font-size:10px;font-style:italic;margin-left:4px;opacity:.9}
+.catRank .byAsr{font-size:20px;font-style:italic;margin-left:4px;opacity:.9}
 .route-tech .catTitle{font-size:30px;font-weight:var(--HB);line-height:1.06;letter-spacing:.2px}
 .route-tech .svcGaugeWrap{order:2}
 .catCounts{margin-top:6px;font-size:13px;color:var(--muted);font-weight:var(--HB);letter-spacing:.2px;text-transform:uppercase}
@@ -237,12 +237,12 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .techTilesRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .techTilesRow .statTile{min-height:62px}
 .techTilesRow .tVal{font-size:20px}
-.techTilesRow .tLbl{font-size:10px}
+.techTilesRow .tLbl{font-size:20px}
 
 .benchTilesGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .benchTilesGrid .statTile{min-height:58px}
 .benchTilesGrid .tVal{font-size:17px}
-.benchTilesGrid .tLbl{font-size:10px}
+.benchTilesGrid .tLbl{font-size:20px}
 .benchTilesGrid .benchNote{margin-top:6px;font-size:9px;font-style:italic;color:var(--muted);line-height:1.15}
 
 /* === Sketch layout: section frame + 2-column category grid === */
@@ -257,7 +257,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .catHeader{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .catTitle{font-size:30px;font-weight:var(--HB);line-height:1.06;letter-spacing:.2px}
 .catRank{font-size:16px;font-weight:1100;text-align:right;white-space:nowrap}
-.catRank .byAsr{font-size:10px;font-style:italic;margin-left:4px;opacity:.9}
+.catRank .byAsr{font-size:20px;font-style:italic;margin-left:4px;opacity:.9}
 .catCounts{margin-top:6px;font-size:13px;color:var(--muted);font-weight:var(--HB);letter-spacing:.2px;text-transform:uppercase}
 .catCounts b{color:var(--text)}
 .roBtn{display:inline-block;margin-top:8px;font-weight:900;text-decoration:none;border:1px solid var(--border);padding:7px 10px;border-radius:12px;background:rgba(0,0,0,.25);color:var(--text)}
@@ -268,10 +268,10 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 
 .techTilesRow .statTile{min-height:56px}
 .techTilesRow .tVal{font-size:20px}
-.techTilesRow .tLbl{font-size:10px}
+.techTilesRow .tLbl{font-size:20px}
 .benchTilesGrid .statTile{min-height:54px}
 .benchTilesGrid .tVal{font-size:17px}
-.benchTilesGrid .tLbl{font-size:10px}
+.benchTilesGrid .tLbl{font-size:20px}
 .benchTilesGrid .benchNote{margin-top:6px;font-size:9px;font-style:italic;color:var(--muted);line-height:1.15}
 
 /* === Compact tiles + narrower category cards (closer to sketch) === */
@@ -322,12 +322,12 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
   opacity:.95;
 }
 .roLink:hover{opacity:1}
-.benchTag{font-size:10px; font-style:italic; color:var(--muted); margin-left:0}
+.benchTag{font-size:20px; font-style:italic; color:var(--muted); margin-left:0}
 .midDot{margin:0 6px; color:var(--muted);}
 
 /* === v75 tweaks === */
 .roLink{right:12px !important; left:auto !important;}
-.catRank .byAsr{display:block;font-size:10px;font-style:italic;opacity:.9;margin-top:2px}
+.catRank .byAsr{display:block;font-size:20px;font-style:italic;opacity:.9;margin-top:2px}
 
 /* === Larger section headings, no subtitle === */
 .sectionTitle{font-size:32px !important; font-weight:1300 !important; letter-spacing:.6px !important;}
@@ -511,7 +511,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 }
 
 .goalQuad.brakes .brCell{display:flex;flex-direction:column;gap:6px}
-.goalQuad.brakes .brLbl{font-size:10px;letter-spacing:.25px;text-transform:uppercase;color:var(--muted);opacity:.9}
+.goalQuad.brakes .brLbl{font-size:20px;letter-spacing:.25px;text-transform:uppercase;color:var(--muted);opacity:.9}
 .goalQuad.brakes .brLbl.red{color:rgba(255,255,255,.75)}
 .goalQuad.brakes .brLbl.yellow{color:rgba(255,255,255,.55)}
 .goalQuad.brakes .brLbl.hide{display:none}
@@ -547,7 +547,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .miniTop{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .miniTitle{font-weight:1100;font-size:12px}
 .miniMode{display:flex;align-items:center;gap:6px}
-.miniLbl{font-size:10px;color:var(--muted);font-weight:900}
+.miniLbl{font-size:20px;color:var(--muted);font-weight:900}
 .miniSwitch{position:relative;display:inline-block;width:30px;height:16px}
 .miniSwitch input{opacity:0;width:0;height:0}
 .miniSlider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,.18);border-radius:999px;transition:.2s}
@@ -556,7 +556,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .miniSwitch input:checked + .miniSlider:before{transform:translateX(14px)}
 
 .miniGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.miniGrid label{font-size:10px}
+.miniGrid label{font-size:20px}
 .miniGrid input{font-size:11px;padding:6px 8px}
 .miniFoot{display:flex;justify-content:flex-end;margin-top:8px}
 
@@ -642,7 +642,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .switch.sm{width:34px; height:18px}
 .switch.sm .slider:before{height:14px; width:14px; left:2px; bottom:2px}
 .switch.sm input:checked + .slider:before{transform:translateX(16px)}
-.brColorHdr{font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:2px}
+.brColorHdr{font-size:20px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-top:2px}
 .brColorHdr.red{color:rgba(255,90,90,.9)}
 .brColorHdr.yellow{color:rgba(255,210,90,.9)}
 .brColorHdr.hide{display:none}
@@ -651,7 +651,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .brGlobalRow{margin-top:6px}
 .brCell{display:flex; flex-direction:column; gap:6px}
 .brLine{position:relative; display:flex; align-items:center; justify-content:flex-start; min-width:0}
-.brTag{position:absolute; left:-58px; width:52px; padding-right:6px; text-align:right; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); pointer-events:none}
+.brTag{position:absolute; left:-58px; width:52px; padding-right:6px; text-align:right; font-size:20px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); pointer-events:none}
 .brTag.red{color:rgba(255,90,90,.9)}
 .brTag.yellow{color:rgba(255,210,90,.9)}
 .goalQuad.brakes.ry-off .brTag{display:none}
@@ -681,7 +681,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .goalQuadTopRight{display:flex;align-items:center;gap:6px}
 .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pillMini{display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
-.pillMini .k{font-size:10px;color:var(--muted);font-weight:1000;letter-spacing:.2px;text-transform:uppercase}
+.pillMini .k{font-size:20px;color:var(--muted);font-weight:1000;letter-spacing:.2px;text-transform:uppercase}
 .pillMini .v{font-size:13px;font-weight:1000;line-height:1}
 .pillMini.sold .v{color:rgba(190,255,210,.92)}
 .pillMini.sold{border-color:rgba(190,255,210,.22)}
@@ -1009,7 +1009,7 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 /* ===== v222: stat label centered inside dial ===== */
 .pctStack{flex-direction:column;gap:2px}
 .pctMain{font-size:calc(var(--sz,64px)/5.2);font-weight:1000;line-height:1}
-.pctSub{font-size:10px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
+.pctSub{font-size:20px;opacity:.85;font-style:italic;font-weight:650;letter-spacing:.2px;line-height:1}
 
 /* ===== v240: dial text with arrow + short label ===== */
 .pctStack2{flex-direction:column;gap:1px}
@@ -1022,7 +1022,7 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
   color:var(--gCol);
   filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
 }
-.pctStack2 .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
+.pctStack2 .pctSub{font-size:20px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1}
 
 /* ===== v231: watermark ===== */
 #buildWatermark{
@@ -2227,5 +2227,5 @@ body.route-tech .techPickPanel.diagSection .diagPieWrap{display:flex;justify-con
 body.route-tech .techPickPanel.diagSection .diagPieSvg{width:142px;height:142px;display:block}
 body.route-tech .techPickPanel.diagSection .diagPieSlice{cursor:pointer}
 body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{filter:brightness(1.08)}
-body.route-tech .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:1000;font-size:10px;pointer-events:none}
+body.route-tech .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:1000;font-size:20px;pointer-events:none}
 /* pie labels use .diagPieTxt */
