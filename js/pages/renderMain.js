@@ -11,6 +11,14 @@ function renderMain(){
   }
   el.textContent = `
     /* Scope EVERYTHING to main technician dashboard only */
+    /* Add breathing room so the header panel never visually overlaps the two team panels */
+    .pageTechDash .techHeaderPanel{
+      margin-bottom:18px !important;
+      position:relative !important;
+      z-index:2 !important;
+    }
+    .pageTechDash .teamsGrid{position:relative !important; z-index:1 !important;}
+
     .pageTechDash .techRow .techNameStats .tnLbl{
       font-size:11px !important;
       line-height:1.05 !important;
