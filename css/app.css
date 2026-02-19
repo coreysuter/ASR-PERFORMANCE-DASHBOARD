@@ -2187,31 +2187,21 @@ body.route-tech .secNamePills .pill .k{
   letter-spacing:.2px;
 }
 
-/* === PATCH 2026-02-19: renderTech section-name pills stacked 2x2 + vertically centered === */
-body.route-tech .secHdrTop,
-body.route-tech .secHeadRow{
-  align-items:center !important; /* center pills block vs section name */
-}
 
+/* === renderTech override: section header pills below title, single row, smaller fonts === */
+body.route-tech .secNameWrap{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-start !important;
+}
 body.route-tech .secNamePills{
-  display:grid !important;
-  grid-template-columns: repeat(2, max-content) !important;
-  grid-auto-rows: auto !important;
-  gap:8px 10px !important;       /* row gap / column gap */
-  margin-left:12px !important;
-  margin-top:0 !important;       /* remove top offset so true vertical centering */
-  align-self:center !important;
-  justify-items:start !important;
-  align-items:center !important;
+  margin-left:0 !important;
+  margin-top:8px !important;
+  flex-wrap:nowrap !important;
+  gap:8px !important;
+  max-width:100%;
+  overflow-x:auto;
+  padding-bottom:2px;
 }
-
-body.route-tech .secNamePills .pill{
-  margin:0 !important;
-  white-space:nowrap !important;
-}
-
-/* If any parent forces wrapping/flow, keep the pills block as a single unit */
-body.route-tech .secHdrTop > .secNamePills,
-body.route-tech .secHeadRow > .secNamePills{
-  flex:0 0 auto !important;
-}
+body.route-tech .secNamePills .pill .v{ font-size:20px !important; }
+body.route-tech .secNamePills .pill .k{ font-size:12px !important; }
