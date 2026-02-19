@@ -210,13 +210,25 @@
 
   // Event delegation so clicks work even if inline onclick is blocked/stripped
   document.addEventListener("click", (e)=>{
-    const btn = e.target && e.target.closest ? e.target.closest(".diagTriBtn") : null;
-    if(!btn) return;
-    const techId = btn.getAttribute("data-tech");
-    const mode = btn.getAttribute("data-mode");
-    const band = btn.getAttribute("data-band");
-    const compare = btn.getAttribute("data-compare") || "team";
-    window.openDiagBandPopup(e, techId, mode, band, compare, btn);
+    // legacy triangle/check buttons
+    const tri = e.target && e.target.closest ? e.target.closest(".diagTriBtn") : null;
+    if(tri){
+      const techId = tri.getAttribute("data-tech");
+      const mode = tri.getAttribute("data-mode");
+      const band = tri.getAttribute("data-band");
+      const compare = tri.getAttribute("data-compare") || "team";
+      window.openDiagBandPopup(e, techId, mode, band, compare, tri);
+      return;
+    }
+
+    // new pie slices
+    const slice = e.target && e.target.closest ? e.target.closest(".diagPieSlice") : null;
+    if(!slice) return;
+    const techId = slice.getAttribute("data-tech");
+    const mode = slice.getAttribute("data-mode");
+    const band = slice.getAttribute("data-band");
+    const compare = slice.getAttribute("data-compare") || "team";
+    window.openDiagBandPopup(e, techId, mode, band, compare, slice);
   }, true);
 })();
 
@@ -1166,15 +1178,96 @@ return `
 
 
 
-  function bandLegend(counts){
-    const r = Number(counts?.red)||0, y = Number(counts?.yellow)||0, g = Number(counts?.green)||0;
-    const tot = r+y+g;
-    const pct = (n)=> tot>0 ? Math.round((n/tot)*100) : 0;
+  // Big clickable pie chart (replaces triangle/check icons + legend)
+  function diagPieChart(counts, mode){
+    const red = Math.max(0, Number(counts?.red)||0);
+    const yellow = Math.max(0, Number(counts?.yellow)||0);
+    const green = Math.max(0, Number(counts?.green)||0);
+    const total = red + yellow + green;
+    const pct = (n)=> total>0 ? Math.round((n/total)*100) : 0;
+
+    // SVG helpers
+    const cx = 80, cy = 80, rad = 70; // viewBox 0..160
+    const toRad = (deg)=> (deg*Math.PI/180);
+    const polar = (angDeg)=>({
+      x: cx + rad * Math.cos(toRad(angDeg)),
+      y: cy + rad * Math.sin(toRad(angDeg))
+    });
+    const arcPath = (a0, a1)=>{
+      const p0 = polar(a0);
+      const p1 = polar(a1);
+      const large = (Math.abs(a1-a0) > 180) ? 1 : 0;
+      return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
+    };
+    const labelAt = (a0, a1)=>{
+      const mid = (a0 + a1) / 2;
+      const rr = rad * 0.58;
+      return {
+        x: cx + rr * Math.cos(toRad(mid)),
+        y: cy + rr * Math.sin(toRad(mid))
+      };
+    };
+
+    const parts = [
+      {band:"red", n:red, fill:"#ff4b4b"},
+      {band:"yellow", n:yellow, fill:"#ffbf2f"},
+      {band:"green", n:green, fill:"#1fcb6a"},
+    ].filter(p=>p.n>0);
+
+    // If no data, show a neutral ring with 0/0
+    if(total<=0 || !parts.length){
+      return `
+        <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
+          <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
+            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)" stroke-width="2" />
+            <text x="80" y="78" text-anchor="middle" fill="#fff" font-weight="1000" font-size="18">0</text>
+            <text x="80" y="98" text-anchor="middle" fill="rgba(255,255,255,.75)" font-weight="900" font-size="12">0%</text>
+          </svg>
+        </div>
+      `;
+    }
+
+    // Start at -90deg (12 o'clock)
+    let ang = -90;
+    const slices = [];
+    for(const p of parts){
+      const span = (p.n/total) * 360;
+      const a0 = ang;
+      const a1 = ang + span;
+      ang = a1;
+      const lbl = labelAt(a0, a1);
+      slices.push({
+        ...p,
+        path: arcPath(a0, a1),
+        lx: lbl.x,
+        ly: lbl.y
+      });
+    }
+
     return `
-      <div class="diagBandLegend" style="margin-top:10px;display:grid;gap:4px;align-self:flex-start;justify-self:start;width:100%;font-weight:900;letter-spacing:.3px;font-size:12px;text-align:left">
-        <div><span class="legendName legendRed">RED</span><span class="legendRest"> - ${pct(r)}%</span></div>
-        <div><span class="legendName legendYellow">YELLOW</span><span class="legendRest"> - ${pct(y)}%</span></div>
-        <div><span class="legendName legendGreen">GREEN</span><span class="legendRest"> - ${pct(g)}%</span></div>
+      <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
+        <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
+          <defs>
+            <filter id="diagPieShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="rgba(0,0,0,.45)" />
+            </filter>
+          </defs>
+          <g filter="url(#diagPieShadow)">
+            ${slices.map(s=>`
+              <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
+                d="${s.path}" fill="${s.fill}" />
+            `).join('')}
+          </g>
+
+          ${slices.map(s=>`
+            <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${(s.ly-4).toFixed(2)}" text-anchor="middle">
+              <tspan class="diagPieNum">${s.n}</tspan>
+              <tspan x="${s.lx.toFixed(2)}" dy="18" class="diagPiePct">${pct(s.n)}%</tspan>
+            </text>
+          `).join('')}
+
+          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="2" />
+        </svg>
       </div>
     `;
   }
@@ -1186,13 +1279,8 @@ return `
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start;font-size:22px">ASR</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
-                ${diagTriBadge("red", bandCounts_asr.red, "asr", "red")}
-                ${diagTriBadge("yellow", bandCounts_asr.yellow, "asr", "yellow")}
-                ${diagCheckBadge(bandCounts_asr.green, "asr")}
-              </div>
-              ${bandLegend(bandCounts_asr)}
+              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
+              ${diagPieChart(bandCounts_asr, "asr")}
             </div>
             <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Recommended", botReqTB, "asr", "down")}</div>
@@ -1204,13 +1292,8 @@ return `
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start;font-size:22px">SOLD</div>
-              <div class="diagBadgeRow" style="display:flex;flex-direction:row;gap:10px;align-items:center;justify-content:center;margin-top:10px">
-                ${diagTriBadge("red", bandCounts_sold.red, "sold", "red")}
-                ${diagTriBadge("yellow", bandCounts_sold.yellow, "sold", "yellow")}
-                ${diagCheckBadge(bandCounts_sold.green, "sold")}
-              </div>
-              ${bandLegend(bandCounts_sold)}
+              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
+              ${diagPieChart(bandCounts_sold, "sold")}
             </div>
             <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
             <div>${tbMiniBox("Bottom 3 Least Sold", botCloseTB, "sold", "down")}</div>

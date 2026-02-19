@@ -2219,3 +2219,43 @@ body.route-tech .secNamePills .tnPillKey{
   font-size: 12px !important;
   line-height: 1.05 !important;
 }
+
+
+/* === Tech Details Diag Panel: replace RED/YELLOW/GREEN % legend with pie icon + 2x2 badge grid === */
+body.route-tech .techPickPanel.diagSection .diagLabelCol{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+}
+body.route-tech .techPickPanel.diagSection .pickHdrLabel.diagHdrLabel{
+  margin:0 !important;
+  padding:0 !important;
+  line-height:1 !important;
+}
+body.route-tech .techPickPanel.diagSection .diagBadgeGrid{
+  display:grid !important;
+  grid-template-columns:auto auto !important;
+  grid-template-rows:auto auto !important;
+  gap:10px 10px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  margin-top:6px !important; /* pulls icons slightly upward */
+}
+body.route-tech .techPickPanel.diagSection .diagBadgeGrid .slot{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+body.route-tech .techPickPanel.diagSection .diagPieIcon{
+  width:64px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+body.route-tech .techPickPanel.diagSection .diagPieSvg{
+  width:64px;
+  height:64px;
+  display:block;
+}
