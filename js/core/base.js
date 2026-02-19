@@ -424,7 +424,7 @@ function ensureDashTypographyOverrides(){
 .techRow .techMetaRight{position:absolute;right:16px;top:14px;margin-left:0 !important;}
 .techRow .pills{padding-right:96px;}
 
-/* Pill grouping: thin grey outline around (ASRs/RO + ASR GOAL) and (SOLD/ASR% + SOLD/RO + SOLD GOAL) */
+/* Pill grouping: thin grey outline around (ASRs/RO + ASR GOAL) and (SOLD/ASR + SOLD/RO + SOLD GOAL) */
 .pillGroup{
   display:flex;
   align-items:center;
@@ -492,14 +492,14 @@ function ensureDashTypographyOverrides(){
 .techRow .techNameStats .tnRow2{gap:14px !important;}
 .techRow .techNameStats .tnMini{display:inline-flex !important; align-items:baseline !important; gap:8px !important;}
 .techRow .techNameStats .tnLbl{
-  font-size:10px !important;
+  font-size:11px !important;
   color:var(--muted) !important;
   font-weight:900 !important;
   letter-spacing:.2px !important;
   text-transform:uppercase !important;
 }
 .techRow .techNameStats .tnVal{
-  font-size:16px !important;
+  font-size:15px !important;
   font-weight:1000 !important;
   line-height:1 !important;
 }
@@ -969,6 +969,19 @@ function ensureDashTypographyOverrides(){
 .catHdrLeft .dashPills2Row{display:flex !important; flex-direction:column !important; gap:8px !important; margin-top:6px !important;}
 .catHdrLeft .dashPills2Row .pills{margin-top:0 !important;}
 .catHdrRight{display:flex !important; justify-content:flex-end !important; align-items:flex-start !important; flex:0 0 auto !important;}
+
+
+/* === Requested: EXPRESS/KIA category header pills font sizing === */
+.catDashPills .pill .v{font-size:22px !important; line-height:1.05 !important;}
+.catDashPills .pill .k{font-size:18px !important; line-height:1.05 !important;}
+
+/* === Requested: Technician mini stats under names (tnVal/tnLbl) === */
+.techRow .techNameStats .tnVal{font-size:15px !important; line-height:1 !important;}
+.techRow .techNameStats .tnLbl{font-size:11px !important; line-height:1 !important;}
+
+/* === Requested: rank badge +15% on main dashboard tech rows only === */
+.techRow.dashTechRow .techMetaRight .rankFocusBadge{transform:scale(1.15) !important; transform-origin:center !important;}
+
 `;
     const style = document.createElement("style");
     style.id = "dashTypographyOverrides_v2_ODO2PILLS";
