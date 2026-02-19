@@ -78,6 +78,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
               <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
             </div>
+            </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
           </div>
           <div class="overallBlock">
