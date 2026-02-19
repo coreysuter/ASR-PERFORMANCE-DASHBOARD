@@ -2110,127 +2110,19 @@ body.route-tech .techH2Big{font-size:34px !important;}
 
 /* Rank badge +15% (dashboard tech rows only) */
 .pageTechDash .techRow .rankFocusBadge{transform:scale(1.15);transform-origin:center center;}
-/* === PATCH 2026-02-18: Tech details header pills + category header bottom focus stat === */
-/* Tech Details / Group pages (body.route-tech): header pills sizing */
-body.route-tech .techHeaderPanel .pills .pill .v{
-  font-size:22px !important;
-  line-height:1.05 !important;
+
+/* ================================
+   TECH DETAILS (renderTech): diag section alignment
+   - Lift ASR label + pie so it aligns with Top 3 boxes
+   - Drop the ASR Top/Bottom 3 boxes slightly to align with SOLD row/pie
+   ================================ */
+body.route-tech .techPickPanel.diagSection .diagBandRow:first-of-type .diagLabelCol{
+  position:relative;
+  top:-10px;
 }
-body.route-tech .techHeaderPanel .pills .pill .k{
-  font-size:14px !important;
-  line-height:1.05 !important;
-  color:rgba(255,255,255,.55) !important;
-  text-transform:none !important;
+body.route-tech .techPickPanel.diagSection .diagBandRow:first-of-type .pickRow > div:nth-child(2),
+body.route-tech .techPickPanel.diagSection .diagBandRow:first-of-type .pickRow > div:nth-child(3){
+  position:relative;
+  top:10px;
 }
 
-/* Category title rows (section headers): bottom (secondary) focus stat value white, title stays grey */
-.route-tech .secHdrStats .statVal.secondary,
-.route-tech .secHdrStats .statVal.small,
-.route-tech .secHdrStats .dashFocusNumSmall{
-  color:var(--text) !important;
-}
-.route-tech .secHdrStats .statLbl,
-.route-tech .secHdrStats .dashFocusLbl{
-  color:var(--muted) !important;
-}
-
-/* renderTech section headers actually use .secStatVal / .secStatTitle with inline colors */
-body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#fff !important;}
-body.route-tech .secHdrStats .secStatTitle{color:rgba(255,255,255,.55) !important;}
-
-
-/* === renderTech: section header right cluster (mini dials + focus dial) === */
-body.route-tech .secHdrRight{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-body.route-tech .secHdrRight .secMiniDials{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  flex-wrap:nowrap;
-}
-body.route-tech .secHdrRight .secMiniDials .svcGaugeWrap{
-  flex:0 0 auto;
-}
-body.route-tech .svcGauge .pctTitle{
-  white-space:normal;
-}
-
-
-/* === renderTech: section header pills next to section name (Avg ODO / ROs / ASRs / Sold/ASR) === */
-
-body.route-tech .secNamePills{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-left:6px;
-  margin-top:2px;
-}
-body.route-tech .secNamePills .pill{
-  padding:7px 12px;
-  gap:8px;
-}
-body.route-tech .secNamePills .pill .v{
-  font-size:22px !important;
-  font-weight:1000 !important;
-  line-height:1.05 !important;
-  color:var(--text) !important;
-}
-body.route-tech .secNamePills .pill .k{
-  font-size:14px !important;
-  font-weight:900 !important;
-  line-height:1.05 !important;
-  color:rgba(255,255,255,.55) !important;
-  text-transform:none !important;
-  letter-spacing:.2px;
-}
-
-/* === renderTech only: Section header stat pills directly below the section title (techH2) === */
-body.route-tech .secNamePills{
-  /* force onto its own line directly under the title within the flex title wrapper */
-  flex: 0 0 100% !important;
-  width: 100% !important;
-  order: 2 !important;
-
-  display: flex !important;
-  flex-wrap: nowrap !important; /* one row */
-  gap: 8px !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  margin-top: 6px !important;
-}
-
-body.route-tech .titleRow .techH2{
-  order: 1 !important;
-}
-
-/* keep pills compact (numbers 20px, labels 12px) */
-body.route-tech .secNamePills .pill .v,
-body.route-tech .secNamePills .statPill .v,
-body.route-tech .secNamePills .tnPillVal{
-  font-size: 20px !important;
-  line-height: 1 !important;
-}
-body.route-tech .secNamePills .pill .k,
-body.route-tech .secNamePills .statPill .k,
-body.route-tech .secNamePills .tnPillKey{
-  font-size: 12px !important;
-  line-height: 1.05 !important;
-}
-
-
-/* === Diag pie chart labels/lines === */
-body.route-tech .techPickPanel.diagSection .diagPieWrap{display:flex;align-items:center;justify-content:center;margin-top:10px}
-body.route-tech .techPickPanel.diagSection .diagPieSvg{width:142px;height:142px;display:block;overflow:visible}
-body.route-tech .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:700;font-size:20px}
-body.route-tech .techPickPanel.diagSection .diagPieLeader{stroke:rgba(255,255,255,.9);stroke-width:1}
-body.route-tech .techPickPanel.diagSection .diagPieRing{stroke:rgba(255,255,255,.85);stroke-width:1.2}
-
-
-/* === Diag pie interactions (tech details only) === */
-body.route-tech .diagPieWrap{cursor:pointer}
-body.route-tech .diagPieSvg{overflow:visible}
-body.route-tech .diagPieSlice{cursor:pointer; transition:filter 120ms ease, opacity 120ms ease}
-body.route-tech .diagPieSlice:hover{filter:brightness(1.22)}
