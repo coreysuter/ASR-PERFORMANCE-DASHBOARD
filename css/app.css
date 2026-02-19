@@ -2227,5 +2227,11 @@ body.route-tech .techPickPanel.diagSection .diagPieWrap{display:flex;justify-con
 body.route-tech .techPickPanel.diagSection .diagPieSvg{width:142px;height:142px;display:block}
 body.route-tech .techPickPanel.diagSection .diagPieSlice{cursor:pointer}
 body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{filter:brightness(1.08)}
-body.route-tech .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:400;font-size:20px;pointer-events:none;text-anchor:middle;dominant-baseline:middle}
+body.route-tech .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:1000;font-size:20px;pointer-events:none}
 /* pie labels use .diagPieTxt */
+
+
+
+/* === Filters: dropdown menu options black, selected value stays white === */
+select{ color: var(--text); }
+select option, select optgroup{ color:#000; background:#fff; }

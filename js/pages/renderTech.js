@@ -1211,7 +1211,7 @@ return `
         <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
           <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
             <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
-            <text class="diagPieTxt" x="80" y="80" text-anchor="middle" dominant-baseline="middle">0</text>
+            <text x="80" y="86" text-anchor="middle" fill="#fff" font-weight="1000" font-size="16">0</text>
           </svg>
         </div>
       `;
@@ -1231,7 +1231,7 @@ return `
       // If slice is too small, place label outside
       const tooSmall = span < 26; // degrees
       const inside = at(mid, rad * 0.58);
-      const outside = at(mid, rad * 1.14);
+      const outside = at(mid, rad * 1.10);
       const leader0 = at(mid, rad * 0.88);
       const leader1 = at(mid, rad * 1.04);
 
@@ -1270,7 +1270,7 @@ return `
           ` : '').join('')}
 
           ${slices.map(s=>`
-            <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${s.ly.toFixed(2)}" text-anchor="middle" dominant-baseline="middle">${s.n}</text>
+            <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${(s.ly+4).toFixed(2)}" text-anchor="middle">${s.n}</text>
           `).join('')}
 
           <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
