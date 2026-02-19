@@ -2234,3 +2234,12 @@ body.route-tech .diagPieWrap{cursor:pointer}
 body.route-tech .diagPieSvg{overflow:visible}
 body.route-tech .diagPieSlice{cursor:pointer; transition:filter 120ms ease, opacity 120ms ease}
 body.route-tech .diagPieSlice:hover{filter:brightness(1.22)}
+
+
+/* === PATCH: lighten panel boxes on Tech Details page ONLY (do NOT affect service catCards) === */
+body.route-tech .panel{
+  /* slightly lighter blue tint than default --card/--card2 */
+  background: linear-gradient(180deg, rgba(26,38,70,.96), rgba(16,26,52,.96)) !important;
+  border-color: rgba(234,240,255,.13) !important;
+}
+/* keep service category cards unchanged (they are .catCard, not .panel) */
