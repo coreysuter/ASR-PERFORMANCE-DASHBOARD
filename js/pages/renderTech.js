@@ -210,18 +210,18 @@
 
   // Event delegation so clicks work even if inline onclick is blocked/stripped
   document.addEventListener("click", (e)=>{
-    // legacy triangle/check buttons
-    const tri = e.target && e.target.closest ? e.target.closest(".diagTriBtn") : null;
-    if(tri){
-      const techId = tri.getAttribute("data-tech");
-      const mode = tri.getAttribute("data-mode");
-      const band = tri.getAttribute("data-band");
-      const compare = tri.getAttribute("data-compare") || "team";
-      window.openDiagBandPopup(e, techId, mode, band, compare, tri);
+    // Triangle/check icons (legacy)
+    const btn = e.target && e.target.closest ? e.target.closest(".diagTriBtn") : null;
+    if(btn){
+      const techId = btn.getAttribute("data-tech");
+      const mode = btn.getAttribute("data-mode");
+      const band = btn.getAttribute("data-band");
+      const compare = btn.getAttribute("data-compare") || "team";
+      window.openDiagBandPopup(e, techId, mode, band, compare, btn);
       return;
     }
 
-    // new pie slices
+    // Pie chart slices
     const slice = e.target && e.target.closest ? e.target.closest(".diagPieSlice") : null;
     if(!slice) return;
     const techId = slice.getAttribute("data-tech");
@@ -489,51 +489,52 @@ function countBandsFor(mode){
 
   function rankFor(cat){
     const CMP_TECHS = (compareBasis==="team") ? TEAM_TECHS : STORE_TECHS;
-    const total = CMP_TECHS.length || 0;
-
-    function scoreForTech(x){
-      const c = x.categories?.[cat] || {};
-      let v = NaN;
-
-      if(focus==="sold"){
-        v = Number(c.close);
-      }else if(focus==="goal"){
-        const req = Number(c.req);
-        const close = Number(c.close);
-        const gReq = Number(getGoal(cat,"req"));
-        const gClose = Number(getGoal(cat,"close"));
-
-        // Rank by the selected goal metric only (ASR Goal or Sold Goal)
-        if(goalMetric==="sold"){
-          v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+    const vals = CMP_TECHS
+      .map(x=>{
+        const c = x.categories?.[cat] || {};
+        let v = NaN;
+        if(focus==="sold"){
+          v = Number(c.close);
+        }else if(focus==="goal"){
+          const req = Number(c.req ?? NaN);
+          const close = Number(c.close ?? NaN);
+          const gReq = Number(getGoal(cat,"req"));
+          const gClose = Number(getGoal(cat,"close"));
+          // Use the goal metric chosen in the Goal dropdown.
+          if(goalMetric==="sold"){
+            v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+          }else{
+            v = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+          }
         }else{
-          v = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+          v = Number(c.req);
         }
-      }else{
-        // ASR focus (ASR/RO)
-        v = Number(c.req);
-      }
+        return {id:x.id, v};
+      })
+      .filter(o=>Number.isFinite(o.v))
+      .sort((a,b)=>b.v-a.v);
 
-      // Missing/invalid data should always rank last.
-      return Number.isFinite(v) ? v : -Infinity;
+    const meC = t.categories?.[cat] || {};
+    let me = NaN;
+    if(focus==="sold"){
+      me = Number(meC.close);
+    }else if(focus==="goal"){
+      const req = Number(meC.req);
+      const close = Number(meC.close);
+      const gReq = Number(getGoal(cat,"req"));
+      const gClose = Number(getGoal(cat,"close"));
+      if(goalMetric==="sold"){
+        me = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+      }else{
+        me = (Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+      }
+    }else{
+      me = Number(meC.req);
     }
 
-    const scored = CMP_TECHS.map(x=>({id:x.id, v: scoreForTech(x)}));
-
-    scored.sort((a,b)=>{
-      if(a.v === b.v) return 0;
-      // Descending: higher v ranks better. -Infinity sinks to bottom.
-      return (a.v < b.v) ? 1 : -1;
-    });
-
-    const meScore = scoreForTech(t);
-    if(!total) return {rank:null, total:0};
-
-    // If I have no data, rank is last.
-    if(meScore === -Infinity) return {rank: total, total};
-
-    const idx = scored.findIndex(o=>o.id===t.id);
-    return {rank: (idx>=0 ? idx+1 : total), total};
+    if(!Number.isFinite(me) || !vals.length) return null;
+    const idx = vals.findIndex(o=>o.id===t.id);
+    return {rank: idx>=0?idx+1:null, total: vals.length};
   }
   const filters = `
     <div class="controls" style="margin-top:10px">
@@ -560,14 +561,13 @@ function countBandsFor(mode){
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
-      ${focus==="goal" ? `
       <div>
         <label>Goal</label>
         <select id="techGoalMetric">
           <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
           <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
         </select>
-      </div>` : ``}
+      </div>
     </div>
   `;
 
@@ -607,10 +607,8 @@ function countBandsFor(mode){
   const focusVal = focus==="sold" ? fmtPct(techSoldPct(t, filterKey)) : (focus==="goal" ? fmtPct(techGoalScore(t)) : fmt1(techAsrPerRo(t, filterKey),1));
   const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
-  const __rosTotal = Number(t.ros);
-  // Sold/RO shown as a decimal (e.g., 0.42) instead of a percent.
-  const __soldPerRoDec = (Number.isFinite(__soldTotal) && Number.isFinite(__rosTotal) && __rosTotal>0) ? (__soldTotal/__rosTotal) : NaN;
-  const __soldPerRoDecTxt = Number.isFinite(__soldPerRoDec) ? `(${__soldPerRoDec.toFixed(2)})` : "";
+  const __soldOfAsr = (Number.isFinite(__asrsTotal) && __asrsTotal>0 && Number.isFinite(__soldTotal)) ? (__soldTotal/__asrsTotal) : NaN;
+  const __soldOfAsrTxt = Number.isFinite(__soldOfAsr) ? `(${(__soldOfAsr*100).toFixed(1)}%)` : "";
   const __asrPerRoVal = techAsrPerRo(t, filterKey);
   const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
@@ -670,7 +668,7 @@ ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldPerRoDecTxt}</span></div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldOfAsrTxt}</span></div>
           </div>
         </div>
 
@@ -941,130 +939,19 @@ function sectionRankFor(sec){
       ? mean([pctGoalAsr,pctGoalSold].filter(n=>Number.isFinite(n)))
       : NaN;
 
-    
-const goalFocusPct = (goalMetric==="sold") ? pctGoalSold : pctGoalAsr;
-const goalFocusLbl = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
+    const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? pctGoal : pctAsr);
+    const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASR");
 
-// Focus dial: when focus=goal, use the selected goal metric (ASR Goal or Sold Goal)
-const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? goalFocusPct : pctAsr);
-const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? goalFocusLbl : "ASR");
+    const dialASR = Number.isFinite(pctAsr) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialSold = Number.isFinite(pctSold) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialGoal = Number.isFinite(pctGoal) ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoal,"Goal")}</div>` : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+    const dialFocus = Number.isFinite(focusPct) ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>` : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
-const dialASR = Number.isFinite(pctAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-const dialSold = Number.isFinite(pctSold)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-const dialGoalAsr = Number.isFinite(pctGoalAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-const dialGoalSold = Number.isFinite(pctGoalSold)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
-
-const dialFocus = Number.isFinite(focusPct)
-  ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
-
-// --- Section header mini-dials: always show exactly 3 (exclude the current focus dial).
-// Minis sit immediately LEFT of the focus dial (we render minis BEFORE the focus dial).
-// Adjacency rules (right-most mini sits next to the focus dial):
-//   * Focus=ASR/RO  -> ASR Goal mini next to ASR focus dial
-//   * Focus=Sold    -> Sold Goal mini next to Sold focus dial
-//   * Focus=Goal + Goal=ASR  -> ASR mini next to ASR Goal focus dial
-//   * Focus=Goal + Goal=Sold -> Sold mini next to Sold Goal focus dial
-const _miniMap = {
-  ASR: dialASR,
-  Sold: dialSold,
-  ASRGoal: dialGoalAsr,
-  SoldGoal: dialGoalSold
-};
-
-// Remove the mini that matches the current focus dial
-if(focus==="sold"){
-  _miniMap.Sold = "";
-}else if(focus==="goal"){
-  if(goalMetric==="sold") _miniMap.SoldGoal = "";
-  else _miniMap.ASRGoal = "";
-}else{
-  // ASR / RO focus
-  _miniMap.ASR = "";
-}
-
-// Which mini should be closest to the focus dial?
-let _adjKey = "Sold";
-if(focus==="sold") _adjKey = "SoldGoal";
-else if(focus==="goal") _adjKey = (goalMetric==="sold") ? "Sold" : "ASR";
-else _adjKey = "ASRGoal";
-
-// Build the 3 minis in a stable order, forcing the adjacent one to be last.
-const _baseOrder = ["ASR","Sold","ASRGoal","SoldGoal"];
-const _rest = _baseOrder.filter(k => k !== _adjKey && _miniMap[k]);
-const minisOrdered = _rest.map(k => _miniMap[k]);
-
-if(_miniMap[_adjKey]) minisOrdered.push(_miniMap[_adjKey]);
-
-const miniHtml = `<div class="secMiniDials">${minisOrdered.join("")}</div>`;
-
-const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
-
-/* --- Section header pills (next to section name) ---
-   We aggregate within this section (only the categories listed in the section).
-   Avg ODO comes from the technician-level odo (consistent across sections).
-*/
-const __agg = __cats.reduce((a,cat)=>{
-  const c = t.categories?.[cat] || {};
-  const ro = Number(c.ro);
-  const asr = Number(c.asr);
-  const sold = Number(c.sold);
-  if(Number.isFinite(ro)) { a.ro += ro; a.roN++; }
-  if(Number.isFinite(asr)) a.asr += asr;
-  if(Number.isFinite(sold)) a.sold += sold;
-  return a;
-},{ro:0, roN:0, asr:0, sold:0});
-
-const __secROs = (__agg.roN>0) ? __agg.ro : Number(t.ros ?? 0);
-const __secASRs = __agg.asr;
-const __secSold = __agg.sold;
-const __soldPerRo = (Number.isFinite(__secROs) && __secROs>0 && Number.isFinite(__secSold)) ? (__secSold/__secROs) : NaN;
-const __soldPerRoTxt = Number.isFinite(__soldPerRo) ? (__soldPerRo.toFixed(2)) : "—";
-
-const __secHeaderPills = `
-  <div class="secNamePills pills">
-    <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
-    <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
-    <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
-    <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
-    <div class="pill"><div class="k">Sold/RO</div><div class="v">${__soldPerRoTxt}</div></div>
-  </div>
-`;
-
-    let topStatVal, topStatTitle, botStatVal, botStatTitle;
-    if(focus==="goal"){
-      if(goalMetric==="sold"){
-        // Goal focus (Sold): show Sold% actual on top, ASR/RO actual on bottom
-        topStatVal = fmtPct(secStats.avgClose);
-        topStatTitle = "Sold";
-        botStatVal = fmt1(secStats.sumReq,1);
-        botStatTitle = "ASRs/RO";
-      }else{
-        // Goal focus (ASR): show ASR/RO actual on top, Sold% Goal on bottom
-        topStatVal = fmt1(secStats.sumReq,1);
-        topStatTitle = "ASRs/RO";
-        botStatVal = fmtPct(goalClose);
-        botStatTitle = "Sold Goal";
-      }
-    }else if(focus==="sold"){
-      topStatVal = fmtPct(secStats.avgClose);
-      topStatTitle = "Sold";
-      botStatVal = fmt1(secStats.sumReq,1);
-      botStatTitle = "ASRs/RO";
-    }else{
-      topStatVal = fmt1(secStats.sumReq,1);
-      topStatTitle = "ASRs/RO";
-      botStatVal = fmtPct(secStats.avgClose);
-      botStatTitle = "Sold";
-    }
+    const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
+    const topStatVal = (focus==="sold") ? fmtPct(secStats.avgClose) : (focus==="goal" ? fmtPct(pctGoal) : fmt1(secStats.sumReq,1));
+    const topStatTitle = (focus==="sold") ? "Sold" : (focus==="goal" ? "Goal" : "ASRs/RO");
+    const botStatVal = (focus==="sold") ? fmt1(secStats.sumReq,1) : fmtPct(secStats.avgClose);
+    const botStatTitle = (focus==="sold") ? "ASRs/RO" : "Sold";
     const rows = __cats.map(cat=>renderCategoryRectSafe(cat, compareBasis)).join("");
 return `
       <div class="panel">
@@ -1073,12 +960,11 @@ return `
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
-                ${__secHeaderPills}
-                
+                <div class="secMiniDials">${dialASR}${dialSold}${dialGoal}</div>
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight">${miniHtml}<div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
+            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
                 <div class="secStatBlock">
                   <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
                   <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>
@@ -1176,16 +1062,16 @@ return `
   const bandCounts_asr = countBandsFor('asr');
   const bandCounts_sold = countBandsFor('sold');
 
-
-
   // Big clickable pie chart (replaces triangle/check icons + legend)
+  // - Numbers are optically centered better inside slices
+  // - If a slice is too small, the number is placed outside with a leader line
+  // - Outside labels are pushed slightly farther out
   function diagPieChart(counts, mode){
     const red = Math.max(0, Number(counts?.red)||0);
     const yellow = Math.max(0, Number(counts?.yellow)||0);
     const green = Math.max(0, Number(counts?.green)||0);
     const total = red + yellow + green;
 
-    // SVG helpers
     const cx = 80, cy = 80, rad = 70; // viewBox 0..160
     const toRad = (deg)=> (deg*Math.PI/180);
     const at = (angDeg, r)=>({
@@ -1205,19 +1091,17 @@ return `
       {band:"green", n:green, fill:"#1fcb6a"},
     ].filter(p=>p.n>0);
 
-    // If no data, show a neutral circle with 0
     if(total<=0 || !parts.length){
       return `
         <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
           <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
+            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" class="diagPieRing" />
             <text class="diagPieTxt" x="80" y="80" text-anchor="middle" dominant-baseline="middle">0</text>
           </svg>
         </div>
       `;
     }
 
-    // Start at -90deg (12 o'clock)
     let ang = -90;
     const slices = [];
     for(const p of parts){
@@ -1225,15 +1109,13 @@ return `
       const a0 = ang;
       const a1 = ang + span;
       ang = a1;
-
       const mid = (a0 + a1) / 2;
 
-      // If slice is too small, place label outside
       const tooSmall = span < 26; // degrees
-      const inside = at(mid, rad * 0.58);
-      const outside = at(mid, rad * 1.14);
+      const inside = at(mid, rad * 0.62);   // better optical centering
+      const outside = at(mid, rad * 1.22);  // push outside labels farther out
       const leader0 = at(mid, rad * 0.88);
-      const leader1 = at(mid, rad * 1.04);
+      const leader1 = at(mid, rad * 1.10);
 
       slices.push({
         ...p,
@@ -1260,21 +1142,36 @@ return `
           <g filter="url(#diagPieShadow)">
             ${slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
-                d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
+                d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="3" stroke-linejoin="round" />
             `).join('')}
           </g>
 
           ${slices.map(s=> s.tooSmall ? `
             <line x1="${s.l0x.toFixed(2)}" y1="${s.l0y.toFixed(2)}" x2="${s.l1x.toFixed(2)}" y2="${s.l1y.toFixed(2)}"
-              stroke="rgba(255,255,255,.95)" stroke-width="1.2" />
+              class="diagPieLeader" />
           ` : '').join('')}
 
           ${slices.map(s=>`
             <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${s.ly.toFixed(2)}" text-anchor="middle" dominant-baseline="middle">${s.n}</text>
           `).join('')}
 
-          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
+          <circle cx="80" cy="80" r="70" fill="none" class="diagPieRing" />
         </svg>
+      </div>
+    `;
+  }
+
+
+
+  function bandLegend(counts){
+    const r = Number(counts?.red)||0, y = Number(counts?.yellow)||0, g = Number(counts?.green)||0;
+    const tot = r+y+g;
+    const pct = (n)=> tot>0 ? Math.round((n/tot)*100) : 0;
+    return `
+      <div class="diagBandLegend" style="margin-top:10px;display:grid;gap:4px;align-self:flex-start;justify-self:start;width:100%;font-weight:900;letter-spacing:.3px;font-size:12px;text-align:left">
+        <div><span class="legendName legendRed">RED</span><span class="legendRest"> - ${pct(r)}%</span></div>
+        <div><span class="legendName legendYellow">YELLOW</span><span class="legendRest"> - ${pct(y)}%</span></div>
+        <div><span class="legendName legendGreen">GREEN</span><span class="legendRest"> - ${pct(g)}%</span></div>
       </div>
     `;
   }
@@ -1286,7 +1183,7 @@ return `
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start;font-size:22px">ASR</div>
               ${diagPieChart(bandCounts_asr, "asr")}
             </div>
             <div>${tbMiniBox("Top 3 Most Recommended", topReqTB, "asr", "up")}</div>
@@ -1299,7 +1196,7 @@ return `
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
+              <div class="pickHdrLabel" style="margin:2px 0 0 0;align-self:flex-start;font-size:22px">SOLD</div>
               ${diagPieChart(bandCounts_sold, "sold")}
             </div>
             <div>${tbMiniBox("Top 3 Most Sold", topCloseTB, "sold", "up")}</div>
