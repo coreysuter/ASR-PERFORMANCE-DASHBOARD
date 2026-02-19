@@ -2187,21 +2187,35 @@ body.route-tech .secNamePills .pill .k{
   letter-spacing:.2px;
 }
 
-
-/* === renderTech override: section header pills below title, single row, smaller fonts === */
-body.route-tech .secNameWrap{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:flex-start !important;
-}
+/* === renderTech only: Section header stat pills directly below the section title (techH2) === */
 body.route-tech .secNamePills{
-  margin-left:0 !important;
-  margin-top:8px !important;
-  flex-wrap:nowrap !important;
-  gap:8px !important;
-  max-width:100%;
-  overflow-x:auto;
-  padding-bottom:2px;
+  /* force onto its own line directly under the title within the flex title wrapper */
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  order: 2 !important;
+
+  display: flex !important;
+  flex-wrap: nowrap !important; /* one row */
+  gap: 8px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  margin-top: 6px !important;
 }
-body.route-tech .secNamePills .pill .v{ font-size:20px !important; }
-body.route-tech .secNamePills .pill .k{ font-size:12px !important; }
+
+body.route-tech .titleRow .techH2{
+  order: 1 !important;
+}
+
+/* keep pills compact (numbers 20px, labels 12px) */
+body.route-tech .secNamePills .pill .v,
+body.route-tech .secNamePills .statPill .v,
+body.route-tech .secNamePills .tnPillVal{
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+body.route-tech .secNamePills .pill .k,
+body.route-tech .secNamePills .statPill .k,
+body.route-tech .secNamePills .tnPillKey{
+  font-size: 12px !important;
+  line-height: 1.05 !important;
+}
