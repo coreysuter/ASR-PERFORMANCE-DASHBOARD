@@ -1219,10 +1219,9 @@ return `
       return `
         <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
           <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.18)" stroke-width="2" />
+            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="3" />
             <text x="80" y="78" text-anchor="middle" fill="#fff" font-weight="1000" font-size="18">0</text>
-            <text x="80" y="98" text-anchor="middle" fill="rgba(255,255,255,.75)" font-weight="900" font-size="12">0%</text>
-          </svg>
+</svg>
         </div>
       `;
     }
@@ -1255,18 +1254,17 @@ return `
           <g filter="url(#diagPieShadow)">
             ${slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
-                d="${s.path}" fill="${s.fill}" />
+                d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="3" stroke-linejoin="round" />
             `).join('')}
           </g>
 
           ${slices.map(s=>`
             <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${(s.ly-4).toFixed(2)}" text-anchor="middle">
               <tspan class="diagPieNum">${s.n}</tspan>
-              <tspan x="${s.lx.toFixed(2)}" dy="18" class="diagPiePct">${pct(s.n)}%</tspan>
-            </text>
+              </text>
           `).join('')}
 
-          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="2" />
+          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="3" />
         </svg>
       </div>
     `;
