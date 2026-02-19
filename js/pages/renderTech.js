@@ -974,11 +974,10 @@ return `
             <div>
               <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
                 <div class="h2 techH2">${safe(sec.name)}</div>
-                <div class="secMiniDials">${miniASR}${miniSold}${miniGoalDials}</div>
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
+            <div class="secHdrRight"><div class="secFocusDial">${dialFocus}</div><div class="secMiniDials">${miniASR}${miniSold}${miniGoalDials}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
                 <div class="secStatBlock">
                   <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
                   <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>

@@ -2138,25 +2138,13 @@ body.route-tech .techHeaderPanel .pills .pill .k{
 body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#fff !important;}
 body.route-tech .secHdrStats .secStatTitle{color:rgba(255,255,255,.55) !important;}
 
-/* =====================================================================================
-   PATCH 2026-02-19: Tech Details (renderTech) section header mini-dials
-   - Support 4 mini dials (ASR, Sold, ASR Goal, Sold Goal)
-   - Allow titles like "ASR Goal" / "Sold Goal" to wrap cleanly
-   Scoped to Tech Details only.
-   ===================================================================================== */
 
-body.route-tech .secMiniDials{
-  display:flex !important;
-  align-items:center !important;
-  flex-wrap:wrap !important;
-  column-gap:18px !important;
-  row-gap:18px !important;
-}
-
-body.route-tech .secMiniDials .svcGauge .pctTitle,
-body.route-tech .secFocusDial .svcGauge .pctTitle{
-  white-space:normal !important;
-  line-height:1.05 !important;
-  max-width:72px;
-  text-align:center;
-}
+/* ===== v280_UNIQUE: move category mini dials next to focus dial (renderTech only) ===== */
+.route-tech .secHdrRight{display:flex !important;align-items:center !important;justify-content:flex-end !important;gap:22px !important;}
+.route-tech .secHdrRight .secFocusDial{order:0 !important;}
+.route-tech .secHdrRight .secMiniDials{order:1 !important;display:flex !important;align-items:center !important;gap:26px !important;flex:0 0 auto !important;}
+.route-tech .secHdrRight .secHdrRank{order:2 !important;}
+.route-tech .secHdrRight .secHdrStats{order:3 !important;text-align:right !important;}
+/* Ensure mini dial sizing remains correct when moved into right cluster */
+.route-tech .secHdrRight .secMiniDials .svcGaugeWrap{width:74px !important;height:74px !important;flex:0 0 74px !important;}
+.route-tech .secHdrRight .secMiniDials .svcGauge{--sz:74px !important;width:74px !important;height:74px !important;}
