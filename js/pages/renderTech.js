@@ -1184,28 +1184,19 @@ return `
     const yellow = Math.max(0, Number(counts?.yellow)||0);
     const green = Math.max(0, Number(counts?.green)||0);
     const total = red + yellow + green;
-    const pct = (n)=> total>0 ? Math.round((n/total)*100) : 0;
 
     // SVG helpers
     const cx = 80, cy = 80, rad = 70; // viewBox 0..160
     const toRad = (deg)=> (deg*Math.PI/180);
-    const polar = (angDeg)=>({
-      x: cx + rad * Math.cos(toRad(angDeg)),
-      y: cy + rad * Math.sin(toRad(angDeg))
+    const at = (angDeg, r)=>({
+      x: cx + r * Math.cos(toRad(angDeg)),
+      y: cy + r * Math.sin(toRad(angDeg))
     });
     const arcPath = (a0, a1)=>{
-      const p0 = polar(a0);
-      const p1 = polar(a1);
+      const p0 = at(a0, rad);
+      const p1 = at(a1, rad);
       const large = (Math.abs(a1-a0) > 180) ? 1 : 0;
       return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
-    };
-    const labelAt = (a0, a1)=>{
-      const mid = (a0 + a1) / 2;
-      const rr = rad * 0.58;
-      return {
-        x: cx + rr * Math.cos(toRad(mid)),
-        y: cy + rr * Math.sin(toRad(mid))
-      };
     };
 
     const parts = [
@@ -1214,14 +1205,14 @@ return `
       {band:"green", n:green, fill:"#1fcb6a"},
     ].filter(p=>p.n>0);
 
-    // If no data, show a neutral ring with 0/0
+    // If no data, show a neutral circle with 0
     if(total<=0 || !parts.length){
       return `
         <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
           <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="3" />
-            <text x="80" y="78" text-anchor="middle" fill="#fff" font-weight="1000" font-size="18">0</text>
-</svg>
+            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
+            <text x="80" y="86" text-anchor="middle" fill="#fff" font-weight="1000" font-size="16">0</text>
+          </svg>
         </div>
       `;
     }
@@ -1234,12 +1225,26 @@ return `
       const a0 = ang;
       const a1 = ang + span;
       ang = a1;
-      const lbl = labelAt(a0, a1);
+
+      const mid = (a0 + a1) / 2;
+
+      // If slice is too small, place label outside
+      const tooSmall = span < 26; // degrees
+      const inside = at(mid, rad * 0.58);
+      const outside = at(mid, rad * 1.10);
+      const leader0 = at(mid, rad * 0.88);
+      const leader1 = at(mid, rad * 1.04);
+
       slices.push({
         ...p,
+        span,
+        mid,
         path: arcPath(a0, a1),
-        lx: lbl.x,
-        ly: lbl.y
+        tooSmall,
+        lx: (tooSmall ? outside.x : inside.x),
+        ly: (tooSmall ? outside.y : inside.y),
+        l0x: leader0.x, l0y: leader0.y,
+        l1x: leader1.x, l1y: leader1.y
       });
     }
 
@@ -1251,20 +1256,24 @@ return `
               <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="rgba(0,0,0,.45)" />
             </filter>
           </defs>
+
           <g filter="url(#diagPieShadow)">
             ${slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
-                d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="3" stroke-linejoin="round" />
+                d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
             `).join('')}
           </g>
 
+          ${slices.map(s=> s.tooSmall ? `
+            <line x1="${s.l0x.toFixed(2)}" y1="${s.l0y.toFixed(2)}" x2="${s.l1x.toFixed(2)}" y2="${s.l1y.toFixed(2)}"
+              stroke="rgba(255,255,255,.95)" stroke-width="1.2" />
+          ` : '').join('')}
+
           ${slices.map(s=>`
-            <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${(s.ly-4).toFixed(2)}" text-anchor="middle">
-              <tspan class="diagPieNum">${s.n}</tspan>
-              </text>
+            <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${(s.ly+4).toFixed(2)}" text-anchor="middle">${s.n}</text>
           `).join('')}
 
-          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="3" />
+          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
         </svg>
       </div>
     `;
