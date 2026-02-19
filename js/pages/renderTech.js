@@ -549,13 +549,14 @@ function countBandsFor(mode){
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
+      ${focus==="goal" ? `
       <div>
         <label>Goal</label>
         <select id="techGoalMetric">
           <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
           <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
         </select>
-      </div>
+      </div>` : ``}
     </div>
   `;
 
