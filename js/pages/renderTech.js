@@ -549,7 +549,7 @@ function countBandsFor(mode){
           <option value="goal" ${focus==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
-      <div>
+      <div style="display:${focus===\"goal\"?\"block\":\"none\"}">
         <label>Goal</label>
         <select id="techGoalMetric">
           <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
@@ -1031,6 +1031,7 @@ const __secHeaderPills = `
     <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
     <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
     <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
+    <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
     <div class="pill"><div class="k">Sold/RO</div><div class="v">${__soldPerRoTxt}</div></div>
   </div>
 `;
