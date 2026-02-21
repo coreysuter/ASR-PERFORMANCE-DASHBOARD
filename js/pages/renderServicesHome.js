@@ -12,14 +12,6 @@ function renderServicesHome(){
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
-      /* Two equal columns under the header (Technicians / Advisors) */
-      .pageServicesDash .svcDashTwoCol{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
-      @media (max-width: 1120px){
-        .pageServicesDash .svcDashTwoCol{grid-template-columns:1fr;}
-      }
-
-      .pageServicesDash .svcDashCol{height:fit-content;}
-
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
@@ -62,7 +54,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', openTech: {}, openAdv: {} };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
 
   const st = UI.servicesDash;
 
@@ -89,6 +81,9 @@ function renderServicesHome(){
   const techs = teamKey === 'all'
     ? techsAll
     : techsAll.filter(t => String(t.team||'').toLowerCase() === teamKey);
+
+  // RO detail rows (used for Advisor aggregation)
+  const roDetails = (typeof DATA !== 'undefined' && DATA && DATA.ro_details) ? DATA.ro_details : {};
 
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
@@ -231,8 +226,15 @@ function renderServicesHome(){
     return "bRed";
   }
 
-  function techMetricRowHtml(r, idx, mode, goalMetricLocal, goalPct){
+  function metricRowHtml(r, idx, mode, goalMetricLocal, goalPct, type){
     const rank = idx + 1;
+
+    const href = (type === 'advisor')
+      ? `javascript:void(0)`
+      : `#/tech/${encodeURIComponent(r.id)}`;
+    const onclick = (type === 'advisor')
+      ? ``
+      : `onclick="return goTech(${JSON.stringify(r.id)})"`;
 
     const metricLabel = (mode==='sold' || (mode==='goal' && goalMetricLocal==='sold')) ? 'SOLD' : 'ASR';
     const metricCount = (metricLabel==='SOLD') ? r.sold : r.asr;
@@ -247,7 +249,7 @@ function renderServicesHome(){
       <div class="svcTechRow">
         <div class="svcTechLeft">
           <span class="svcRankNum">${rank}.</span>
-          <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
+          <a href="${href}" ${onclick}>${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
           ROs ${fmtInt(r.ros)} • ${metricLabel} ${fmtInt(metricCount)} • <b>${safe(pctText)}</b>${goalTxt}
@@ -256,7 +258,7 @@ function renderServicesHome(){
     `;
   }
 
-  function buildServiceAgg(serviceName){
+  function buildServiceAggTech(serviceName){
     let asr=0, sold=0, totalRos=0;
     const techRows = [];
 
@@ -277,211 +279,56 @@ function renderServicesHome(){
     return {serviceName, totalRos, asr, sold, reqTot, closeTot, techRows};
   }
 
+  function buildServiceAggAdvisors(serviceName){
+    const advMap = new Map();
+
+    function incAdv(advisor){
+      const key = advisor || 'Unknown';
+      if(!advMap.has(key)) advMap.set(key, {id: key, name: key, ros: 0, asr: 0, sold: 0});
+      return advMap.get(key);
+    }
+
+    const svc = String(serviceName||'');
+    const svcLower = svc.toLowerCase();
+
+    for(const t of techs){
+      const rows = roDetails[t.id] || [];
+      for(const ro of rows){
+        const advisor = (ro && ro.advisor) ? String(ro.advisor) : 'Unknown';
+        const a = incAdv(advisor);
+        a.ros += 1;
+
+        const soldText = String(ro?.sold_text||'');
+        const unsoldText = String(ro?.unsold_text||'');
+        const soldHit = soldText.toLowerCase().includes(svcLower);
+        const unsoldHit = unsoldText.toLowerCase().includes(svcLower);
+        if(soldHit) a.sold += 1;
+        if(soldHit || unsoldHit) a.asr += 1;
+      }
+    }
+
+    const rows = Array.from(advMap.values()).map(r=>({
+      ...r,
+      req: r.ros ? (r.asr/r.ros) : 0,
+      close: r.asr ? (r.sold/r.asr) : 0,
+    }));
+
+    const totalRos = rows.reduce((s,x)=>s+(Number(x.ros)||0),0);
+    const asr = rows.reduce((s,x)=>s+(Number(x.asr)||0),0);
+    const sold = rows.reduce((s,x)=>s+(Number(x.sold)||0),0);
+    const reqTot = totalRos ? (asr/totalRos) : 0;
+    const closeTot = asr ? (sold/asr) : 0;
+
+    return {serviceName, totalRos, asr, sold, reqTot, closeTot, rows};
+  }
+
   // Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
-  // ---- Advisor side (built from DATA.ro_details advisor field) ----
-const roDetails = (typeof DATA !== 'undefined' && Array.isArray(DATA.ro_details)) ? DATA.ro_details : [];
-
-function normalizeCatKeywords(cat){
-  let s = String(cat||'').toLowerCase();
-  s = s.replace(/\([^)]*\)/g,''); // remove (RED)/(YELLOW)
-  s = s.replace(/&/g,' ');
-  s = s.replace(/[^a-z0-9]+/g,' ').trim();
-  const parts = s.split(/\s+/).filter(Boolean);
-
-  // lighten noisy tokens
-  const drop = new Set(['total','front','rear','sets','set','of','2','two','4','four','red','yellow']);
-  const kept = parts.filter(p=>!drop.has(p));
-
-  // special handling
-  if(s.includes('tire')) return ['tire'];
-  if(s.includes('rotate')) return ['rotate'];
-  if(s.includes('alignment')) return ['alignment'];
-
-  // keep up to 3 keywords
-  return kept.slice(0,3);
-}
-
-function lineHasKeywords(txt, kws){
-  const t = String(txt||'').toLowerCase();
-  if(!kws.length) return false;
-  for(const k of kws){
-    if(!t.includes(k)) return false;
-  }
-  return true;
-}
-
-function buildServiceAggAdv(serviceName){
-  const kws = normalizeCatKeywords(serviceName);
-  const byAdvisor = new Map(); // name -> {name, ros, asr, sold}
-  let totalRos=0, asr=0, sold=0;
-
-  for(const ro of roDetails){
-    const adv = String(ro.advisor||'').trim() || 'Unknown';
-    const soldTxt = String(ro.sold_text||'');
-    const unsoldTxt = String(ro.unsold_text||'');
-
-    const hasAny = lineHasKeywords(soldTxt, kws) || lineHasKeywords(unsoldTxt, kws);
-    if(!hasAny) continue;
-
-    // Count 1 RO for this service when any match exists
-    totalRos += 1;
-
-    const soldHit = lineHasKeywords(soldTxt, kws);
-    const unsoldHit = lineHasKeywords(unsoldTxt, kws);
-
-    const a = (soldHit || unsoldHit) ? 1 : 0;
-    const so = soldHit ? 1 : 0;
-
-    asr += a;
-    sold += so;
-
-    if(!byAdvisor.has(adv)) byAdvisor.set(adv, {name: adv, ros:0, asr:0, sold:0});
-    const r = byAdvisor.get(adv);
-    r.ros += 1;
-    r.asr += a;
-    r.sold += so;
-  }
-
-  const rows = Array.from(byAdvisor.values()).map(r=>{
-    const req = r.ros ? (r.asr / r.ros) : 0; // ASR per RO
-    const close = r.asr ? (r.sold / r.asr) : 0; // Sold%
-    return {...r, req, close};
-  });
-
-  const reqTot = totalRos ? (asr/totalRos) : 0;
-  const closeTot = asr ? (sold/asr) : 0;
-
-  return {serviceName, totalRos, asr, sold, reqTot, closeTot, rows};
-}
-
-function advisorMetricRowHtml(r, idx, mode, goalMetricLocal, goalPct){
-  const rank = idx + 1;
-
-  const metricLabel = (mode==='sold' || (mode==='goal' && goalMetricLocal==='sold')) ? 'SOLD' : 'ASR';
-  const metricCount = (metricLabel==='SOLD') ? r.sold : r.asr;
-  const pctText = (metricLabel==='SOLD') ? fmtPct(r.close) : fmtPctPlain(r.req);
-
-  const goalTxt = (mode==='goal')
-    ? ` <span style="opacity:.9">(${goalPct===null? '—' : (Math.round(goalPct*100)+'%')} OF GOAL)</span>`
-    : '';
-
-  return `
-    <div class="svcTechRow">
-      <div class="svcTechLeft">
-        <span class="svcRankNum">${rank}.</span>
-        <span style="font-weight:1100;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px">${safe(r.name)}</span>
-      </div>
-      <div class="svcTechMeta">
-        ROs ${fmtInt(r.ros)} • ${metricLabel} ${fmtInt(metricCount)} • <b>${safe(pctText)}</b>${goalTxt}
-      </div>
-    </div>
-  `;
-}
-
-function renderSectionAdv(sec){
-  const secName = String(sec?.name||'').trim();
-  if(!secName) return '';
-
-  const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-  const isOpen = !!st.openAdv[openKey];
-
-  // Services list (use sec.categories as-is; only keep ones that exist in dataset tech categories to stay aligned)
-  const allCatsSet = new Set();
-  for(const t of techsAll){
-    for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
-  }
-  const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
-
-  const aggs = services.map(buildServiceAggAdv);
-
-  const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
-  const avgClose = aggs.length ? aggs.reduce((s,x)=>s+x.closeTot,0)/aggs.length : 0;
-
-  const cardsHtml = aggs.map(s=>{
-    const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq) : NaN;
-    const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
-
-    const gReq = Number(getGoal(s.serviceName,'req'));
-    const gClose = Number(getGoal(s.serviceName,'close'));
-    const pctOfGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN;
-    const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN;
-
-    const dialPct = (focus==='goal')
-      ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
-      : (focus==='sold' ? pctVsAvgClose : pctVsAvgReq);
-
-    const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
-
-    const metricPct = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
-    const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricPct) : fmtPctPlain(metricPct);
-
-    const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
-    const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
-
-    const rows = s.rows.slice().map(r=>{
-      const gP = (focus==='goal')
-        ? (goalMetric==='sold'
-            ? ((Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null)
-            : ((Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null)
-          )
-        : null;
-      return {...r, goalPct: gP};
-    });
-
-    rows.sort((a,b)=>{
-      const av = (focus==='goal') ? (a.goalPct ?? -Infinity) : (focus==='sold' ? a.close : a.req);
-      const bv = (focus==='goal') ? (b.goalPct ?? -Infinity) : (focus==='sold' ? b.close : b.req);
-      if(av===bv) return 0;
-      return av < bv ? 1 : -1;
-    });
-
-    const advList = rows.map((r,i)=> advisorMetricRowHtml(r, i, focus, goalMetric, r.goalPct)).join('');
-
-    return `
-      <div class="catCard" id="${safe('sd-adv-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
-        <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">
-            ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
-          </div>
-          <div style="min-width:0">
-            <div class="catTitle">${safe(s.serviceName)}</div>
-            <div class="muted" style="margin-top:2px">
-              ${fmtInt(s.asr)} ASR • ${fmtInt(s.sold)} Sold • ${fmtInt(s.totalRos)} ROs
-            </div>
-          </div>
-          <div class="catHdrRight" style="text-align:right">
-            <div class="catRank" style="font-weight:1200">${safe(metricTxt)}</div>
-            ${focus==='goal' ? `<div class="byAsr" style="display:block">${safe(goalTxt)}</div>` : ''}
-          </div>
-        </div>
-
-        <div class="subHdr">ADVISORS</div>
-        <div class="svcTechList">${advList || `<div class="notice" style="padding:8px 2px">No advisors</div>`}</div>
-      </div>
-    `;
-  }).join('');
-
-  return `
-    <details class="svcDashSec" ${isOpen?'open':''} data-side="adv" data-sec="${safe(openKey)}">
-      <summary>
-        <div class="svcDashSecHead">
-          <div class="svcDashSecTitle">${safe(secName)}</div>
-          <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
-        </div>
-      </summary>
-      <div class="svcDashBody">
-        <div class="svcCardsGrid">${cardsHtml || `<div class="notice">No services found in this section.</div>`}</div>
-      </div>
-    </details>
-  `;
-}
-
-function renderSectionTech(sec){
+  function renderSection(sec, side){
     const secName = String(sec?.name||'').trim();
     if(!secName) return '';
 
-    const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-    const isOpen = !!st.openTech[openKey];
+    const openKey = (side||'tech') + '_' + secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    const isOpen = !!st.open[openKey];
 
     // Only include services that exist in dataset (intersection with any tech categories)
     const allCatsSet = new Set();
@@ -490,7 +337,8 @@ function renderSectionTech(sec){
     }
     const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
 
-    const aggs = services.map(buildServiceAgg);
+    const isAdvisorSide = side === 'adv';
+    const aggs = services.map(s => isAdvisorSide ? buildServiceAggAdvisors(s) : buildServiceAggTech(s));
 
     // Section averages (used for dials when not GOAL focus)
     const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
@@ -519,8 +367,9 @@ function renderSectionTech(sec){
       const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
       const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
 
-      // Tech list sorting
-      const rows = s.techRows.slice().map(r=>{
+      // Tech / Advisor list sorting
+      const baseRows = isAdvisorSide ? (s.rows||[]) : (s.techRows||[]);
+      const rows = baseRows.slice().map(r=>{
         const gP = (focus==='goal')
           ? (goalMetric==='sold'
               ? ((Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null)
@@ -537,7 +386,11 @@ function renderSectionTech(sec){
         return av < bv ? 1 : -1;
       });
 
-      const techList = rows.map((r,i)=> techMetricRowHtml(r, i, focus, goalMetric, r.goalPct)).join('');
+      const listType = isAdvisorSide ? 'advisor' : 'tech';
+      const listTitle = isAdvisorSide ? 'ADVISORS' : 'TECHNICIANS';
+      const listEmpty = isAdvisorSide ? 'No advisors' : 'No technicians';
+
+      const techList = rows.map((r,i)=> metricRowHtml(r, i, focus, goalMetric, r.goalPct, listType)).join('');
 
       return `
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
@@ -557,14 +410,14 @@ function renderSectionTech(sec){
             </div>
           </div>
 
-          <div class="subHdr">TECHNICIANS</div>
-          <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
+          <div class="subHdr">${listTitle}</div>
+          <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">${listEmpty}</div>`}</div>
         </div>
       `;
     }).join('');
 
     return `
-      <details class="svcDashSec" ${isOpen?'open':''} data-side="tech" data-sec="${safe(openKey)}">
+      <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
             <div class="svcDashSecTitle">${safe(secName)}</div>
@@ -579,16 +432,41 @@ function renderSectionTech(sec){
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-  const sectionsTechHtml = sections.map(renderSectionTech).join('');
-  const sectionsAdvHtml = sections.map(renderSectionAdv).join('');
+  const sectionsHtmlTech = sections.map(s=>renderSection(s,'tech')).join('');
+  const sectionsHtmlAdv = sections.map(s=>renderSection(s,'adv')).join('');
 
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="pageServicesDash">${header}
-  <div class="svcDashTwoCol">
-    <div class="panel svcDashCol"><div class="phead"><div class="h2">Technicians</div></div><div class="svcDashSections">${sectionsTechHtml}</div></div>
-    <div class="panel svcDashCol"><div class="phead"><div class="h2">Advisors</div></div><div class="svcDashSections">${sectionsAdvHtml}</div></div>
-  </div>
-</div>`;
+  app.innerHTML = `
+    <div class="pageServicesDash">
+      ${header}
+
+      <div class="svcDashTopSplit">
+        <div class="svcDashBlock">
+          <div class="svcDashBlockHead">
+            <div>
+              <div class="svcDashBlockTitle">Technicians</div>
+              <div class="svcSideKicker">Category panels + service cards + technician list</div>
+            </div>
+          </div>
+          <div class="svcDashBlockBody">
+            <div class="svcDashSections">${sectionsHtmlTech}</div>
+          </div>
+        </div>
+
+        <div class="svcDashBlock">
+          <div class="svcDashBlockHead">
+            <div>
+              <div class="svcDashBlockTitle">Advisors</div>
+              <div class="svcSideKicker">Duplicate category panels + service cards + advisor list</div>
+            </div>
+          </div>
+          <div class="svcDashBlockBody">
+            <div class="svcDashSections">${sectionsHtmlAdv}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 
   // Wire events
   // Filters
@@ -605,10 +483,7 @@ function renderSectionTech(sec){
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
     const key = d.getAttribute('data-sec');
-    d.addEventListener('toggle', ()=>{
-      const side = d.getAttribute('data-side');
-      if(side==='adv') st.openAdv[key] = d.open; else st.openTech[key] = d.open;
-    });
+    d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
   });
 }
 
