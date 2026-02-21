@@ -12,15 +12,18 @@ function renderServicesHome(){
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
-      .pageServicesDash .svcDashSections{display:grid;gap:12px;}
-      .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
-      .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
-      .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
+      /* Category squares */
+      .pageServicesDash .svcDashSections{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start;}
+      @media (max-width: 780px){ .pageServicesDash .svcDashSections{grid-template-columns:1fr;} }
 
-      .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
-      .pageServicesDash .svcDashSecTitle{font-size:32px;font-weight:1400;letter-spacing:.8px;line-height:1.05;}
-      .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
-      .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
+      .pageServicesDash .svcCatTile{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));aspect-ratio:1/1;min-height:360px;display:flex;flex-direction:column;}
+      @media (max-width: 780px){ .pageServicesDash .svcCatTile{aspect-ratio:auto;min-height:320px;} }
+
+      .pageServicesDash .svcCatTileHead{padding:14px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
+      .pageServicesDash .svcCatTileTitle{font-size:28px;font-weight:1400;letter-spacing:.6px;line-height:1.05;}
+      .pageServicesDash .svcCatTileMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
+      .pageServicesDash .svcCatTileBody{padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px;min-height:0;}
+      .pageServicesDash .svcCatTileScroll{min-height:0;overflow:auto;padding-right:2px;}
 
       /* Service cards grid (same vibe as tech details) */
       .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;align-items:start;}
@@ -54,7 +57,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', openCats: {}, openCats: {} };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all' };
 
   const st = UI.servicesDash;
 
@@ -269,111 +272,107 @@ function renderServicesHome(){
     return {serviceName, totalRos, asr, sold, reqTot, closeTot, techRows};
   }
 
-  // Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
-function renderSectionTech(sec){
-    const secName = String(sec?.name||'').trim();
-    if(!secName) return '';
-
-    const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-    const isOpen = !!st.openCats[openKey];
-
-    // Only include services that exist in dataset (intersection with any tech categories)
+  // Render categories as square tiles, each with a team-filtered tech list (sorted by focus)
+  function buildSectionAgg(sec){
     const allCatsSet = new Set();
     for(const t of techsAll){
       for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
     }
     const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
 
-    const aggs = services.map(buildServiceAgg);
+    // category-level goals (sum-of-services goal per RO)
+    let gReq = 0;
+    let gSoldPerRo = 0;
+    for(const svc of services){
+      const gr = Number(getGoal(svc,'req'));
+      const gc = Number(getGoal(svc,'close'));
+      if(Number.isFinite(gr)) gReq += gr;
+      if(Number.isFinite(gr) && Number.isFinite(gc)) gSoldPerRo += (gr * gc);
+    }
 
-    // Section averages (used for dials when not GOAL focus)
-    const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
-    const avgClose = aggs.length ? aggs.reduce((s,x)=>s+x.closeTot,0)/aggs.length : 0;
+    const techRows = [];
+    let totAsr=0, totSold=0;
+    for(const t of techs){
+      let asr=0, sold=0;
+      for(const svc of services){
+        const c = (t.categories||{})[svc];
+        asr += Number(c?.asr)||0;
+        sold += Number(c?.sold)||0;
+      }
+      const rosTech = Number(t.ros)||0;
+      const req = rosTech ? (asr/rosTech) : 0; // ASR/RO
+      const close = asr ? (sold/asr) : 0;      // Sold%
 
-    // Build cards
-    const cardsHtml = aggs.map(s=>{
-      // Dial basis
-      const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq) : NaN;
-      const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
+      const goalPct = (focus==='goal')
+        ? (goalMetric==='sold'
+            ? ((Number.isFinite(gSoldPerRo) && gSoldPerRo>0 && rosTech>0) ? ((sold/rosTech)/gSoldPerRo) : null)
+            : ((Number.isFinite(gReq) && gReq>0) ? (req/gReq) : null)
+          )
+        : null;
 
-      const gReq = Number(getGoal(s.serviceName,'req'));
-      const gClose = Number(getGoal(s.serviceName,'close'));
-      const pctOfGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN;
-      const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN;
+      techRows.push({id:t.id, name:t.name, ros:rosTech, asr, sold, req, close, goalPct});
+      totAsr += asr; totSold += sold;
+    }
 
-      const dialPct = (focus==='goal')
-        ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
-        : (focus==='sold' ? pctVsAvgClose : pctVsAvgReq);
+    techRows.sort((a,b)=>{
+      const av = (focus==='goal') ? (a.goalPct ?? -Infinity) : (focus==='sold' ? a.close : a.req);
+      const bv = (focus==='goal') ? (b.goalPct ?? -Infinity) : (focus==='sold' ? b.close : b.req);
+      if(av===bv) return 0;
+      return av < bv ? 1 : -1;
+    });
 
-      const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
+    // category-level dial (goal% when focus=goal, otherwise the metric itself)
+    const reqTot = totalRos ? (totAsr/totalRos) : 0;
+    const closeTot = totAsr ? (totSold/totAsr) : 0;
+    const pctOfGoalReq = (Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN;
+    const pctOfGoalClose = (Number.isFinite(gSoldPerRo) && gSoldPerRo>0 && totalRos>0) ? ((totSold/totalRos)/gSoldPerRo) : NaN;
 
-      const metricPct = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
-      const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricPct) : fmtPctPlain(metricPct);
+    const dialPct = (focus==='goal')
+      ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
+      : (focus==='sold' ? closeTot : reqTot);
+    const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
 
-      const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
-      const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
+    return {services, dialPct, dialLabel, techRows};
+  }
 
-      // Tech list sorting
-      const rows = s.techRows.slice().map(r=>{
-        const gP = (focus==='goal')
-          ? (goalMetric==='sold'
-              ? ((Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null)
-              : ((Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null)
-            )
-          : null;
-        return {...r, goalPct: gP};
-      });
+  function renderCategoryTile(sec){
+    const secName = String(sec?.name||'').trim();
+    if(!secName) return '';
 
-      rows.sort((a,b)=>{
-        const av = (focus==='goal') ? (a.goalPct ?? -Infinity) : (focus==='sold' ? a.close : a.req);
-        const bv = (focus==='goal') ? (b.goalPct ?? -Infinity) : (focus==='sold' ? b.close : b.req);
-        if(av===bv) return 0;
-        return av < bv ? 1 : -1;
-      });
-
-      const techList = rows.map((r,i)=> techMetricRowHtml(r, i, focus, goalMetric, r.goalPct)).join('');
-
-      return `
-        <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
-          <div class="catHeader">
-            <div class="svcGaugeWrap" style="--sz:72px">
-              ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
-            </div>
-            <div style="min-width:0">
-              <div class="catTitle">${safe(s.serviceName)}</div>
-              <div class="muted" style="margin-top:2px">
-                ${fmtInt(s.asr)} ASR • ${fmtInt(s.sold)} Sold • ${fmtInt(s.totalRos)} ROs
-              </div>
-            </div>
-            <div class="catHdrRight" style="text-align:right">
-              <div class="catRank" style="font-weight:1200">${safe(metricTxt)}</div>
-              ${focus==='goal' ? `<div class="byAsr" style="display:block">${safe(goalTxt)}</div>` : ''}
-            </div>
-          </div>
-
-          <div class="subHdr">TECHNICIANS</div>
-          <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
-        </div>
-      `;
-    }).join('');
+    const agg = buildSectionAgg(sec);
+    const techList = agg.techRows.map((r,i)=> techMetricRowHtml(r, i, focus, goalMetric, r.goalPct)).join('');
 
     return `
-      <details class="svcDashSec" ${isOpen?'open':''} data-side="tech" data-sec="${safe(openKey)}">
-        <summary>
-          <div class="svcDashSecHead">
-            <div class="svcDashSecTitle">${safe(secName)}</div>
-            <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
+      <div class="svcCatTile" id="${safe('cat-'+safeSvcIdLocal(secName))}">
+        <div class="svcCatTileHead">
+          <div>
+            <div class="svcCatTileTitle">${safe(secName)}</div>
+            <div class="svcCatTileMeta">${fmtInt(agg.services.length)} services</div>
           </div>
-        </summary>
-        <div class="svcDashBody">
-          <div class="svcCardsGrid">${cardsHtml || `<div class="notice">No services found in this section.</div>`}</div>
+          <div class="svcGaugeWrap" style="--sz:68px">
+            ${Number.isFinite(agg.dialPct) ? svcGauge(agg.dialPct, agg.dialLabel) : ''}
+          </div>
         </div>
-      </details>
+
+        <div class="svcCatTileBody">
+          <div class="svcCatTileScroll">
+            <div class="subHdr" style="margin:0">TECHNICIANS</div>
+            <div class="svcTechList" style="margin-top:8px">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
+
+            <div style="margin-top:12px">
+              <div class="subHdr" style="margin:0">ADVISORS</div>
+              <div class="notice" style="margin-top:8px;padding:10px 12px;border-radius:12px;border:1px dashed rgba(255,255,255,.18);background:rgba(0,0,0,.10)">
+                Advisor data coming soon.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     `;
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-  const sectionsTechHtml = sections.map(renderSectionTech).join('');
+  const sectionsTechHtml = sections.map(renderCategoryTile).join('');
 
   const app = document.getElementById('app');
   app.innerHTML = `<div class="pageServicesDash">${header}
@@ -394,11 +393,7 @@ function renderSectionTech(sec){
     });
   });
 
-  // Persist open/closed sections
-  app.querySelectorAll('details.svcDashSec').forEach(d=>{
-    const key = d.getAttribute('data-sec');
-    d.addEventListener('toggle', ()=>{ st.openCats[key] = d.open; });
-  });
+  // No accordion state needed for category tiles.
 }
 
 window.renderServicesHome = renderServicesHome;
