@@ -33,6 +33,22 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
+
+      /* Grade badges (next to tech name): number first, title second (no letter) */
+      .pageServicesDash .svcNameBadges{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;}
+      .pageServicesDash .svcROTxt{color:rgba(255,255,255,.72);font-weight:1000;font-size:12px;margin-left:4px;white-space:nowrap;}
+      .pageServicesDash .gbox{
+        display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+        min-width:64px;height:34px;padding:4px 6px;border-radius:10px;
+        border:1px solid rgba(255,255,255,.35);
+        color:#fff;line-height:1;vertical-align:middle;
+      }
+      .pageServicesDash .gbox .gNum{font-size:12px;font-weight:1200;line-height:1.05;}
+      .pageServicesDash .gbox .gLbl{font-size:10px;font-weight:1000;line-height:1.05;opacity:.85;}
+      .pageServicesDash .gbox.gbGreen{background:rgba(26, 196, 96, .55);}
+      .pageServicesDash .gbox.gbYellow{background:rgba(255, 197, 66, .55);}
+      .pageServicesDash .gbox.gbRed{background:rgba(255, 74, 74, .55);}
+      .pageServicesDash .gbox.gbNone{background:rgba(255,255,255,.10);color:rgba(255,255,255,.80);}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
@@ -54,7 +70,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', openCats: {}, openCats: {} };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
 
   const st = UI.servicesDash;
 
@@ -223,27 +239,44 @@ function renderServicesHome(){
     return "bRed";
   }
 
-  function techMetricRowHtml(r, idx, mode, goalMetricLocal, goalPct){
+  function gradeClassFromPctOfGoal(pctOfGoal){
+    if(pctOfGoal===null || pctOfGoal===undefined || !Number.isFinite(Number(pctOfGoal))) return 'gbNone';
+    const pct100 = Number(pctOfGoal) * 100;
+    const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (
+      pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F'
+    );
+    return (g==='A' || g==='B') ? 'gbGreen' : (g==='C' || g==='D') ? 'gbYellow' : (g==='F') ? 'gbRed' : 'gbNone';
+  }
+
+  function gbBoxHtml(valueText, labelText, pctOfGoal){
+    const cls = gradeClassFromPctOfGoal(pctOfGoal);
+    return `<span class="gbox ${cls}"><span class="gNum">${safe(valueText)}</span><span class="gLbl">${safe(labelText)}</span></span>`;
+  }
+
+  function techMetricRowHtml(r, idx){
     const rank = idx + 1;
 
-    const metricLabel = (mode==='sold' || (mode==='goal' && goalMetricLocal==='sold')) ? 'SOLD' : 'ASR';
-    const metricCount = (metricLabel==='SOLD') ? r.sold : r.asr;
+    // Comparison is always vs GOAL on this page
+    const gReq = Number(getGoal(r.serviceName || r._serviceName || '', 'req'));
+    const gClose = Number(getGoal(r.serviceName || r._serviceName || '', 'close'));
+    const asrPctOfGoal = (Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null;
+    const soldPctOfGoal = (Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null;
 
-    const pctText = (metricLabel==='SOLD') ? fmtPct(r.close) : fmtPctPlain(r.req);
-
-    const goalTxt = (mode==='goal')
-      ? ` <span style="opacity:.9">(${goalPct===null? '—' : (Math.round(goalPct*100)+'%')} OF GOAL)</span>`
-      : '';
+    const asrRoTxt = fmtPct(r.req);
+    const soldAsrTxt = fmtPct(r.close);
 
     return `
       <div class="svcTechRow">
         <div class="svcTechLeft">
           <span class="svcRankNum">${rank}.</span>
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
+          <span class="svcROTxt">ROs ${fmtInt(r.ros)}</span>
+          <span class="svcNameBadges">
+            ${gbBoxHtml(asrRoTxt, 'ASRs/RO', asrPctOfGoal)}
+            ${gbBoxHtml(soldAsrTxt, 'Sold/ASR', soldPctOfGoal)}
+          </span>
         </div>
-        <div class="svcTechMeta">
-          ROs ${fmtInt(r.ros)} • ${metricLabel} ${fmtInt(metricCount)} • <b>${safe(pctText)}</b>${goalTxt}
-        </div>
+        <div class="svcTechMeta"></div>
       </div>
     `;
   }
@@ -270,12 +303,12 @@ function renderServicesHome(){
   }
 
   // Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
-function renderSectionTech(sec){
+  function renderSection(sec){
     const secName = String(sec?.name||'').trim();
     if(!secName) return '';
 
     const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-    const isOpen = !!st.openCats[openKey];
+    const isOpen = !!st.open[openKey];
 
     // Only include services that exist in dataset (intersection with any tech categories)
     const allCatsSet = new Set();
@@ -331,7 +364,7 @@ function renderSectionTech(sec){
         return av < bv ? 1 : -1;
       });
 
-      const techList = rows.map((r,i)=> techMetricRowHtml(r, i, focus, goalMetric, r.goalPct)).join('');
+      const techList = rows.map((r,i)=> techMetricRowHtml(r, i)).join('');
 
       return `
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
@@ -353,12 +386,15 @@ function renderSectionTech(sec){
 
           <div class="subHdr">TECHNICIANS</div>
           <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
+
+          <div class="subHdr" style="margin-top:12px">ADVISORS</div>
+          <div class="svcTechList"><div class="notice" style="padding:8px 2px">Advisor data coming soon.</div></div>
         </div>
       `;
     }).join('');
 
     return `
-      <details class="svcDashSec" ${isOpen?'open':''} data-side="tech" data-sec="${safe(openKey)}">
+      <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
             <div class="svcDashSecTitle">${safe(secName)}</div>
@@ -373,14 +409,10 @@ function renderSectionTech(sec){
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-  const sectionsTechHtml = sections.map(renderSectionTech).join('');
+  const sectionsHtml = sections.map(renderSection).join('');
 
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="pageServicesDash">${header}
-  <div class="svcDashOneCol">
-    <div class="panel svcDashCol"><div class="phead"><div class="h2">CATEGORIES</div></div><div class="svcDashSections">${sectionsTechHtml}</div></div>
-  </div>
-</div>`;
+  app.innerHTML = `<div class="pageServicesDash">${header}<div class="svcDashSections">${sectionsHtml}</div></div>`;
 
   // Wire events
   // Filters
@@ -397,7 +429,7 @@ function renderSectionTech(sec){
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
     const key = d.getAttribute('data-sec');
-    d.addEventListener('toggle', ()=>{ st.openCats[key] = d.open; });
+    d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
   });
 }
 
