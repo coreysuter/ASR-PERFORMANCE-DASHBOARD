@@ -12,6 +12,14 @@ function renderServicesHome(){
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
+      /* Two equal columns under the header (Technicians / Advisors) */
+      .pageServicesDash .svcDashTwoCol{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+      @media (max-width: 1120px){
+        .pageServicesDash .svcDashTwoCol{grid-template-columns:1fr;}
+      }
+
+      .pageServicesDash .svcDashCol{height:fit-content;}
+
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
