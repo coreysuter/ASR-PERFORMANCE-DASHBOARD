@@ -226,6 +226,41 @@ function renderServicesHome(){
     return "bRed";
   }
 
+  // Grade logic (comparison baseline = Goal)
+  function gradeFromPct(p){
+    if(!Number.isFinite(p)) return null;
+    if(p >= 1.00) return 'A';
+    if(p >= 0.90) return 'B';
+    if(p >= 0.75) return 'C';
+    if(p >= 0.60) return 'D';
+    return 'F';
+  }
+
+  function gradeBadgeSvg(grade){
+    if(!grade) return '';
+    const stroke = 'rgba(255,255,255,.35)';
+    const green = '#19c37d';
+    const yellow = '#f4c542';
+    const red = '#ff4d4d';
+
+    // A/B => green circle
+    if(grade==='A' || grade==='B'){
+      return `<span class="gBadge" title="Grade ${grade}">
+        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+          <circle cx="7" cy="7" r="6" fill="${green}" stroke="${stroke}" stroke-width="1" />
+        </svg>
+      </span>`;
+    }
+
+    // C/D => yellow triangle, F => red triangle
+    const fill = (grade==='F') ? red : yellow;
+    return `<span class="gBadge" title="Grade ${grade}">
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+        <path d="M7 1 L13 13 H1 Z" fill="${fill}" stroke="${stroke}" stroke-width="1" />
+      </svg>
+    </span>`;
+  }
+
   function techMetricRowHtml(r, idx, mode, goalMetricLocal, goalPct){
     const rank = idx + 1;
 
@@ -289,6 +324,7 @@ function renderServicesHome(){
       if(Number.isFinite(gr)) gReq += gr;
       if(Number.isFinite(gr) && Number.isFinite(gc)) gSoldPerRo += (gr * gc);
     }
+    const gClose = (Number.isFinite(gReq) && gReq>0) ? (gSoldPerRo/gReq) : NaN; // Sold/ASR goal proxy
 
     const techRows = [];
     let totAsr=0, totSold=0;
@@ -301,16 +337,34 @@ function renderServicesHome(){
       }
       const rosTech = Number(t.ros)||0;
       const req = rosTech ? (asr/rosTech) : 0; // ASR/RO
-      const close = asr ? (sold/asr) : 0;      // Sold%
+      const close = asr ? (sold/asr) : 0;      // Sold/ASR
+      const soldRo = rosTech ? (sold/rosTech) : 0; // Sold/RO
+
+      // Percent-of-goal for grade badges (comparison baseline = Goal)
+      const pctAsrGoal = (Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
+      const pctCloseGoal = (Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+      const pctSoldRoGoal = (Number.isFinite(gSoldPerRo) && gSoldPerRo>0) ? (soldRo/gSoldPerRo) : NaN;
+
+      const gAsr = gradeFromPct(pctAsrGoal);
+      const gCloseG = gradeFromPct(pctCloseGoal);
+      const gSoldRoG = gradeFromPct(pctSoldRoGoal);
 
       const goalPct = (focus==='goal')
         ? (goalMetric==='sold'
-            ? ((Number.isFinite(gSoldPerRo) && gSoldPerRo>0 && rosTech>0) ? ((sold/rosTech)/gSoldPerRo) : null)
+            ? ((Number.isFinite(gSoldPerRo) && gSoldPerRo>0) ? (soldRo/gSoldPerRo) : null)
             : ((Number.isFinite(gReq) && gReq>0) ? (req/gReq) : null)
           )
         : null;
 
-      techRows.push({id:t.id, name:t.name, ros:rosTech, asr, sold, req, close, goalPct});
+      techRows.push({
+        id:t.id, name:t.name,
+        ros:rosTech,
+        asr, sold,
+        req, close, soldRo,
+        goalPct,
+        pctAsrGoal, pctCloseGoal, pctSoldRoGoal,
+        gAsr, gClose: gCloseG, gSoldRo: gSoldRoG
+      });
       totAsr += asr; totSold += sold;
     }
 
@@ -340,7 +394,23 @@ function renderServicesHome(){
     if(!secName) return '';
 
     const agg = buildSectionAgg(sec);
-    const techList = agg.techRows.map((r,i)=> techMetricRowHtml(r, i, focus, goalMetric, r.goalPct)).join('');
+    const techList = agg.techRows.map((r,i)=>{
+      const rank = i + 1;
+      return `
+        <div class="svcTechRow">
+          <div class="svcTechLeft">
+            <span class="svcRankNum">${rank}.</span>
+            <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
+          </div>
+          <div class="svcTechMeta">
+            ROs ${fmtInt(r.ros)}
+            • ASRs ${fmtInt(r.asr)} ${gradeBadgeSvg(r.gAsr)}
+            • Sold/ASR <b>${fmtPct(r.close)}</b> ${gradeBadgeSvg(r.gClose)}
+            • Sold/RO <b>${fmt1(r.soldRo,2)}</b> ${gradeBadgeSvg(r.gSoldRo)}
+          </div>
+        </div>
+      `;
+    }).join('');
 
     return `
       <div class="svcCatTile" id="${safe('cat-'+safeSvcIdLocal(secName))}">
