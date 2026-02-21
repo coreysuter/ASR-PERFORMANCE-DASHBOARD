@@ -12,18 +12,15 @@ function renderServicesHome(){
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
-      /* Category squares */
-      .pageServicesDash .svcDashSections{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));align-items:start;}
-      @media (max-width: 780px){ .pageServicesDash .svcDashSections{grid-template-columns:1fr;} }
+      .pageServicesDash .svcDashSections{display:grid;gap:12px;}
+      .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
+      .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
+      .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
 
-      .pageServicesDash .svcCatTile{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));aspect-ratio:1/1;min-height:360px;display:flex;flex-direction:column;}
-      @media (max-width: 780px){ .pageServicesDash .svcCatTile{aspect-ratio:auto;min-height:320px;} }
-
-      .pageServicesDash .svcCatTileHead{padding:14px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
-      .pageServicesDash .svcCatTileTitle{font-size:28px;font-weight:1400;letter-spacing:.6px;line-height:1.05;}
-      .pageServicesDash .svcCatTileMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
-      .pageServicesDash .svcCatTileBody{padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px;min-height:0;}
-      .pageServicesDash .svcCatTileScroll{min-height:0;overflow:auto;padding-right:2px;}
+      .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
+      .pageServicesDash .svcDashSecTitle{font-size:32px;font-weight:1400;letter-spacing:.8px;line-height:1.05;}
+      .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
+      .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
       .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;align-items:start;}
@@ -36,6 +33,19 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
+
+      /* Grade badge (letter only) */
+      .pageServicesDash .gb{
+        display:inline-flex;align-items:center;justify-content:center;
+        width:18px;height:18px;border-radius:6px;
+        border:1px solid rgba(255,255,255,.35);
+        font-size:11px;font-weight:1100;line-height:1;
+        color:#fff;margin-left:6px;vertical-align:middle;
+      }
+      .pageServicesDash .gb.gbGreen{background:rgba(26, 196, 96, .55);}
+      .pageServicesDash .gb.gbYellow{background:rgba(255, 197, 66, .55);}
+      .pageServicesDash .gb.gbRed{background:rgba(255, 74, 74, .55);}
+      .pageServicesDash .gb.gbNone{background:rgba(255,255,255,.10);color:rgba(255,255,255,.70);}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
@@ -57,7 +67,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all' };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
 
   const st = UI.servicesDash;
 
@@ -226,49 +236,40 @@ function renderServicesHome(){
     return "bRed";
   }
 
-  // Grade logic (comparison baseline = Goal)
-  function gradeFromPct(p){
-    if(!Number.isFinite(p)) return null;
-    if(p >= 1.00) return 'A';
-    if(p >= 0.90) return 'B';
-    if(p >= 0.75) return 'C';
-    if(p >= 0.60) return 'D';
-    return 'F';
+  function gradeFromPctOfGoal(pctOfGoal){
+    // pctOfGoal is a ratio (1.0 = 100% of goal)
+    if(pctOfGoal===null || pctOfGoal===undefined || !Number.isFinite(Number(pctOfGoal))) return {g:'—', cls:'gbNone'};
+    const pct100 = Number(pctOfGoal) * 100;
+    const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (
+      pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F'
+    );
+    const cls = (g==='A' || g==='B') ? 'gbGreen' : (g==='C' || g==='D') ? 'gbYellow' : (g==='F') ? 'gbRed' : 'gbNone';
+    return {g, cls};
   }
 
-  function gradeBadgeSvg(grade){
-    if(!grade) return '';
-    const stroke = 'rgba(255,255,255,.35)';
-    const green = '#19c37d';
-    const yellow = '#f4c542';
-    const red = '#ff4d4d';
-
-    // A/B => green circle
-    if(grade==='A' || grade==='B'){
-      return `<span class="gBadge" title="Grade ${grade}">
-        <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-          <circle cx="7" cy="7" r="6" fill="${green}" stroke="${stroke}" stroke-width="1" />
-        </svg>
-      </span>`;
-    }
-
-    // C/D => yellow triangle, F => red triangle
-    const fill = (grade==='F') ? red : yellow;
-    return `<span class="gBadge" title="Grade ${grade}">
-      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-        <path d="M7 1 L13 13 H1 Z" fill="${fill}" stroke="${stroke}" stroke-width="1" />
-      </svg>
-    </span>`;
+  function gbHtml(pctOfGoal){
+    const {g, cls} = gradeFromPctOfGoal(pctOfGoal);
+    return `<span class="gb ${cls}">${safe(g)}</span>`;
   }
 
   function techMetricRowHtml(r, idx, mode, goalMetricLocal, goalPct){
     const rank = idx + 1;
 
-    const metricLabel = (mode==='sold' || (mode==='goal' && goalMetricLocal==='sold')) ? 'SOLD' : 'ASR';
-    const metricCount = (metricLabel==='SOLD') ? r.sold : r.asr;
+    // Metrics for list:
+    // - ROs
+    // - ASRs/RO (rate) + grade badge (vs goal req)
+    // - Sold/ASR (close rate) + grade badge (vs goal close)
+    // NOTE: Sold/RO removed per instruction.
+    const asrRoPctTxt = fmtPct(r.req);
+    const soldAsrPctTxt = fmtPct(r.close);
 
-    const pctText = (metricLabel==='SOLD') ? fmtPct(r.close) : fmtPctPlain(r.req);
+    // Goal comparisons (always vs GOAL on this page)
+    const gReq = Number(getGoal(r.serviceName || r._serviceName || '', 'req'));
+    const gClose = Number(getGoal(r.serviceName || r._serviceName || '', 'close'));
+    const asrPctOfGoal = (Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null;
+    const soldPctOfGoal = (Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null;
 
+    // If mode is GOAL, also show % of goal next to the primary % (same as previous behavior)
     const goalTxt = (mode==='goal')
       ? ` <span style="opacity:.9">(${goalPct===null? '—' : (Math.round(goalPct*100)+'%')} OF GOAL)</span>`
       : '';
@@ -280,7 +281,7 @@ function renderServicesHome(){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          ROs ${fmtInt(r.ros)} • ${metricLabel} ${fmtInt(metricCount)} • <b>${safe(pctText)}</b>${goalTxt}
+          ROs ${fmtInt(r.ros)} • ASRs/RO <b>${safe(asrRoPctTxt)}</b>${gbHtml(asrPctOfGoal)} • Sold/ASR <b>${safe(soldAsrPctTxt)}</b>${gbHtml(soldPctOfGoal)}${goalTxt}
         </div>
       </div>
     `;
@@ -298,7 +299,7 @@ function renderServicesHome(){
       asr += a; sold += so; totalRos += rosTech;
       const req = rosTech ? (a/rosTech) : 0; // ASR/RO (ratio)
       const close = a ? (so/a) : 0; // Sold% (ratio)
-      techRows.push({id:t.id, name:t.name, ros:rosTech, asr:a, sold:so, req, close});
+      techRows.push({id:t.id, name:t.name, ros:rosTech, asr:a, sold:so, req, close, serviceName});
     }
 
     const reqTot = totalRos ? (asr/totalRos) : 0;
@@ -307,149 +308,114 @@ function renderServicesHome(){
     return {serviceName, totalRos, asr, sold, reqTot, closeTot, techRows};
   }
 
-  // Render categories as square tiles, each with a team-filtered tech list (sorted by focus)
-  function buildSectionAgg(sec){
+  // Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
+  function renderSection(sec){
+    const secName = String(sec?.name||'').trim();
+    if(!secName) return '';
+
+    const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    const isOpen = !!st.open[openKey];
+
+    // Only include services that exist in dataset (intersection with any tech categories)
     const allCatsSet = new Set();
     for(const t of techsAll){
       for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
     }
     const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
 
-    // category-level goals (sum-of-services goal per RO)
-    let gReq = 0;
-    let gSoldPerRo = 0;
-    for(const svc of services){
-      const gr = Number(getGoal(svc,'req'));
-      const gc = Number(getGoal(svc,'close'));
-      if(Number.isFinite(gr)) gReq += gr;
-      if(Number.isFinite(gr) && Number.isFinite(gc)) gSoldPerRo += (gr * gc);
-    }
-    const gClose = (Number.isFinite(gReq) && gReq>0) ? (gSoldPerRo/gReq) : NaN; // Sold/ASR goal proxy
+    const aggs = services.map(buildServiceAgg);
 
-    const techRows = [];
-    let totAsr=0, totSold=0;
-    for(const t of techs){
-      let asr=0, sold=0;
-      for(const svc of services){
-        const c = (t.categories||{})[svc];
-        asr += Number(c?.asr)||0;
-        sold += Number(c?.sold)||0;
-      }
-      const rosTech = Number(t.ros)||0;
-      const req = rosTech ? (asr/rosTech) : 0; // ASR/RO
-      const close = asr ? (sold/asr) : 0;      // Sold/ASR
-      const soldRo = rosTech ? (sold/rosTech) : 0; // Sold/RO
+    // Section averages (used for dials when not GOAL focus)
+    const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
+    const avgClose = aggs.length ? aggs.reduce((s,x)=>s+x.closeTot,0)/aggs.length : 0;
 
-      // Percent-of-goal for grade badges (comparison baseline = Goal)
-      const pctAsrGoal = (Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN;
-      const pctCloseGoal = (Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
-      const pctSoldRoGoal = (Number.isFinite(gSoldPerRo) && gSoldPerRo>0) ? (soldRo/gSoldPerRo) : NaN;
+    // Build cards
+    const cardsHtml = aggs.map(s=>{
+      // Dial basis
+      const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq) : NaN;
+      const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
 
-      const gAsr = gradeFromPct(pctAsrGoal);
-      const gCloseG = gradeFromPct(pctCloseGoal);
-      const gSoldRoG = gradeFromPct(pctSoldRoGoal);
+      const gReq = Number(getGoal(s.serviceName,'req'));
+      const gClose = Number(getGoal(s.serviceName,'close'));
+      const pctOfGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN;
+      const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN;
 
-      const goalPct = (focus==='goal')
-        ? (goalMetric==='sold'
-            ? ((Number.isFinite(gSoldPerRo) && gSoldPerRo>0) ? (soldRo/gSoldPerRo) : null)
-            : ((Number.isFinite(gReq) && gReq>0) ? (req/gReq) : null)
-          )
-        : null;
+      const dialPct = (focus==='goal')
+        ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
+        : (focus==='sold' ? pctVsAvgClose : pctVsAvgReq);
 
-      techRows.push({
-        id:t.id, name:t.name,
-        ros:rosTech,
-        asr, sold,
-        req, close, soldRo,
-        goalPct,
-        pctAsrGoal, pctCloseGoal, pctSoldRoGoal,
-        gAsr, gClose: gCloseG, gSoldRo: gSoldRoG
+      const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
+
+      const metricPct = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
+      const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricPct) : fmtPctPlain(metricPct);
+
+      const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
+      const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
+
+      // Tech list sorting
+      const rows = s.techRows.slice().map(r=>{
+        const gP = (focus==='goal')
+          ? (goalMetric==='sold'
+              ? ((Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null)
+              : ((Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null)
+            )
+          : null;
+        return {...r, goalPct: gP};
       });
-      totAsr += asr; totSold += sold;
-    }
 
-    techRows.sort((a,b)=>{
-      const av = (focus==='goal') ? (a.goalPct ?? -Infinity) : (focus==='sold' ? a.close : a.req);
-      const bv = (focus==='goal') ? (b.goalPct ?? -Infinity) : (focus==='sold' ? b.close : b.req);
-      if(av===bv) return 0;
-      return av < bv ? 1 : -1;
-    });
+      rows.sort((a,b)=>{
+        const av = (focus==='goal') ? (a.goalPct ?? -Infinity) : (focus==='sold' ? a.close : a.req);
+        const bv = (focus==='goal') ? (b.goalPct ?? -Infinity) : (focus==='sold' ? b.close : b.req);
+        if(av===bv) return 0;
+        return av < bv ? 1 : -1;
+      });
 
-    // category-level dial (goal% when focus=goal, otherwise the metric itself)
-    const reqTot = totalRos ? (totAsr/totalRos) : 0;
-    const closeTot = totAsr ? (totSold/totAsr) : 0;
-    const pctOfGoalReq = (Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN;
-    const pctOfGoalClose = (Number.isFinite(gSoldPerRo) && gSoldPerRo>0 && totalRos>0) ? ((totSold/totalRos)/gSoldPerRo) : NaN;
+      const techList = rows.map((r,i)=> techMetricRowHtml(r, i, focus, goalMetric, r.goalPct)).join('');
 
-    const dialPct = (focus==='goal')
-      ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
-      : (focus==='sold' ? closeTot : reqTot);
-    const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
-
-    return {services, dialPct, dialLabel, techRows};
-  }
-
-  function renderCategoryTile(sec){
-    const secName = String(sec?.name||'').trim();
-    if(!secName) return '';
-
-    const agg = buildSectionAgg(sec);
-    const techList = agg.techRows.map((r,i)=>{
-      const rank = i + 1;
       return `
-        <div class="svcTechRow">
-          <div class="svcTechLeft">
-            <span class="svcRankNum">${rank}.</span>
-            <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
+        <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
+          <div class="catHeader">
+            <div class="svcGaugeWrap" style="--sz:72px">
+              ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
+            </div>
+            <div style="min-width:0">
+              <div class="catTitle">${safe(s.serviceName)}</div>
+              <div class="muted" style="margin-top:2px">
+                ${fmtInt(s.asr)} ASR • ${fmtInt(s.sold)} Sold • ${fmtInt(s.totalRos)} ROs
+              </div>
+            </div>
+            <div class="catHdrRight" style="text-align:right">
+              <div class="catRank" style="font-weight:1200">${safe(metricTxt)}</div>
+              ${focus==='goal' ? `<div class="byAsr" style="display:block">${safe(goalTxt)}</div>` : ''}
+            </div>
           </div>
-          <div class="svcTechMeta">
-            ROs ${fmtInt(r.ros)}
-            • ASRs ${fmtInt(r.asr)} ${gradeBadgeSvg(r.gAsr)}
-            • Sold/ASR <b>${fmtPct(r.close)}</b> ${gradeBadgeSvg(r.gClose)}
-            • Sold/RO <b>${fmt1(r.soldRo,2)}</b> ${gradeBadgeSvg(r.gSoldRo)}
-          </div>
+
+          <div class="subHdr">TECHNICIANS</div>
+          <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
         </div>
       `;
     }).join('');
 
     return `
-      <div class="svcCatTile" id="${safe('cat-'+safeSvcIdLocal(secName))}">
-        <div class="svcCatTileHead">
-          <div>
-            <div class="svcCatTileTitle">${safe(secName)}</div>
-            <div class="svcCatTileMeta">${fmtInt(agg.services.length)} services</div>
+      <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
+        <summary>
+          <div class="svcDashSecHead">
+            <div class="svcDashSecTitle">${safe(secName)}</div>
+            <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
           </div>
-          <div class="svcGaugeWrap" style="--sz:68px">
-            ${Number.isFinite(agg.dialPct) ? svcGauge(agg.dialPct, agg.dialLabel) : ''}
-          </div>
+        </summary>
+        <div class="svcDashBody">
+          <div class="svcCardsGrid">${cardsHtml || `<div class="notice">No services found in this section.</div>`}</div>
         </div>
-
-        <div class="svcCatTileBody">
-          <div class="svcCatTileScroll">
-            <div class="subHdr" style="margin:0">TECHNICIANS</div>
-            <div class="svcTechList" style="margin-top:8px">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
-
-            <div style="margin-top:12px">
-              <div class="subHdr" style="margin:0">ADVISORS</div>
-              <div class="notice" style="margin-top:8px;padding:10px 12px;border-radius:12px;border:1px dashed rgba(255,255,255,.18);background:rgba(0,0,0,.10)">
-                Advisor data coming soon.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </details>
     `;
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-  const sectionsTechHtml = sections.map(renderCategoryTile).join('');
+  const sectionsHtml = sections.map(renderSection).join('');
 
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="pageServicesDash">${header}
-  <div class="svcDashOneCol">
-    <div class="panel svcDashCol"><div class="phead"><div class="h2">CATEGORIES</div></div><div class="svcDashSections">${sectionsTechHtml}</div></div>
-  </div>
-</div>`;
+  app.innerHTML = `<div class="pageServicesDash">${header}<div class="svcDashSections">${sectionsHtml}</div></div>`;
 
   // Wire events
   // Filters
@@ -463,7 +429,11 @@ function renderServicesHome(){
     });
   });
 
-  // No accordion state needed for category tiles.
+  // Persist open/closed sections
+  app.querySelectorAll('details.svcDashSec').forEach(d=>{
+    const key = d.getAttribute('data-sec');
+    d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
+  });
 }
 
 window.renderServicesHome = renderServicesHome;
