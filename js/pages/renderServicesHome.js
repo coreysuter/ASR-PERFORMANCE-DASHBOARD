@@ -224,8 +224,8 @@ function renderServicesHome(){
 
   function iconSvg(kind){
     if(kind==='good') return `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(26,196,96,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><path d="M4.3 8.3 L7 11 L12 5.6" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,2 15,14 1,14" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/></svg>`;
-    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,2 15,14 1,14" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/></svg>`;
+    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,2 15,14 1,14" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="12" text-anchor="middle" font-size="12" font-weight="900" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,2 15,14 1,14" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="12" text-anchor="middle" font-size="12" font-weight="900" fill="rgba(255,255,255,.95)">!</text></svg>`;
   }
 
   function iconHtml(pctOfBase){
@@ -277,7 +277,7 @@ function renderServicesHome(){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          ROs <b>${fmtInt(r.ros)}</b>${iconHtml(rosPctBase)} • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)} • Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}
+          ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)} • Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}
         </div>
       </div>
     `;
