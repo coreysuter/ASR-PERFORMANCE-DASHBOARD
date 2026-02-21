@@ -33,19 +33,6 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
-
-      /* Grade badge (letter only) */
-      .pageServicesDash .gb{
-        display:inline-flex;align-items:center;justify-content:center;
-        width:18px;height:18px;border-radius:6px;
-        border:1px solid rgba(255,255,255,.35);
-        font-size:11px;font-weight:1100;line-height:1;
-        color:#fff;margin-left:6px;vertical-align:middle;
-      }
-      .pageServicesDash .gb.gbGreen{background:rgba(26, 196, 96, .55);}
-      .pageServicesDash .gb.gbYellow{background:rgba(255, 197, 66, .55);}
-      .pageServicesDash .gb.gbRed{background:rgba(255, 74, 74, .55);}
-      .pageServicesDash .gb.gbNone{background:rgba(255,255,255,.10);color:rgba(255,255,255,.70);}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
@@ -67,7 +54,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', openCats: {}, openCats: {} };
 
   const st = UI.servicesDash;
 
@@ -236,40 +223,14 @@ function renderServicesHome(){
     return "bRed";
   }
 
-  function gradeFromPctOfGoal(pctOfGoal){
-    // pctOfGoal is a ratio (1.0 = 100% of goal)
-    if(pctOfGoal===null || pctOfGoal===undefined || !Number.isFinite(Number(pctOfGoal))) return {g:'—', cls:'gbNone'};
-    const pct100 = Number(pctOfGoal) * 100;
-    const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (
-      pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F'
-    );
-    const cls = (g==='A' || g==='B') ? 'gbGreen' : (g==='C' || g==='D') ? 'gbYellow' : (g==='F') ? 'gbRed' : 'gbNone';
-    return {g, cls};
-  }
-
-  function gbHtml(pctOfGoal){
-    const {g, cls} = gradeFromPctOfGoal(pctOfGoal);
-    return `<span class="gb ${cls}">${safe(g)}</span>`;
-  }
-
   function techMetricRowHtml(r, idx, mode, goalMetricLocal, goalPct){
     const rank = idx + 1;
 
-    // Metrics for list:
-    // - ROs
-    // - ASRs/RO (rate) + grade badge (vs goal req)
-    // - Sold/ASR (close rate) + grade badge (vs goal close)
-    // NOTE: Sold/RO removed per instruction.
-    const asrRoPctTxt = fmtPct(r.req);
-    const soldAsrPctTxt = fmtPct(r.close);
+    const metricLabel = (mode==='sold' || (mode==='goal' && goalMetricLocal==='sold')) ? 'SOLD' : 'ASR';
+    const metricCount = (metricLabel==='SOLD') ? r.sold : r.asr;
 
-    // Goal comparisons (always vs GOAL on this page)
-    const gReq = Number(getGoal(r.serviceName || r._serviceName || '', 'req'));
-    const gClose = Number(getGoal(r.serviceName || r._serviceName || '', 'close'));
-    const asrPctOfGoal = (Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null;
-    const soldPctOfGoal = (Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null;
+    const pctText = (metricLabel==='SOLD') ? fmtPct(r.close) : fmtPctPlain(r.req);
 
-    // If mode is GOAL, also show % of goal next to the primary % (same as previous behavior)
     const goalTxt = (mode==='goal')
       ? ` <span style="opacity:.9">(${goalPct===null? '—' : (Math.round(goalPct*100)+'%')} OF GOAL)</span>`
       : '';
@@ -281,7 +242,7 @@ function renderServicesHome(){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          ROs ${fmtInt(r.ros)} • ASRs/RO <b>${safe(asrRoPctTxt)}</b>${gbHtml(asrPctOfGoal)} • Sold/ASR <b>${safe(soldAsrPctTxt)}</b>${gbHtml(soldPctOfGoal)}${goalTxt}
+          ROs ${fmtInt(r.ros)} • ${metricLabel} ${fmtInt(metricCount)} • <b>${safe(pctText)}</b>${goalTxt}
         </div>
       </div>
     `;
@@ -299,7 +260,7 @@ function renderServicesHome(){
       asr += a; sold += so; totalRos += rosTech;
       const req = rosTech ? (a/rosTech) : 0; // ASR/RO (ratio)
       const close = a ? (so/a) : 0; // Sold% (ratio)
-      techRows.push({id:t.id, name:t.name, ros:rosTech, asr:a, sold:so, req, close, serviceName});
+      techRows.push({id:t.id, name:t.name, ros:rosTech, asr:a, sold:so, req, close});
     }
 
     const reqTot = totalRos ? (asr/totalRos) : 0;
@@ -309,12 +270,12 @@ function renderServicesHome(){
   }
 
   // Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
-  function renderSection(sec){
+function renderSectionTech(sec){
     const secName = String(sec?.name||'').trim();
     if(!secName) return '';
 
     const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-    const isOpen = !!st.open[openKey];
+    const isOpen = !!st.openCats[openKey];
 
     // Only include services that exist in dataset (intersection with any tech categories)
     const allCatsSet = new Set();
@@ -397,7 +358,7 @@ function renderServicesHome(){
     }).join('');
 
     return `
-      <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
+      <details class="svcDashSec" ${isOpen?'open':''} data-side="tech" data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
             <div class="svcDashSecTitle">${safe(secName)}</div>
@@ -412,10 +373,14 @@ function renderServicesHome(){
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-  const sectionsHtml = sections.map(renderSection).join('');
+  const sectionsTechHtml = sections.map(renderSectionTech).join('');
 
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="pageServicesDash">${header}<div class="svcDashSections">${sectionsHtml}</div></div>`;
+  app.innerHTML = `<div class="pageServicesDash">${header}
+  <div class="svcDashOneCol">
+    <div class="panel svcDashCol"><div class="phead"><div class="h2">CATEGORIES</div></div><div class="svcDashSections">${sectionsTechHtml}</div></div>
+  </div>
+</div>`;
 
   // Wire events
   // Filters
@@ -432,7 +397,7 @@ function renderServicesHome(){
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
     const key = d.getAttribute('data-sec');
-    d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
+    d.addEventListener('toggle', ()=>{ st.openCats[key] = d.open; });
   });
 }
 
