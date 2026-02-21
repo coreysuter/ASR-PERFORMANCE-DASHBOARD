@@ -33,23 +33,26 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
-
-      /* Metric badges next to tech name (ROs + ASRs/RO + Sold/ASR + Sold/RO) */
-      .pageServicesDash .svcNameBadges{display:inline-flex;gap:8px;align-items:center;flex-wrap:nowrap;white-space:nowrap;margin-left:8px;}
-      /* Text metrics (replaces badges): color encodes grade */
-      .pageServicesDash .svcMetricSeg{display:inline-flex;gap:6px;align-items:baseline;line-height:1;}
-      .pageServicesDash .svcMetricVal{font-size:12px;font-weight:1200;}
-      .pageServicesDash .svcMetricLbl{font-size:10px;font-weight:1000;opacity:.85;}
-      .pageServicesDash .gTxtGreen{color:rgba(26, 196, 96, 1);}   /* A/B */
-      .pageServicesDash .gTxtYellow{color:rgba(255, 197, 66, 1);} /* C/D */
-      .pageServicesDash .gTxtRed{color:rgba(255, 74, 74, 1);}     /* F */
-      .pageServicesDash .gTxtNone{color:rgba(255,255,255,.82);}   /* neutral */
+      /* Metric badges next to tech name */
+      .pageServicesDash .svcNameBadges{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;}
+      .pageServicesDash .svcROTxt{color:rgba(255,255,255,.72);font-weight:1000;font-size:12px;margin-left:6px;white-space:nowrap;}
+      .pageServicesDash .gbox{
+        display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+        min-width:64px;height:34px;padding:4px 6px;border-radius:10px;
+        border:1px solid rgba(255,255,255,.35);
+        color:#fff;line-height:1;
+      }
+      .pageServicesDash .gbox .gNum{font-size:12px;font-weight:1200;line-height:1.05;}
+      .pageServicesDash .gbox .gLbl{font-size:10px;font-weight:1000;line-height:1.05;opacity:.85;}
+      .pageServicesDash .gbox.gbGreen{background:rgba(26, 196, 96, .55);}
+      .pageServicesDash .gbox.gbYellow{background:rgba(255, 197, 66, .55);}
+      .pageServicesDash .gbox.gbRed{background:rgba(255, 74, 74, .55);}
+      .pageServicesDash .gbox.gbNone{background:rgba(255,255,255,.10);color:rgba(255,255,255,.85);}
 
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
         .pageServicesDash .svcTechLeft a{max-width:100%;}
-        .pageServicesDash .svcNameBadges{flex-wrap:wrap;white-space:normal;margin-left:0;}
       }
 
       /* Header filters sizing (local to this page) */
@@ -76,8 +79,7 @@ function renderServicesHome(){
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
     for(const part of qs.split("&")){
-      const [k,v]=part.split("=");
-      if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
+      const [k,v]=part.split("=");      if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
       if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
       if(k==="comparison") st.comparison = decodeURIComponent(v||"goal") || "goal";
     }
@@ -107,15 +109,18 @@ function renderServicesHome(){
     (DATA.sections||[]).forEach(s=> (s.categories||[]).forEach(c=>{ if(c) cats.push(String(c)); }));
     const uniq = Array.from(new Set(cats));
 
-    let gAsr = 0;
-    let gSold = 0;
+    let gAsr = 0; // goal ASR/RO summed across cats (approx) using goal raw fractions (already per-RO for service)
+    let gSold = 0; // goal sold/RO approx = sum(goalReq * goalClose)
     for(const cat of uniq){
       const gReq = Number(getGoal(cat,'req'));
       const gClose = Number(getGoal(cat,'close'));
       if(Number.isFinite(gReq)) gAsr += gReq;
       if(Number.isFinite(gReq) && Number.isFinite(gClose)) gSold += (gReq * gClose);
     }
-
+    // Current team/store actuals across those same cats (sum req across cats per tech -> then average?)
+    // Keep it simple: use the main totals above.
+    // - asrPerRo is totalAsr/totalRos
+    // - soldPerRo is totalSold/totalRos
     const asrPctOfGoal = (Number.isFinite(asrPerRo) && Number.isFinite(gAsr) && gAsr>0) ? (asrPerRo/gAsr) : null;
     const soldPctOfGoal = (Number.isFinite(soldPerRo) && Number.isFinite(gSold) && gSold>0) ? (soldPerRo/gSold) : null;
     return {gAsr, gSold, asrPctOfGoal, soldPctOfGoal};
@@ -133,6 +138,7 @@ function renderServicesHome(){
     subVal = asrPerRo;  subLbl = 'ASRs/RO';
   }
   if(focus === 'goal'){
+    // show the selected goal metric % of goal big
     topVal = (goalMetric==='sold') ? goalsAgg.soldPctOfGoal : goalsAgg.asrPctOfGoal;
     topLbl = (goalMetric==='sold') ? 'Sold Goal%' : 'ASR Goal%';
     subVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
@@ -163,12 +169,12 @@ function renderServicesHome(){
 
           <div class="overallBlock">
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topVal===null ? "—" : (focus==='goal' ? fmtPct(topVal) : fmtDec(topVal,2))}
+              ${topVal===null ? "—" : (focus==='goal' ? fmtPct(topVal) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
             </div>
             <div class="tag">${safe(topLbl)}</div>
 
             <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subVal===null ? "—" : fmtDec(subVal,2)}
+              ${subVal===null ? "—" : (focus==='sold' ? fmt1(subVal,1) : fmt1(subVal,2))}
             </div>
             <div class="tag">${safe(subLbl)}</div>
           </div>
@@ -222,84 +228,88 @@ function renderServicesHome(){
       .replace(/[^a-z0-9]+/g,"-")
       .replace(/^-+|-+$/g,"");
   }
+  function bandClassPct(pctOfBase){
+    if(!Number.isFinite(pctOfBase)) return "";
+    if(pctOfBase >= 0.80) return "bGreen";
+    if(pctOfBase >= 0.60) return "bYellow";
+    return "bRed";
+  }
+function gradeClassFromPctOfBase(pctOfBase){
+  if(pctOfBase===null || pctOfBase===undefined || !Number.isFinite(Number(pctOfBase))) return 'gbNone';
+  const pct100 = Number(pctOfBase) * 100;
+  const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (
+    pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F'
+  );
+  return (g==='A' || g==='B') ? 'gbGreen' : (g==='C' || g==='D') ? 'gbYellow' : (g==='F') ? 'gbRed' : 'gbNone';
+}
 
-  function fmtDec(val, dec=2){
-    const n = Number(val);
-    if(!Number.isFinite(n)) return '—';
-    const s = n.toFixed(dec);
-    return s.replace(/^0(?=\.)/, '');
+function fmtDec(val, dec=2){
+  const n = Number(val);
+  if(!Number.isFinite(n)) return '—';
+  const s = n.toFixed(dec);
+  return s.replace(/^0(?=\.)/, ''); // ".14" instead of "0.14"
+}
+
+function gbBoxHtml(valueText, labelText, pctOfBase){
+  const cls = gradeClassFromPctOfBase(pctOfBase);
+  return `<span class="gbox ${cls}"><span class="gNum">${safe(valueText)}</span><span class="gLbl">${safe(labelText)}</span></span>`;
+}
+
+function techMetricRowHtml(r, idx, ctx){
+  const rank = idx + 1;
+
+  // Metrics
+  const asrRoVal = r.req;                   // decimal ASRs/RO
+  const soldAsrVal = r.close;               // Sold/ASR (ratio)
+  const soldRoVal = r.soldRo;               // Sold/RO (ratio)
+
+  const asrRoTxt = fmtDec(asrRoVal, 2);
+  const soldAsrTxt = fmtPct(soldAsrVal);
+  const soldRoTxt = fmtPct(soldRoVal);
+
+  // Baselines depend on Comparison filter
+  let baseReq=null, baseClose=null, baseSoldRo=null;
+
+  if(comparison==='goal'){
+    const gReq = Number(ctx?.gReq);
+    const gClose = Number(ctx?.gClose);
+    baseReq = (Number.isFinite(gReq) && gReq>0) ? gReq : null;
+    baseClose = (Number.isFinite(gClose) && gClose>0) ? gClose : null;
+    baseSoldRo = (baseReq!==null && baseClose!==null) ? (baseReq * baseClose) : null;
+  } else if(comparison==='team'){
+    const tb = (ctx?.teamBase && r.team && ctx.teamBase[r.team]) ? ctx.teamBase[r.team] : null;
+    baseReq = Number.isFinite(Number(tb?.req)) && Number(tb.req)>0 ? Number(tb.req) : null;
+    baseClose = Number.isFinite(Number(tb?.close)) && Number(tb.close)>0 ? Number(tb.close) : null;
+    baseSoldRo = Number.isFinite(Number(tb?.soldRo)) && Number(tb.soldRo)>0 ? Number(tb.soldRo) : null;
+  } else { // store
+    const sb = ctx?.storeBase || {};
+    baseReq = Number.isFinite(Number(sb.req)) && Number(sb.req)>0 ? Number(sb.req) : null;
+    baseClose = Number.isFinite(Number(sb.close)) && Number(sb.close)>0 ? Number(sb.close) : null;
+    baseSoldRo = Number.isFinite(Number(sb.soldRo)) && Number(sb.soldRo)>0 ? Number(sb.soldRo) : null;
   }
 
-  function gradeClassFromPctOfBase(pctOfBase){
-    if(pctOfBase===null || pctOfBase===undefined || !Number.isFinite(Number(pctOfBase))) return 'gTxtNone';
-    const pct100 = Number(pctOfBase) * 100;
-    const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (
-      pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F'
-    );
-    return (g==='A' || g==='B') ? 'gTxtGreen' : (g==='C' || g==='D') ? 'gTxtYellow' : (g==='F') ? 'gTxtRed' : 'gTxtNone';
-  }
+  const asrRoPctBase = (Number.isFinite(asrRoVal) && baseReq!==null) ? (asrRoVal/baseReq) : null;
+  const soldAsrPctBase = (Number.isFinite(soldAsrVal) && baseClose!==null) ? (soldAsrVal/baseClose) : null;
+  const soldRoPctBase = (Number.isFinite(soldRoVal) && baseSoldRo!==null) ? (soldRoVal/baseSoldRo) : null;
 
-  function metricSegHtml(valueText, labelText, pctOfBase){
-    const cls = gradeClassFromPctOfBase(pctOfBase);
-    return `<span class="svcMetricSeg ${cls}"><span class="svcMetricVal">${safe(valueText)}</span><span class="svcMetricLbl">${safe(labelText)}</span></span>`;
-  }
-
-  function techMetricRowHtml(r, idx, ctx){
-    const rank = idx + 1;
-
-    // Metrics
-    const asrRoVal = r.req;     // decimal ASRs/RO
-    const soldAsrVal = r.close; // Sold/ASR ratio
-    const soldRoVal = r.soldRo; // Sold/RO ratio
-
-    const rosTxt = fmtInt(r.ros);
-    const asrRoTxt = fmtDec(asrRoVal, 2);
-    const soldAsrTxt = fmtPct(soldAsrVal);
-    const soldRoTxt = fmtPct(soldRoVal);
-
-    // Baselines depend on Comparison filter
-    let baseReq=null, baseClose=null, baseSoldRo=null;
-
-    if(comparison==='goal'){
-      const gReq = Number(ctx?.gReq);
-      const gClose = Number(ctx?.gClose);
-      baseReq = (Number.isFinite(gReq) && gReq>0) ? gReq : null;
-      baseClose = (Number.isFinite(gClose) && gClose>0) ? gClose : null;
-      baseSoldRo = (baseReq!==null && baseClose!==null) ? (baseReq * baseClose) : null;
-    } else if(comparison==='team'){
-      const tb = (ctx?.teamBase && r.team && ctx.teamBase[r.team]) ? ctx.teamBase[r.team] : null;
-      baseReq = Number.isFinite(Number(tb?.req)) && Number(tb.req)>0 ? Number(tb.req) : null;
-      baseClose = Number.isFinite(Number(tb?.close)) && Number(tb.close)>0 ? Number(tb.close) : null;
-      baseSoldRo = Number.isFinite(Number(tb?.soldRo)) && Number(tb.soldRo)>0 ? Number(tb.soldRo) : null;
-    } else { // store
-      const sb = ctx?.storeBase || {};
-      baseReq = Number.isFinite(Number(sb.req)) && Number(sb.req)>0 ? Number(sb.req) : null;
-      baseClose = Number.isFinite(Number(sb.close)) && Number(sb.close)>0 ? Number(sb.close) : null;
-      baseSoldRo = Number.isFinite(Number(sb.soldRo)) && Number(sb.soldRo)>0 ? Number(sb.soldRo) : null;
-    }
-
-    const asrRoPctBase = (Number.isFinite(asrRoVal) && baseReq!==null) ? (asrRoVal/baseReq) : null;
-    const soldAsrPctBase = (Number.isFinite(soldAsrVal) && baseClose!==null) ? (soldAsrVal/baseClose) : null;
-    const soldRoPctBase = (Number.isFinite(soldRoVal) && baseSoldRo!==null) ? (soldRoVal/baseSoldRo) : null;
-
-    return `
-      <div class="svcTechRow">
-        <div class="svcTechLeft">
-          <span class="svcRankNum">${rank}.</span>
-          <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
-          <span class="svcNameBadges">
-            ${metricSegHtml(rosTxt, 'ROs', null)}
-            ${metricSegHtml(asrRoTxt, 'ASRs/RO', asrRoPctBase)}
-            ${metricSegHtml(soldAsrTxt, 'Sold/ASR', soldAsrPctBase)}
-            ${metricSegHtml(soldRoTxt, 'Sold/RO', soldRoPctBase)}
-          </span>
-        </div>
-        <div class="svcTechMeta"></div>
+  return `
+    <div class="svcTechRow">
+      <div class="svcTechLeft">
+        <span class="svcRankNum">${rank}.</span>
+        <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
+        <span class="svcROTxt">ROs ${fmtInt(r.ros)}</span>
+        <span class="svcNameBadges">
+          ${gbBoxHtml(asrRoTxt, 'ASRs/RO', asrRoPctBase)}
+          ${gbBoxHtml(soldAsrTxt, 'Sold/ASR', soldAsrPctBase)}
+          ${gbBoxHtml(soldRoTxt, 'Sold/RO', soldRoPctBase)}
+        </span>
       </div>
-    `;
-  }
+      <div class="svcTechMeta"></div>
+    </div>
+  `;
+}
 
-  function buildServiceAgg(serviceName){
+function buildServiceAgg(serviceName){
     let asr=0, sold=0, totalRos=0;
     const techRows = [];
     const teamTotals = {};
@@ -378,11 +388,11 @@ function renderServicesHome(){
 
       const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
 
-      const metricVal = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
-      const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricVal) : fmtDec(metricVal,2);
+      const metricPct = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
+      const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricPct) : fmtPctPlain(metricPct);
 
       const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
-      const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtDec(goalForThis,2))}` : '';
+      const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
 
       // Tech list sorting
       const rows = s.techRows.slice().map(r=>{
@@ -426,9 +436,6 @@ function renderServicesHome(){
 
           <div class="subHdr">TECHNICIANS</div>
           <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
-
-          <div class="subHdr" style="margin-top:12px">ADVISORS</div>
-          <div class="notice" style="padding:8px 2px">Advisor data coming soon…</div>
         </div>
       `;
     }).join('');
@@ -455,6 +462,7 @@ function renderServicesHome(){
   app.innerHTML = `<div class="pageServicesDash">${header}<div class="svcDashSections">${sectionsHtml}</div></div>`;
 
   // Wire events
+  // Filters
   app.querySelectorAll('select[data-svcdash="1"]').forEach(sel=>{
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
