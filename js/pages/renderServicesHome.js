@@ -36,18 +36,14 @@ function renderServicesHome(){
 
       /* Metric badges next to tech name (ROs + ASRs/RO + Sold/ASR + Sold/RO) */
       .pageServicesDash .svcNameBadges{display:inline-flex;gap:8px;align-items:center;flex-wrap:nowrap;white-space:nowrap;margin-left:8px;}
-      .pageServicesDash .gbox{
-        display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
-        min-width:64px;height:34px;padding:4px 6px;border-radius:10px;
-        border:1px solid rgba(255,255,255,.35);
-        color:#fff;line-height:1;
-      }
-      .pageServicesDash .gbox .gNum{font-size:12px;font-weight:1200;line-height:1.05;}
-      .pageServicesDash .gbox .gLbl{font-size:10px;font-weight:1000;line-height:1.05;opacity:.85;}
-      .pageServicesDash .gbox.gbGreen{background:rgba(26, 196, 96, .55);}
-      .pageServicesDash .gbox.gbYellow{background:rgba(255, 197, 66, .55);}
-      .pageServicesDash .gbox.gbRed{background:rgba(255, 74, 74, .55);}
-      .pageServicesDash .gbox.gbNone{background:rgba(255,255,255,.10);color:rgba(255,255,255,.85);}
+      /* Text metrics (replaces badges): color encodes grade */
+      .pageServicesDash .svcMetricSeg{display:inline-flex;gap:6px;align-items:baseline;line-height:1;}
+      .pageServicesDash .svcMetricVal{font-size:12px;font-weight:1200;}
+      .pageServicesDash .svcMetricLbl{font-size:10px;font-weight:1000;opacity:.85;}
+      .pageServicesDash .gTxtGreen{color:rgba(26, 196, 96, 1);}   /* A/B */
+      .pageServicesDash .gTxtYellow{color:rgba(255, 197, 66, 1);} /* C/D */
+      .pageServicesDash .gTxtRed{color:rgba(255, 74, 74, 1);}     /* F */
+      .pageServicesDash .gTxtNone{color:rgba(255,255,255,.82);}   /* neutral */
 
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
@@ -235,17 +231,17 @@ function renderServicesHome(){
   }
 
   function gradeClassFromPctOfBase(pctOfBase){
-    if(pctOfBase===null || pctOfBase===undefined || !Number.isFinite(Number(pctOfBase))) return 'gbNone';
+    if(pctOfBase===null || pctOfBase===undefined || !Number.isFinite(Number(pctOfBase))) return 'gTxtNone';
     const pct100 = Number(pctOfBase) * 100;
     const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (
       pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F'
     );
-    return (g==='A' || g==='B') ? 'gbGreen' : (g==='C' || g==='D') ? 'gbYellow' : (g==='F') ? 'gbRed' : 'gbNone';
+    return (g==='A' || g==='B') ? 'gTxtGreen' : (g==='C' || g==='D') ? 'gTxtYellow' : (g==='F') ? 'gTxtRed' : 'gTxtNone';
   }
 
-  function gbBoxHtml(valueText, labelText, pctOfBase){
+  function metricSegHtml(valueText, labelText, pctOfBase){
     const cls = gradeClassFromPctOfBase(pctOfBase);
-    return `<span class="gbox ${cls}"><span class="gNum">${safe(valueText)}</span><span class="gLbl">${safe(labelText)}</span></span>`;
+    return `<span class="svcMetricSeg ${cls}"><span class="svcMetricVal">${safe(valueText)}</span><span class="svcMetricLbl">${safe(labelText)}</span></span>`;
   }
 
   function techMetricRowHtml(r, idx, ctx){
@@ -292,10 +288,10 @@ function renderServicesHome(){
           <span class="svcRankNum">${rank}.</span>
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
           <span class="svcNameBadges">
-            ${gbBoxHtml(rosTxt, 'ROs', null)}
-            ${gbBoxHtml(asrRoTxt, 'ASRs/RO', asrRoPctBase)}
-            ${gbBoxHtml(soldAsrTxt, 'Sold/ASR', soldAsrPctBase)}
-            ${gbBoxHtml(soldRoTxt, 'Sold/RO', soldRoPctBase)}
+            ${metricSegHtml(rosTxt, 'ROs', null)}
+            ${metricSegHtml(asrRoTxt, 'ASRs/RO', asrRoPctBase)}
+            ${metricSegHtml(soldAsrTxt, 'Sold/ASR', soldAsrPctBase)}
+            ${metricSegHtml(soldRoTxt, 'Sold/RO', soldRoPctBase)}
           </span>
         </div>
         <div class="svcTechMeta"></div>
