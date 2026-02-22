@@ -23,8 +23,10 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;align-items:start;}
-      @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(560px,1fr));gap:14px;align-items:start;}
+      /* Make service catCards larger for Services Dashboard */
+      .pageServicesDash .catCard{padding:14px 14px 16px !important;min-height:220px;}
+      @media (max-width: 720px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
       /* Tech list inside service cards */
       .pageServicesDash .svcTechList{margin-top:10px;display:grid;gap:8px;}
@@ -464,7 +466,7 @@ function renderServicesHome(){
 
     <div class="catHdrRight" style="margin-left:auto;display:flex;align-items:center;gap:10px">
       <div class="svcGaugeWrap" style="--sz:72px">
-        ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
+        ${svcGauge((Number.isFinite(dialPct)?dialPct:0), dialLabel)}
       </div>
       ${goalRankBadge(s.serviceName)}
       <div class="catRank" style="text-align:right">
