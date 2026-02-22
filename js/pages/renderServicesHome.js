@@ -35,8 +35,9 @@ function renderServicesHome(){
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
 
       /* Status icons */
-      .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;vertical-align:middle;margin-left:6px;}
-      .pageServicesDash .svcIcon svg{width:14px;height:14px;display:block}
+      /* Make warning triangles a touch smaller + lighter visual weight */
+      .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;vertical-align:middle;margin-left:6px;}
+      .pageServicesDash .svcIcon svg{width:12px;height:12px;display:block}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
@@ -84,6 +85,9 @@ function renderServicesHome(){
 
   const techs = techsAll;
 
+  // Determine the metric used for goal comparisons/ranking
+  const rankMetric = (focus==='goal') ? goalMetric : (focus==='sold' ? 'sold' : 'asr');
+
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
   const totalAsr  = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
@@ -117,6 +121,61 @@ function renderServicesHome(){
   }
 
   const goalsAgg = _storeGoalRatios();
+
+  // --- Build a global goal-rank map for services (denominator = total services on this page) ---
+  const _allCatsSet = new Set();
+  for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
+
+  const _allServiceNames = (Array.isArray(DATA.sections)?DATA.sections:[])
+    .flatMap(s => (s?.categories||[]).map(String).filter(Boolean))
+    .filter(c => _allCatsSet.has(c));
+  const _uniqServices = Array.from(new Set(_allServiceNames));
+  const _svcRankDen = _uniqServices.length || 1;
+  const _svcGoalPct = new Map();
+  for(const svcName of _uniqServices){
+    // Build minimal aggregates
+    let ros=0, asr=0, sold=0;
+    for(const t of techsAll){
+      const row = (t.categories||{})[svcName];
+      if(!row) continue;
+      ros  += Number(row.ros)||0;
+      asr  += Number(row.asr)||0;
+      sold += Number(row.sold)||0;
+    }
+    const reqTot = ros ? (asr/ros) : NaN;
+    const closeTot = asr ? (sold/asr) : NaN;
+    const gReq = Number(getGoal(svcName,'req'));
+    const gClose = Number(getGoal(svcName,'close'));
+    const pct = (rankMetric==='sold')
+      ? ((Number.isFinite(closeTot) && Number.isFinite(gClose) && gClose>0) ? (closeTot/gClose) : NaN)
+      : ((Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN);
+    _svcGoalPct.set(svcName, pct);
+  }
+
+  const _ranked = _uniqServices
+    .slice()
+    .sort((a,b)=>{
+      const av = _svcGoalPct.get(a);
+      const bv = _svcGoalPct.get(b);
+      const aN = Number.isFinite(av) ? av : -Infinity;
+      const bN = Number.isFinite(bv) ? bv : -Infinity;
+      if(aN===bN) return a.localeCompare(b);
+      return aN < bN ? 1 : -1;
+    });
+  const _svcRankMap = new Map();
+  _ranked.forEach((name, idx)=> _svcRankMap.set(name, idx+1));
+
+  function goalRankBadge(serviceName){
+    const rk = _svcRankMap.get(serviceName) || '—';
+    const focusLbl = (rankMetric==='sold') ? 'SOLD' : 'ASR';
+    return `
+      <div class="rankFocusBadge sm" title="${safe(focusLbl)} goal rank">
+        <div class="rfbFocus">${safe(focusLbl)}</div>
+        <div class="rfbMain">${rk}</div>
+        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${fmtInt(_svcRankDen)}</span></div>
+      </div>
+    `;
+  }
 
   // Top-right block
   let topVal = asrPerRo;
@@ -224,8 +283,8 @@ function renderServicesHome(){
 
   function iconSvg(kind){
     if(kind==='good') return `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(26,196,96,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><path d="M4.3 8.3 L7 11 L12 5.6" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,2 15,14 1,14" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="12" text-anchor="middle" font-size="12" font-weight="900" fill="rgba(255,255,255,.95)">!</text></svg>`;
-    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,2 15,14 1,14" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="12" text-anchor="middle" font-size="12" font-weight="900" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
   }
 
   function iconHtml(pctOfBase){
@@ -358,17 +417,18 @@ function renderServicesHome(){
       const pctOfGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN;
       const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN;
 
-      const dialPct = (focus==='goal')
-        ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
-        : (focus==='sold' ? pctVsAvgClose : pctVsAvgReq);
+      // Always use Goal dial for all services (metric depends on Focus)
+      const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
+      const dialLabel = 'Goal%';
 
-      const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
+      const metricVal = (rankMetric==='sold') ? s.closeTot : s.reqTot;
+      const metricTxt = (rankMetric==='sold') ? fmtPct(metricVal) : fmt1(metricVal,2);
 
-      const metricPct = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
-      const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricPct) : fmtPctPlain(metricPct);
-
-      const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
-      const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
+      const goalForThis = (rankMetric==='sold') ? gClose : gReq;
+      const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
+        ? '—'
+        : (rankMetric==='sold' ? fmtPct(goalForThis) : fmt1(goalForThis,2))
+      }`;
 
       // Baselines for status icons
       storeAvgRos = s.storeAvgRos;
@@ -409,8 +469,9 @@ function renderServicesHome(){
               </div>
             </div>
             <div class="catHdrRight" style="text-align:right">
-              <div class="catRank" style="font-weight:1200">${safe(metricTxt)}</div>
-              ${focus==='goal' ? `<div class="byAsr" style="display:block">${safe(goalTxt)}</div>` : ''}
+              ${goalRankBadge(s.serviceName)}
+              <div class="catRank" style="font-weight:1200;margin-top:8px">${safe(metricTxt)}</div>
+              <div class="byAsr" style="display:block">${safe(goalTxt)}</div>
             </div>
           </div>
 
