@@ -419,10 +419,11 @@ function renderServicesHome(){
 
       // Always use Goal dial for all services (metric depends on Focus)
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
-      const dialLabel = 'Goal%';
+      const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
       const metricVal = (rankMetric==='sold') ? s.closeTot : s.reqTot;
       const metricTxt = (rankMetric==='sold') ? fmtPct(metricVal) : fmt1(metricVal,2);
+      const metricLbl = (rankMetric==='sold') ? 'Sold/ASR' : 'ASRs/RO';
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
@@ -465,13 +466,16 @@ function renderServicesHome(){
             <div style="min-width:0">
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
-                ${fmtInt(s.asr)} ASR • ${fmtInt(s.sold)} Sold • ${fmtInt(s.totalRos)} ROs
+                ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
               </div>
             </div>
-            <div class="catHdrRight" style="text-align:right">
-              ${goalRankBadge(s.serviceName)}
-              <div class="catRank" style="font-weight:1200;margin-top:8px">${safe(metricTxt)}</div>
+            <div class="catHdrRight" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
               <div class="byAsr" style="display:block">${safe(goalTxt)}</div>
+              ${goalRankBadge(s.serviceName)}
+              <div class="catRank" style="font-weight:1200;line-height:1">
+                <div style="font-size:28px">${safe(metricTxt)}</div>
+                <div class="byAsr" style="display:block;margin-top:4px">${safe(metricLbl)}</div>
+              </div>
             </div>
           </div>
 
