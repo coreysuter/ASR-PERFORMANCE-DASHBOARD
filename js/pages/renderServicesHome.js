@@ -12,24 +12,6 @@ function renderServicesHome(){
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
-      /* Top area: 50/50 header + category rows */
-      .pageServicesDash .svcDashTopGrid{display:grid;grid-template-columns: 1fr 1fr;gap:14px;align-items:start;}
-      @media(max-width:1100px){ .pageServicesDash .svcDashTopGrid{grid-template-columns:1fr;}}
-
-      /* Header panel sits in the left grid cell (effectively 50% width on desktop) */
-      .pageServicesDash .svcDashTopGrid .techHeaderPanel{margin-bottom:0 !important;}
-
-      /* Category rows panel */
-      .pageServicesDash .svcDashCatsPanel{padding:0 !important;}
-      .pageServicesDash .svcDashCatsPanel .phead{padding:14px !important;}
-      .pageServicesDash .svcDashCatsPanel .list{padding:12px 12px 14px !important;}
-      .pageServicesDash .svcDashCatsPanel .h2{font-size:18px !important;letter-spacing:.4px;}
-      .pageServicesDash .svcDashCatsPanel .sub{margin-top:2px;}
-      .pageServicesDash .svcDashCatsPanel .dashTechRow{padding:10px 12px !important;}
-      .pageServicesDash .svcDashCatsPanel .dashTechRow .dashLeft .val.name{font-size:22px !important;}
-      .pageServicesDash .svcDashCatsPanel .dashTechRow .techNameStats .tnLbl{font-size:11px !important;line-height:1.05 !important;}
-      .pageServicesDash .svcDashCatsPanel .dashTechRow .techNameStats .tnVal{font-size:15px !important;line-height:1.05 !important;}
-
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
@@ -99,6 +81,55 @@ function renderServicesHome(){
   const techs = teamKey === 'all'
     ? techsAll
     : techsAll.filter(t => String(t.team||'').toLowerCase() === teamKey);
+
+  // Metric used for goal dial + goal ranking badge on service headers
+  const focusMetric = (focus==='goal') ? goalMetric : focus; // 'asr' | 'sold'
+
+  // Build global service goal rank map (denominator = total services displayed)
+  const _svcCatsSet = new Set();
+  for(const t of techs){ for(const k of Object.keys(t.categories||{})) _svcCatsSet.add(k); }
+  const _svcList = (Array.isArray(DATA.sections)?DATA.sections:[])
+    .flatMap(sec => (sec?.categories||[]).map(String).filter(Boolean))
+    .filter(name => _svcCatsSet.has(name));
+  const _uniqSvcs = Array.from(new Set(_svcList));
+  const _svcDen = _uniqSvcs.length || 1;
+  const _svcScore = new Map();
+  for(const svcName of _uniqSvcs){
+    let ros=0, asr=0, sold=0;
+    for(const t of techs){
+      const row = (t.categories||{})[svcName];
+      if(!row) continue;
+      ros  += Number(row.ros)||0;
+      asr  += Number(row.asr)||0;
+      sold += Number(row.sold)||0;
+    }
+    const reqTot = ros ? (asr/ros) : NaN;      // ASRs/RO (decimal)
+    const closeTot = asr ? (sold/asr) : NaN;   // Sold/ASR (ratio)
+    const gReq = Number(getGoal(svcName,'req'));
+    const gClose = Number(getGoal(svcName,'close'));
+    const score = (focusMetric==='sold')
+      ? ((Number.isFinite(closeTot) && Number.isFinite(gClose) && gClose>0) ? (closeTot/gClose) : NaN)
+      : ((Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN);
+    _svcScore.set(svcName, score);
+  }
+  const _svcRanked = _uniqSvcs.slice().sort((a,b)=>{
+    const av = _svcScore.get(a);
+    const bv = _svcScore.get(b);
+    const aN = Number.isFinite(av) ? av : -Infinity;
+    const bN = Number.isFinite(bv) ? bv : -Infinity;
+    if(aN===bN) return a.localeCompare(b);
+    return aN < bN ? 1 : -1;
+  });
+  const _svcRankMap = new Map();
+  _svcRanked.forEach((n,i)=>_svcRankMap.set(n,i+1));
+
+  function serviceGoalRankBadge(serviceName){
+    const rk = _svcRankMap.get(serviceName) || '—';
+    const badgeFocusKey = (focusMetric==='sold') ? 'goal_sold' : 'goal_asr';
+    return (typeof rankBadgeHtmlDash === 'function')
+      ? rankBadgeHtmlDash(rk, _svcDen, badgeFocusKey, 'sm')
+      : '';
+  }
 
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
@@ -227,178 +258,6 @@ function renderServicesHome(){
     </div>
   `;
 
-  // ---- Category rows next to header (mimic techRows from Technician Dashboard) ----
-  const dashSections = (DATA.sections||[]).filter(s=>s && s.name && Array.isArray(s.categories));
-
-  function compClass(actual, baseline){
-    if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
-    const r = actual / baseline;
-    if(r >= 0.80) return " compG";
-    if(r >= 0.60) return " compY";
-    return " compR";
-  }
-
-  function sectionKey(name){
-    return String(name||"").toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
-  }
-
-  function sumGoalsForSection(sec){
-    const cats = (sec.categories||[]).map(x=>String(x||"").trim()).filter(Boolean);
-    let reqSum = 0;
-    let soldRoSum = 0;
-    for(const c of cats){
-      const gReq = Number(getGoal(c,'req'));
-      const gClose = Number(getGoal(c,'close'));
-      if(Number.isFinite(gReq) && gReq>0){
-        reqSum += gReq;
-        if(Number.isFinite(gClose) && gClose>=0) soldRoSum += (gReq * gClose);
-      }
-    }
-    const closeAvg = (Number.isFinite(reqSum) && reqSum>0) ? (soldRoSum/reqSum) : null;
-    return {reqSum: reqSum||0, soldRoSum: soldRoSum||0, closeAvg};
-  }
-
-  function sectionActuals(sec){
-    const cats = new Set((sec.categories||[]).map(x=>String(x||"").trim()).filter(Boolean));
-    let asr=0, sold=0;
-    for(const t of techs){
-      const tc = t.categories || {};
-      for(const cat of cats){
-        const c = tc[cat];
-        if(!c) continue;
-        asr += (Number(c.asr)||0);
-        sold += (Number(c.sold)||0);
-      }
-    }
-    const ros = totalRos;
-    const asrpr = (Number.isFinite(ros) && ros>0) ? (asr/ros) : null;
-    const soldro = (Number.isFinite(ros) && ros>0) ? (sold/ros) : null;
-    const soldpct = (Number.isFinite(asr) && asr>0) ? (sold/asr) : null;
-    const soldasr = soldpct;
-    return {ros, asr, sold, asrpr, soldro, soldpct, soldasr};
-  }
-
-  const secStats = dashSections.map(sec=>{
-    const g = sumGoalsForSection(sec);
-    const a = sectionActuals(sec);
-    const asrGoalRatio = (Number.isFinite(a.asrpr) && Number.isFinite(g.reqSum) && g.reqSum>0) ? (a.asrpr/g.reqSum) : null;
-    const soldGoalRatio = (Number.isFinite(a.soldpct) && Number.isFinite(g.closeAvg) && g.closeAvg>0) ? (a.soldpct/g.closeAvg) : null;
-    return {sec, g, a, asrGoalRatio, soldGoalRatio};
-  });
-
-  function scoreForBadge(item){
-    // Badge ALWAYS shows goal progress; metric depends on Focus selection
-    if(focus==='goal') return (goalMetric==='sold') ? item.soldGoalRatio : item.asrGoalRatio;
-    if(focus==='sold') return item.soldGoalRatio;
-    return item.asrGoalRatio;
-  }
-
-  const rankedSecs = secStats.slice().sort((x,y)=>{
-    const a = scoreForBadge(x);
-    const b = scoreForBadge(y);
-    return (Number.isFinite(b)?b:-999) - (Number.isFinite(a)?a:-999);
-  });
-  const secRank = new Map();
-  rankedSecs.forEach((it,i)=>secRank.set(it.sec.name, {rank:i+1,total:rankedSecs.length}));
-
-  function categoryRowHtml(it){
-    const {sec, g, a, asrGoalRatio, soldGoalRatio} = it;
-    const rk = secRank.get(sec.name) || {rank:null,total:null};
-
-    // Shade pills using GOAL as the comparison baseline (no Comparison filter on this page)
-    const asrGoalTarget = (Number.isFinite(g.reqSum) && g.reqSum>0) ? g.reqSum : null;
-    const soldGoalTarget = (Number.isFinite(g.closeAvg) && g.closeAvg>0) ? g.closeAvg : null;
-    const soldRoGoalTarget = (Number.isFinite(g.soldRoSum) && g.soldRoSum>0) ? g.soldRoSum : null;
-
-    const clsAsrpr    = compClass(a.asrpr, asrGoalTarget);
-    const clsSoldAsr  = compClass(a.soldasr, soldGoalTarget);
-    const clsSoldRo   = compClass(a.soldro, soldRoGoalTarget);
-    const clsAsrGoal  = compClass(asrGoalRatio, 1);
-    const clsSoldGoal = compClass(soldGoalRatio, 1);
-
-    const badgeType = (focus==='goal')
-      ? (goalMetric==='sold' ? 'goal_sold' : 'goal_asr')
-      : (focus==='sold' ? 'goal_sold' : 'goal_asr');
-
-    const secK = sectionKey(sec.name);
-
-    return `
-      <div class="techRow dashTechRow" data-sec="${safe(secK)}" role="button" tabindex="0" style="cursor:pointer">
-        <div class="dashLeft">
-          <div class="val name" style="font-size:22px">
-            <span>${safe(sec.name)}</span>
-          </div>
-
-          <div class="techNameStats">
-            <div class="tnRow tnRow1">
-              <span class="tnMini"><span class="tnLbl">Services</span><span class="tnVal">${fmtInt((sec.categories||[]).length)}</span></span>
-              <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">Techs</span><span class="tnVal">${fmtInt(techs.length)}</span></span>
-            </div>
-            <div class="tnRow tnRow2">
-              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(a.asr)}</span></span>
-              <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(a.sold)}</span></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="dashRight">
-          <div class="pills">
-            ${focus==='goal' ? `
-              <div class="pillGroup pillGroupNonGoal">
-                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${a.asrpr==null?"—":fmt1(a.asrpr,1)}</div></div>
-                <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${a.soldasr==null?"—":fmtPct(a.soldasr)}</div></div>
-                <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${a.soldro==null?"—":fmt1(a.soldro,2)}</div></div>
-              </div>
-              <div class="pillGroup pillGroupGoal">
-                <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR GOAL</div><div class="v">${asrGoalRatio==null?"—":fmtPct(asrGoalRatio)}</div></div>
-                <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">SOLD GOAL</div><div class="v">${soldGoalRatio==null?"—":fmtPct(soldGoalRatio)}</div></div>
-              </div>
-            ` : (focus==='sold' ? `
-              <div class="pillGroup pillGroupA">
-                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${a.asrpr==null?"—":fmt1(a.asrpr,1)}</div></div>
-                <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${asrGoalRatio==null?"—":fmtPct(asrGoalRatio)}</div></div>
-              </div>
-              <div class="pillGroup pillGroupB focusGroup">
-                <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${a.soldasr==null?"—":fmtPct(a.soldasr)}</div></div>
-                <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${a.soldro==null?"—":fmt1(a.soldro,2)}</div></div>
-                <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${soldGoalRatio==null?"—":fmtPct(soldGoalRatio)}</div></div>
-              </div>
-            ` : `
-              <div class="pillGroup pillGroupB">
-                <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${a.soldasr==null?"—":fmtPct(a.soldasr)}</div></div>
-                <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${a.soldro==null?"—":fmt1(a.soldro,2)}</div></div>
-                <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${soldGoalRatio==null?"—":fmtPct(soldGoalRatio)}</div></div>
-              </div>
-              <div class="pillGroup pillGroupA focusGroup">
-                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${a.asrpr==null?"—":fmt1(a.asrpr,1)}</div></div>
-                <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${asrGoalRatio==null?"—":fmtPct(asrGoalRatio)}</div></div>
-              </div>
-            `)}
-          </div>
-
-          <div class="techMetaRight">
-            ${rankBadgeHtmlDash(rk.rank??"—", rk.total??"—", badgeType, "sm")}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  const categoryRowsHtml = secStats.map(categoryRowHtml).join('');
-  const catsPanel = `
-    <div class="panel svcDashCatsPanel">
-      <div class="phead">
-        <div>
-          <div class="h2">Categories</div>
-          <div class="sub">Pills shaded vs Goal • Badge shows Goal rank</div>
-        </div>
-      </div>
-      <div class="list">${categoryRowsHtml || `<div class="notice">No categories found.</div>`}</div>
-    </div>
-  `;
-
   // ---- Helpers for cards + tech list ----
   function safeSvcIdLocal(cat){
     return "svc-" + String(cat||"").toLowerCase()
@@ -464,7 +323,7 @@ function renderServicesHome(){
     const secName = String(sec?.name||'').trim();
     if(!secName) return '';
 
-    const openKey = sectionKey(secName);
+    const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
     const isOpen = !!st.open[openKey];
 
     // Only include services that exist in dataset (intersection with any tech categories)
@@ -491,17 +350,18 @@ function renderServicesHome(){
       const pctOfGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN;
       const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN;
 
-      const dialPct = (focus==='goal')
-        ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
-        : (focus==='sold' ? pctVsAvgClose : pctVsAvgReq);
+      // GOAL dial for all services (metric depends on Focus)
+      const dialPct = (focusMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
+      const dialLabel = (focusMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
+      // Focus stat (white value with grey title beneath)
+      const focusVal = (focusMetric==='sold') ? s.closeTot : s.reqTot;
+      const focusTxt = (focusMetric==='sold')
+        ? fmtPct(focusVal)
+        : (Number.isFinite(focusVal) ? String(fmtDec(focusVal,2)).replace(/^0(?=\.)/, '') : '—');
+      const focusLbl = (focusMetric==='sold') ? 'Sold/ASR' : 'ASRs/RO';
 
-      const metricPct = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
-      const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricPct) : fmtPctPlain(metricPct);
-
-      const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
-      const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
+      const rankBadge = serviceGoalRankBadge(s.serviceName);
 
       // Tech list sorting
       const rows = s.techRows.slice().map(r=>{
@@ -526,18 +386,25 @@ function renderServicesHome(){
       return `
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
           <div class="catHeader">
-            <div class="svcGaugeWrap" style="--sz:72px">
-              ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
-            </div>
             <div style="min-width:0">
               <div class="catTitle">${safe(s.serviceName)}</div>
-              <div class="muted" style="margin-top:2px">
-                ${fmtInt(s.asr)} ASR • ${fmtInt(s.sold)} Sold • ${fmtInt(s.totalRos)} ROs
+              <div class="svcStatsLine" style="margin-top:2px">
+                <span class="svcStatItem">${fmtInt(s.totalRos)} ROs</span>
+                <span class="svcStatItem">${fmtInt(s.asr)} ASRs</span>
+                <span class="svcStatItem">${fmtInt(s.sold)} Sold</span>
               </div>
             </div>
-            <div class="catHdrRight" style="text-align:right">
-              <div class="catRank" style="font-weight:1200">${safe(metricTxt)}</div>
-              ${focus==='goal' ? `<div class="byAsr" style="display:block">${safe(goalTxt)}</div>` : ''}
+
+            <!-- One row, in order: dial, ranking badge, focus stat. No extra Goal text. -->
+            <div class="catHdrRight" style="display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:nowrap">
+              <div class="svcGaugeWrap" style="--sz:72px;flex:0 0 auto">
+                ${svcGauge(Number.isFinite(dialPct) ? dialPct : 0, dialLabel)}
+              </div>
+              <div style="flex:0 0 auto">${rankBadge}</div>
+              <div class="svcFocusStat" style="text-align:right;min-width:78px">
+                <div class="svcFocusVal" style="color:#fff;font-weight:1200;line-height:1.05">${safe(focusTxt)}</div>
+                <div class="svcFocusLbl" style="color:rgba(255,255,255,.55);font-weight:1000;font-size:12px;margin-top:2px">${safe(focusLbl)}</div>
+              </div>
             </div>
           </div>
 
@@ -566,23 +433,7 @@ function renderServicesHome(){
   const sectionsHtml = sections.map(renderSection).join('');
 
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="pageServicesDash">
-    <div class="svcDashTopGrid">${header}${catsPanel}</div>
-    <div class="svcDashSections" style="margin-top:14px">${sectionsHtml}</div>
-  </div>`;
-
-  // Category row interactions: click jumps to and expands the matching section below
-  function openSectionByKey(secKey){
-    const det = app.querySelector(`details.svcDashSec[data-sec="${secKey}"]`);
-    if(!det) return;
-    det.open = true;
-    det.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-  app.querySelectorAll('.svcDashCatsPanel .dashTechRow[data-sec]').forEach(row=>{
-    const k = row.getAttribute('data-sec');
-    row.addEventListener('click', ()=>openSectionByKey(k));
-    row.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); openSectionByKey(k); } });
-  });
+  app.innerHTML = `<div class="pageServicesDash">${header}<div class="svcDashSections">${sectionsHtml}</div></div>`;
 
   // Wire events
   // Filters
