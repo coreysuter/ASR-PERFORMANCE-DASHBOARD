@@ -33,6 +33,19 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
+
+      /* Grade badge (letter only) */
+      .pageServicesDash .gb{
+        display:inline-flex;align-items:center;justify-content:center;
+        width:18px;height:18px;border-radius:6px;
+        border:1px solid rgba(255,255,255,.35);
+        font-size:11px;font-weight:1100;line-height:1;
+        color:#fff;margin-left:6px;vertical-align:middle;
+      }
+      .pageServicesDash .gb.gbGreen{background:rgba(26, 196, 96, .55);}
+      .pageServicesDash .gb.gbYellow{background:rgba(255, 197, 66, .55);}
+      .pageServicesDash .gb.gbRed{background:rgba(255, 74, 74, .55);}
+      .pageServicesDash .gb.gbNone{background:rgba(255,255,255,.10);color:rgba(255,255,255,.70);}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
@@ -81,55 +94,6 @@ function renderServicesHome(){
   const techs = teamKey === 'all'
     ? techsAll
     : techsAll.filter(t => String(t.team||'').toLowerCase() === teamKey);
-
-  // Metric used for goal dial + goal ranking badge on service headers
-  const focusMetric = (focus==='goal') ? goalMetric : focus; // 'asr' | 'sold'
-
-  // Build global service goal rank map (denominator = total services displayed)
-  const _svcCatsSet = new Set();
-  for(const t of techs){ for(const k of Object.keys(t.categories||{})) _svcCatsSet.add(k); }
-  const _svcList = (Array.isArray(DATA.sections)?DATA.sections:[])
-    .flatMap(sec => (sec?.categories||[]).map(String).filter(Boolean))
-    .filter(name => _svcCatsSet.has(name));
-  const _uniqSvcs = Array.from(new Set(_svcList));
-  const _svcDen = _uniqSvcs.length || 1;
-  const _svcScore = new Map();
-  for(const svcName of _uniqSvcs){
-    let ros=0, asr=0, sold=0;
-    for(const t of techs){
-      const row = (t.categories||{})[svcName];
-      if(!row) continue;
-      ros  += Number(row.ros)||0;
-      asr  += Number(row.asr)||0;
-      sold += Number(row.sold)||0;
-    }
-    const reqTot = ros ? (asr/ros) : NaN;      // ASRs/RO (decimal)
-    const closeTot = asr ? (sold/asr) : NaN;   // Sold/ASR (ratio)
-    const gReq = Number(getGoal(svcName,'req'));
-    const gClose = Number(getGoal(svcName,'close'));
-    const score = (focusMetric==='sold')
-      ? ((Number.isFinite(closeTot) && Number.isFinite(gClose) && gClose>0) ? (closeTot/gClose) : NaN)
-      : ((Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN);
-    _svcScore.set(svcName, score);
-  }
-  const _svcRanked = _uniqSvcs.slice().sort((a,b)=>{
-    const av = _svcScore.get(a);
-    const bv = _svcScore.get(b);
-    const aN = Number.isFinite(av) ? av : -Infinity;
-    const bN = Number.isFinite(bv) ? bv : -Infinity;
-    if(aN===bN) return a.localeCompare(b);
-    return aN < bN ? 1 : -1;
-  });
-  const _svcRankMap = new Map();
-  _svcRanked.forEach((n,i)=>_svcRankMap.set(n,i+1));
-
-  function serviceGoalRankBadge(serviceName){
-    const rk = _svcRankMap.get(serviceName) || '—';
-    const badgeFocusKey = (focusMetric==='sold') ? 'goal_sold' : 'goal_asr';
-    return (typeof rankBadgeHtmlDash === 'function')
-      ? rankBadgeHtmlDash(rk, _svcDen, badgeFocusKey, 'sm')
-      : '';
-  }
 
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
@@ -271,15 +235,50 @@ function renderServicesHome(){
     if(pctOfBase >= 0.60) return "bYellow";
     return "bRed";
   }
+  function fmtDec(v,d=2,drop0=true){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return "—";
+    let s = n.toFixed(d);
+    if(drop0 && s.startsWith("0.")) s = s.slice(1);
+    if(drop0 && s.startsWith("-0.")) s = "-" + s.slice(2);
+    return s;
+  }
+
+
+  function gradeFromPctOfGoal(pctOfGoal){
+    // pctOfGoal is a ratio (1.0 = 100% of goal)
+    if(pctOfGoal===null || pctOfGoal===undefined || !Number.isFinite(Number(pctOfGoal))) return {g:'—', cls:'gbNone'};
+    const pct100 = Number(pctOfGoal) * 100;
+    const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (
+      pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F'
+    );
+    const cls = (g==='A' || g==='B') ? 'gbGreen' : (g==='C' || g==='D') ? 'gbYellow' : (g==='F') ? 'gbRed' : 'gbNone';
+    return {g, cls};
+  }
+
+  function gbHtml(pctOfGoal){
+    const {g, cls} = gradeFromPctOfGoal(pctOfGoal);
+    return `<span class="gb ${cls}">${safe(g)}</span>`;
+  }
 
   function techMetricRowHtml(r, idx, mode, goalMetricLocal, goalPct){
     const rank = idx + 1;
 
-    const metricLabel = (mode==='sold' || (mode==='goal' && goalMetricLocal==='sold')) ? 'SOLD' : 'ASR';
-    const metricCount = (metricLabel==='SOLD') ? r.sold : r.asr;
+    // Metrics for list:
+    // - ROs
+    // - ASRs/RO (rate) + grade badge (vs goal req)
+    // - Sold/ASR (close rate) + grade badge (vs goal close)
+    // NOTE: Sold/RO removed per instruction.
+    const asrRoPctTxt = fmtDec(r.req,2,true);
+    const soldAsrPctTxt = fmtPct(r.close);
 
-    const pctText = (metricLabel==='SOLD') ? fmtPct(r.close) : fmtPctPlain(r.req);
+    // Goal comparisons (always vs GOAL on this page)
+    const gReq = Number(getGoal(r.serviceName || r._serviceName || '', 'req'));
+    const gClose = Number(getGoal(r.serviceName || r._serviceName || '', 'close'));
+    const asrPctOfGoal = (Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null;
+    const soldPctOfGoal = (Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null;
 
+    // If mode is GOAL, also show % of goal next to the primary % (same as previous behavior)
     const goalTxt = (mode==='goal')
       ? ` <span style="opacity:.9">(${goalPct===null? '—' : (Math.round(goalPct*100)+'%')} OF GOAL)</span>`
       : '';
@@ -291,7 +290,7 @@ function renderServicesHome(){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          ROs ${fmtInt(r.ros)} • ${metricLabel} ${fmtInt(metricCount)} • <b>${safe(pctText)}</b>${goalTxt}
+          ROs ${fmtInt(r.ros)} • ASRs/RO <b>${safe(asrRoPctTxt)}</b>${gbHtml(asrPctOfGoal)} • Sold/ASR <b>${safe(soldAsrPctTxt)}</b>${gbHtml(soldPctOfGoal)}${goalTxt}
         </div>
       </div>
     `;
@@ -309,7 +308,7 @@ function renderServicesHome(){
       asr += a; sold += so; totalRos += rosTech;
       const req = rosTech ? (a/rosTech) : 0; // ASR/RO (ratio)
       const close = a ? (so/a) : 0; // Sold% (ratio)
-      techRows.push({id:t.id, name:t.name, ros:rosTech, asr:a, sold:so, req, close});
+      techRows.push({id:t.id, name:t.name, ros:rosTech, asr:a, sold:so, req, close, serviceName});
     }
 
     const reqTot = totalRos ? (asr/totalRos) : 0;
@@ -350,18 +349,17 @@ function renderServicesHome(){
       const pctOfGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN;
       const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN;
 
-      // GOAL dial for all services (metric depends on Focus)
-      const dialPct = (focusMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
-      const dialLabel = (focusMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
+      const dialPct = (focus==='goal')
+        ? (goalMetric==='sold' ? pctOfGoalClose : pctOfGoalReq)
+        : (focus==='sold' ? pctVsAvgClose : pctVsAvgReq);
 
-      // Focus stat (white value with grey title beneath)
-      const focusVal = (focusMetric==='sold') ? s.closeTot : s.reqTot;
-      const focusTxt = (focusMetric==='sold')
-        ? fmtPct(focusVal)
-        : (Number.isFinite(focusVal) ? String(fmtDec(focusVal,2)).replace(/^0(?=\.)/, '') : '—');
-      const focusLbl = (focusMetric==='sold') ? 'Sold/ASR' : 'ASRs/RO';
+      const dialLabel = (focus==='goal') ? 'Goal%' : (focus==='sold' ? 'Sold%' : 'ASR%');
 
-      const rankBadge = serviceGoalRankBadge(s.serviceName);
+      const metricPct = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? s.closeTot : s.reqTot;
+      const metricTxt = (focus==='sold' || (focus==='goal' && goalMetric==='sold')) ? fmtPct(metricPct) : fmtPctPlain(metricPct);
+
+      const goalForThis = (focus==='goal') ? (goalMetric==='sold' ? gClose : gReq) : null;
+      const goalTxt = (focus==='goal') ? `Goal ${goalForThis===null||!Number.isFinite(goalForThis) ? '—' : (goalMetric==='sold'?fmtPct(goalForThis):fmtPctPlain(goalForThis))}` : '';
 
       // Tech list sorting
       const rows = s.techRows.slice().map(r=>{
@@ -386,23 +384,18 @@ function renderServicesHome(){
       return `
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
           <div class="catHeader">
+            <div class="svcGaugeWrap" style="--sz:72px">
+              ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
+            </div>
             <div style="min-width:0">
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
-                ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
+                ${fmtInt(s.asr)} ASR • ${fmtInt(s.sold)} Sold • ${fmtInt(s.totalRos)} ROs
               </div>
             </div>
-
-            <!-- One row, in order: dial, ranking badge, focus stat. No extra Goal text. -->
-            <div class="catHdrRight" style="display:flex;align-items:center;gap:10px;flex:0 0 auto">
-              <div class="svcGaugeWrap" style="--sz:72px;flex:0 0 auto">
-                ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
-              </div>
-              <div style="flex:0 0 auto">${rankBadge}</div>
-              <div class="svcFocusStat" style="text-align:right;min-width:78px">
-                <div class="svcFocusVal" style="color:#fff;font-weight:1200;line-height:1.05">${safe(focusTxt)}</div>
-                <div class="svcFocusLbl" style="color:rgba(255,255,255,.55);font-weight:1000;font-size:12px;margin-top:2px">${safe(focusLbl)}</div>
-              </div>
+            <div class="catHdrRight" style="text-align:right">
+              <div class="catRank" style="font-weight:1200">${safe(metricTxt)}</div>
+              ${focus==='goal' ? `<div class="byAsr" style="display:block">${safe(goalTxt)}</div>` : ''}
             </div>
           </div>
 
