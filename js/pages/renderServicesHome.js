@@ -58,6 +58,15 @@ function renderServicesHome(){
 
   const st = UI.servicesDash;
 
+  // Local helper: format decimals without relying on base.js helpers.
+  // Returns a string like "0.14" (caller may strip leading 0 if desired).
+  function fmtDec(n, places=2){
+    const x = Number(n);
+    if(!Number.isFinite(x)) return "—";
+    const p = Math.max(0, Math.min(6, Number(places)||0));
+    return x.toFixed(p);
+  }
+
   // Read querystring from hash (optional deep-link)
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
