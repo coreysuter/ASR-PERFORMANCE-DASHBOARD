@@ -23,7 +23,7 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;align-items:start;}
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
       /* Tech list inside service cards */
@@ -44,6 +44,14 @@ function renderServicesHome(){
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
 
+
+      /* Cat header layout fix (dial -> badge -> focus stat, with title in the middle) */
+      .pageServicesDash .catHeader{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;}
+      .pageServicesDash .catHdrBadgeWrap{display:flex;align-items:center;justify-content:flex-end;}
+      .pageServicesDash .catFocusStat{display:flex;flex-direction:column;align-items:flex-end;line-height:1.05;}
+      .pageServicesDash .catFocusVal{font-size:28px;font-weight:1200;color:#fff;}
+      .pageServicesDash .catFocusLbl{font-size:12px;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.2px;margin-top:4px;}
+    
       /* Header filters sizing (local to this page) */
       .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
@@ -290,6 +298,17 @@ function renderServicesHome(){
   function iconHtml(pctOfBase){
     return `<span class="svcIcon">${iconSvg(iconKindFromPctOfBase(pctOfBase))}</span>`;
   }
+
+  // Decimal formatter that drops leading zero (0.14 -> .14)
+  function fmtDecNo0(x, dp=2){
+    const n = Number(x);
+    if(!Number.isFinite(n)) return "—";
+    let s = n.toFixed(dp);
+    if(s.startsWith("0.")) s = s.slice(1);
+    if(s.startsWith("-0.")) s = "-" + s.slice(2);
+    return s;
+  }
+
   function safeSvcIdLocal(cat){
     return "svc-" + String(cat||"").toLowerCase()
       .replace(/&/g,"and")
@@ -422,14 +441,9 @@ function renderServicesHome(){
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
       const metricVal = (rankMetric==='sold') ? s.closeTot : s.reqTot;
-      const metricTxt = (rankMetric==='sold') ? fmtPct(metricVal) : fmt1(metricVal,2);
+      const metricTxt = (rankMetric==='sold') ? fmtPct(metricVal) : fmtDecNo0(metricVal,2);
       const metricLbl = (rankMetric==='sold') ? 'Sold/ASR' : 'ASRs/RO';
 
-      const goalForThis = (rankMetric==='sold') ? gClose : gReq;
-      const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
-        ? '—'
-        : (rankMetric==='sold' ? fmtPct(goalForThis) : fmt1(goalForThis,2))
-      }`;
 
       // Baselines for status icons
       storeAvgRos = s.storeAvgRos;
@@ -469,15 +483,15 @@ function renderServicesHome(){
                 ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
               </div>
             </div>
-            <div class="catHdrRight" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-              <div class="byAsr" style="display:block">${safe(goalTxt)}</div>
+            <div class="catHdrBadgeWrap">
               ${goalRankBadge(s.serviceName)}
-              <div class="catRank" style="font-weight:1200;line-height:1">
-                <div style="font-size:28px">${safe(metricTxt)}</div>
-                <div class="byAsr" style="display:block;margin-top:4px">${safe(metricLbl)}</div>
-              </div>
+            </div>
+            <div class="catFocusStat">
+              <div class="catFocusVal">${safe(metricTxt)}</div>
+              <div class="catFocusLbl">${safe(metricLbl)}</div>
             </div>
           </div>
+
 
           <div class="subHdr">TECHNICIANS</div>
           <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
