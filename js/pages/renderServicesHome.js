@@ -23,10 +23,8 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(560px,1fr));gap:14px;align-items:start;}
-      /* Make service catCards larger for Services Dashboard */
-      .pageServicesDash .catCard{padding:14px 14px 16px !important;min-height:220px;}
-      @media (max-width: 720px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;align-items:start;}
+      @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
       /* Tech list inside service cards */
       .pageServicesDash .svcTechList{margin-top:10px;display:grid;gap:8px;}
@@ -427,6 +425,12 @@ function renderServicesHome(){
       const metricTxt = (rankMetric==='sold') ? fmtPct(metricVal) : fmt1(metricVal,2);
       const metricLbl = (rankMetric==='sold') ? 'Sold/ASR' : 'ASRs/RO';
 
+      const goalForThis = (rankMetric==='sold') ? gClose : gReq;
+      const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
+        ? '—'
+        : (rankMetric==='sold' ? fmtPct(goalForThis) : fmt1(goalForThis,2))
+      }`;
+
       // Baselines for status icons
       storeAvgRos = s.storeAvgRos;
       storeAvgAsr = s.storeAvgAsr;
@@ -455,28 +459,27 @@ function renderServicesHome(){
 
       return `
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
-          <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
-  <div class="catHeader">
-    <div style="min-width:0">
-      <div class="catTitle">${safe(s.serviceName)}</div>
-      <div class="muted" style="margin-top:2px">
-        ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
-      </div>
-    </div>
+          <div class="catHeader">
+            <div class="svcGaugeWrap" style="--sz:72px">
+              ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
+            </div>
+            <div style="min-width:0">
+              <div class="catTitle">${safe(s.serviceName)}</div>
+              <div class="muted" style="margin-top:2px">
+                ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
+              </div>
+            </div>
+            <div class="catHdrRight" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+              <div class="byAsr" style="display:block">${safe(goalTxt)}</div>
+              ${goalRankBadge(s.serviceName)}
+              <div class="catRank" style="font-weight:1200;line-height:1">
+                <div style="font-size:28px">${safe(metricTxt)}</div>
+                <div class="byAsr" style="display:block;margin-top:4px">${safe(metricLbl)}</div>
+              </div>
+            </div>
+          </div>
 
-    <div class="catHdrRight" style="margin-left:auto;display:flex;align-items:center;gap:10px">
-      <div class="svcGaugeWrap" style="--sz:72px">
-        ${svcGauge((Number.isFinite(dialPct)?dialPct:0), dialLabel)}
-      </div>
-      ${goalRankBadge(s.serviceName)}
-      <div class="catRank" style="text-align:right">
-        <div style="font-size:28px;font-weight:1200;line-height:1;color:#fff">${safe(metricTxt)}</div>
-        <div class="byAsr" style="display:block;margin-top:4px;color:rgba(255,255,255,.55)">${safe(metricLbl)}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="subHdr">TECHNICIANS</div>
+          <div class="subHdr">TECHNICIANS</div>
           <div class="svcTechList">${techList || `<div class="notice" style="padding:8px 2px">No technicians</div>`}</div>
         </div>
       `;
