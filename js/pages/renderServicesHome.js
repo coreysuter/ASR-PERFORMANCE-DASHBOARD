@@ -23,8 +23,22 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;align-items:start;}
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
+
+
+      /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
+      .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+      .pageServicesDash .catHdrLeft{min-width:0;}
+      .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;}
+      .pageServicesDash .sdFocusStat{display:flex;flex-direction:column;align-items:flex-end;line-height:1;}
+      .pageServicesDash .sdFocusVal{font-size:28px;font-weight:1200;color:#fff;}
+      .pageServicesDash .sdFocusLbl{font-size:12px;font-weight:900;color:rgba(255,255,255,.55);margin-top:4px;}
+      @media (max-width: 540px){
+        .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
+        .pageServicesDash .sdCatHdrRow{justify-content:flex-start;white-space:normal;}
+        .pageServicesDash .sdFocusStat{align-items:flex-start;}
+      }
 
       /* Tech list inside service cards */
       .pageServicesDash .svcTechList{margin-top:10px;display:grid;gap:8px;}
@@ -460,21 +474,21 @@ function renderServicesHome(){
       return `
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
           <div class="catHeader">
-            <div class="svcGaugeWrap" style="--sz:72px">
-              ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
-            </div>
-            <div style="min-width:0">
+            <div class="catHdrLeft" style="min-width:0">
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
                 ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
               </div>
             </div>
-            <div class="catHdrRight" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-              <div class="byAsr" style="display:block">${safe(goalTxt)}</div>
+
+            <div class="sdCatHdrRow">
+              <div class="svcGaugeWrap" style="--sz:72px">
+                ${svcGauge((Number.isFinite(dialPct)?dialPct:0), dialLabel)}
+              </div>
               ${goalRankBadge(s.serviceName)}
-              <div class="catRank" style="font-weight:1200;line-height:1">
-                <div style="font-size:28px">${safe(metricTxt)}</div>
-                <div class="byAsr" style="display:block;margin-top:4px">${safe(metricLbl)}</div>
+              <div class="sdFocusStat">
+                <div class="sdFocusVal">${safe(metricTxt)}</div>
+                <div class="sdFocusLbl">${safe(metricLbl)}</div>
               </div>
             </div>
           </div>
