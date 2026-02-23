@@ -104,7 +104,8 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
+  // comparison: 'team' | 'store' | 'goal'
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', comparison: 'team', open: {} };
 
   const st = UI.servicesDash;
 
@@ -123,6 +124,11 @@ function renderServicesHome(){
   const focus = (st.focus === 'sold' || st.focus === 'goal') ? st.focus : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
   const teamKey = (st.team === 'express' || st.team === 'kia') ? st.team : 'all';
+
+  // Comparison baseline (Team/Store/Goal). If Focus is Goal, lock comparison to Goal.
+  let comparison = (st.comparison === 'store' || st.comparison === 'goal') ? st.comparison : 'team';
+  if(focus === 'goal') comparison = 'goal';
+  st.comparison = comparison;
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
@@ -618,4 +624,4 @@ function fmtDec(x, d=2, dropLeadingZero=true){
   out = out.replace(/(\.\d*?[1-9])0+$/,'$1').replace(/\.0+$/,'');
   return out;
 }
-  if(focus==='goal') comparison = 'goal';
+
