@@ -33,15 +33,9 @@ function renderServicesHome(){
       .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
-      .pageServicesDash .sdCatHdrRow .sdFocusStat{order:3 !important;}
-
-      .pageServicesDash .sdFocusStat{display:flex;flex-direction:column;align-items:flex-end;line-height:1;}
-      .pageServicesDash .sdFocusVal{font-size:28px;font-weight:1200;color:#fff;}
-      .pageServicesDash .sdFocusLbl{font-size:12px;font-weight:900;color:rgba(255,255,255,.55);margin-top:4px;}
       @media (max-width: 540px){
         .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .sdCatHdrRow{justify-content:flex-start;white-space:normal;}
-        .pageServicesDash .sdFocusStat{align-items:flex-start;}
       }
 
       /* Tech list inside service cards */
@@ -50,7 +44,8 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft{display:flex;align-items:center;gap:8px;min-width:0;}
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
-      .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
+      .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;line-height:1.15;}
+      .pageServicesDash .svcTechMetaRow1,.pageServicesDash .svcTechMetaRow2{white-space:nowrap;}
 
       /* Status icons */
       /* Make warning triangles a touch smaller + lighter visual weight */
@@ -387,7 +382,8 @@ function renderServicesHome(){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)} • Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}
+          <div class="svcTechMetaRow1">ROs <b>${fmtInt(r.ros)}</b> <span class="teamDot">•</span> ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)}</div>
+          <div class="svcTechMetaRow2">Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}</div>
         </div>
       </div>
     `;
@@ -523,10 +519,6 @@ function renderServicesHome(){
                 ${svcGaugeStack((Number.isFinite(dialPct)?dialPct:0), (rankMetric==='sold'?'SOLD':'ASR'), 'GOAL')}
               </div>
               ${goalRankBadge(s.serviceName)}
-              <div class="sdFocusStat">
-                <div class="sdFocusVal">${safe(metricTxt)}</div>
-                <div class="sdFocusLbl">${safe(metricLbl)}</div>
-              </div>
             </div>
           </div>
 
