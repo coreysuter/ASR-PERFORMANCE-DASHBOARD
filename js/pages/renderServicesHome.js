@@ -265,6 +265,8 @@ function renderServicesHome(){
   </div>
 `;
 
+const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
+
 const top3Panel = (function buildServicesDiag(){
   // Build per-service pct-of-goal bands for ASR and SOLD using totals
   const services = [];
@@ -586,8 +588,6 @@ const headerWrap = `<div class="svcHeaderWrap">${headerLeft}${top3Panel}</div>`;
       </details>
     `;
   }
-
-  const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
   const sectionsHtml = sections.map(renderSection).join('');
 
   const app = document.getElementById('app');
