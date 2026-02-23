@@ -23,7 +23,7 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:14px;align-items:start;}
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
 
@@ -32,7 +32,7 @@ function renderServicesHome(){
       .pageServicesDash .catHdrLeft{min-width:0;}
       .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;}
       .pageServicesDash .sdFocusStat{display:flex;flex-direction:column;align-items:flex-end;line-height:1;}
-      .pageServicesDash .sdFocusVal{font-size:28px;font-weight:1200;color:#fff;}
+      .pageServicesDash .sdFocusVal{font-size:28px;font-weight:1400;color:#fff;}
       .pageServicesDash .sdFocusLbl{font-size:12px;font-weight:900;color:rgba(255,255,255,.55);margin-top:4px;}
       @media (max-width: 540px){
         .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
@@ -47,6 +47,13 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
+
+
+      .pageServicesDash .svcStatsLine{display:flex;flex-wrap:wrap;gap:10px;row-gap:2px;}
+      .pageServicesDash .svcStatItem{font-size:12px;font-weight:1000;color:rgba(255,255,255,.72);white-space:nowrap;}
+      .pageServicesDash .svcStatItem.soldBreak{flex-basis:100%;}
+      .pageServicesDash .svcFocusVal{font-weight:1400 !important;}
+
 
       /* Status icons */
       /* Make warning triangles a touch smaller + lighter visual weight */
@@ -76,6 +83,15 @@ function renderServicesHome(){
   if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
 
   const st = UI.servicesDash;
+
+  // Local helpers (do not depend on other pages)
+  function fmtDec(n, places=2){
+    const v = Number(n);
+    if(!Number.isFinite(v)) return '—';
+    const s = v.toFixed(places);
+    // drop leading 0 for decimals like 0.14 -> .14
+    return s.replace(/^0(?=\.)/, '');
+  }
 
   // Read querystring from hash (optional deep-link)
   const hash = location.hash || "";
@@ -477,7 +493,7 @@ function renderServicesHome(){
             <div class="catHdrLeft" style="min-width:0">
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
-                ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
+                ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs<br>${fmtInt(s.sold)} Sold
               </div>
             </div>
 
