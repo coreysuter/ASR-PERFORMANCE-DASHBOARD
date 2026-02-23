@@ -515,8 +515,6 @@ function renderServicesHome(){
                 ${svcGaugeStack((Number.isFinite(dialPct)?dialPct:0), (rankMetric==='sold'?'SOLD':'ASR'), 'GOAL')}
               </div>
               ${goalRankBadge(s.serviceName)}
-<div class="sdFocusLbl">${safe(metricLbl)}</div>
-              </div>
             </div>
           </div>
 
