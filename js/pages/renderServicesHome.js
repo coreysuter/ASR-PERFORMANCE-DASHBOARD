@@ -62,7 +62,6 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(3, minmax(160px,1fr)) !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen.hasGoal{grid-template-columns:repeat(4, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
@@ -73,7 +72,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'store', comparison: 'team', open: {} };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
 
   const st = UI.servicesDash;
 
@@ -85,23 +84,19 @@ function renderServicesHome(){
       const [k,v]=part.split("=");
       if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
       if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
-      if(k==="team") st.team = (decodeURIComponent(v||"store")||"store");
       if(k==="comparison") st.comparison = decodeURIComponent(v||"goal") || "goal";
     }
   }
 
   const focus = (st.focus === 'sold' || st.focus === 'goal') ? st.focus : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
-  // If Focus is Goal, force Comparison to Goal
-  if(focus === 'goal') st.comparison = 'goal';
   const comparison = (st.comparison === 'team' || st.comparison === 'store' || st.comparison === 'goal') ? st.comparison : 'goal';
-  const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
     : [];
 
-  const techs = (teamSel==='store') ? techsAll : techsAll.filter(t => (teamSel==='express') ? t.team==='EXPRESS' : t.team==='KIA');
+  const techs = techsAll;
 
   // Determine the metric used for goal comparisons/ranking
   const rankMetric = (focus==='goal') ? goalMetric : (focus==='sold' ? 'sold' : 'asr');
@@ -175,7 +170,7 @@ function renderServicesHome(){
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
-  for(const t of techs){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
+  for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
 
   const _allServiceNames = (Array.isArray(DATA.sections)?DATA.sections:[])
     .flatMap(s => (s?.categories||[]).map(String).filter(Boolean))
@@ -186,7 +181,7 @@ function renderServicesHome(){
   for(const svcName of _uniqServices){
     // Build minimal aggregates
     let ros=0, asr=0, sold=0;
-    for(const t of techs){
+    for(const t of techsAll){
       const row = (t.categories||{})[svcName];
       if(!row) continue;
       ros  += Number(row.ros)||0;
@@ -281,16 +276,7 @@ function renderServicesHome(){
         </div>
 
         <div class="mainFiltersBar">
-          <div class="controls mainAlwaysOpen ${focus==='goal' ? 'hasGoal' : ''}">
-            <div>
-              <label>Team</label>
-              <select data-svcdash="1" data-ctl="team">
-                <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
-                <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
-                <option value="store" ${teamSel==='store'?'selected':''}>Store</option>
-              </select>
-            </div>
-
+          <div class="controls mainAlwaysOpen">
             <div>
               <label>Focus</label>
               <select data-svcdash="1" data-ctl="focus">
@@ -308,16 +294,14 @@ function renderServicesHome(){
                 <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
               </select>
             </div>
-            ` : ``}
-
-${focus==='goal' ? `
-            <div style="opacity:.65">
-              <label>Comparison</label>
-              <select disabled>
-                <option selected>Goal</option>
-              </select>
-            </div>
             ` : `
+            <div style="opacity:.45;filter:grayscale(1);pointer-events:none">
+              <label>Goal</label>
+              <select><option>—</option></select>
+            </div>
+            `}
+
+            
             <div>
               <label>Comparison</label>
               <select data-svcdash="1" data-ctl="comparison">
@@ -326,7 +310,6 @@ ${focus==='goal' ? `
                 <option value="goal" ${comparison==='goal'?'selected':''}>Goal</option>
               </select>
             </div>
-            `}
           </div>
         </div>
       </div>
@@ -458,7 +441,7 @@ ${focus==='goal' ? `
 
     // Only include services that exist in dataset (intersection with any tech categories)
     const allCatsSet = new Set();
-    for(const t of techs){
+    for(const t of techsAll){
       for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
     }
     const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
@@ -567,12 +550,9 @@ ${focus==='goal' ? `
   app.querySelectorAll('select[data-svcdash="1"]').forEach(sel=>{
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
-      if(ctl==='team') st.team = sel.value;
       if(ctl==='focus') st.focus = sel.value;
       if(ctl==='goal') st.goalMetric = sel.value;
       if(ctl==='comparison') st.comparison = sel.value;
-      // If Focus is Goal, lock Comparison to Goal
-      if(st.focus==='goal') st.comparison='goal';
       renderServicesHome();
     });
   });
