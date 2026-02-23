@@ -13,7 +13,7 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
       /* Header + diag wrapper (match Tech Details layout) */
-      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.72fr) minmax(0,1.28fr);gap:14px;align-items:stretch;}
+      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.72fr) minmax(0,1.28fr);gap:14px;align-items:start;}
       @media(max-width:980px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
 
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
@@ -31,19 +31,21 @@ function renderServicesHome(){
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
       /* Diag panel (Services Dashboard) */
-      .pageServicesDash .svcDiagPanel{height:100%;min-width:0;overflow:hidden;}
-      .pageServicesDash .svcDiagPanel .phead{border-bottom:none;padding:12px;display:grid;gap:14px}
-      .pageServicesDash .svcDiagRow{padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(0,0,0,.14)}
+      .pageServicesDash .svcDiagPanel{height:auto;min-width:0;overflow:hidden;align-self:start;}
+      .pageServicesDash .svcDiagPanel .phead{border-bottom:none;padding:10px;display:flex;flex-direction:column;gap:10px}
+      .pageServicesDash .svcDiagRow{padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(0,0,0,.14)}
       .pageServicesDash .svcDiagGrid{display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch}
       @media(max-width:980px){ .pageServicesDash .svcDiagGrid{grid-template-columns:170px 1fr;} }
       @media(max-width:620px){ .pageServicesDash .svcDiagGrid{grid-template-columns:1fr;} }
       .pageServicesDash .svcDiagLabelCol{display:flex;flex-direction:column;align-items:center}
       .pageServicesDash .svcDiagLabel{margin:0;align-self:flex-start;font-size:22px;line-height:1;font-weight:1000;letter-spacing:.4px}
       .pageServicesDash .svcDiagDivider{height:1px;background:rgba(255,255,255,.12);margin:0 12px}
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
+
 
       .pageServicesDash .diagPieWrap{margin-top:10px}
-      .pageServicesDash .diagPieSvg{width:150px;height:150px;display:block}
-      .pageServicesDash .diagPieTxt{font-size:16px;font-weight:900;fill:#fff}
+      .pageServicesDash .diagPieSvg{width:130px;height:130px;display:block}
+      .pageServicesDash .diagPieTxt{font-size:14px;font-weight:900;fill:#fff}
       .pageServicesDash .diagPieSlice{cursor:pointer}
       .pageServicesDash .diagPieSlice:hover{filter:brightness(1.12)}
 
@@ -282,9 +284,9 @@ function renderServicesHome(){
           </div>
 
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
+            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start">
               <div class="h2 techH2Big">Services Dashboard</div>
-              <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
+              <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
                 <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                 <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
                 <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
@@ -307,6 +309,7 @@ function renderServicesHome(){
           </div>
         </div>
 
+        <div class="svcHdrDivider"></div>
         <div class="mainFiltersBar">
           <div class="controls mainAlwaysOpen">
             <div>
