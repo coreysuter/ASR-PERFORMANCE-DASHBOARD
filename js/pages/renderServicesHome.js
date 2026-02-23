@@ -13,8 +13,8 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
       /* Header + diag wrapper (match Tech Details layout) */
-      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.72fr) minmax(0,1.28fr);gap:14px;align-items:start;}
-      @media(max-width:980px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
+      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
+      @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
 
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
@@ -32,10 +32,6 @@ function renderServicesHome(){
 
       /* Diag panel (Services Dashboard) */
       .pageServicesDash .svcDiagPanel{height:auto;min-width:0;overflow:hidden;align-self:start;}
-
-      /* Make diag panel behave like Tech Details diag section (no clipping, compact) */
-      .pageServicesDash .techPickPanel.diagSection{display:flex;flex-direction:column;overflow:hidden}
-      .pageServicesDash .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
       .pageServicesDash .svcDiagPanel .phead{border-bottom:none;padding:10px;display:flex;flex-direction:column;gap:10px}
       .pageServicesDash .svcDiagRow{padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(0,0,0,.14)}
       .pageServicesDash .svcDiagGrid{display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch}
@@ -734,9 +730,8 @@ function renderServicesHome(){
   const botTechSold = techSoldGoal.slice(-3).reverse();
 
   const diagPanel = `
-    <div class="panel techPickPanel diagSection svcDiagPanel">
+    <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
-
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
@@ -762,10 +757,9 @@ function renderServicesHome(){
             <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
-
       </div>
     </div>
-  `;`;
+  `;
 
   const headerWrap = `<div class="svcdashHeaderWrap">${header}${diagPanel}</div>`;
 
