@@ -12,25 +12,6 @@ function renderServicesHome(){
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
-      /* Header + diag wrapper (match Tech Details layout) */
-      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
-      @media(max-width:980px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
-
-      /* Diag section (match Tech Details diagSection behavior) */
-      .pageServicesDash .techPickPanel.diagSection{display:flex;flex-direction:column;overflow:hidden}
-      .pageServicesDash .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;border-bottom:none;padding:12px;display:grid;gap:14px}
-      .pageServicesDash .techPickPanel.diagSection .diagBandRow{padding:12px}
-      .pageServicesDash .techPickPanel.diagSection .diagDivider{height:1px;background:rgba(255,255,255,.12);margin:0 12px}
-      .pageServicesDash .techPickPanel.diagSection .pickRow{display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch}
-      .pageServicesDash .techPickPanel.diagSection .diagLabelCol{display:flex;flex-direction:column;align-items:center}
-      .pageServicesDash .techPickPanel.diagSection .pickHdrLabel{margin:0;align-self:flex-start;font-size:22px;line-height:1;font-weight:1000;letter-spacing:.4px}
-
-      .pageServicesDash .diagPieWrap{margin-top:10px}
-      .pageServicesDash .diagPieSvg{width:130px;height:130px;display:block}
-      .pageServicesDash .diagPieTxt{font-size:14px;font-weight:900;fill:#fff}
-      .pageServicesDash .diagPieSlice{cursor:pointer}
-      .pageServicesDash .diagPieSlice:hover{filter:brightness(1.12)}
-
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
@@ -571,236 +552,152 @@ function renderServicesHome(){
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-  const sectionsHtml = sections.map(renderSection).join('');
+const sectionsHtml = sections.map(renderSection).join('');
 
-  const app = document.getElementById('app');
-  
-  // ---- Diag panel (match Tech Details layout: ASR row + divider + SOLD row) ----
-  // Uses SERVICES vs GOAL for pies, and TECHNICIANS ranked by avg % of goal across all services.
-  function _allServiceNames(){
-    const set = new Set();
-    (sections||[]).forEach(s=>(s.categories||[]).forEach(c=>c && set.add(String(c))));
-    return Array.from(set);
+// ---- Diag panel (use the same layout structure as Tech Details: ASR row + divider + SOLD row) ----
+const allCatsSet2 = new Set();
+for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) allCatsSet2.add(k); }
+const uniqSvc = Array.from(new Set(
+  (sections||[]).flatMap(s=> (s?.categories||[]).map(String).filter(Boolean)).filter(c=>allCatsSet2.has(c))
+));
+
+function bandOfPct(p){
+  const n = Number(p);
+  if(!Number.isFinite(n)) return null;
+  if(n < 0.60) return 'red';
+  if(n < 0.80) return 'yellow';
+  return 'green';
+}
+
+function svcGoalPct(serviceName, mode){
+  const agg = buildServiceAgg(serviceName);
+  const gReq = Number(getGoal(serviceName,'req'));
+  const gClose = Number(getGoal(serviceName,'close'));
+  if(mode==='sold'){
+    return (Number.isFinite(agg.closeTot) && Number.isFinite(gClose) && gClose>0) ? (agg.closeTot/gClose) : NaN;
   }
-  const _svcNames = _allServiceNames();
+  return (Number.isFinite(agg.reqTot) && Number.isFinite(gReq) && gReq>0) ? (agg.reqTot/gReq) : NaN;
+}
 
-  function _bandOfPct(pct){
-    if(!Number.isFinite(pct)) return null;
-    if(pct < 0.60) return "red";
-    if(pct < 0.80) return "yellow";
-    return "green";
+function countSvcBands(mode){
+  let red=0,yellow=0,green=0;
+  for(const svc of uniqSvc){
+    const pct = svcGoalPct(svc, mode);
+    const b = bandOfPct(pct);
+    if(!b) continue;
+    if(b==='green') green++;
+    else if(b==='yellow') yellow++;
+    else red++;
   }
+  return {red,yellow,green};
+}
 
-  function _svcAgg(name){
-    let ros=0, asr=0, sold=0;
-    for(const t of techsAll){
-      const row = (t.categories||{})[name];
+const bandCounts_asr = countSvcBands('asr');
+const bandCounts_sold = countSvcBands('sold');
+
+// NOTE: Keeping the diag lightweight and layout-identical to Tech Details.
+// If you want the full interactive pie later, we can plug it in without changing the layout.
+function diagPieSimple(counts){
+  const r = Number(counts?.red)||0;
+  const y = Number(counts?.yellow)||0;
+  const g = Number(counts?.green)||0;
+  return `<div class="diagPieWrap" style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+    <div style="color:#ff4b4b;font-weight:1000">Red: ${r}</div>
+    <div style="color:#ffbf2f;font-weight:1000">Yellow: ${y}</div>
+    <div style="color:#1fcb6a;font-weight:1000">Green: ${g}</div>
+  </div>`;
+}
+
+function techAvgPctOfGoal(mode){
+  const out=[];
+  for(const t of techsAll){
+    let sum=0, n=0;
+    for(const svc of uniqSvc){
+      const row = (t.categories||{})[svc];
       if(!row) continue;
-      // For services dashboard: use tech's total ROs as denominator to match earlier logic
-      const tRos = Number(t.ros)||0;
-      ros += tRos;
-      asr += Number(row.asr)||0;
-      sold += Number(row.sold)||0;
+      const rosTech = Number(t.ros)||0;
+      const asr = Number(row.asr)||0;
+      const sold = Number(row.sold)||0;
+      const req = (rosTech>0) ? (asr/rosTech) : NaN;
+      const close = (asr>0) ? (sold/asr) : NaN;
+      const gReq = Number(getGoal(svc,'req'));
+      const gClose = Number(getGoal(svc,'close'));
+      const pct = (mode==='sold')
+        ? ((Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN)
+        : ((Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN);
+      if(Number.isFinite(pct)) { sum += pct; n++; }
     }
-    const reqTot = ros ? (asr/ros) : NaN;      // ASRs/RO (decimal)
-    const closeTot = asr ? (sold/asr) : NaN;   // Sold/ASR (ratio)
-    const gReq = Number(getGoal(name,'req'));
-    const gClose = Number(getGoal(name,'close'));
-    const pctReq = (Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN;
-    const pctClose = (Number.isFinite(closeTot) && Number.isFinite(gClose) && gClose>0) ? (closeTot/gClose) : NaN;
-    return {name, pctReq, pctClose};
+    out.push({id:t.id, name:t.name, pct: n ? (sum/n) : NaN});
   }
+  return out;
+}
 
-  const svcBands = { asr:{red:[],yellow:[],green:[]}, sold:{red:[],yellow:[],green:[]} };
-  for(const nm of _svcNames){
-    const a = _svcAgg(nm);
-    const bReq = _bandOfPct(a.pctReq);
-    const bClose = _bandOfPct(a.pctClose);
-    if(bReq) svcBands.asr[bReq].push({name:nm, pct:a.pctReq});
-    if(bClose) svcBands.sold[bClose].push({name:nm, pct:a.pctClose});
-  }
-
-  function _pieCounts(mode){
-    return {
-      red: svcBands[mode].red.length,
-      yellow: svcBands[mode].yellow.length,
-      green: svcBands[mode].green.length
-    };
-  }
-
-  function _diagPieChart(counts, mode){
-    const red = Math.max(0, Number(counts?.red)||0);
-    const yellow = Math.max(0, Number(counts?.yellow)||0);
-    const green = Math.max(0, Number(counts?.green)||0);
-    const total = red + yellow + green;
-
-    const cx = 80, cy = 80, rad = 70;
-    const toRad = (deg)=> (deg*Math.PI/180);
-    const at = (angDeg, r)=>({ x: cx + r*Math.cos(toRad(angDeg)), y: cy + r*Math.sin(toRad(angDeg)) });
-    const arcPath = (a0, a1)=>{
-      const p0 = at(a0, rad);
-      const p1 = at(a1, rad);
-      const large = (Math.abs(a1-a0) > 180) ? 1 : 0;
-      return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
-    };
-
-    const parts = [
-      {band:"red", n:red, fill:"#ff4b4b"},
-      {band:"yellow", n:yellow, fill:"#ffbf2f"},
-      {band:"green", n:green, fill:"#1fcb6a"},
-    ].filter(p=>p.n>0);
-
-    if(total<=0 || !parts.length){
-      return `
-        <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
-          <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
-            <text class="diagPieTxt" x="80" y="80" text-anchor="middle" dominant-baseline="middle">0</text>
-          </svg>
-        </div>
-      `;
-    }
-
-    let ang = -90;
-    const slices = [];
-    for(const p of parts){
-      const span = (p.n/total) * 360;
-      const a0 = ang;
-      const a1 = ang + span;
-      ang = a1;
-      const mid = (a0 + a1) / 2;
-      const tooSmall = span < 26;
-      const inside = at(mid, rad * 0.58);
-      const outside = at(mid, rad * 1.14);
-      const leader0 = at(mid, rad * 0.88);
-      const leader1 = at(mid, rad * 1.04);
-      slices.push({
-        ...p, span,
-        path: arcPath(a0, a1),
-        tooSmall,
-        lx: (tooSmall ? outside.x : inside.x),
-        ly: (tooSmall ? outside.y : inside.y),
-        l0x: leader0.x, l0y: leader0.y,
-        l1x: leader1.x, l1y: leader1.y
-      });
-    }
-
-    return `
-      <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
-        <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-          <g>
-            ${slices.map(s=>`
-              <path class="diagPieSlice" data-mode="${mode}" data-band="${s.band}"
-                d="${s.path}" fill="${s.fill}"
-                stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
-            `).join("")}
-          </g>
-          ${slices.map(s=> s.tooSmall ? `
-            <line x1="${s.l0x.toFixed(2)}" y1="${s.l0y.toFixed(2)}" x2="${s.l1x.toFixed(2)}" y2="${s.l1y.toFixed(2)}"
-              stroke="rgba(255,255,255,.95)" stroke-width="1.2" />
-          ` : "").join("")}
-          ${slices.map(s=>`<text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${s.ly.toFixed(2)}" text-anchor="middle" dominant-baseline="middle">${s.n}</text>`).join("")}
-          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
-        </svg>
+function tbRowTech(item, idx, mode){
+  const metricLbl = (mode==='sold') ? 'SOLD GOAL' : 'ASR GOAL';
+  const val = Number.isFinite(item.pct) ? fmtPct(item.pct) : '—';
+  return `
+    <div class="pickRowFrame" style="font-size:14px;font-weight:700;line-height:1.2">
+      <div style="min-width:0;display:flex;align-items:center;gap:8px">
+        <span class="rankNum">${idx}.</span>
+        <button type="button" class="tbJump" data-tech="${safe(item.id)}">${safe(item.name)}</button>
       </div>
-    `;
-  }
+      <div class="mini" style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;margin-left:12px">${metricLbl} = ${val}</div>
+    </div>`;
+}
 
-  function _techAvgPctOfGoal(mode){
-    const out = [];
-    for(const t of techsAll){
-      let sum=0, n=0;
-      for(const svcName of _svcNames){
-        const row = (t.categories||{})[svcName];
-        if(!row) continue;
-        const rosTech = Number(t.ros)||0;
-        const asr = Number(row.asr)||0;
-        const sold = Number(row.sold)||0;
-        const req = (rosTech>0) ? (asr/rosTech) : NaN;
-        const close = (asr>0) ? (sold/asr) : NaN;
-        const gReq = Number(getGoal(svcName,'req'));
-        const gClose = Number(getGoal(svcName,'close'));
-        const pct = (mode==="sold")
-          ? ((Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN)
-          : ((Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN);
-        if(Number.isFinite(pct)) { sum += pct; n++; }
-      }
-      out.push({id:t.id, name:t.name, pct: n ? (sum/n) : NaN});
-    }
-    return out;
-  }
+function tbMiniBox(title, rows, mode, kind){
+  const html = rows.length ? rows.map((x,i)=>tbRowTech(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
+  const icon = (kind==='down') ? `<span class="thumbIcon down" aria-hidden="true">&#128078;</span>` : `<span class="thumbIcon up" aria-hidden="true">&#128077;</span>`;
+  return `
+    <div class="pickBox">
+      <div class="pickMiniHdr">${safe(title)} ${icon}</div>
+      <div class="pickList">${html}</div>
+    </div>`;
+}
 
-  function _tbRowTech(item, idx, mode){
-    const metricLbl = (mode==="sold") ? "SOLD GOAL" : "ASR GOAL";
-    const val = Number.isFinite(item.pct) ? fmtPct(item.pct) : "—";
-    return `
-      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;line-height:1.2">
-        <div class="techRowLeft" style="min-width:0;display:flex;align-items:center;gap:8px">
-          <span class="rankNum" style="font-size:14px;font-weight:700">${idx}.</span>
-          <button type="button" class="tbJump" data-tech="${safe(item.id)}"
-            style="background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;font:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">
-            ${safe(item.name)}
-          </button>
-        </div>
-        <div class="mini" style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;margin-left:12px">${metricLbl} = ${val}</div>
-      </div>
-    `;
-  }
+const techAsrGoal = techAvgPctOfGoal('asr').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
+const techSoldGoal = techAvgPctOfGoal('sold').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
+const topTechAsr = techAsrGoal.slice(0,3);
+const botTechAsr = techAsrGoal.slice(-3).reverse();
+const topTechSold = techSoldGoal.slice(0,3);
+const botTechSold = techSoldGoal.slice(-3).reverse();
 
-  function _tbMiniBox(title, rows, mode, iconDir){
-    const html = rows.length ? rows.map((x,i)=>_tbRowTech(x,i+1,mode)).join("") : `<div class="notice">No data</div>`;
-    const icon = iconDir==="down" ? `<span class="thumbIcon down" aria-hidden="true">&#128078;</span>` : `<span class="thumbIcon up" aria-hidden="true">&#128077;</span>`;
-    return `
-      <div class="pickBox">
-        <div class="pickMiniHdr">${safe(title)} ${icon}</div>
-        <div class="pickList">${html}</div>
-      </div>
-    `;
-  }
-
-  const _techAsrGoal = _techAvgPctOfGoal("asr").filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
-  const _techSoldGoal = _techAvgPctOfGoal("sold").filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
-
-  const topTechAsr = _techAsrGoal.slice(0,3);
-  const botTechAsr = _techAsrGoal.slice(-3).reverse();
-  const topTechSold = _techSoldGoal.slice(0,3);
-  const botTechSold = _techSoldGoal.slice(-3).reverse();
-
-  const diagPanel = `
-    <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
-      <div class="phead">
-        <!-- ASR row -->
-        <div class="diagBandRow">
-          <div class="pickRow">
-            <div class="diagLabelCol">
-              <div class="pickHdrLabel">ASR</div>
-              ${_diagPieChart(_pieCounts("asr"), "asr")}
-            </div>
-            <div>${_tbMiniBox("Top 3 Technicians (Avg Goal)", topTechAsr, "asr", "up")}</div>
-            <div>${_tbMiniBox("Bottom 3 Technicians (Avg Goal)", botTechAsr, "asr", "down")}</div>
+const diagPanel = `
+  <div class="panel svcDiagPanel diagSection">
+    <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
+      <!-- ASR row -->
+      <div class="diagBandRow" style="padding:12px">
+        <div class="pickRow svcDiagGrid">
+          <div class="svcDiagLabelCol">
+            <div class="svcDiagLabel">ASR</div>
+            ${diagPieSimple(bandCounts_asr)}
           </div>
+          <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechAsr, 'asr', 'up')}</div>
+          <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechAsr, 'asr', 'down')}</div>
         </div>
-        <div class="diagDivider"></div>
+      </div>
 
-        <!-- SOLD row -->
-        <div class="diagBandRow">
-          <div class="pickRow">
-            <div class="diagLabelCol">
-              <div class="pickHdrLabel">SOLD</div>
-              ${_diagPieChart(_pieCounts("sold"), "sold")}
-            </div>
-            <div>${_tbMiniBox("Top 3 Technicians (Avg Goal)", topTechSold, "sold", "up")}</div>
-            <div>${_tbMiniBox("Bottom 3 Technicians (Avg Goal)", botTechSold, "sold", "down")}</div>
+      <div class="svcDiagDivider"></div>
+
+      <!-- SOLD row -->
+      <div class="diagBandRow" style="padding:12px">
+        <div class="pickRow svcDiagGrid">
+          <div class="svcDiagLabelCol">
+            <div class="svcDiagLabel">SOLD</div>
+            ${diagPieSimple(bandCounts_sold)}
           </div>
+          <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechSold, 'sold', 'up')}</div>
+          <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechSold, 'sold', 'down')}</div>
         </div>
       </div>
     </div>
-  `;
+  </div>
+`;
 
+const headerWrap = `<div class="svcdashHeaderWrap">${header}${diagPanel}</div>`;
 
-  const headerWrap = `<div class="svcdashHeaderWrap">${header}${diagPanel}</div>`;
-
-  app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;
+const app = document.getElementById('app');
+app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;
 
   // Wire events
   // Filters
@@ -813,6 +710,19 @@ function renderServicesHome(){
       renderServicesHome();
     });
   });
+
+// Diag tech jumps
+const diagRoot = app.querySelector('.svcDiagPanel');
+if(diagRoot){
+  diagRoot.addEventListener('click', (e)=>{
+    const b = e.target && e.target.closest ? e.target.closest('.tbJump[data-tech]') : null;
+    if(!b) return;
+    e.preventDefault();
+    const id = b.getAttribute('data-tech');
+    if(id) location.hash = `#/tech/${encodeURIComponent(id)}`;
+  }, true);
+}
+
 
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
@@ -835,102 +745,6 @@ try{
     });
   });
 }catch(e){}
-
-
-
-  // ---- Diag interactions (pie -> list of services, tech rows -> tech page) ----
-  function closeSvcDiagPopup(){
-    const el = document.getElementById('svcDiagPopup');
-    if(el) el.remove();
-    document.removeEventListener('keydown', onSvcEsc, true);
-  }
-  function onSvcEsc(e){ if(e.key==='Escape') closeSvcDiagPopup(); }
-
-  function openSvcDiagPopup(ev, mode, band, anchorEl){
-    if(ev){ ev.preventDefault(); ev.stopPropagation(); }
-    closeSvcDiagPopup();
-    const list = (svcBands[mode] && svcBands[mode][band]) ? svcBands[mode][band].slice() : [];
-    list.sort((a,b)=> (a.pct||0) - (b.pct||0));
-
-    const title = (mode==='sold') ? 'SOLD' : 'ASR';
-    const pop = document.createElement('div');
-    pop.id = 'svcDiagPopup';
-    pop.className = 'diagPopup';
-    pop.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div style="font-weight:1000;letter-spacing:.4px">${title} • ${band.toUpperCase()} Services</div>
-        <button aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
-      </div>
-      <div style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
-        ${list.length ? list.map((it,i)=>{
-          const id = 'sd-'+safeSvcIdLocal(it.name).replace(/^svc-/, '');
-          return `
-            <button class="diagPopRowBtn" type="button" data-target="${id}">
-              <span class="rankNum">${i+1}.</span>
-              <span style="flex:0 1 340px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safe(it.name)}</span>
-              <span style="margin-left:6px;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${fmtPct(it.pct)}</span>
-            </button>`;
-        }).join('') : `<div class="notice" style="padding:8px 2px">No services</div>`}
-      </div>
-    `;
-    document.body.appendChild(pop);
-
-    const closeBtn = pop.querySelector('button[aria-label="Close"]');
-    if(closeBtn) closeBtn.addEventListener('click', closeSvcDiagPopup);
-
-    pop.addEventListener('click', (e)=>{
-      const btn = e.target && e.target.closest ? e.target.closest('.diagPopRowBtn') : null;
-      if(!btn) return;
-      const tid = btn.getAttribute('data-target');
-      if(tid){
-        const el = document.getElementById(tid);
-        if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
-      }
-      closeSvcDiagPopup();
-    }, true);
-
-    const r = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect() : {left:20,top:20,right:20};
-    const pr = pop.getBoundingClientRect();
-    const pad = 10;
-    let left = r.right + pad;
-    let top = r.top - 6;
-    const vw = window.innerWidth, vh = window.innerHeight;
-    if(left + pr.width > vw - 8) left = r.left - pr.width - pad;
-    if(top + pr.height > vh - 8) top = Math.max(8, vh - pr.height - 8);
-    if(top < 8) top = 8;
-    pop.style.left = `${left}px`;
-    pop.style.top = `${top}px`;
-
-    setTimeout(()=>{
-      const onDoc = (e)=>{ if(!pop.contains(e.target)){ document.removeEventListener('mousedown', onDoc, true); closeSvcDiagPopup(); } };
-      document.addEventListener('mousedown', onDoc, true);
-    }, 0);
-    document.addEventListener('keydown', onSvcEsc, true);
-  }
-
-  // Pie slice clicks -> popup
-  try{
-    app.querySelectorAll('.diagPieSlice').forEach(s=>{
-      s.addEventListener('click', (e)=>{
-        const mode = s.getAttribute('data-mode');
-        const band = s.getAttribute('data-band');
-        openSvcDiagPopup(e, mode, band, s);
-      });
-    });
-  }catch(e){}
-
-  // Tech clicks in diag -> tech page
-  const diagRoot = app.querySelector('.techPickPanel.diagSection');
-  if(diagRoot){
-    diagRoot.addEventListener('click', (e)=>{
-      const b = e.target && e.target.closest ? e.target.closest('.tbJump[data-tech]') : null;
-      if(!b) return;
-      e.preventDefault();
-      const id = b.getAttribute('data-tech');
-      if(id) location.hash = `#/tech/${encodeURIComponent(id)}`;
-    }, true);
-  }
-
 
 }
 
