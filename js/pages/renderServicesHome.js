@@ -23,7 +23,7 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:14px;align-items:start;}
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
 
@@ -45,6 +45,7 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;line-height:1.15;}
+      .pageServicesDash .svcTechMeta .l1,.pageServicesDash .svcTechMeta .l2{display:block;}
       .pageServicesDash .svcTechMetaRow1,.pageServicesDash .svcTechMetaRow2{white-space:nowrap;}
 
       /* Status icons */
