@@ -382,8 +382,7 @@ function renderServicesHome(){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          <div class="svcTechMetaRow">ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)}</div>
-          <div class="svcTechMetaRow">Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}</div>
+          <div class="svcTechMetaRow">ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)} • Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}</div>
         </div>
       </div>
     `;
@@ -506,7 +505,8 @@ function renderServicesHome(){
             <div class="catHdrLeft" style="min-width:0">
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
-                ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
+                <div>${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs</div>
+                <div>${fmtInt(s.sold)} Sold</div>
               </div>
             </div>
 
