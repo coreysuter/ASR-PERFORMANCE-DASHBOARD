@@ -140,6 +140,39 @@ function renderServicesHome(){
 
   const goalsAgg = _storeGoalRatios();
 
+  // --- Local helper: stacked-label dial ---
+  // Avoids relying on any undefined helpers (e.g., fmtDec) and keeps dial text stacked.
+  // Uses the same .svcGauge markup pattern so animateSvcGauges()/initSvcGaugeHold() still work.
+  function svcGaugeStack(pct, topLabel, bottomLabel){
+    const p = Number.isFinite(pct) ? Math.max(0, pct) : 0;
+    const ring = Math.round(Math.min(p, 1) * 100);
+
+    let cls = "gRed";
+    if(p >= 0.80) cls = "gGreen";
+    else if(p >= 0.60) cls = "gYellow";
+
+    const top = String(topLabel||"").trim();
+    const bot = String(bottomLabel||"").trim();
+
+    // Alternate view: +/- vs baseline (baseline is GOAL here)
+    const delta = Math.round((p - 1) * 100);
+    const absDelta = Math.abs(delta);
+    const arrow = (delta >= 0) ? "▲" : "▼";
+    const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
+
+    const defaultHtml = `<span class="pctText pctDefault"><span class="pctTitle">${safe(top)}</span><span class="pctTitle">${safe(bot)}</span></span>`;
+    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">GOAL</span></span>`;
+
+    return `<span class="svcGauge ${cls}" data-p="${ring}">
+      <svg viewBox="0 0 36 36" aria-hidden="true">
+        <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
+        <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
+      </svg>
+      ${defaultHtml}
+      ${altHtml}
+    </span>`;
+  }
+
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
   for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
