@@ -23,8 +23,20 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(485px,1fr));gap:14px;align-items:start;}
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
+
+
+      /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
+      .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+      .pageServicesDash .catHdrLeft{min-width:0;}
+      .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
+      .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
+      .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
+      @media (max-width: 540px){
+        .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
+        .pageServicesDash .sdCatHdrRow{justify-content:flex-start;white-space:normal;}
+}
 
       /* Tech list inside service cards */
       .pageServicesDash .svcTechList{margin-top:10px;display:grid;gap:8px;}
@@ -32,8 +44,8 @@ function renderServicesHome(){
       .pageServicesDash .svcTechLeft{display:flex;align-items:center;gap:8px;min-width:0;}
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
-      .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
-      .pageServicesDash .svcMetaRow1,.pageServicesDash .svcMetaRow2{white-space:nowrap;}
+      .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
+      .pageServicesDash .svcTechMetaRow{display:block;}
 
       /* Status icons */
       /* Make warning triangles a touch smaller + lighter visual weight */
@@ -41,8 +53,7 @@ function renderServicesHome(){
       .pageServicesDash .svcIcon svg{width:12px;height:12px;display:block}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
-        .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
-      .pageServicesDash .svcMetaRow1,.pageServicesDash .svcMetaRow2{white-space:nowrap;}
+        .pageServicesDash .svcTechMeta{white-space:normal;}
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
 
@@ -123,6 +134,39 @@ function renderServicesHome(){
   }
 
   const goalsAgg = _storeGoalRatios();
+
+  // --- Local helper: stacked-label dial ---
+  // Avoids relying on any undefined helpers (e.g., fmtDec) and keeps dial text stacked.
+  // Uses the same .svcGauge markup pattern so animateSvcGauges()/initSvcGaugeHold() still work.
+  function svcGaugeStack(pct, topLabel, bottomLabel){
+    const p = Number.isFinite(pct) ? Math.max(0, pct) : 0;
+    const ring = Math.round(Math.min(p, 1) * 100);
+
+    let cls = "gRed";
+    if(p >= 0.80) cls = "gGreen";
+    else if(p >= 0.60) cls = "gYellow";
+
+    const top = String(topLabel||"").trim();
+    const bot = String(bottomLabel||"").trim();
+
+    // Alternate view: +/- vs baseline (baseline is GOAL here)
+    const delta = Math.round((p - 1) * 100);
+    const absDelta = Math.abs(delta);
+    const arrow = (delta >= 0) ? "▲" : "▼";
+    const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
+
+    const defaultHtml = `<span class="pctText pctDefault"><span class="pctTitle">${safe(top)}</span><span class="pctTitle">${safe(bot)}</span></span>`;
+    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">GOAL</span></span>`;
+
+    return `<span class="svcGauge ${cls}" data-p="${ring}">
+      <svg viewBox="0 0 36 36" aria-hidden="true">
+        <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
+        <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
+      </svg>
+      ${defaultHtml}
+      ${altHtml}
+    </span>`;
+  }
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
@@ -338,7 +382,8 @@ function renderServicesHome(){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          <div class="svcMetaRow1">ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)}</div><div class="svcMetaRow2">Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}</div>
+          <div class="svcTechMetaRow">ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)}</div>
+          <div class="svcTechMetaRow">Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}</div>
         </div>
       </div>
     `;
@@ -423,10 +468,6 @@ function renderServicesHome(){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const metricVal = (rankMetric==='sold') ? s.closeTot : s.reqTot;
-      const metricTxt = (rankMetric==='sold') ? fmtPct(metricVal) : fmt1(metricVal,2);
-      const metricLbl = (rankMetric==='sold') ? 'Sold/ASR' : 'ASRs/RO';
-
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
         ? '—'
@@ -462,18 +503,19 @@ function renderServicesHome(){
       return `
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
           <div class="catHeader">
-            <div class="svcGaugeWrap" style="--sz:72px">
-              ${Number.isFinite(dialPct) ? svcGauge(dialPct, dialLabel) : ''}
-            </div>
-            <div style="min-width:0">
+            <div class="catHdrLeft" style="min-width:0">
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
                 ${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs • ${fmtInt(s.sold)} Sold
               </div>
             </div>
-            <div class="catHdrRight" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-${goalRankBadge(s.serviceName)}
-<div class="byAsr" style="display:block;margin-top:4px">${safe(metricLbl)}</div>
+
+            <div class="sdCatHdrRow">
+              <div class="svcGaugeWrap" style="--sz:72px">
+                ${svcGaugeStack((Number.isFinite(dialPct)?dialPct:0), (rankMetric==='sold'?'SOLD':'ASR'), 'GOAL')}
+              </div>
+              ${goalRankBadge(s.serviceName)}
+<div class="sdFocusLbl">${safe(metricLbl)}</div>
               </div>
             </div>
           </div>
@@ -522,6 +564,23 @@ ${goalRankBadge(s.serviceName)}
     const key = d.getAttribute('data-sec');
     d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
   });
+
+// Animate gauges (sets ring fill + enables hold interaction)
+try{ animateSvcGauges(); }catch(e){}
+
+// Also allow a simple click toggle for the alt view (quick feedback)
+try{
+  app.querySelectorAll('.svcGauge[data-p]').forEach(el=>{
+    if(el.getAttribute('data-click')==='1') return;
+    el.setAttribute('data-click','1');
+    el.addEventListener('click', ()=>{
+      el.classList.toggle('showAlt');
+      clearTimeout(el._svcT);
+      el._svcT = setTimeout(()=>{ try{ el.classList.remove('showAlt'); }catch(_e){} }, 1200);
+    });
+  });
+}catch(e){}
+
 }
 
 window.renderServicesHome = renderServicesHome;
