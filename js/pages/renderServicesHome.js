@@ -159,7 +159,7 @@ function renderServicesHome(){
 
       /* TechPickPanel toggle + thumbs (scoped) */
       .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin:-2px 2px 0}
-      .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:12px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
+      .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:16px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .techPickPanel.diagSection .pickToggle{position:relative;width:46px;height:24px;flex:0 0 auto}
       .pageServicesDash .techPickPanel.diagSection .pickToggle input{opacity:0;width:0;height:0}
       .pageServicesDash .techPickPanel.diagSection .pickToggle .slider{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.12);cursor:pointer;transition:background 140ms ease}
@@ -167,7 +167,7 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider{background:rgba(31,203,106,.28)}
       .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider:before{transform:translateX(22px)}
 
-      .pageServicesDash .techPickPanel.diagSection .thumbIcon{font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;margin-left:6px}
+      .pageServicesDash .techPickPanel.diagSection .thumbIcon{font-size:28px;line-height:1;display:inline-flex;align-items:center;justify-content:center;margin-left:6px}
       .pageServicesDash .techPickPanel.diagSection .thumbIcon.up{color:#1fcb6a}
       .pageServicesDash .techPickPanel.diagSection .thumbIcon.down{color:#ff4b4b}
 
@@ -816,7 +816,7 @@ function renderServicesHome(){
     const path = isDown
       ? "M10 14H6c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h4v8zm1 0V6l2-4c.3-.7 1.1-1 1.8-.7.5.2.8.7.7 1.2L15 6h3.5c.8 0 1.5.7 1.5 1.5 0 .1 0 .2-.1.3l-1.3 4.6c-.2.6-.8 1.1-1.5 1.1H11z"
       : "M10 6H6c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h4V6zm1 0v8l2 4c.3.7 1.1 1 1.8.7.5-.2.8-.7.7-1.2L15 14h3.5c.8 0 1.5-.7 1.5-1.5 0-.1 0-.2-.1-.3l-1.3-4.6c-.2-.6-.8-1.1-1.5-1.1H11z";
-    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:14px;height:14px;display:block"><path d="${path}" fill="currentColor"/></svg>`;
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:28px;height:28px;display:block"><path d="${path}" fill="currentColor"/></svg>`;
   }
 function tbMiniBoxSvc(title, rows, mode, kind){
     const html = rows.length ? rows.map((x,i)=>tbRowSvc(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
