@@ -11,15 +11,9 @@ function renderServicesHome(){
     el.textContent = `
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
-      /* In the header+diag 2-col wrap, force BOTH panels to the same height (bottoms align) */
-      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel{margin-bottom:0 !important;height:100% !important;display:flex;flex-direction:column;}
-      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel>.phead{flex:1;min-height:0;display:flex;flex-direction:column;}
-      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel .phead>*{flex:0 0 auto;}
-      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel .phead .mainFiltersBar{margin-top:auto;}
-
 
       /* Header + diag wrapper (match Tech Details layout) */
-      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:12px;align-items:stretch;margin-bottom:14px;}
+      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
       @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
 
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
@@ -96,22 +90,38 @@ function renderServicesHome(){
       }
       .pageServicesDash .techPickPanel .pickList .techRow > .mini,
       .pageServicesDash .techPickPanel .pickList .techRow > div:last-child{white-space:nowrap !important;}
-      /* ServicesHome diagSection tech rows: 14px + tighter fit */
-      .pageServicesDash .techPickPanel.diagSection .pickList{display:grid !important;gap:6px !important;}
-      .pageServicesDash .techPickPanel.diagSection .pickList .techRow{
-        font-size:14px !important;
-        line-height:1.12 !important;
-        padding:6px 8px !important;
-        min-height:0 !important;
-      }
-      .pageServicesDash .techPickPanel.diagSection .pickList .techRow .rankNum,
-      .pageServicesDash .techPickPanel.diagSection .pickList .techRow .mini,
-      .pageServicesDash .techPickPanel.diagSection .pickList .techRow a,
-      .pageServicesDash .techPickPanel.diagSection .pickList .techRow .tbJump{
-        font-size:14px !important;
-      }
-      .pageServicesDash .techPickPanel.diagSection .pickList .techRow > div:first-child{gap:8px !important;}
 
+      /* =========================================================
+         ServicesHome diagSection tech rows — match renderTech
+         ========================================================= */
+      .pageServicesDash .techPickPanel.diagSection .pickList{display:grid;gap:6px}
+      .pageServicesDash .techPickPanel.diagSection .techRow{
+        font-size:14px !important;
+        font-weight:700 !important;
+        line-height:1.2 !important;
+        padding:6px 8px !important;
+      }
+      .pageServicesDash .techPickPanel.diagSection .techRow .rankNum,
+      .pageServicesDash .techPickPanel.diagSection .techRow .mini,
+      .pageServicesDash .techPickPanel.diagSection .techRow a.tbJump{
+        font-size:14px !important;
+        font-weight:700 !important;
+      }
+      .pageServicesDash .techPickPanel.diagSection a.tbJump{
+        background:transparent !important;
+        border:none !important;
+        box-shadow:none !important;
+        padding:0 !important;
+        margin:0 !important;
+        color:inherit !important;
+        text-decoration:underline !important;
+        cursor:pointer !important;
+        display:inline-block;
+        max-width:100%;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
 
       /* Diag legend: only color the RED/YELLOW/GREEN words; everything else stays white */
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend{color:#fff}
@@ -763,18 +773,56 @@ function renderServicesHome(){
     return out;
   }
 
+
+  // Tech average POSITION across all services (1 = best) based on % of goal for each service.
+  function techAvgPosition(mode){
+    const sums = new Map(); // id -> {sum,count}
+    for(const svcName of _uniqServices){
+      const gReq = Number(getGoal(svcName,'req'));
+      const gClose = Number(getGoal(svcName,'close'));
+      const scored = [];
+      for(const t of techsAll){
+        const row = (t.categories||{})[svcName];
+        if(!row) continue;
+        const rosTech = Number(t.ros)||0;
+        const asr = Number(row.asr)||0;
+        const sold = Number(row.sold)||0;
+        const req = (rosTech>0) ? (asr/rosTech) : NaN;
+        const close = (asr>0) ? (sold/asr) : NaN;
+        const pct = (mode==='sold')
+          ? ((Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN)
+          : ((Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN);
+        if(Number.isFinite(pct)) scored.push({id:String(t.id), pct});
+      }
+      if(!scored.length) continue;
+      scored.sort((a,b)=> (b.pct - a.pct) || a.id.localeCompare(b.id));
+      scored.forEach((s,i)=>{
+        const cur = sums.get(s.id) || {sum:0,count:0};
+        cur.sum += (i+1);
+        cur.count += 1;
+        sums.set(s.id, cur);
+      });
+    }
+    return techsAll.map(t=>{
+      const cur = sums.get(String(t.id));
+      const avgPos = (cur && cur.count) ? (cur.sum/cur.count) : NaN;
+      return {id:t.id, name:t.name, avgPos};
+    });
+  }
+
   function tbRowTech(item, idx, mode){
-    const metricLbl = (mode==='sold') ? 'SOLD GOAL' : 'ASR GOAL';
-    const val = Number.isFinite(item.pct) ? fmtPct(item.pct) : '—';
+    const metricLbl = (mode==='sold') ? 'Avg Sold Position' : 'Avg ASR Position';
+    const val = Number.isFinite(item.avgPos) ? item.avgPos.toFixed(1) : '—';
     return `
       <div class="techRow">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
-          <button type="button" class="tbJump" data-tech="${safe(item.id)}">${safe(item.name)}</button>
+          <a class="tbJump" href="#/tech/${encodeURIComponent(item.id)}" onclick="return goTech(${JSON.stringify(item.id)})">${safe(item.name)}</a>
         </div>
         <div class="mini">${metricLbl} = ${val}</div>
       </div>`;
   }
+
 
   function tbMiniBox(title, rows, mode, kind){
     const html = rows.length ? rows.map((x,i)=>tbRowTech(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
@@ -786,15 +834,18 @@ function renderServicesHome(){
       </div>`;
   }
 
-  const techAsrGoal = techAvgPctOfGoal('asr').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
-  const techSoldGoal = techAvgPctOfGoal('sold').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
-  const topTechAsr = techAsrGoal.slice(0,3);
-  const botTechAsr = techAsrGoal.slice(-3).reverse();
-  const topTechSold = techSoldGoal.slice(0,3);
-  const botTechSold = techSoldGoal.slice(-3).reverse();
+  const techAsrPos = techAvgPosition('asr').filter(x=>Number.isFinite(x.avgPos)).sort((a,b)=>a.avgPos-b.avgPos);
+  const techSoldPos = techAvgPosition('sold').filter(x=>Number.isFinite(x.avgPos)).sort((a,b)=>a.avgPos-b.avgPos);
+
+  const topTechAsr = techAsrPos.slice(0,3);
+  const botTechAsr = techAsrPos.slice(-3).reverse();
+
+  const topTechSold = techSoldPos.slice(0,3);
+  const botTechSold = techSoldPos.slice(-3).reverse();
 
   const diagPanel = `
-    <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
+    <!-- techPickPanel height reduced by 15% (was 100%) -->
+    <div class="panel techPickPanel diagSection" style="height:85%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
@@ -803,8 +854,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechAsr, 'asr', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechAsr, 'asr', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechAsr, 'asr', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechAsr, 'asr', 'down')}</div>
           </div>
         </div>
 
@@ -817,8 +868,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechSold, 'sold', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechSold, 'sold', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechSold, 'sold', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
