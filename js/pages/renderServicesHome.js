@@ -882,7 +882,8 @@ function renderServicesHome(){
     </div>
   `;
 
-  const headerWrap = `<div class="svcdashHeaderWrap" style="margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch">${header}${diagPanel}</div>`;
+  // Header + diag (techPickPanel) should sit side-by-side (like renderTech)
+  const headerWrap = `<div class="svcdashHeaderWrap" style="margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;">${header}${diagPanel}</div>`;
 
   const app = document.getElementById('app');
   app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;
