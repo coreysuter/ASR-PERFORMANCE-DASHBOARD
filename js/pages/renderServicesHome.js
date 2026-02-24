@@ -351,8 +351,7 @@ function renderServicesHome(){
   }
 
   // Header panel (copied structure from Technician Dashboard)
-  const header = `
-    <div class="panel techHeaderPanel" style="min-width:0">
+  const header = `<div class="panel techHeaderPanel" style="min-width:0">
       <div class="phead">
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
@@ -427,8 +426,7 @@ function renderServicesHome(){
           </div>
         </div>
       </div>
-    </div>
-  `;
+`;
 
   // ---- Helpers for cards + tech list ----
   let storeAvgRos=0, storeAvgAsr=0, storeAvgSold=0;
