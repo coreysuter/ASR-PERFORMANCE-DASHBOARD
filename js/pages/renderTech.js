@@ -611,8 +611,6 @@ function countBandsFor(mode){
   // Sold/RO shown as a decimal (e.g., 0.42) instead of a percent.
   const __soldPerRoDec = (Number.isFinite(__soldTotal) && Number.isFinite(__rosTotal) && __rosTotal>0) ? (__soldTotal/__rosTotal) : NaN;
   const __soldPerRoDecTxt = Number.isFinite(__soldPerRoDec) ? `(${__soldPerRoDec.toFixed(2)})` : "";
-  const __soldPerAsr = (Number.isFinite(__soldTotal) && Number.isFinite(__asrsTotal) && __asrsTotal>0) ? (__soldTotal/__asrsTotal) : NaN;
-  const __soldPerAsrTxt = Number.isFinite(__soldPerAsr) ? `(${fmtPct(__soldPerAsr)})` : "";
   const __asrPerRoVal = techAsrPerRo(t, filterKey);
   const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
@@ -656,23 +654,23 @@ ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div></div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
           <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
           </div>
 
           <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASR</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldPerAsrTxt}</span></div>
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldPerRoDecTxt}</span></div>
           </div>
         </div>
 
@@ -838,8 +836,8 @@ return `
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
-            <div class="muted svcMetaLine" style="margin-top:2px">
-              ${fmt1(asrCount,0)} ASR · ${fmt1(soldCount,0)} Sold · ${fmt1(techRos,0)} ROs
+            <div class="muted svcMetaLine" style="margin-top:2px;font-size:14px">
+              ${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs<br>${fmt1(soldCount,0)} Sold
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
