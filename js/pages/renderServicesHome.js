@@ -169,7 +169,7 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(5, minmax(160px,1fr)) !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(4, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
@@ -193,16 +193,14 @@ function renderServicesHome(){
       if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
       if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
       if(k==="team") st.team = decodeURIComponent(v||"store") || "store";
-      if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";
-      if(k==="comparison") st.comparison = decodeURIComponent(v||"goal") || "goal";
-    }
+      if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";    }
   }
 
   const focus = (st.focus === 'sold' || st.focus === 'goal') ? st.focus : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
-  const comparison = (st.comparison === 'team' || st.comparison === 'store' || st.comparison === 'goal') ? st.comparison : 'goal';
+  const comparison = 'goal';
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
@@ -354,7 +352,7 @@ function renderServicesHome(){
 
   // Header panel (copied structure from Technician Dashboard)
   const header = `
-    <div class="panel techHeaderPanel">
+    <div class="panel techHeaderPanel" style="min-width:0">
       <div class="phead">
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
@@ -371,7 +369,7 @@ function renderServicesHome(){
                 <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
               </div>
             </div>
-            <div class="techTeamLine">Comparison: ${comparison.toUpperCase()} <span class="teamDot">•</span> ${focus.toUpperCase()}</div>
+            <div class="techTeamLine">${focus.toUpperCase()}</div>
           </div>
 
           <div class="overallBlock">
@@ -425,17 +423,7 @@ function renderServicesHome(){
                           <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
                         </select>
                       </div>
-                      ` : ``}
-          
-                      <div>
-                        <label>Comparison</label>
-                        <select data-svcdash="1" data-ctl="comparison">
-                          <option value="team" ${comparison==='team'?'selected':''}>Team</option>
-                          <option value="store" ${comparison==='store'?'selected':''}>Store</option>
-                          <option value="goal" ${comparison==='goal'?'selected':''}>Goal</option>
-                        </select>
-                      </div>
-                    </div>
+                      ` : ``}</div>
           </div>
         </div>
       </div>
@@ -892,7 +880,7 @@ function renderServicesHome(){
     </div>
   `;
 
-  const headerWrap = `<div class="svcdashHeaderWrap">${header}${diagPanel}</div>`;
+  const headerWrap = `<div class="svcdashHeaderWrap" style="margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch">${header}${diagPanel}</div>`;
 
   const app = document.getElementById('app');
   app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;
@@ -903,9 +891,7 @@ function renderServicesHome(){
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
       if(ctl==='focus') st.focus = sel.value;
-      if(ctl==='goal') st.goalMetric = sel.value;
-      if(ctl==='comparison') st.comparison = sel.value;
-      if(ctl==='team') st.team = sel.value;
+      if(ctl==='goal') st.goalMetric = sel.value;      if(ctl==='team') st.team = sel.value;
       if(ctl==='fluids') st.fluids = sel.value;
       renderServicesHome();
     });
