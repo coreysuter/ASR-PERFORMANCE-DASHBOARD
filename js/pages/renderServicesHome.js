@@ -130,7 +130,10 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
       /* Header divider (used by this page): move it closer to the filters */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 10px}
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:0}
+      /* Put divider exactly midway between dials and filters */
+      .pageServicesDash .svcHdrGoalDials{margin-bottom:12px !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:12px !important;}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
       .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
