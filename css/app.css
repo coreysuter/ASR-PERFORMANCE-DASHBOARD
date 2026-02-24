@@ -2142,11 +2142,11 @@ body.route-tech .techH2Big{font-size:34px !important;}
 /* === PATCH 2026-02-18: Tech details header pills + category header bottom focus stat === */
 /* Tech Details / Group pages (body.route-tech): header pills sizing */
 body.route-tech .techHeaderPanel .pills .pill .v{
-  font-size:22px !important;
+  font-size:18px !important;
   line-height:1.05 !important;
 }
 body.route-tech .techHeaderPanel .pills .pill .k{
-  font-size:14px !important;
+  font-size:15px !important;
   line-height:1.05 !important;
   color:rgba(255,255,255,.55) !important;
   text-transform:none !important;
