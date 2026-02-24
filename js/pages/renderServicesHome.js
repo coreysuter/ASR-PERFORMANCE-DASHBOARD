@@ -11,6 +11,12 @@ function renderServicesHome(){
     el.textContent = `
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
+      /* In the header+diag 2-col wrap, force BOTH panels to the same height (bottoms align) */
+      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel{margin-bottom:0 !important;height:100% !important;display:flex;flex-direction:column;}
+      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel>.phead{flex:1;min-height:0;display:flex;flex-direction:column;}
+      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel .phead>*{flex:0 0 auto;}
+      .pageServicesDash .svcdashHeaderWrap .techHeaderPanel .phead .mainFiltersBar{margin-top:auto;}
+
 
       /* Header + diag wrapper (match Tech Details layout) */
       .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:12px;align-items:stretch;margin-bottom:14px;}
