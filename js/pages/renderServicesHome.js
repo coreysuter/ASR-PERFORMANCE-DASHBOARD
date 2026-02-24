@@ -1016,7 +1016,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
+              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services ASR', topSvcAsr, 'asr', 'up') : tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
@@ -1030,7 +1030,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
+              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services SOLD', topSvcSold, 'sold', 'up') : tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
