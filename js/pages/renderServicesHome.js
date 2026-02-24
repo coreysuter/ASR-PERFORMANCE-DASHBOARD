@@ -30,20 +30,23 @@ function renderServicesHome(){
       .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
-
       /* =====================================================================
-         ServicesHome techPickPanel diagSection: match renderTech look/feel
+         ServicesHome diagSection: match Tech Details (renderTech) styling
          ===================================================================== */
 
-      /* Let the diag section size naturally so we don't introduce a scrollbar */
-      .pageServicesDash .techPickPanel.diagSection{overflow:visible}
-      .pageServicesDash .techPickPanel.diagSection>.phead{overflow:visible}
+      /* Prevent Bottom 3 lists from being clipped when the diag section is height-constrained */
+      .pageServicesDash .techPickPanel.diagSection{display:flex;flex-direction:column;overflow:visible}
+      .pageServicesDash .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow:visible}
+      .pageServicesDash .techPickPanel.diagSection .pickRow{min-height:0}
 
-      /* Diag pie chart sizing + interactions (same as renderTech/app.css) */
+      /* Diag pie chart labels/lines (same as app.css tech details) */
       .pageServicesDash .techPickPanel.diagSection .diagPieWrap{display:flex;align-items:center;justify-content:center;margin-top:10px}
       .pageServicesDash .techPickPanel.diagSection .diagPieSvg{width:142px;height:142px;display:block;overflow:visible}
       .pageServicesDash .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:700;font-size:20px}
+      .pageServicesDash .techPickPanel.diagSection .diagPieLeader{stroke:rgba(255,255,255,9);stroke-width:1}
+      .pageServicesDash .techPickPanel.diagSection .diagPieRing{stroke:rgba(255,255,255,85);stroke-width:1.2}
+
+      /* Diag pie interactions (same as app.css tech details) */
       .pageServicesDash .techPickPanel.diagSection .diagPieWrap,
       .pageServicesDash .techPickPanel.diagSection .diagPieSvg{cursor:pointer;}
       .pageServicesDash .techPickPanel.diagSection .diagPieSlice{
@@ -54,39 +57,82 @@ function renderServicesHome(){
       }
       .pageServicesDash .techPickPanel.diagSection .diagPieSlice:hover{
         opacity:1;
-        filter:brightness(1.35) drop-shadow(0 6px 10px rgba(0,0,0,.35));
+        filter:brightness(1.35) drop-shadow(0 6px 10px rgba(0,0,0,35));
         transform:scale(1.02);
       }
 
-      /* Top/Bottom list row chrome + typography (same as renderTech/app.css) */
-      .pageServicesDash .techPickPanel.diagSection .pickBox{background:rgba(0,0,0,.33);border:1px solid rgba(234,240,255,.14);border-radius:14px;padding:10px;height:auto}
-      .pageServicesDash .techPickPanel.diagSection .pickMiniHdr{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.2px;text-transform:uppercase;margin:0 0 8px 0;padding:0;border:0}
-      .pageServicesDash .techPickPanel.diagSection .pickList{display:flex;flex-direction:column;gap:6px;padding:0}
+      /* One-line Top/Bottom list rows (same as app.css tech details) */
+      .pageServicesDash .techPickPanel .pickList .techRow{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:space-between !important;
+        flex-wrap:nowrap !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow > div:first-child{
+        display:flex !important;
+        align-items:center !important;
+        gap:10px !important;
+        min-width:0 !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow > div:first-child .mini{
+        margin:0 !important;
+        white-space:nowrap !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow a,
+      .pageServicesDash .techPickPanel .pickList .techRow .tbJump,
+      .pageServicesDash .techPickPanel .pickList .techRow .nm,
+      .pageServicesDash .techPickPanel .pickList .techRow span,
+      .pageServicesDash .techPickPanel .pickList .techRow button{
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        max-width:100% !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow > .mini,
+      .pageServicesDash .techPickPanel .pickList .techRow > div:last-child{white-space:nowrap !important;}
+
+      /* =========================================================
+         ServicesHome diagSection tech rows — match renderTech
+         ========================================================= */
+      .pageServicesDash .techPickPanel.diagSection .pickList{display:grid;gap:6px}
       .pageServicesDash .techPickPanel.diagSection .techRow{
-        background:rgba(255,255,255,.06);
-        border:1px solid rgba(255,255,255,.10);
-        border-radius:12px;
-        padding:6px 10px;
-        margin:0;
+        font-size:14px !important;
+        font-weight:700 !important;
+        line-height:1.2 !important;
+        padding:6px 8px !important;
       }
-      .pageServicesDash .techPickPanel.diagSection .mini{font-size:12px}
-
-      /* Remove white button box + ensure names are underlined links */
-      .pageServicesDash .techPickPanel.diagSection .tbJump{
-        background:transparent;
-        border:none;
-        padding:0;
-        margin:0;
-        color:inherit;
-        font:inherit;
-        font-weight:inherit;
-        text-decoration:underline;
-        cursor:pointer;
+      .pageServicesDash .techPickPanel.diagSection .techRow .rankNum,
+      .pageServicesDash .techPickPanel.diagSection .techRow .mini,
+      .pageServicesDash .techPickPanel.diagSection .techRow a.tbJump{
+        font-size:14px !important;
+        font-weight:700 !important;
       }
-      .pageServicesDash .techPickPanel.diagSection .tbJump:focus{outline:none}
+      .pageServicesDash .techPickPanel.diagSection a.tbJump{
+        background:transparent !important;
+        border:none !important;
+        box-shadow:none !important;
+        padding:0 !important;
+        margin:0 !important;
+        color:inherit !important;
+        text-decoration:underline !important;
+        cursor:pointer !important;
+        display:inline-block;
+        max-width:100%;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
 
-      .pageServicesDash .diagPopup{position:fixed;z-index:9999;width:520px;max-width:calc(100vw - 24px);background:linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98));border:1px solid rgba(255,255,255,.10);border-radius:16px;box-shadow:0 22px 60px rgba(0,0,0,.55);overflow:hidden}
-      .pageServicesDash .diagPopRowBtn{width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:6px;cursor:pointer}
+      /* Diag legend: only color the RED/YELLOW/GREEN words; everything else stays white */
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend{color:#fff}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendRest{color:#fff}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendName{font-weight:1000}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendRed{color:#ff4b4b}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
+
+      /* Header divider (used by this page) */
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -727,9 +773,46 @@ function renderServicesHome(){
     return out;
   }
 
+
+  // Tech average POSITION across all services (1 = best) based on % of goal for each service.
+  function techAvgPosition(mode){
+    const sums = new Map(); // id -> {sum,count}
+    for(const svcName of _uniqServices){
+      const gReq = Number(getGoal(svcName,'req'));
+      const gClose = Number(getGoal(svcName,'close'));
+      const scored = [];
+      for(const t of techsAll){
+        const row = (t.categories||{})[svcName];
+        if(!row) continue;
+        const rosTech = Number(t.ros)||0;
+        const asr = Number(row.asr)||0;
+        const sold = Number(row.sold)||0;
+        const req = (rosTech>0) ? (asr/rosTech) : NaN;
+        const close = (asr>0) ? (sold/asr) : NaN;
+        const pct = (mode==='sold')
+          ? ((Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN)
+          : ((Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN);
+        if(Number.isFinite(pct)) scored.push({id:String(t.id), pct});
+      }
+      if(!scored.length) continue;
+      scored.sort((a,b)=> (b.pct - a.pct) || a.id.localeCompare(b.id));
+      scored.forEach((s,i)=>{
+        const cur = sums.get(s.id) || {sum:0,count:0};
+        cur.sum += (i+1);
+        cur.count += 1;
+        sums.set(s.id, cur);
+      });
+    }
+    return techsAll.map(t=>{
+      const cur = sums.get(String(t.id));
+      const avgPos = (cur && cur.count) ? (cur.sum/cur.count) : NaN;
+      return {id:t.id, name:t.name, avgPos};
+    });
+  }
+
   function tbRowTech(item, idx, mode){
-    const metricLbl = (mode==='sold') ? 'SOLD GOAL' : 'ASR GOAL';
-    const val = Number.isFinite(item.pct) ? fmtPct(item.pct) : '—';
+    const metricLbl = (mode==='sold') ? 'Avg Sold Position' : 'Avg ASR Position';
+    const val = Number.isFinite(item.avgPos) ? item.avgPos.toFixed(1) : '—';
     return `
       <div class="techRow">
         <div class="techRowLeft">
@@ -739,6 +822,7 @@ function renderServicesHome(){
         <div class="mini">${metricLbl} = ${val}</div>
       </div>`;
   }
+
 
   function tbMiniBox(title, rows, mode, kind){
     const html = rows.length ? rows.map((x,i)=>tbRowTech(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
@@ -750,15 +834,17 @@ function renderServicesHome(){
       </div>`;
   }
 
-  const techAsrGoal = techAvgPctOfGoal('asr').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
-  const techSoldGoal = techAvgPctOfGoal('sold').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
-  const topTechAsr = techAsrGoal.slice(0,3);
-  const botTechAsr = techAsrGoal.slice(-3).reverse();
-  const topTechSold = techSoldGoal.slice(0,3);
-  const botTechSold = techSoldGoal.slice(-3).reverse();
+  const techAsrPos = techAvgPosition('asr').filter(x=>Number.isFinite(x.avgPos)).sort((a,b)=>a.avgPos-b.avgPos);
+  const techSoldPos = techAvgPosition('sold').filter(x=>Number.isFinite(x.avgPos)).sort((a,b)=>a.avgPos-b.avgPos);
+
+  const topTechAsr = techAsrPos.slice(0,3);
+  const botTechAsr = techAsrPos.slice(-3).reverse();
+
+  const topTechSold = techSoldPos.slice(0,3);
+  const botTechSold = techSoldPos.slice(-3).reverse();
 
   const diagPanel = `
-    <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:visible">
+        <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
@@ -767,8 +853,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechAsr, 'asr', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechAsr, 'asr', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechAsr, 'asr', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechAsr, 'asr', 'down')}</div>
           </div>
         </div>
 
@@ -781,8 +867,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechSold, 'sold', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechSold, 'sold', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechSold, 'sold', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
@@ -845,16 +931,28 @@ try{
     const pop = document.createElement('div');
     pop.id = 'svcDiagPopup';
     pop.className = 'diagPopup';
+
+    // Match renderTech popup look (avoid CSS dependency)
+    pop.style.position = 'fixed';
+    pop.style.zIndex = '9999';
+    pop.style.width = '520px';
+    pop.style.maxWidth = 'calc(100vw - 24px)';
+    pop.style.background = 'linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98))';
+    pop.style.border = '1px solid rgba(255,255,255,.10)';
+    pop.style.borderRadius = '16px';
+    pop.style.boxShadow = '0 22px 60px rgba(0,0,0,.55)';
+    pop.style.overflow = 'hidden';
+    pop.style.overflowX = 'hidden';
     pop.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div style="font-weight:1000;letter-spacing:.4px">${title} • ${band.toUpperCase()} Services</div>
-        <button aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
+      <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title} • ${band.toUpperCase()} Services</div>
+        <button class="diagPopClose" aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
-      <div style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
+      <div class="diagPopList" style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
         ${list.length ? list.map((it,i)=>{
           const id = 'sd-'+safeSvcIdLocal(it.name).replace(/^svc-/, '');
           return `
-            <button class="diagPopRowBtn" type="button" data-target="${id}">
+            <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:6px;cursor:pointer">
               <span class="rankNum">${i+1}.</span>
               <span style="flex:0 1 340px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safe(it.name)}</span>
               <span style="margin-left:6px;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${fmtPct(it.pct)}</span>
