@@ -173,18 +173,18 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .pillMini .v{font-size:13px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pillMini.sold .v{color:#fff !important;}
 
+
       /* Header goal dials (match Tech Details focus dial sizing/typography) */
       .pageServicesDash .svcHdrGoalDials{display:flex;gap:22px;align-items:flex-start;margin-top:10px;}
-      /* +25% size for the two header goal dials */
-      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:113px;}
-      /* +25% size for stacked dial text */
-      .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;transform:scale(1.25);transform-origin:center;}
-      /* Keep cursor unchanged on hover (do not show pointer) */
+
+      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:113px;width:var(--sz);height:var(--sz);flex:0 0 var(--sz);}
+      .pageServicesDash .svcHdrGoalDials .svcGauge{--sz:113px !important;width:var(--sz) !important;height:var(--sz) !important;}
       .pageServicesDash .svcHdrGoalDials .svcGaugeWrap,
-      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap *,
       .pageServicesDash .svcHdrGoalDials .svcGauge,
       .pageServicesDash .svcHdrGoalDials .svcGauge *{cursor:default !important;}
-      .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:8px;text-align:center;font-size:15px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
+
+      .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:15px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
+      .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
       .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
       .pageServicesDash .svcHdrGoalDials .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
 
