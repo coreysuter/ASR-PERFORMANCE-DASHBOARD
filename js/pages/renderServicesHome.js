@@ -403,7 +403,8 @@ function renderServicesHome(){
   if(focus === 'goal'){
     // show the selected goal metric % of goal big
     topVal = (goalMetric==='sold') ? goalsAgg.soldPctOfGoal : goalsAgg.asrPctOfGoal;
-    topLbl = (goalMetric==='sold') ? 'Sold Goal%' : 'ASR Goal%';
+    // When Focus=GOAL, do NOT show the word "Goal" in the focus stat label
+    topLbl = (goalMetric==='sold') ? 'SOLD' : 'ASR';
     subVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
     subLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
   }
