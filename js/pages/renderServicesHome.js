@@ -10,10 +10,10 @@ function renderServicesHome(){
     }
     el.textContent = `
       /* Scope everything to Services Dashboard only */
-      .pageServicesDash .techHeaderPanel{margin-bottom:0 !important;}
+      .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
 
       /* Header + diag wrapper (match Tech Details layout) */
-      .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
+      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
       @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
 
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
@@ -30,23 +30,23 @@ function renderServicesHome(){
       .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
+      /* Remove grey divider and pin filters to bottom */
+      .pageServicesDash .svcHdrDivider{display:none !important;}
+      .pageServicesDash .techHeaderPanel .phead{display:flex;flex-direction:column;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
+
       /* =====================================================================
-         ServicesHome diagSection: match Tech Details (renderTech) styling
+         ServicesHome techPickPanel diagSection: match renderTech look/feel
          ===================================================================== */
 
       /* Prevent Bottom 3 lists from being clipped when the diag section is height-constrained */
-      .pageServicesDash .techPickPanel.diagSection{display:flex;flex-direction:column;overflow:visible}
-      .pageServicesDash .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow:visible}
-      .pageServicesDash .techPickPanel.diagSection .pickRow{min-height:0}
+      .pageServicesDash .techPickPanel.diagSection{display:flex;flex-direction:column;overflow:hidden}
+      .pageServicesDash .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
 
-      /* Diag pie chart labels/lines (same as app.css tech details) */
+      /* Diag pie chart sizing + interactions (same as renderTech/app.css) */
       .pageServicesDash .techPickPanel.diagSection .diagPieWrap{display:flex;align-items:center;justify-content:center;margin-top:10px}
       .pageServicesDash .techPickPanel.diagSection .diagPieSvg{width:142px;height:142px;display:block;overflow:visible}
       .pageServicesDash .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:700;font-size:20px}
-      .pageServicesDash .techPickPanel.diagSection .diagPieLeader{stroke:rgba(255,255,255,9);stroke-width:1}
-      .pageServicesDash .techPickPanel.diagSection .diagPieRing{stroke:rgba(255,255,255,85);stroke-width:1.2}
-
-      /* Diag pie interactions (same as app.css tech details) */
       .pageServicesDash .techPickPanel.diagSection .diagPieWrap,
       .pageServicesDash .techPickPanel.diagSection .diagPieSvg{cursor:pointer;}
       .pageServicesDash .techPickPanel.diagSection .diagPieSlice{
@@ -57,82 +57,39 @@ function renderServicesHome(){
       }
       .pageServicesDash .techPickPanel.diagSection .diagPieSlice:hover{
         opacity:1;
-        filter:brightness(1.35) drop-shadow(0 6px 10px rgba(0,0,0,35));
+        filter:brightness(1.35) drop-shadow(0 6px 10px rgba(0,0,0,.35));
         transform:scale(1.02);
       }
 
-      /* One-line Top/Bottom list rows (same as app.css tech details) */
-      .pageServicesDash .techPickPanel .pickList .techRow{
-        display:flex !important;
-        align-items:center !important;
-        justify-content:space-between !important;
-        flex-wrap:nowrap !important;
-      }
-      .pageServicesDash .techPickPanel .pickList .techRow > div:first-child{
-        display:flex !important;
-        align-items:center !important;
-        gap:10px !important;
-        min-width:0 !important;
-      }
-      .pageServicesDash .techPickPanel .pickList .techRow > div:first-child .mini{
-        margin:0 !important;
-        white-space:nowrap !important;
-      }
-      .pageServicesDash .techPickPanel .pickList .techRow a,
-      .pageServicesDash .techPickPanel .pickList .techRow .tbJump,
-      .pageServicesDash .techPickPanel .pickList .techRow .nm,
-      .pageServicesDash .techPickPanel .pickList .techRow span,
-      .pageServicesDash .techPickPanel .pickList .techRow button{
-        white-space:nowrap !important;
-        overflow:hidden !important;
-        text-overflow:ellipsis !important;
-        max-width:100% !important;
-      }
-      .pageServicesDash .techPickPanel .pickList .techRow > .mini,
-      .pageServicesDash .techPickPanel .pickList .techRow > div:last-child{white-space:nowrap !important;}
-
-      /* =========================================================
-         ServicesHome diagSection tech rows — match renderTech
-         ========================================================= */
-      .pageServicesDash .techPickPanel.diagSection .pickList{display:grid;gap:6px}
+      /* Top/Bottom list row chrome + typography (same as renderTech/app.css) */
+      .pageServicesDash .techPickPanel.diagSection .pickBox{background:rgba(0,0,0,.33);border:1px solid rgba(234,240,255,.14);border-radius:14px;padding:10px;height:auto}
+      .pageServicesDash .techPickPanel.diagSection .pickMiniHdr{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.2px;text-transform:uppercase;margin:0 0 8px 0;padding:0;border:0}
+      .pageServicesDash .techPickPanel.diagSection .pickList{display:flex;flex-direction:column;gap:6px;padding:0}
       .pageServicesDash .techPickPanel.diagSection .techRow{
-        font-size:14px !important;
-        font-weight:700 !important;
-        line-height:1.2 !important;
-        padding:6px 8px !important;
+        background:rgba(255,255,255,.06);
+        border:1px solid rgba(255,255,255,.10);
+        border-radius:12px;
+        padding:6px 10px;
+        margin:0;
       }
-      .pageServicesDash .techPickPanel.diagSection .techRow .rankNum,
-      .pageServicesDash .techPickPanel.diagSection .techRow .mini,
-      .pageServicesDash .techPickPanel.diagSection .techRow a.tbJump{
-        font-size:14px !important;
-        font-weight:700 !important;
-      }
-      .pageServicesDash .techPickPanel.diagSection a.tbJump{
-        background:transparent !important;
-        border:none !important;
-        box-shadow:none !important;
-        padding:0 !important;
-        margin:0 !important;
-        color:inherit !important;
-        text-decoration:underline !important;
-        cursor:pointer !important;
-        display:inline-block;
-        max-width:100%;
-        white-space:nowrap;
-        overflow:hidden;
-        text-overflow:ellipsis;
-      }
+      .pageServicesDash .techPickPanel.diagSection .mini{font-size:12px}
 
-      /* Diag legend: only color the RED/YELLOW/GREEN words; everything else stays white */
-      .pageServicesDash .techPickPanel.diagSection .diagBandLegend{color:#fff}
-      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendRest{color:#fff}
-      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendName{font-weight:1000}
-      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendRed{color:#ff4b4b}
-      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
-      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
+      /* Remove white button box + ensure names are underlined links */
+      .pageServicesDash .techPickPanel.diagSection .tbJump{
+        background:transparent;
+        border:none;
+        padding:0;
+        margin:0;
+        color:inherit;
+        font:inherit;
+        font-weight:inherit;
+        text-decoration:underline;
+        cursor:pointer;
+      }
+      .pageServicesDash .techPickPanel.diagSection .tbJump:focus{outline:none}
 
-      /* Header divider (used by this page) */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
+      .pageServicesDash .diagPopup{position:fixed;z-index:9999;width:520px;max-width:calc(100vw - 24px);background:linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98));border:1px solid rgba(255,255,255,.10);border-radius:16px;box-shadow:0 22px 60px rgba(0,0,0,.55);overflow:hidden}
+      .pageServicesDash .diagPopRowBtn{width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:6px;cursor:pointer}
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -169,7 +126,13 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(3, minmax(160px,1fr)) !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(160px,1fr)) !important;
+        grid-auto-rows:auto;
+        gap:12px 14px;
+        align-items:end;
+      }
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
@@ -180,7 +143,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'all', open: {} };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'store', fluids: 'with', open: {} };
 
   const st = UI.servicesDash;
 
@@ -192,19 +155,28 @@ function renderServicesHome(){
       const [k,v]=part.split("=");
       if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
       if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
-      if(k==="comparison") st.comparison = decodeURIComponent(v||"goal") || "goal";
+      if(k==="team") st.team = decodeURIComponent(v||"store") || "store";
+      if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";
     }
   }
 
   const focus = (st.focus === 'sold' || st.focus === 'goal') ? st.focus : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
-  const comparison = (st.comparison === 'team' || st.comparison === 'store' || st.comparison === 'goal') ? st.comparison : 'goal';
+  // Comparison filter removed on this page — keep internal baseline stable
+  const comparison = 'goal';
+
+  const teamSel = (st.team==='express' || st.team==='kia' || st.team==='store') ? st.team : 'store';
+  const fluidsSel = (st.fluids==='with' || st.fluids==='without' || st.fluids==='only') ? st.fluids : 'with';
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
     : [];
 
-  const techs = techsAll;
+  const techs = techsAll.filter(t=>{
+    if(teamSel==='express') return t.team === 'EXPRESS';
+    if(teamSel==='kia') return t.team === 'KIA';
+    return true; // store
+  });
 
   // Determine the metric used for goal comparisons/ranking
   const rankMetric = (focus==='goal') ? goalMetric : (focus==='sold' ? 'sold' : 'asr');
@@ -276,13 +248,31 @@ function renderServicesHome(){
     </span>`;
   }
 
+  // --- Fluids service set (for fluids filter) ---
+  const _fluidsSet = new Set();
+  try{
+    (Array.isArray(DATA.sections)?DATA.sections:[]).forEach(s=>{
+      const nm = String(s?.name||'').toUpperCase();
+      if(nm.includes('FLUID')){
+        (s.categories||[]).forEach(c=>{ if(c) _fluidsSet.add(String(c)); });
+      }
+    });
+  }catch(e){}
+  const _passesFluids = (svcName)=>{
+    const isFl = _fluidsSet.has(String(svcName));
+    if(fluidsSel==='only') return isFl;
+    if(fluidsSel==='without') return !isFl;
+    return true; // with
+  };
+
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
   for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
 
   const _allServiceNames = (Array.isArray(DATA.sections)?DATA.sections:[])
     .flatMap(s => (s?.categories||[]).map(String).filter(Boolean))
-    .filter(c => _allCatsSet.has(c));
+    .filter(c => _allCatsSet.has(c))
+    .filter(_passesFluids);
   const _uniqServices = Array.from(new Set(_allServiceNames));
   const _svcRankDen = _uniqServices.length || 1;
   const _svcGoalPct = new Map();
@@ -349,80 +339,93 @@ function renderServicesHome(){
   }
 
   // Header panel (copied structure from Technician Dashboard)
-  const header = `
-    <div class="panel techHeaderPanel">
-      <div class="phead">
-        <div class="titleRow techTitleRow">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-          </div>
+  const teamLabel = (teamSel==='express') ? 'Express' : (teamSel==='kia' ? 'Kia' : 'Store');
+  const fluidsLabel = (fluidsSel==='only') ? 'Fluids Only' : (fluidsSel==='without' ? 'Without Fluids' : 'With Fluids (Total)');
+  const focusLabel = (focus==='goal') ? `Goal • ${(goalMetric==='sold')?'Sold':'ASR'}` : focus.toUpperCase();
 
-          <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start">
-              <div class="h2 techH2Big">Services Dashboard</div>
-              <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
-                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-                <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
-                <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
-                <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+    const header = `
+      <div class="panel techHeaderPanel">
+        <div class="phead">
+          <div class="titleRow techTitleRow">
+            <div class="techTitleLeft">
+              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+            </div>
+  
+            <div class="techNameWrap">
+              <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div class="h2 techH2Big">Services Dashboard</div>
+                  <div class="techTeamLine">${safe(teamLabel)} <span class="teamDot">•</span> ${safe(fluidsLabel)} <span class="teamDot">•</span> ${safe(focusLabel)}</div>
+                </div>
+  
+                <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
+                  <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+                  <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
+                  <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
+                  <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+                </div>
               </div>
             </div>
-            <div class="techTeamLine">Comparison: ${comparison.toUpperCase()} <span class="teamDot">•</span> ${focus.toUpperCase()}</div>
+  
+            <div class="overallBlock">
+              <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
+                ${topVal===null ? "—" : (focus==='goal' ? fmtPct(topVal) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
+              </div>
+              <div class="tag">${safe(topLbl)}</div>
+  
+              <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
+                ${subVal===null ? "—" : (focus==='sold' ? fmt1(subVal,1) : fmt1(subVal,2))}
+              </div>
+              <div class="tag">${safe(subLbl)}</div>
+            </div>
           </div>
-
-          <div class="overallBlock">
-            <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topVal===null ? "—" : (focus==='goal' ? fmtPct(topVal) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
-            </div>
-            <div class="tag">${safe(topLbl)}</div>
-
-            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subVal===null ? "—" : (focus==='sold' ? fmt1(subVal,1) : fmt1(subVal,2))}
-            </div>
-            <div class="tag">${safe(subLbl)}</div>
-          </div>
-        </div>
-
-        <div class="svcHdrDivider"></div>
-        <div class="mainFiltersBar">
-          <div class="controls mainAlwaysOpen">
-            <div>
-              <label>Focus</label>
-              <select data-svcdash="1" data-ctl="focus">
-                <option value="asr" ${focus==='asr'?'selected':''}>ASR</option>
-                <option value="sold" ${focus==='sold'?'selected':''}>SOLD</option>
-                <option value="goal" ${focus==='goal'?'selected':''}>GOAL</option>
-              </select>
-            </div>
-
-            ${focus==='goal' ? `
-            <div>
-              <label>Goal</label>
-              <select data-svcdash="1" data-ctl="goal">
-                <option value="asr" ${goalMetric==='asr'?'selected':''}>ASR</option>
-                <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
-              </select>
-            </div>
-            ` : `
-            <div style="opacity:.45;filter:grayscale(1);pointer-events:none">
-              <label>Goal</label>
-              <select><option>—</option></select>
-            </div>
-            `}
-
-            
-            <div>
-              <label>Comparison</label>
-              <select data-svcdash="1" data-ctl="comparison">
-                <option value="team" ${comparison==='team'?'selected':''}>Team</option>
-                <option value="store" ${comparison==='store'?'selected':''}>Store</option>
-                <option value="goal" ${comparison==='goal'?'selected':''}>Goal</option>
-              </select>
+  
+          <div class="svcHdrDivider"></div>
+          <div class="mainFiltersBar">
+            <div class="controls mainAlwaysOpen">
+              <!-- Row 1 -->
+              <div>
+                <label>Team</label>
+                <select data-svcdash="1" data-ctl="team">
+                  <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
+                  <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
+                  <option value="store" ${teamSel==='store'?'selected':''}>Store</option>
+                </select>
+              </div>
+  
+              <div>
+                <label>Fluids</label>
+                <select data-svcdash="1" data-ctl="fluids">
+                  <option value="with" ${fluidsSel==='with'?'selected':''}>With Fluids (Total)</option>
+                  <option value="without" ${fluidsSel==='without'?'selected':''}>Without Fluids</option>
+                  <option value="only" ${fluidsSel==='only'?'selected':''}>Fluids Only</option>
+                </select>
+              </div>
+  
+              <!-- Row 2 -->
+              <div ${focus==='goal' ? '' : 'style="grid-column:1 / -1"'}>
+                <label>Focus</label>
+                <select data-svcdash="1" data-ctl="focus">
+                  <option value="asr" ${focus==='asr'?'selected':''}>ASR</option>
+                  <option value="sold" ${focus==='sold'?'selected':''}>SOLD</option>
+                  <option value="goal" ${focus==='goal'?'selected':''}>GOAL</option>
+                </select>
+              </div>
+  
+              ${focus==='goal' ? `
+              <div>
+                <label>Goal</label>
+                <select data-svcdash="1" data-ctl="goal">
+                  <option value="asr" ${goalMetric==='asr'?'selected':''}>ASR</option>
+                  <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
+                </select>
+              </div>
+              ` : ``}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    `;
   `;
 
   // ---- Helpers for cards + tech list ----
@@ -553,7 +556,11 @@ function renderServicesHome(){
     for(const t of techsAll){
       for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
     }
-    const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
+    const services = (sec.categories||[])
+      .map(String)
+      .filter(Boolean)
+      .filter(c=>allCatsSet.has(c))
+      .filter(_passesFluids);
 
     const aggs = services.map(buildServiceAgg);
 
@@ -773,46 +780,9 @@ function renderServicesHome(){
     return out;
   }
 
-
-  // Tech average POSITION across all services (1 = best) based on % of goal for each service.
-  function techAvgPosition(mode){
-    const sums = new Map(); // id -> {sum,count}
-    for(const svcName of _uniqServices){
-      const gReq = Number(getGoal(svcName,'req'));
-      const gClose = Number(getGoal(svcName,'close'));
-      const scored = [];
-      for(const t of techsAll){
-        const row = (t.categories||{})[svcName];
-        if(!row) continue;
-        const rosTech = Number(t.ros)||0;
-        const asr = Number(row.asr)||0;
-        const sold = Number(row.sold)||0;
-        const req = (rosTech>0) ? (asr/rosTech) : NaN;
-        const close = (asr>0) ? (sold/asr) : NaN;
-        const pct = (mode==='sold')
-          ? ((Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN)
-          : ((Number.isFinite(req) && Number.isFinite(gReq) && gReq>0) ? (req/gReq) : NaN);
-        if(Number.isFinite(pct)) scored.push({id:String(t.id), pct});
-      }
-      if(!scored.length) continue;
-      scored.sort((a,b)=> (b.pct - a.pct) || a.id.localeCompare(b.id));
-      scored.forEach((s,i)=>{
-        const cur = sums.get(s.id) || {sum:0,count:0};
-        cur.sum += (i+1);
-        cur.count += 1;
-        sums.set(s.id, cur);
-      });
-    }
-    return techsAll.map(t=>{
-      const cur = sums.get(String(t.id));
-      const avgPos = (cur && cur.count) ? (cur.sum/cur.count) : NaN;
-      return {id:t.id, name:t.name, avgPos};
-    });
-  }
-
   function tbRowTech(item, idx, mode){
-    const metricLbl = (mode==='sold') ? 'Avg Sold Position' : 'Avg ASR Position';
-    const val = Number.isFinite(item.avgPos) ? item.avgPos.toFixed(1) : '—';
+    const metricLbl = (mode==='sold') ? 'SOLD GOAL' : 'ASR GOAL';
+    const val = Number.isFinite(item.pct) ? fmtPct(item.pct) : '—';
     return `
       <div class="techRow">
         <div class="techRowLeft">
@@ -822,7 +792,6 @@ function renderServicesHome(){
         <div class="mini">${metricLbl} = ${val}</div>
       </div>`;
   }
-
 
   function tbMiniBox(title, rows, mode, kind){
     const html = rows.length ? rows.map((x,i)=>tbRowTech(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
@@ -834,17 +803,15 @@ function renderServicesHome(){
       </div>`;
   }
 
-  const techAsrPos = techAvgPosition('asr').filter(x=>Number.isFinite(x.avgPos)).sort((a,b)=>a.avgPos-b.avgPos);
-  const techSoldPos = techAvgPosition('sold').filter(x=>Number.isFinite(x.avgPos)).sort((a,b)=>a.avgPos-b.avgPos);
-
-  const topTechAsr = techAsrPos.slice(0,3);
-  const botTechAsr = techAsrPos.slice(-3).reverse();
-
-  const topTechSold = techSoldPos.slice(0,3);
-  const botTechSold = techSoldPos.slice(-3).reverse();
+  const techAsrGoal = techAvgPctOfGoal('asr').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
+  const techSoldGoal = techAvgPctOfGoal('sold').filter(x=>Number.isFinite(x.pct)).sort((a,b)=>b.pct-a.pct);
+  const topTechAsr = techAsrGoal.slice(0,3);
+  const botTechAsr = techAsrGoal.slice(-3).reverse();
+  const topTechSold = techSoldGoal.slice(0,3);
+  const botTechSold = techSoldGoal.slice(-3).reverse();
 
   const diagPanel = `
-        <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
+    <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
@@ -853,8 +820,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechAsr, 'asr', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechAsr, 'asr', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechAsr, 'asr', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechAsr, 'asr', 'down')}</div>
           </div>
         </div>
 
@@ -867,8 +834,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechSold, 'sold', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechSold, 'sold', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Goal)', topTechSold, 'sold', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Goal)', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
@@ -887,7 +854,8 @@ function renderServicesHome(){
     sel.addEventListener('change', ()=>{
       if(ctl==='focus') st.focus = sel.value;
       if(ctl==='goal') st.goalMetric = sel.value;
-      if(ctl==='comparison') st.comparison = sel.value;
+      if(ctl==='team') st.team = sel.value;
+      if(ctl==='fluids') st.fluids = sel.value;
       renderServicesHome();
     });
   });
@@ -931,28 +899,16 @@ try{
     const pop = document.createElement('div');
     pop.id = 'svcDiagPopup';
     pop.className = 'diagPopup';
-
-    // Match renderTech popup look (avoid CSS dependency)
-    pop.style.position = 'fixed';
-    pop.style.zIndex = '9999';
-    pop.style.width = '520px';
-    pop.style.maxWidth = 'calc(100vw - 24px)';
-    pop.style.background = 'linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98))';
-    pop.style.border = '1px solid rgba(255,255,255,.10)';
-    pop.style.borderRadius = '16px';
-    pop.style.boxShadow = '0 22px 60px rgba(0,0,0,.55)';
-    pop.style.overflow = 'hidden';
-    pop.style.overflowX = 'hidden';
     pop.innerHTML = `
-      <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title} • ${band.toUpperCase()} Services</div>
-        <button class="diagPopClose" aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div style="font-weight:1000;letter-spacing:.4px">${title} • ${band.toUpperCase()} Services</div>
+        <button aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
-      <div class="diagPopList" style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
+      <div style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
         ${list.length ? list.map((it,i)=>{
           const id = 'sd-'+safeSvcIdLocal(it.name).replace(/^svc-/, '');
           return `
-            <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:6px;cursor:pointer">
+            <button class="diagPopRowBtn" type="button" data-target="${id}">
               <span class="rankNum">${i+1}.</span>
               <span style="flex:0 1 340px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safe(it.name)}</span>
               <span style="margin-left:6px;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${fmtPct(it.pct)}</span>
