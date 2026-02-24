@@ -129,12 +129,8 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
-      /* Header divider (used by this page): move it closer to the filters */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:14px 0 6px}
-      /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
-      .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
-
+      /* Header divider (used by this page) */
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -168,10 +164,21 @@ function renderServicesHome(){
       }
 
       /* Header filters sizing (local to this page) */
-      .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
-      .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
+      /* Header pills -> MINI pills (local to this page) */
+.pageServicesDash .techHeaderPanel .pills.miniPills{display:flex;gap:10px;flex-wrap:wrap}
+.pageServicesDash .techHeaderPanel .pills.miniPills .pill{padding:8px 10px;border-radius:14px}
+.pageServicesDash .techHeaderPanel .pills.miniPills .pill .v{font-size:18px !important;line-height:1.05 !important;font-weight:1000 !important;}
+.pageServicesDash .techHeaderPanel .pills.miniPills .pill .k{font-size:12px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;font-weight:900 !important;}
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
+/* Header dials (ASR/SOLD goal) */
+.pageServicesDash .hdrGoalDials{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.pageServicesDash .hdrGoalDialItem{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pageServicesDash .hdrGoalDialTitle{font-size:12px;color:rgba(255,255,255,.65);font-weight:1000;letter-spacing:.25px}
+.pageServicesDash .hdrGoalDialItem .svcGauge{--sz:70px}
+.pageServicesDash .hdrGoalDialItem .pctText{font-weight:1000}
+.pageServicesDash .hdrGoalDialItem .pctMain{font-size:14px;line-height:1}
+.pageServicesDash .hdrGoalDialItem .pctSub{font-size:10px;line-height:1.05;color:rgba(255,255,255,.72);font-weight:900}
+.pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
@@ -203,11 +210,6 @@ function renderServicesHome(){
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
   const comparison = 'goal';
-
-  const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
-  const focusLine = (focus === 'goal')
-    ? `Goal ${(goalMetric === 'sold') ? 'SOLD' : 'ASR'}`
-    : (focus === 'sold' ? 'SOLD' : 'ASR');
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
@@ -284,6 +286,41 @@ function renderServicesHome(){
       ${altHtml}
     </span>`;
   }
+// --- Header goal dial (ASR/SOLD): percent over/under + AVG inside, title below ---
+function headerGoalDial(pctOfGoal, avgValStr, titleBelow){
+  const p = Number.isFinite(pctOfGoal) ? pctOfGoal : NaN;
+  const ring = Number.isFinite(p) ? Math.round(Math.min(Math.max(p, 0), 1) * 100) : 0;
+
+  let cls = "gRed";
+  if(Number.isFinite(p)){
+    if(p >= 0.80) cls = "gGreen";
+    else if(p >= 0.60) cls = "gYellow";
+  }
+
+  let deltaTxt = "—";
+  let deltaColor = "rgba(255,255,255,.85)";
+  if(Number.isFinite(p)){
+    const delta = Math.round((p - 1) * 100);
+    const sign = (delta > 0) ? "+" : "";
+    deltaTxt = `${sign}${delta}%`;
+    deltaColor = (delta >= 0) ? "#2ecc71" : "#f04545";
+  }
+
+  return `
+    <div class="hdrGoalDialItem">
+      <span class="svcGauge ${cls}" data-p="${ring}">
+        <svg viewBox="0 0 36 36" aria-hidden="true">
+          <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
+          <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
+        </svg>
+        <span class="pctText">
+          <span class="pctMain" style="color:${deltaColor}">${deltaTxt}</span>
+          <span class="pctSub">AVG ${safe(avgValStr||"—")}</span>
+        </span>
+      </span>
+      <div class="hdrGoalDialTitle">${safe(titleBelow||"")}</div>
+    </div>`;
+}
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
@@ -370,14 +407,20 @@ function renderServicesHome(){
             <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
               <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
                 <div class="h2 techH2Big">Services Dashboard</div>
-                <div class="techTeamLine" style="margin-top:6px">${safe(teamLine)} • ${safe(focusLine)}</div>
+                <div class="techTeamLine" style="margin-top:6px">${focus.toUpperCase()}</div>
               </div>
-              <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
-                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-                <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
-                <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
-                <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
-              </div>
+              <div class="hdrRightCol" style="margin-left:34px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
+  <div class="pills miniPills" style="display:flex;gap:10px;flex-wrap:wrap;white-space:normal">
+    <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+    <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
+    <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
+    <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+  </div>
+  <div class="hdrGoalDials">
+    ${headerGoalDial(goalsAgg.asrPctOfGoal, (asrPerRo===null ? "—" : fmt1(asrPerRo,2)), "ASR GOAL")}
+    ${headerGoalDial(goalsAgg.soldPctOfGoal, (soldPerRo===null ? "—" : fmt1(soldPerRo,2)), "SOLD GOAL")}
+  </div>
+</div>
             </div>
           </div>
 
@@ -402,7 +445,7 @@ function renderServicesHome(){
                         <select data-svcdash="1" data-ctl="team">
                           <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
                           <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
-                          <option value="store" ${teamSel==='store'?'selected':''}>All Teams</option>
+                          <option value="store" ${teamSel==='store'?'selected':''}>Store</option>
                         </select>
                       </div>
           
@@ -867,8 +910,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians ASR', botTechAsr, 'asr', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechAsr, 'asr', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechAsr, 'asr', 'down')}</div>
           </div>
         </div>
 
@@ -881,8 +924,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechSold, 'sold', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
