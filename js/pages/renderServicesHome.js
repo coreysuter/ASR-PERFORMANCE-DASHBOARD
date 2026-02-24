@@ -189,6 +189,11 @@ function renderServicesHome(){
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
       /* Header filters sizing (local to this page) */
+      /* Header filters: 13px */
+      .pageServicesDash .techHeaderPanel .mainFiltersBar,
+      .pageServicesDash .techHeaderPanel .mainFiltersBar label,
+      .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
+
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
       .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
