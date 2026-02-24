@@ -189,6 +189,11 @@ function renderServicesHome(){
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
       /* Header filters sizing (local to this page) */
+      .pageServicesDash .techHeaderPanel .mainFiltersBar label{font-size:13px !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls{gap:10px;}
+      .pageServicesDash .techHeaderPanel .svcHdrFootnote{margin-top:8px;font-size:12px;font-style:italic;color:rgba(255,255,255,.72);}
+
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
       .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
@@ -525,6 +530,7 @@ function renderServicesHome(){
                       </div>
                       ` : ``}
                     </div>
+                    <div class="svcHdrFootnote">*All metrics in the Service Dashboard are evaluated by comparison to ASR or Sold Goals.</div>
         </div>
       </div>
     </div>
