@@ -772,7 +772,8 @@ function renderServicesHome(){
   const botTechSold = techSoldGoal.slice(-3).reverse();
 
   const diagPanel = `
-    <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
+    <!-- techPickPanel height reduced by 15% (was 100%) -->
+    <div class="panel techPickPanel diagSection" style="height:85%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
