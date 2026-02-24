@@ -132,7 +132,7 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
       /* Header divider (used by this page) */
-      .pageServicesDash .svcHdrDivider{display:block !important;height:1px !important;margin:10px 0 0 0 !important;padding:0 !important;background:rgba(255,255,255,.12) !important}
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -169,9 +169,7 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto !important;}
-      .pageServicesDash .techHeaderPanel .phead{display:flex !important;flex-direction:column !important;border-bottom:none !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;gap:12px !important;align-items:end !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(4, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
@@ -353,7 +351,8 @@ function renderServicesHome(){
   }
 
   // Header panel (copied structure from Technician Dashboard)
-  const header = `<div class="panel techHeaderPanel" style="min-width:0">
+  const header = `
+    <div class="panel techHeaderPanel" style="height:100%;min-width:0">
       <div class="phead">
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
@@ -361,8 +360,11 @@ function renderServicesHome(){
           </div>
 
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start">
-              <div class="h2 techH2Big">Services Dashboard</div>
+            <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
+              <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
+                <div class="h2 techH2Big">Services Dashboard</div>
+                <div class="techTeamLine" style="margin-top:6px">${focus.toUpperCase()}</div>
+              </div>
               <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
                 <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                 <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
@@ -370,7 +372,6 @@ function renderServicesHome(){
                 <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
               </div>
             </div>
-            <div class="techTeamLine">${focus.toUpperCase()}</div>
           </div>
 
           <div class="overallBlock">
@@ -428,7 +429,8 @@ function renderServicesHome(){
           </div>
         </div>
       </div>
-`;
+    </div>
+  `;
 
   // ---- Helpers for cards + tech list ----
   let storeAvgRos=0, storeAvgAsr=0, storeAvgSold=0;
