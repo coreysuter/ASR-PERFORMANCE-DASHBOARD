@@ -1006,7 +1006,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <div class="pickToggleRow">
-          <div class="pickToggleLbl">Technicnan/Services</div>
+          <div class="pickToggleLbl">Technicians/Services</div>
           <label class="pickToggle" title="Toggle Technicians / Services">
             <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
             <span class="slider"></span>
