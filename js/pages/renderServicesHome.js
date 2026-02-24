@@ -132,7 +132,7 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
       /* Header divider (used by this page) */
-      .pageServicesDash .svcHdrDivider{display:none !important;height:0 !important;margin:0 !important;padding:0 !important;background:transparent !important}
+      .pageServicesDash .svcHdrDivider{display:block !important;height:1px !important;margin:10px 0 0 0 !important;padding:0 !important;background:rgba(255,255,255,.12) !important}
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -170,7 +170,7 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto !important;}
-      .pageServicesDash .techHeaderPanel .phead{display:flex !important;flex-direction:column !important;}
+      .pageServicesDash .techHeaderPanel .phead{display:flex !important;flex-direction:column !important;border-bottom:none !important;}
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;gap:12px !important;align-items:end !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
