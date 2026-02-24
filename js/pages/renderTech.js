@@ -836,8 +836,8 @@ return `
           <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
-            <div class="muted svcMetaLine" style="margin-top:2px;font-size:14px">
-              ${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs<br>${fmt1(soldCount,0)} Sold
+            <div class="muted svcMetaLine" style="margin-top:2px">
+              ${fmt1(asrCount,0)} ASR · ${fmt1(soldCount,0)} Sold · ${fmt1(techRos,0)} ROs
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>

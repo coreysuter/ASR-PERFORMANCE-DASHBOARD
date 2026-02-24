@@ -2273,3 +2273,16 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
   transform:scale(1.02);
 }
 
+/* === PATCH 2026-02-24: svcMetaLine (tech details) font + casing ===
+   - Set muted svcMetaLine to 14px
+   - Preserve casing (ROs / ASRs / Sold) by disabling uppercase transforms
+   Scoped to tech details only.
+*/
+body.route-tech .muted.svcMetaLine,
+body.route-tech .svcMetaLine{
+  font-size:14px !important;
+  text-transform:none !important;
+  letter-spacing:.2px !important;
+  font-weight:900 !important;
+  color:var(--muted) !important;
+}
