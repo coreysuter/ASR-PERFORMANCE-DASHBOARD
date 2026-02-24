@@ -129,8 +129,8 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
-      /* Header divider (used by this page) */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
+      /* Header divider (used by this page): move it closer to the filters */
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:14px 0 6px}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
       .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
@@ -203,6 +203,11 @@ function renderServicesHome(){
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
   const comparison = 'goal';
+
+  const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
+  const focusLine = (focus === 'goal')
+    ? `Goal ${(goalMetric === 'sold') ? 'SOLD' : 'ASR'}`
+    : (focus === 'sold' ? 'SOLD' : 'ASR');
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
@@ -365,7 +370,7 @@ function renderServicesHome(){
             <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
               <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
                 <div class="h2 techH2Big">Services Dashboard</div>
-                <div class="techTeamLine" style="margin-top:6px">${focus.toUpperCase()}</div>
+                <div class="techTeamLine" style="margin-top:6px">${safe(teamLine)} • ${safe(focusLine)}</div>
               </div>
               <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
                 <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
@@ -397,7 +402,7 @@ function renderServicesHome(){
                         <select data-svcdash="1" data-ctl="team">
                           <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
                           <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
-                          <option value="store" ${teamSel==='store'?'selected':''}>Store</option>
+                          <option value="store" ${teamSel==='store'?'selected':''}>All Teams</option>
                         </select>
                       </div>
           
@@ -862,8 +867,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechAsr, 'asr', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechAsr, 'asr', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians ASR', botTechAsr, 'asr', 'down')}</div>
           </div>
         </div>
 
@@ -876,8 +881,8 @@ function renderServicesHome(){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechSold, 'sold', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechSold, 'sold', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
