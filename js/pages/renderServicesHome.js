@@ -177,16 +177,16 @@ function renderServicesHome(){
       /* Header goal dials (match Tech Details focus dial sizing/typography) */
       .pageServicesDash .svcHdrGoalDials{display:flex;gap:22px;align-items:flex-start;margin-top:10px;}
 
-      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:113px;width:var(--sz);height:var(--sz);flex:0 0 var(--sz);}
-      .pageServicesDash .svcHdrGoalDials .svcGauge{--sz:113px !important;width:var(--sz) !important;height:var(--sz) !important;}
+      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:85px;width:var(--sz);height:var(--sz);flex:0 0 var(--sz);}
+      .pageServicesDash .svcHdrGoalDials .svcGauge{--sz:85px !important;width:var(--sz) !important;height:var(--sz) !important;}
       .pageServicesDash .svcHdrGoalDials .svcGaugeWrap,
       .pageServicesDash .svcHdrGoalDials .svcGauge,
       .pageServicesDash .svcHdrGoalDials .svcGauge *{cursor:default !important;}
 
-      .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:15px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
+      .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
       .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
-      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
+      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:8px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
 
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
@@ -434,11 +434,11 @@ function renderServicesHome(){
 
                 <div class="svcHdrGoalDials">
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:113px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
                     <div class="svcGaugeLbl">ASR</div>
                   </div>
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:113px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
                     <div class="svcGaugeLbl">SOLD</div>
                   </div>
                 </div>
