@@ -130,11 +130,7 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
       /* Header divider (used by this page): move it closer to the filters */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:0}
-      .pageServicesDash .svcHdrMid{padding:12px 0;}
-      /* Keep dials and filters tight; mid wrapper provides the equal spacing */
-      .pageServicesDash .svcHdrGoalDials{margin-bottom:0 !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:0 !important;}
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:14px 0 6px}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
       .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
@@ -161,24 +157,6 @@ function renderServicesHome(){
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
       .pageServicesDash .svcTechMetaRow{display:block;}
 
-      /* TechPickPanel toggle + thumbs (scoped) */
-      .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 2px -4px}
-      .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:16px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
-      .pageServicesDash .techPickPanel.diagSection .pickToggleRight{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
-      .pageServicesDash .techPickPanel.diagSection .pickToggle{position:relative;width:46px;height:24px;flex:0 0 auto}
-      .pageServicesDash .techPickPanel.diagSection .pickToggle input{opacity:0;width:0;height:0}
-      .pageServicesDash .techPickPanel.diagSection .pickToggle .slider{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.12);cursor:pointer;transition:background 140ms ease}
-      .pageServicesDash .techPickPanel.diagSection .pickToggle .slider:before{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:999px;background:rgba(255,255,255,.92);transition:transform 140ms ease}
-      .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider{background:rgba(31,203,106,.28)}
-      .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider:before{transform:translateX(22px)}
-
-      .pageServicesDash .techPickPanel.diagSection .thumbIcon{font-size:28px;line-height:1;display:inline-flex;align-items:center;justify-content:center;margin-left:6px}
-      .pageServicesDash .techPickPanel.diagSection .thumbIcon.up{color:#1fcb6a}
-      .pageServicesDash .techPickPanel.diagSection .thumbIcon.down{color:#ff4b4b}
-
-      /* Mini headers (Top/Bottom 3) */
-      .pageServicesDash .techPickPanel.diagSection .pickMiniHdr{font-size:14px !important;line-height:1.1 !important;}
-
       /* Status icons */
       /* Make warning triangles a touch smaller + lighter visual weight */
       .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;vertical-align:middle;margin-left:6px;}
@@ -189,31 +167,26 @@ function renderServicesHome(){
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
       /* Header filters sizing (local to this page) */
-      .pageServicesDash .techHeaderPanel .mainFiltersBar label{font-size:13px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls{gap:10px;}
-      .pageServicesDash .techHeaderPanel .svcHdrFootnote{margin-top:8px;font-size:12px;font-style:italic;color:rgba(255,255,255,.72);}
-
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
-      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
-      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:18px !important;line-height:1.05 !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:10px !important;text-transform:none !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:13px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pillMini.sold .v{color:#fff !important;}
-
 
       /* Header goal dials (match Tech Details focus dial sizing/typography) */
       .pageServicesDash .svcHdrGoalDials{display:flex;gap:22px;align-items:flex-start;margin-top:10px;}
-
-      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:85px;width:var(--sz);height:var(--sz);flex:0 0 var(--sz);}
-      .pageServicesDash .svcHdrGoalDials .svcGauge{--sz:85px !important;width:var(--sz) !important;height:var(--sz) !important;}
+      /* +25% size for the two header goal dials */
+      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:113px;}
+      /* +25% size for stacked dial text */
+      .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;transform:scale(1.25);transform-origin:center;}
+      /* Keep cursor unchanged on hover (do not show pointer) */
       .pageServicesDash .svcHdrGoalDials .svcGaugeWrap,
+      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap *,
       .pageServicesDash .svcHdrGoalDials .svcGauge,
       .pageServicesDash .svcHdrGoalDials .svcGauge *{cursor:default !important;}
-
-      .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
-      .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
+      .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:8px;text-align:center;font-size:15px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
-      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:8px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
+      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
 
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
@@ -248,8 +221,6 @@ function renderServicesHome(){
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
   const comparison = 'goal';
-
-  const pickView = (st.pickView === 'services') ? 'services' : 'tech';
 
   const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
   const focusLine = (focus === 'goal')
@@ -432,8 +403,7 @@ function renderServicesHome(){
   if(focus === 'goal'){
     // show the selected goal metric % of goal big
     topVal = (goalMetric==='sold') ? goalsAgg.soldPctOfGoal : goalsAgg.asrPctOfGoal;
-    // When Focus=GOAL, do NOT show the word "Goal" in the focus stat label
-    topLbl = (goalMetric==='sold') ? 'SOLD' : 'ASR';
+    topLbl = (goalMetric==='sold') ? 'Sold Goal%' : 'ASR Goal%';
     subVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
     subLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
   }
@@ -464,11 +434,11 @@ function renderServicesHome(){
 
                 <div class="svcHdrGoalDials">
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:90px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
                     <div class="svcGaugeLbl">ASR</div>
                   </div>
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:90px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
                     <div class="svcGaugeLbl">SOLD</div>
                   </div>
                 </div>
@@ -490,7 +460,7 @@ function renderServicesHome(){
           </div>
         </div>
 
-        <div class="svcHdrMid"><div class="svcHdrDivider"></div></div>
+        <div class="svcHdrDivider"></div>
         <div class="mainFiltersBar">
                               <div class="controls mainAlwaysOpen">
                       <div>
@@ -530,7 +500,6 @@ function renderServicesHome(){
                       </div>
                       ` : ``}
                     </div>
-                    <div class="svcHdrFootnote">*All metrics in the Service Dashboard are evaluated by comparison to ASR or Sold Goals.</div>
         </div>
       </div>
     </div>
@@ -784,65 +753,6 @@ function renderServicesHome(){
     if(bClose) svcBands.sold[bClose].push({name:s.serviceName, pct:pctClose});
   }
 
-  // ---- Top/Bottom 3 Services lists (by % of goal) ----
-  function buildSvcRank(mode){
-    const rows = svcAggsAll.map(s=>{
-      const gReq = Number(getGoal(s.serviceName,'req'));
-      const gClose = Number(getGoal(s.serviceName,'close'));
-      const pct = (mode==='sold')
-        ? ((Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN)
-        : ((Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN);
-      return {name:s.serviceName, pct};
-    }).filter(r=>Number.isFinite(r.pct));
-
-    rows.sort((a,b)=> (b.pct-a.pct) || a.name.localeCompare(b.name));
-    const rankMap = new Map();
-    rows.forEach((r,i)=> rankMap.set(r.name, i+1));
-    return {rows, rankMap};
-  }
-  const svcRankAsr = buildSvcRank('asr');
-  const svcRankSold = buildSvcRank('sold');
-
-  const topSvcAsr = svcRankAsr.rows.slice(0,3);
-  const botSvcAsr = svcRankAsr.rows.slice(-3).reverse();
-
-  const topSvcSold = svcRankSold.rows.slice(0,3);
-  const botSvcSold = svcRankSold.rows.slice(-3).reverse();
-
-  function tbRowSvc(item, idx, mode){
-    const rk = (mode==='sold' ? svcRankSold.rankMap.get(item.name) : svcRankAsr.rankMap.get(item.name)) || '—';
-    const targetId = 'sd-' + safeSvcIdLocal(item.name).replace(/^svc-/, '');
-    return `
-      <div class="techRow">
-        <div class="techRowLeft">
-          <span class="rankNum">${idx}.</span>
-          <a class="tbJump" href="#${targetId}" onclick="event.preventDefault();(document.getElementById(${JSON.stringify(targetId)})||{}).scrollIntoView&&document.getElementById(${JSON.stringify(targetId)}).scrollIntoView({behavior:'smooth',block:'start'});return false;">${safe(item.name)}</a>
-        </div>
-        <div class="mini">Rank = ${rk}</div>
-      </div>`;
-  }
-
-  
-  function thumbSvg(kind){
-    // Use SVG (not emoji) so CSS color applies consistently
-    const isDown = kind==='down';
-    // Simple thumb icon path (generic)
-    const path = isDown
-      ? "M10 14H6c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h4v8zm1 0V6l2-4c.3-.7 1.1-1 1.8-.7.5.2.8.7.7 1.2L15 6h3.5c.8 0 1.5.7 1.5 1.5 0 .1 0 .2-.1.3l-1.3 4.6c-.2.6-.8 1.1-1.5 1.1H11z"
-      : "M10 6H6c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h4V6zm1 0v8l2 4c.3.7 1.1 1 1.8.7.5-.2.8-.7.7-1.2L15 14h3.5c.8 0 1.5-.7 1.5-1.5 0-.1 0-.2-.1-.3l-1.3-4.6c-.2-.6-.8-1.1-1.5-1.1H11z";
-    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:28px;height:28px;display:block"><path d="${path}" fill="currentColor"/></svg>`;
-  }
-function tbMiniBoxSvc(title, rows, mode, kind){
-    const html = rows.length ? rows.map((x,i)=>tbRowSvc(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
-    const icon = (kind==='down') ? `<span class="thumbIcon down" aria-hidden="true">${thumbSvg('down')}</span>` : `<span class="thumbIcon up" aria-hidden="true">${thumbSvg('up')}</span>`;
-    return `
-      <div class="pickBox">
-        <div class="pickMiniHdr">${safe(title)} ${icon}</div>
-        <div class="pickList">${html}</div>
-      </div>`;
-  }
-
-
   function diagPieChartServices(mode){
     const red = svcBands[mode].red.length;
     const yellow = svcBands[mode].yellow.length;
@@ -996,7 +906,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
 
   function tbMiniBox(title, rows, mode, kind){
     const html = rows.length ? rows.map((x,i)=>tbRowTech(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
-    const icon = (kind==='down') ? `<span class="thumbIcon down" aria-hidden="true">${thumbSvg('down')}</span>` : `<span class="thumbIcon up" aria-hidden="true">${thumbSvg('up')}</span>`;
+    const icon = (kind==='down') ? `<span class="thumbIcon down" aria-hidden="true">&#128078;</span>` : `<span class="thumbIcon up" aria-hidden="true">&#128077;</span>`;
     return `
       <div class="pickBox">
         <div class="pickMiniHdr">${safe(title)} ${icon}</div>
@@ -1016,24 +926,15 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   const diagPanel = `
         <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
-        <div class="pickToggleRow">
-          <div class="pickHdrLabel asrTop" style="margin:0;margin-top:-5px;font-size:22px;line-height:1">ASR</div>
-          <div class="pickToggleRight">
-            <div class="pickToggleLbl">Technicians/Services</div>
-            <label class="pickToggle" title="Toggle Technicians / Services">
-              <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
-            <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services ASR', topSvcAsr, 'asr', 'up') : tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
-            <div>${pickView==='services' ? tbMiniBoxSvc('Bottom 3 Services ASR', botSvcAsr, 'asr', 'down') : tbMiniBox('Bottom 3 Technicians ASR', botTechAsr, 'asr', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians ASR', botTechAsr, 'asr', 'down')}</div>
           </div>
         </div>
 
@@ -1043,11 +944,11 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
+              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services SOLD', topSvcSold, 'sold', 'up') : tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
-            <div>${pickView==='services' ? tbMiniBoxSvc('Bottom 3 Services SOLD', botSvcSold, 'sold', 'down') : tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
@@ -1071,20 +972,25 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     });
   });
 
-
-  // Pick view toggle (Technicians / Services)
-  const pickChk = app.querySelector('.techPickPanel.diagSection input[data-ctl="pickview"]');
-  if(pickChk){
-    pickChk.addEventListener('change', ()=>{
-      st.pickView = pickChk.checked ? 'services' : 'tech';
-      renderServicesHome();
-    });
-  }
-
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
     const key = d.getAttribute('data-sec');
-    d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
+
+    // Sec toggle (+ / −) mirrors the open state (matches Technician Dashboard behavior)
+    const tog = d.querySelector('.secToggle');
+    if(tog){
+      tog.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        d.open = !d.open;
+      }, true);
+    }
+
+    d.addEventListener('toggle', ()=>{
+      st.open[key] = d.open;
+      const t2 = d.querySelector('.secToggle');
+      if(t2) t2.textContent = d.open ? '−' : '+';
+    });
   });
 
 // Animate gauges (sets ring fill + enables hold interaction)
