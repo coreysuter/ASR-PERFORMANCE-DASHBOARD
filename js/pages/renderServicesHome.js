@@ -13,8 +13,10 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel{margin-bottom:0 !important;}
 
       /* Header + diag wrapper (match Tech Details layout) */
-      .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
-      @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
+      .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:flex;gap:14px;align-items:stretch;}
+.pageServicesDash .svcdashHeaderWrap > .techHeaderPanel{flex:0 0 35%;min-width:0;}
+.pageServicesDash .svcdashHeaderWrap > .techPickPanel{flex:1 1 65%;min-width:0;}
+      @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{flex-direction:column;} .pageServicesDash .svcdashHeaderWrap > .techHeaderPanel{flex:1 1 auto;} .pageServicesDash .svcdashHeaderWrap > .techPickPanel{flex:1 1 auto;} }
 
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
@@ -883,7 +885,7 @@ function renderServicesHome(){
   `;
 
   // Header + diag (techPickPanel) should sit side-by-side (like renderTech)
-  const headerWrap = `<div class="svcdashHeaderWrap" style="margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;">${header}${diagPanel}</div>`;
+  const headerWrap = `<div class="svcdashHeaderWrap">${header}${diagPanel}</div>`;
 
   const app = document.getElementById('app');
   app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;
