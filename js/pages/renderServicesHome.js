@@ -14,8 +14,6 @@ function renderServicesHome(){
 
       /* Header + diag wrapper (match Tech Details layout) */
       .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
-      @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
-
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
@@ -131,8 +129,12 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
-      /* Header divider (used by this page) */
-      .pageServicesDash .svcHdrDivider{display:none !important;height:0 !important;margin:0 !important;padding:0 !important;background:transparent !important}
+      /* Header divider (used by this page): move it closer to the filters */
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:14px 0 6px}
+      /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
+      .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
+
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -164,33 +166,23 @@ function renderServicesHome(){
         .pageServicesDash .svcTechMeta{white-space:normal;}
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
-
       /* Header filters sizing (local to this page) */
-      .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:20px !important;line-height:1.05 !important;}
-      .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:12px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
-      .pageServicesDash .techHeaderPanel .pills .pill{padding:8px 10px !important;border-radius:14px !important;}
+      /* Header pills: use mini pills */
+      .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
+      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:10px !important;text-transform:none !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:13px !important;line-height:1.05 !important;}
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto !important;}
-      .pageServicesDash .techHeaderPanel .phead{display:flex !important;flex-direction:column !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;gap:12px !important;align-items:end !important;}
+      /* Header goal dials (match Tech Details focus dial sizing/typography) */
+      .pageServicesDash .svcHdrGoalDials{display:flex;gap:22px;align-items:flex-start;margin-top:10px;}
+      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:90px;}
+      .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:12px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
+      .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
+      .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
+      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
+
+
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
-
-
-/* Header goal dials (focus-size) */
-.pageServicesDash .techHeaderPanel .svcHdrGoalDials{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;margin-left:34px;}
-.pageServicesDash .techHeaderPanel .svcHdrGoalDials .svcGaugeWrap{--sz:92px;}
-.pageServicesDash .techHeaderPanel .svcHdrGoalDials .svcGauge{cursor:default;}
-.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialTxt{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:2px;
-  font-weight:1000;
-  pointer-events:none;
-}
-.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialPct{font-size:22px;line-height:1;color:#fff;}
-.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialArrow{font-size:20px;line-height:1;}
-.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialLbl{font-size:12px;line-height:1.05;color:rgba(255,255,255,.78);letter-spacing:.3px;}
 
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
@@ -221,6 +213,11 @@ function renderServicesHome(){
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
   const comparison = 'goal';
+
+  const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
+  const focusLine = (focus === 'goal')
+    ? `Goal ${(goalMetric === 'sold') ? 'SOLD' : 'ASR'}`
+    : (focus === 'sold' ? 'SOLD' : 'ASR');
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
@@ -299,34 +296,37 @@ function renderServicesHome(){
   }
 
 
-// Header goal dial: show only % over/under, arrow, and label (no grade/title inside)
-function headerGoalDial(pct, label){
-  const p = Number.isFinite(pct) ? pct : null;
-  const ring = (p===null) ? 0 : Math.round(Math.min(Math.max(p, 0), 1) * 100);
+  // --- Header: goal focus dials (match Tech Details focus dial: % + arrow + GOAL stacked) ---
+  function headerGoalDial(pct){
+    const p = Number(pct);
+    const finite = Number.isFinite(p);
+    const pClamped = finite ? Math.max(0, p) : 0;
+    const ring = Math.round(Math.min(pClamped, 1) * 100);
 
-  let cls = "gRed";
-  if(p!==null){
-    if(p >= 0.80) cls = "gGreen";
-    else if(p >= 0.60) cls = "gYellow";
+    let cls = "gRed";
+    if(pClamped >= 0.80) cls = "gGreen";
+    else if(pClamped >= 0.60) cls = "gYellow";
+
+    // percent above/below goal
+    const delta = finite ? Math.round((pClamped - 1) * 100) : null;
+    const absDelta = (delta===null) ? "—" : Math.abs(delta);
+    const arrow = (delta===null) ? "" : (delta >= 0 ? "▲" : "▼");
+    const arrowColor = (delta===null) ? "rgba(255,255,255,.55)" : (delta >= 0 ? "rgba(34,197,94,.98)" : "rgba(239,68,68,.98)");
+
+    return `<span class="svcGauge ${cls}" data-p="${ring}">
+      <svg viewBox="0 0 36 36" aria-hidden="true">
+        <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
+        <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
+      </svg>
+      <span class="pctText">
+        <span class="pctStack2">
+          <span class="pctMain">${absDelta}%</span>
+          <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
+          <span class="pctSub">GOAL</span>
+        </span>
+      </span>
+    </span>`;
   }
-
-  const delta = (p===null) ? null : Math.round((p - 1) * 100);
-  const absDelta = (delta===null) ? "—" : String(Math.abs(delta)) + "%";
-  const arrow = (delta===null) ? "" : (delta >= 0 ? "▲" : "▼");
-  const arrowColor = (delta===null) ? "rgba(255,255,255,.55)" : (delta >= 0 ? "#1fcb6a" : "#ff4b4b");
-
-  return `<span class="svcGauge ${cls}" data-p="${ring}">
-    <svg viewBox="0 0 36 36" aria-hidden="true">
-      <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
-      <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
-    </svg>
-    <span class="hdrDialTxt">
-      <span class="hdrDialPct">${safe(absDelta)}</span>
-      <span class="hdrDialArrow" style="color:${arrowColor}">${safe(arrow)}</span>
-      <span class="hdrDialLbl">${safe(label)}</span>
-    </span>
-  </span>`;
-}
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
@@ -401,7 +401,8 @@ function headerGoalDial(pct, label){
   }
 
   // Header panel (copied structure from Technician Dashboard)
-  const header = `<div class="panel techHeaderPanel" style="min-width:0">
+  const header = `
+    <div class="panel techHeaderPanel" style="height:100%;min-width:0">
       <div class="phead">
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
@@ -409,22 +410,33 @@ function headerGoalDial(pct, label){
           </div>
 
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start">
-              <div class="h2 techH2Big">Services Dashboard</div>
-              <div class="svcHdrMid" style="margin-left:34px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
-<div class="pills" style="display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
-                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-                <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
-                <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
-                <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+            <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
+              <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
+                <div class="h2 techH2Big">Services Dashboard</div>
+                <div class="techTeamLine" style="margin-top:6px">${safe(teamLine)} • ${safe(focusLine)}</div>
               </div>
-              <div class="svcHdrGoalDials">
-                <div class="svcGaugeWrap">${headerGoalDial(goalsAgg.asrPctOfGoal, 'ASR GOAL')}</div>
-                <div class="svcGaugeWrap">${headerGoalDial(goalsAgg.soldPctOfGoal, 'SOLD GOAL')}</div>
+              
+              <div class="svcHdrPillsAndDials" style="margin-left:34px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
+                <div class="pillsMini">
+                  <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+                  <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
+                  <div class="pillMini sold"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
+                  <div class="pillMini sold"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+                </div>
+
+                <div class="svcHdrGoalDials">
+                  <div class="svcGaugeCol">
+                    <div class="svcGaugeWrap" style="--sz:90px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
+                    <div class="svcGaugeLbl">ASR</div>
+                  </div>
+                  <div class="svcGaugeCol">
+                    <div class="svcGaugeWrap" style="--sz:90px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
+                    <div class="svcGaugeLbl">SOLD</div>
+                  </div>
+                </div>
               </div>
+
             </div>
-            </div>
-            <div class="techTeamLine">${focus.toUpperCase()}</div>
           </div>
 
           <div class="overallBlock">
@@ -448,7 +460,7 @@ function headerGoalDial(pct, label){
                         <select data-svcdash="1" data-ctl="team">
                           <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
                           <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
-                          <option value="store" ${teamSel==='store'?'selected':''}>Store</option>
+                          <option value="store" ${teamSel==='store'?'selected':''}>All Teams</option>
                         </select>
                       </div>
           
@@ -478,11 +490,12 @@ function headerGoalDial(pct, label){
                           <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
                         </select>
                       </div>
-                      ` : ``}</div>
-          </div>
+                      ` : ``}
+                    </div>
         </div>
       </div>
-`;
+    </div>
+  `;
 
   // ---- Helpers for cards + tech list ----
   let storeAvgRos=0, storeAvgAsr=0, storeAvgSold=0;
@@ -912,8 +925,8 @@ function headerGoalDial(pct, label){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechAsr, 'asr', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechAsr, 'asr', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians ASR', botTechAsr, 'asr', 'down')}</div>
           </div>
         </div>
 
@@ -926,8 +939,8 @@ function headerGoalDial(pct, label){
               <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${tbMiniBox('Top 3 Technicians (Avg Position)', topTechSold, 'sold', 'up')}</div>
-            <div>${tbMiniBox('Bottom 3 Technicians (Avg Position)', botTechSold, 'sold', 'down')}</div>
+            <div>${tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
+            <div>${tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
