@@ -131,9 +131,10 @@ function renderServicesHome(){
 
       /* Header divider (used by this page): move it closer to the filters */
       .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:0}
-      /* Put divider exactly midway between dials and filters */
-      .pageServicesDash .svcHdrGoalDials{margin-bottom:12px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:12px !important;}
+      .pageServicesDash .svcHdrMid{padding:12px 0;}
+      /* Keep dials and filters tight; mid wrapper provides the equal spacing */
+      .pageServicesDash .svcHdrGoalDials{margin-bottom:0 !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:0 !important;}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
       .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
@@ -484,7 +485,7 @@ function renderServicesHome(){
           </div>
         </div>
 
-        <div class="svcHdrDivider"></div>
+        <div class="svcHdrMid"><div class="svcHdrDivider"></div></div>
         <div class="mainFiltersBar">
                               <div class="controls mainAlwaysOpen">
                       <div>
