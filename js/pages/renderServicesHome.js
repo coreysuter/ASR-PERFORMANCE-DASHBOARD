@@ -14,6 +14,8 @@ function renderServicesHome(){
 
       /* Header + diag wrapper (match Tech Details layout) */
       .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
+      @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
+
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
       .pageServicesDash details.svcDashSec{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));}
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
@@ -130,7 +132,7 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
       /* Header divider (used by this page) */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
+      .pageServicesDash .svcHdrDivider{display:none !important;height:0 !important;margin:0 !important;padding:0 !important;background:transparent !important}
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -164,22 +166,31 @@ function renderServicesHome(){
       }
 
       /* Header filters sizing (local to this page) */
-      /* Header pills -> MINI pills (local to this page) */
-.pageServicesDash .techHeaderPanel .pills.miniPills{display:flex;gap:10px;flex-wrap:wrap}
-.pageServicesDash .techHeaderPanel .pills.miniPills .pill{padding:8px 10px;border-radius:14px}
-.pageServicesDash .techHeaderPanel .pills.miniPills .pill .v{font-size:18px !important;line-height:1.05 !important;font-weight:1000 !important;}
-.pageServicesDash .techHeaderPanel .pills.miniPills .pill .k{font-size:12px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;font-weight:900 !important;}
+      .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:20px !important;line-height:1.05 !important;}
+      .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:12px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
+      .pageServicesDash .techHeaderPanel .pills .pill{padding:8px 10px !important;border-radius:14px !important;}
 
-/* Header dials (ASR/SOLD goal) */
-.pageServicesDash .hdrGoalDials{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
-.pageServicesDash .hdrGoalDialItem{display:flex;flex-direction:column;align-items:center;gap:6px}
-.pageServicesDash .hdrGoalDialTitle{font-size:12px;color:rgba(255,255,255,.65);font-weight:1000;letter-spacing:.25px}
-.pageServicesDash .hdrGoalDialItem .svcGauge{--sz:70px}
-.pageServicesDash .hdrGoalDialItem .pctText{font-weight:1000}
-.pageServicesDash .hdrGoalDialItem .pctMain{font-size:14px;line-height:1}
-.pageServicesDash .hdrGoalDialItem .pctSub{font-size:10px;line-height:1.05;color:rgba(255,255,255,.72);font-weight:900}
-.pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto !important;}
+      .pageServicesDash .techHeaderPanel .phead{display:flex !important;flex-direction:column !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;gap:12px !important;align-items:end !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
+
+
+/* Header goal dials (focus-size) */
+.pageServicesDash .techHeaderPanel .svcHdrGoalDials{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;margin-left:34px;}
+.pageServicesDash .techHeaderPanel .svcHdrGoalDials .svcGaugeWrap{--sz:92px;}
+.pageServicesDash .techHeaderPanel .svcHdrGoalDials .svcGauge{cursor:default;}
+.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialTxt{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:2px;
+  font-weight:1000;
+  pointer-events:none;
+}
+.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialPct{font-size:22px;line-height:1;color:#fff;}
+.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialArrow{font-size:20px;line-height:1;}
+.pageServicesDash .techHeaderPanel .svcHdrGoalDials .hdrDialLbl{font-size:12px;line-height:1.05;color:rgba(255,255,255,.78);letter-spacing:.3px;}
 
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
@@ -286,40 +297,35 @@ function renderServicesHome(){
       ${altHtml}
     </span>`;
   }
-// --- Header goal dial (ASR/SOLD): percent over/under + AVG inside, title below ---
-function headerGoalDial(pctOfGoal, avgValStr, titleBelow){
-  const p = Number.isFinite(pctOfGoal) ? pctOfGoal : NaN;
-  const ring = Number.isFinite(p) ? Math.round(Math.min(Math.max(p, 0), 1) * 100) : 0;
+
+
+// Header goal dial: show only % over/under, arrow, and label (no grade/title inside)
+function headerGoalDial(pct, label){
+  const p = Number.isFinite(pct) ? pct : null;
+  const ring = (p===null) ? 0 : Math.round(Math.min(Math.max(p, 0), 1) * 100);
 
   let cls = "gRed";
-  if(Number.isFinite(p)){
+  if(p!==null){
     if(p >= 0.80) cls = "gGreen";
     else if(p >= 0.60) cls = "gYellow";
   }
 
-  let deltaTxt = "—";
-  let deltaColor = "rgba(255,255,255,.85)";
-  if(Number.isFinite(p)){
-    const delta = Math.round((p - 1) * 100);
-    const sign = (delta > 0) ? "+" : "";
-    deltaTxt = `${sign}${delta}%`;
-    deltaColor = (delta >= 0) ? "#2ecc71" : "#f04545";
-  }
+  const delta = (p===null) ? null : Math.round((p - 1) * 100);
+  const absDelta = (delta===null) ? "—" : String(Math.abs(delta)) + "%";
+  const arrow = (delta===null) ? "" : (delta >= 0 ? "▲" : "▼");
+  const arrowColor = (delta===null) ? "rgba(255,255,255,.55)" : (delta >= 0 ? "#1fcb6a" : "#ff4b4b");
 
-  return `
-    <div class="hdrGoalDialItem">
-      <span class="svcGauge ${cls}" data-p="${ring}">
-        <svg viewBox="0 0 36 36" aria-hidden="true">
-          <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
-          <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
-        </svg>
-        <span class="pctText">
-          <span class="pctMain" style="color:${deltaColor}">${deltaTxt}</span>
-          <span class="pctSub">AVG ${safe(avgValStr||"—")}</span>
-        </span>
-      </span>
-      <div class="hdrGoalDialTitle">${safe(titleBelow||"")}</div>
-    </div>`;
+  return `<span class="svcGauge ${cls}" data-p="${ring}">
+    <svg viewBox="0 0 36 36" aria-hidden="true">
+      <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
+      <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
+    </svg>
+    <span class="hdrDialTxt">
+      <span class="hdrDialPct">${safe(absDelta)}</span>
+      <span class="hdrDialArrow" style="color:${arrowColor}">${safe(arrow)}</span>
+      <span class="hdrDialLbl">${safe(label)}</span>
+    </span>
+  </span>`;
 }
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
@@ -395,8 +401,7 @@ function headerGoalDial(pctOfGoal, avgValStr, titleBelow){
   }
 
   // Header panel (copied structure from Technician Dashboard)
-  const header = `
-    <div class="panel techHeaderPanel" style="height:100%;min-width:0">
+  const header = `<div class="panel techHeaderPanel" style="min-width:0">
       <div class="phead">
         <div class="titleRow techTitleRow">
           <div class="techTitleLeft">
@@ -404,24 +409,22 @@ function headerGoalDial(pctOfGoal, avgValStr, titleBelow){
           </div>
 
           <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
-              <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
-                <div class="h2 techH2Big">Services Dashboard</div>
-                <div class="techTeamLine" style="margin-top:6px">${focus.toUpperCase()}</div>
+            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start">
+              <div class="h2 techH2Big">Services Dashboard</div>
+              <div class="svcHdrMid" style="margin-left:34px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
+<div class="pills" style="display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
+                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
+                <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
+                <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
+                <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
               </div>
-              <div class="hdrRightCol" style="margin-left:34px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
-  <div class="pills miniPills" style="display:flex;gap:10px;flex-wrap:wrap;white-space:normal">
-    <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
-    <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
-    <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
-    <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
-  </div>
-  <div class="hdrGoalDials">
-    ${headerGoalDial(goalsAgg.asrPctOfGoal, (asrPerRo===null ? "—" : fmt1(asrPerRo,2)), "ASR GOAL")}
-    ${headerGoalDial(goalsAgg.soldPctOfGoal, (soldPerRo===null ? "—" : fmt1(soldPerRo,2)), "SOLD GOAL")}
-  </div>
-</div>
+              <div class="svcHdrGoalDials">
+                <div class="svcGaugeWrap">${headerGoalDial(goalsAgg.asrPctOfGoal, 'ASR GOAL')}</div>
+                <div class="svcGaugeWrap">${headerGoalDial(goalsAgg.soldPctOfGoal, 'SOLD GOAL')}</div>
+              </div>
             </div>
+            </div>
+            <div class="techTeamLine">${focus.toUpperCase()}</div>
           </div>
 
           <div class="overallBlock">
@@ -475,12 +478,11 @@ function headerGoalDial(pctOfGoal, avgValStr, titleBelow){
                           <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
                         </select>
                       </div>
-                      ` : ``}
-                    </div>
+                      ` : ``}</div>
+          </div>
         </div>
       </div>
-    </div>
-  `;
+`;
 
   // ---- Helpers for cards + tech list ----
   let storeAvgRos=0, storeAvgAsr=0, storeAvgSold=0;
