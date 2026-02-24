@@ -190,6 +190,17 @@ function renderServicesHome(){
       }
       /* Header filters sizing (local to this page) */
       /* Header filters: 13px */
+
+      /* Header note under filters (2-line italic, far-left) */
+      .pageServicesDash .techHeaderPanel .svcHdrNote{
+        margin-top:6px;
+        font-size:13px;
+        color:rgba(255,255,255,.70);
+        line-height:1.15;
+        text-align:left;
+        max-width:520px;
+      }
+      .pageServicesDash .techHeaderPanel .svcHdrNote em{font-style:italic;}
       .pageServicesDash .techHeaderPanel .mainFiltersBar,
       .pageServicesDash .techHeaderPanel .mainFiltersBar label,
       .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
@@ -530,7 +541,9 @@ function renderServicesHome(){
                       </div>
                       ` : ``}
                     </div>
-        </div>
+        
+        <div class="svcHdrNote"><em>All metrics in the Services Dashboard are evaluated<br>by comparison to ASR or Sold Goals.</em></div>
+      </div>
       </div>
     </div>
   `;
