@@ -131,6 +131,10 @@ function renderServicesHome(){
 
       /* Header divider (used by this page) */
       .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
+      /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
+      .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
+
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -167,7 +171,7 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
