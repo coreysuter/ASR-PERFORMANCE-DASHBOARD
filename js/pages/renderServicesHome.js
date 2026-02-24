@@ -169,8 +169,8 @@ function renderServicesHome(){
       /* Header filters sizing (local to this page) */
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
-      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:10px !important;text-transform:none !important;}
-      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:13px !important;line-height:1.05 !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:18px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pillMini.sold .v{color:#fff !important;}
 
 
