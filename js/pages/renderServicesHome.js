@@ -171,6 +171,9 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .thumbIcon.up{color:#1fcb6a}
       .pageServicesDash .techPickPanel.diagSection .thumbIcon.down{color:#ff4b4b}
 
+      /* Mini headers (Top/Bottom 3) */
+      .pageServicesDash .techPickPanel.diagSection .pickMiniHdr{font-size:14px !important;line-height:1.1 !important;}
+
       /* Status icons */
       /* Make warning triangles a touch smaller + lighter visual weight */
       .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;vertical-align:middle;margin-left:6px;}
