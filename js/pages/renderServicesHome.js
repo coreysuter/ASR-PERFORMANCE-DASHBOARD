@@ -434,11 +434,11 @@ function renderServicesHome(){
 
                 <div class="svcHdrGoalDials">
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:90px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:113px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
                     <div class="svcGaugeLbl">ASR</div>
                   </div>
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:90px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:113px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
                     <div class="svcGaugeLbl">SOLD</div>
                   </div>
                 </div>
