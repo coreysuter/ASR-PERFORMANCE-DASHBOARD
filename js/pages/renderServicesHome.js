@@ -136,7 +136,7 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:12px !important;}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
 
 
 
@@ -193,14 +193,16 @@ function renderServicesHome(){
 
       /* Header note under filters (2-line italic, far-left) */
       .pageServicesDash .techHeaderPanel .svcHdrNote{
-        margin-top:6px;
-        font-size:13px;
-        color:rgba(255,255,255,.70);
-        line-height:1.15;
-        text-align:left;
-        max-width:520px;
-      }
-      .pageServicesDash .techHeaderPanel .svcHdrNote em{font-style:italic;}
+  margin-top:0;
+  font-size:13px;
+  color:rgba(255,255,255,.70);
+  line-height:1.15;
+  text-align:left;
+}
+.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL1,
+.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL2{white-space:nowrap;}
+.pageServicesDash .techHeaderPanel .svcHdrNote em{font-style:italic;}
+
       .pageServicesDash .techHeaderPanel .mainFiltersBar,
       .pageServicesDash .techHeaderPanel .mainFiltersBar label,
       .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
@@ -542,7 +544,7 @@ function renderServicesHome(){
                       ` : ``}
                     </div>
         
-        <div class="svcHdrNote"><em>All metrics in the Services Dashboard are evaluated<br>by comparison to ASR or Sold Goals.</em></div>
+        <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
       </div>
       </div>
     </div>
