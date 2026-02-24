@@ -158,8 +158,9 @@ function renderServicesHome(){
       .pageServicesDash .svcTechMetaRow{display:block;}
 
       /* TechPickPanel toggle + thumbs (scoped) */
-      .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin:-2px 2px 0}
+      .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:-2px 2px 0}
       .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:16px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
+      .pageServicesDash .techPickPanel.diagSection .pickToggleRight{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
       .pageServicesDash .techPickPanel.diagSection .pickToggle{position:relative;width:46px;height:24px;flex:0 0 auto}
       .pageServicesDash .techPickPanel.diagSection .pickToggle input{opacity:0;width:0;height:0}
       .pageServicesDash .techPickPanel.diagSection .pickToggle .slider{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.12);cursor:pointer;transition:background 140ms ease}
@@ -1006,17 +1007,19 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <div class="pickToggleRow">
-          <div class="pickToggleLbl">Technicians/Services</div>
-          <label class="pickToggle" title="Toggle Technicians / Services">
-            <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
-            <span class="slider"></span>
-          </label>
+          <div class="pickHdrLabel asrTop" style="margin:0;margin-top:-5px;font-size:22px;line-height:1">ASR</div>
+          <div class="pickToggleRight">
+            <div class="pickToggleLbl">Technicians/Services</div>
+            <label class="pickToggle" title="Toggle Technicians / Services">
+              <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
+              <span class="slider"></span>
+            </label>
+          </div>
         </div>
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services ASR', topSvcAsr, 'asr', 'up') : tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
