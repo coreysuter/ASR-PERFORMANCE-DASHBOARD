@@ -130,7 +130,7 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
       /* Header divider (used by this page): move it closer to the filters */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:14px 0 6px}
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 10px}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
       .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
@@ -158,7 +158,7 @@ function renderServicesHome(){
       .pageServicesDash .svcTechMetaRow{display:block;}
 
       /* TechPickPanel toggle + thumbs (scoped) */
-      .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:-2px 2px 0}
+      .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 2px -4px}
       .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:16px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .techPickPanel.diagSection .pickToggleRight{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
       .pageServicesDash .techPickPanel.diagSection .pickToggle{position:relative;width:46px;height:24px;flex:0 0 auto}
