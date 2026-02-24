@@ -10,10 +10,10 @@ function renderServicesHome(){
     }
     el.textContent = `
       /* Scope everything to Services Dashboard only */
-      .pageServicesDash .techHeaderPanel{margin-bottom:14px !important;}
+      .pageServicesDash .techHeaderPanel{margin-bottom:0 !important;}
 
       /* Header + diag wrapper (match Tech Details layout) */
-      .pageServicesDash .svcdashHeaderWrap{display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
+      .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
       @media(max-width:740px){ .pageServicesDash .svcdashHeaderWrap{grid-template-columns:1fr;} }
 
       .pageServicesDash .svcDashSections{display:grid;gap:12px;}
