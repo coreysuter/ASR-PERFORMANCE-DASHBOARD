@@ -363,8 +363,9 @@ function renderServicesHome(){
           <div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start">
               <div class="h2 techH2Big">Services Dashboard</div>
-              <div class="techTeamLine" style="margin-top:0">${focus.toUpperCase()}</div>
-              <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
+            </div>
+            <div class="techTeamLine" style="margin-top:6px">${focus.toUpperCase()}</div>
+            <div class="pills" style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal">
                 <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                 <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
                 <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
