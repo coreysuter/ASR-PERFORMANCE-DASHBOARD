@@ -30,35 +30,77 @@ function renderServicesHome(){
       .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:14px;align-items:start;}
       @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
-      /* Diag panel (Services Dashboard) */
-      .pageServicesDash .svcDiagPanel{height:auto;min-width:0;overflow:hidden;align-self:start;}
-      .pageServicesDash .svcDiagPanel .phead{border-bottom:none;padding:10px;display:flex;flex-direction:column;gap:10px}
-      .pageServicesDash .svcDiagRow{padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(0,0,0,.14)}
-      .pageServicesDash .svcDiagGrid{display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch}
-      @media(max-width:980px){ .pageServicesDash .svcDiagGrid{grid-template-columns:170px 1fr;} }
-      @media(max-width:620px){ .pageServicesDash .svcDiagGrid{grid-template-columns:1fr;} }
-      .pageServicesDash .svcDiagLabelCol{display:flex;flex-direction:column;align-items:center}
-      .pageServicesDash .svcDiagLabel{margin:0;align-self:flex-start;font-size:22px;line-height:1;font-weight:1000;letter-spacing:.4px}
-      .pageServicesDash .svcDiagDivider{height:1px;background:rgba(255,255,255,.12);margin:0 12px}
+      /* =====================================================================
+         ServicesHome diagSection: match Tech Details (renderTech) styling
+         ===================================================================== */
+
+      /* Prevent Bottom 3 lists from being clipped when the diag section is height-constrained */
+      .pageServicesDash .techPickPanel.diagSection{display:flex;flex-direction:column;overflow:hidden}
+      .pageServicesDash .techPickPanel.diagSection>.phead{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+      .pageServicesDash .techPickPanel.diagSection .pickRow{min-height:0}
+
+      /* Diag pie chart labels/lines (same as app.css tech details) */
+      .pageServicesDash .techPickPanel.diagSection .diagPieWrap{display:flex;align-items:center;justify-content:center;margin-top:10px}
+      .pageServicesDash .techPickPanel.diagSection .diagPieSvg{width:142px;height:142px;display:block;overflow:visible}
+      .pageServicesDash .techPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:700;font-size:20px}
+      .pageServicesDash .techPickPanel.diagSection .diagPieLeader{stroke:rgba(255,255,255,9);stroke-width:1}
+      .pageServicesDash .techPickPanel.diagSection .diagPieRing{stroke:rgba(255,255,255,85);stroke-width:1.2}
+
+      /* Diag pie interactions (same as app.css tech details) */
+      .pageServicesDash .techPickPanel.diagSection .diagPieWrap,
+      .pageServicesDash .techPickPanel.diagSection .diagPieSvg{cursor:pointer;}
+      .pageServicesDash .techPickPanel.diagSection .diagPieSlice{
+        cursor:pointer;
+        transition:filter 140ms ease, opacity 140ms ease, transform 140ms ease;
+        opacity:.92;
+        transform-origin:50% 50%;
+      }
+      .pageServicesDash .techPickPanel.diagSection .diagPieSlice:hover{
+        opacity:1;
+        filter:brightness(1.35) drop-shadow(0 6px 10px rgba(0,0,0,35));
+        transform:scale(1.02);
+      }
+
+      /* One-line Top/Bottom list rows (same as app.css tech details) */
+      .pageServicesDash .techPickPanel .pickList .techRow{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:space-between !important;
+        flex-wrap:nowrap !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow > div:first-child{
+        display:flex !important;
+        align-items:center !important;
+        gap:10px !important;
+        min-width:0 !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow > div:first-child .mini{
+        margin:0 !important;
+        white-space:nowrap !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow a,
+      .pageServicesDash .techPickPanel .pickList .techRow .tbJump,
+      .pageServicesDash .techPickPanel .pickList .techRow .nm,
+      .pageServicesDash .techPickPanel .pickList .techRow span,
+      .pageServicesDash .techPickPanel .pickList .techRow button{
+        white-space:nowrap !important;
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        max-width:100% !important;
+      }
+      .pageServicesDash .techPickPanel .pickList .techRow > .mini,
+      .pageServicesDash .techPickPanel .pickList .techRow > div:last-child{white-space:nowrap !important;}
+
+      /* Diag legend: only color the RED/YELLOW/GREEN words; everything else stays white */
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend{color:#fff}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendRest{color:#fff}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendName{font-weight:1000}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendRed{color:#ff4b4b}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
+      .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
+
+      /* Header divider (used by this page) */
       .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:10px 0 12px}
-
-
-      .pageServicesDash .diagPieWrap{margin-top:10px}
-      .pageServicesDash .diagPieSvg{width:130px;height:130px;display:block}
-      .pageServicesDash .diagPieTxt{font-size:14px;font-weight:900;fill:#fff}
-      .pageServicesDash .diagPieSlice{cursor:pointer}
-      .pageServicesDash .diagPieSlice:hover{filter:brightness(1.12)}
-
-      .pageServicesDash .pickBox{border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(0,0,0,.14);overflow:hidden;height:100%}
-      .pageServicesDash .pickMiniHdr{padding:10px 12px;font-weight:1000;letter-spacing:.3px;border-bottom:1px solid rgba(255,255,255,.08)}
-      .pageServicesDash .pickList{padding:10px 12px;display:grid;gap:8px}
-      .pageServicesDash .pickRowFrame{display:flex;align-items:center;justify-content:space-between;gap:12px}
-      .pageServicesDash .pickRowFrame .rankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right}
-      .pageServicesDash .pickRowFrame .tbJump{background:transparent;border:none;padding:0;color:inherit;cursor:pointer;text-align:left;text-decoration:underline;font:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-      .pageServicesDash .pickRowFrame .mini{color:#fff;font-weight:900;white-space:nowrap}
-
-      .pageServicesDash .diagPopup{position:fixed;z-index:9999;width:520px;max-width:calc(100vw - 24px);background:linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98));border:1px solid rgba(255,255,255,.10);border-radius:16px;box-shadow:0 22px 60px rgba(0,0,0,.55);overflow:hidden}
-      .pageServicesDash .diagPopRowBtn{width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:6px;cursor:pointer}
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
@@ -703,12 +745,12 @@ function renderServicesHome(){
     const metricLbl = (mode==='sold') ? 'SOLD GOAL' : 'ASR GOAL';
     const val = Number.isFinite(item.pct) ? fmtPct(item.pct) : '—';
     return `
-      <div class="techRow pickRowFrame" style="font-size:14px;font-weight:700;line-height:1.2">
-        <div class="techRowLeft" style="min-width:0;display:flex;align-items:center;gap:8px">
-          <span class="rankNum" style="font-size:14px;font-weight:700">${idx}.</span>
+      <div class="techRow">
+        <div class="techRowLeft">
+          <span class="rankNum">${idx}.</span>
           <button type="button" class="tbJump" data-tech="${safe(item.id)}">${safe(item.name)}</button>
         </div>
-        <div class="mini" style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;margin-left:12px">${metricLbl} = ${val}</div>
+        <div class="mini">${metricLbl} = ${val}</div>
       </div>`;
   }
 
@@ -817,16 +859,28 @@ try{
     const pop = document.createElement('div');
     pop.id = 'svcDiagPopup';
     pop.className = 'diagPopup';
+
+    // Match renderTech popup look (avoid CSS dependency)
+    pop.style.position = 'fixed';
+    pop.style.zIndex = '9999';
+    pop.style.width = '520px';
+    pop.style.maxWidth = 'calc(100vw - 24px)';
+    pop.style.background = 'linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98))';
+    pop.style.border = '1px solid rgba(255,255,255,.10)';
+    pop.style.borderRadius = '16px';
+    pop.style.boxShadow = '0 22px 60px rgba(0,0,0,.55)';
+    pop.style.overflow = 'hidden';
+    pop.style.overflowX = 'hidden';
     pop.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div style="font-weight:1000;letter-spacing:.4px">${title} • ${band.toUpperCase()} Services</div>
-        <button aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
+      <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title} • ${band.toUpperCase()} Services</div>
+        <button class="diagPopClose" aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
-      <div style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
+      <div class="diagPopList" style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
         ${list.length ? list.map((it,i)=>{
           const id = 'sd-'+safeSvcIdLocal(it.name).replace(/^svc-/, '');
           return `
-            <button class="diagPopRowBtn" type="button" data-target="${id}">
+            <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:6px;cursor:pointer">
               <span class="rankNum">${i+1}.</span>
               <span style="flex:0 1 340px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safe(it.name)}</span>
               <span style="margin-left:6px;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${fmtPct(it.pct)}</span>
