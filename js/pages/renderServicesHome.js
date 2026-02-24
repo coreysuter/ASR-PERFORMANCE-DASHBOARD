@@ -363,6 +363,7 @@ function renderServicesHome(){
           <div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-start">
               <div class="h2 techH2Big">Services Dashboard</div>
+              <div class="techTeamLine" style="margin-top:0">${focus.toUpperCase()}</div>
               <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:wrap;white-space:normal;flex:1 1 auto">
                 <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                 <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
@@ -370,8 +371,7 @@ function renderServicesHome(){
                 <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
               </div>
             </div>
-            <div class="techTeamLine">${focus.toUpperCase()}</div>
-          </div>
+</div>
 
           <div class="overallBlock">
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
