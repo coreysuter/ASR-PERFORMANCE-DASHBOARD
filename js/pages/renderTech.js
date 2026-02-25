@@ -252,7 +252,11 @@ function renderTech(techId){
       .techPickPanel.diagSection .diagBandLegend .legendRed{color:#ff4b4b}
       .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
       .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
-    `;
+    
+      /* Filters: keep the selected display value white, but dropdown option text black */
+      .controls select{color:#fff}
+      .controls select option{color:#000}
+`;
     document.head.appendChild(st);
   })();
 
