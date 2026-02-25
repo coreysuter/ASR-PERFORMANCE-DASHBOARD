@@ -445,19 +445,22 @@ function brakeRowHtml(key,label,mappedCat){
   // One big box; inside we render a 2x2 grid of quadrants
   // One big box; inside we render a 2x2 grid of quadrants
 // One big box; inside we render a 2x2 grid of quadrants
-// One big box; inside we render a 2x2 grid of quadrants
 app.innerHTML = `
-  <!-- Notched panel (true continuation): notch + goals panel share one continuous border -->
-  <div class="goalsNotchWrap" style="display:flex; align-items:stretch; gap:0; width:100%;">
-    <!-- Notch: same panel styling, rounded like the panel, no break -->
+  <!-- Notched panel: fixed-height notch that only wraps the menu button -->
+  <div class="goalsNotchStage" style="position:relative; width:100%; padding-left:68px;">
+    <!-- Notch extension (no negative positioning; always visible) -->
     <div class="panel goalsMenuNotch" style="
-      flex:0 0 132px;
+      position:absolute;
+      left:0px;
+      top:0px;
+      width:68px;
+      height:56px;
       display:flex;
-      align-items:flex-start;
-      justify-content:flex-start;
-      padding:12px 14px;
+      align-items:center;
+      justify-content:center;
       border-top-right-radius:0px;
       border-bottom-right-radius:0px;
+      z-index:2;
     ">
       <label for="menuToggle" class="hamburger" aria-label="Menu" style="
         font-size:1.5em;
@@ -472,13 +475,11 @@ app.innerHTML = `
       ">☰</label>
     </div>
 
-    <!-- Main Goals panel: remove left border + left rounding so it joins the notch cleanly -->
+    <!-- Main Goals panel (joins notch cleanly at the top-left) -->
     <div class="panel goalsBig halfPage" style="
-      flex:1;
-      min-width:0;
-      border-left:none;
+      width:100%;
       border-top-left-radius:0px;
-      border-bottom-left-radius:0px;
+      min-width:0;
     ">
       <div class="goalsBigTop">
         <div class="goalsTitleRow" style="position:relative; display:flex; align-items:flex-start; gap:14px; width:100%;">
