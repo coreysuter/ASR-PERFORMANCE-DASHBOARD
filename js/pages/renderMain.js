@@ -223,6 +223,31 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
   `;
 app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
 
+  // Force the notch to match the header panel background exactly (prevents any shade mismatch)
+  (function syncNotchBg(){
+    const stage = document.querySelector('.pageTechDash .techNotchStage');
+    const notch = document.querySelector('.pageTechDash .techMenuNotch');
+    const panel = document.querySelector('.pageTechDash .techHeaderPanel');
+    if(!notch || !panel) return;
+
+    const apply = ()=>{
+      const cs = getComputedStyle(panel);
+      // Match any solid/gradient background + repeat/position/size in case the theme uses more than a color
+      notch.style.backgroundColor = cs.backgroundColor;
+      notch.style.backgroundImage = cs.backgroundImage;
+      notch.style.backgroundRepeat = cs.backgroundRepeat;
+      notch.style.backgroundPosition = cs.backgroundPosition;
+      notch.style.backgroundSize = cs.backgroundSize;
+      notch.style.backgroundAttachment = cs.backgroundAttachment;
+      // Also match border color so the top line is identical
+      notch.style.borderColor = cs.borderTopColor;
+    };
+
+    // Two-pass to ensure we capture final computed styles after layout
+    requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
+  })();
+
+
   document.querySelectorAll('[data-ctl]').forEach(el=>{
     const ctl=el.getAttribute('data-ctl');
     const scope=el.getAttribute('data-scope');
