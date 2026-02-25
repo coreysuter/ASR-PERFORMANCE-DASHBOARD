@@ -643,12 +643,12 @@ const header = `
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
             <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
-              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#eaf0ff;">${__asrPerRoTxt}</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(234,240,255,.75);text-transform:none;">ASRs/RO</div>
             </div>
             <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
-  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
+  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#eaf0ff;">${__soldPerRoTxt}</div>
+  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(234,240,255,.75);text-transform:none;">Sold/RO</div>
 </div>
 ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div></div>
@@ -670,7 +670,7 @@ ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
 
           <div class="pill sold" style="padding:12px 18px; gap:12px;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldPerRoDecTxt}</span></div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#eaf0ff;margin-left:8px;white-space:nowrap">${__soldPerRoDecTxt}</span></div>
           </div>
         </div>
 
@@ -1080,12 +1080,12 @@ return `
             </div>
             <div class="secHdrRight">${miniHtml}<div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
                 <div class="secStatBlock">
-                  <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
-                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>
+                  <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#eaf0ff">${topStatVal}</div>
+                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(234,240,255,.75)">${topStatTitle}</div>
                 </div>
                 <div class="secStatBlock" style="margin-top:10px">
-                  <div class="secStatVal" style="font-size:28px;font-weight:1000;line-height:1;color:rgba(255,255,255,.78)">${botStatVal}</div>
-                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.55)">${botStatTitle}</div>
+                  <div class="secStatVal" style="font-size:28px;font-weight:1000;line-height:1;color:#eaf0ff">${botStatVal}</div>
+                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(234,240,255,.75)">${botStatTitle}</div>
                 </div>
               </div>
             </div>
@@ -1154,7 +1154,7 @@ return `
             ${safe(item.label)}
           </button>
         </div>
-        <div class="mini" style="font-size:14px;font-weight:700;color:#fff;white-space:nowrap;margin-left:12px">${metricLbl} = ${fmtPct(metric)}</div>
+        <div class="mini" style="font-size:14px;font-weight:700;color:#eaf0ff;white-space:nowrap;margin-left:12px">${metricLbl} = ${fmtPct(metric)}</div>
       </div>
     `;
   }

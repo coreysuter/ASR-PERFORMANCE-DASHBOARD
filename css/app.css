@@ -1,6 +1,19 @@
 :root{
   --bg:#0b1020;--card:#121a33;--card2:#0f1730;--text:#eaf0ff;--muted:rgba(234,240,255,.7);
+  --muted75:rgba(234,240,255,.75);
   --border:rgba(234,240,255,.12);
+}
+
+/* === Tech Details (renderTech): requested type colors ===
+   - "k" (labels), svcMetaLine, and stat titles => #eaf0ff @ 75% opacity
+   - "v" (values), secStatValues, and focus stats => #eaf0ff (no opacity)
+*/
+body.route-tech{ --muted: var(--muted75); }
+body.route-tech .statTile .tLbl,
+body.route-tech .metricBlock .mbKicker,
+body.route-tech .metricBlock .mbLbl{
+  color: var(--muted) !important;
+  opacity: 1 !important;
 }
 *{box-sizing:border-box}
 body{margin:0;background:linear-gradient(180deg,var(--bg),#070a14);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
@@ -2149,7 +2162,7 @@ body.route-tech .techHeaderPanel .pills .pill .v{
 body.route-tech .techHeaderPanel .pills .pill .k{
   font-size:15px !important;
   line-height:1.05 !important;
-  color:rgba(255,255,255,.55) !important;
+  color:rgba(234,240,255,.75) !important;
   text-transform:none !important;
 }
 
@@ -2165,8 +2178,8 @@ body.route-tech .techHeaderPanel .pills .pill .k{
 }
 
 /* renderTech section headers actually use .secStatVal / .secStatTitle with inline colors */
-body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#fff !important;}
-body.route-tech .secHdrStats .secStatTitle{color:rgba(255,255,255,.55) !important;}
+body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{color:#eaf0ff !important;}
+body.route-tech .secHdrStats .secStatTitle{color:rgba(234,240,255,.75) !important;}
 
 
 /* === renderTech: section header right cluster (mini dials + focus dial) === */
