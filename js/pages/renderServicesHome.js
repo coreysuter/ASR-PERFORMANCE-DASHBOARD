@@ -26,13 +26,6 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
-      /* =========================================================
-         Services Dashboard section header row
-         Use the EXACT same techRow markup/classes as Technician Dashboard,
-         and DO NOT override pill/pillGroup styling here (so shapes/sizes/fonts match 1:1).
-         ========================================================= */
-      .pageServicesDash details.svcDashSec > summary{padding:0;margin:0;} 
-
       /* Service cards grid (same vibe as tech details) */
       .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(3,minmax(462px,1fr));gap:14px;align-items:start;}
       @media (max-width: 1200px){ .pageServicesDash .svcCardsGrid{grid-template-columns:repeat(2,minmax(420px,1fr));} }
@@ -899,125 +892,15 @@ function serviceGoalDial(pct, sz){
       `;
     }).join('');
 
-    // ===== Section rollups (used for techRow-style header) =====
-    const secRos = totalRos;
-    const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
-    const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
-    const asrpr = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : null;          // ASRs/RO
-    const soldpct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : null;       // SOLD/ASR
-    const soldRoVal = (Number.isFinite(secRos) && secRos>0) ? (secSold/secRos) : null;     // SOLD/RO
-
-    // Goals for this section (aggregate from service goals) — identical logic used in computeSectionRanks()
-    const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
-    let __num=0, __den=0;
-    for(const cat of services){
-      const gR = Number(getGoal(cat,'req'))||0;
-      const gC = Number(getGoal(cat,'close'))||0;
-      if(Number.isFinite(gR) && gR>0){
-        __den += gR;
-        if(Number.isFinite(gC) && gC>0) __num += (gR * gC);
-      }
-    }
-    const secGoalSoldPct = (__den>0) ? (__num/__den) : null;
-
-    const asrGoalTarget = (Number.isFinite(secGoalAsr) && secGoalAsr>0) ? secGoalAsr : null;
-    const soldGoalTarget = (Number.isFinite(secGoalSoldPct) && secGoalSoldPct>0) ? secGoalSoldPct : null;
-    const soldRoGoalTarget = (Number.isFinite(asrGoalTarget) && Number.isFinite(soldGoalTarget)) ? (asrGoalTarget * soldGoalTarget) : null;
-
-    const asrGoalRatio = (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
-    const soldGoalRatio = (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
-
-    const asrGoalTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
-    const soldGoalTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
-
-    // Comparison mode for ServicesDash is ALWAYS goal
-    const inGoalMode = true;
-    const compAsrBase = asrGoalTarget;
-    const compSoldAsrBase = soldGoalTarget;
-    const soldRoBase = soldRoGoalTarget;
-
-    function compClassLocal(val, base){
-      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) return "";
-      const pct = val/base;
-      if(pct>=0.80) return " compG";
-      if(pct>=0.60) return " compY";
-      return " compR";
-    }
-
-    const clsAsrpr   = compClassLocal(asrpr, compAsrBase);
-    const clsAsrGoal = compClassLocal(asrGoalRatio, inGoalMode ? 1 : 1);
-    const clsSoldAsr = compClassLocal(soldpct, compSoldAsrBase);
-    const clsSoldRo  = compClassLocal(soldRoVal, soldRoBase);
-    const clsSoldGoal= compClassLocal(soldGoalRatio, inGoalMode ? 1 : 1);
-
-    const focusIsSold = (focus === 'sold');
-    const focusIsGoal = (focus === 'goal');
-
-    // Rank badge for the section (ranked by selected Focus vs Goals)
-    const secRank = (typeof window.__svcSectionRankMap!=='undefined' && window.__svcSectionRankMap)
-      ? (window.__svcSectionRankMap.get(openKey) || {rank:"—", total:"—"})
-      : {rank:"—", total:"—"};
-    const topLbl = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
-
     return `
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
-          <div class="svcSecRow techRow dashTechRow">
-            <div class="dashLeft">
-              <div class="val name" style="font-size:22px">${safe(secName)}</div>
-
-              <div class="techNameStats">
-                <div class="tnRow tnRow1">
-                  <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(secRos)}</span></span>
-                </div>
-                <div class="tnRow tnRow2">
-                  <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(secAsr)}</span></span>
-                  <span class="miniDot">•</span>
-                  <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(secSold)}</span></span>
-                </div>
-              </div>
+          <div class="svcDashSecHead">
+            <div class="secHeadRow">
+              <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
+              <div class="svcDashSecTitle">${safe(secName)}</div>
             </div>
-
-            <div class="dashRight">
-              <div class="pills">
-                ${/* Focus ordering (closest to rank badge) */""}
-                ${focusIsGoal ? `
-                  <div class="pillGroup pillGroupNonGoal">
-                    <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${asrpr==null?"—":fmt1(asrpr,1)}</div></div>
-                    <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${soldpct==null?"—":fmtPct(soldpct)}</div></div>
-                    <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${soldRoVal==null?"—":fmt1(soldRoVal,2)}</div></div>
-                  </div>
-                  <div class="pillGroup pillGroupGoal">
-                    <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                  </div>
-                ` : (focusIsSold ? `
-                  <div class="pillGroup pillGroupA">
-                    <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${asrpr==null?"—":fmt1(asrpr,1)}</div></div>
-                    <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                  </div>
-                  <div class="pillGroup pillGroupB focusGroup">
-                    <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${soldpct==null?"—":fmtPct(soldpct)}</div></div>
-                    <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${soldRoVal==null?"—":fmt1(soldRoVal,2)}</div></div>
-                    <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                  </div>
-                ` : `
-                  <div class="pillGroup pillGroupB">
-                    <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${soldpct==null?"—":fmtPct(soldpct)}</div></div>
-                    <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${soldRoVal==null?"—":fmt1(soldRoVal,2)}</div></div>
-                    <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                  </div>
-                  <div class="pillGroup pillGroupA focusGroup">
-                    <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${asrpr==null?"—":fmt1(asrpr,1)}</div></div>
-                    <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                  </div>
-                `)}
-              </div>
-
-              <div class="techMetaRight">
-                ${rankBadgeHtmlSvc(secRank.rank, secRank.total, topLbl)}
-              </div>
-            </div>
+            <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
           </div>
         </summary>
         <div class="svcDashBody">
@@ -1028,62 +911,6 @@ function serviceGoalDial(pct, sz){
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-
-  // Precompute section ranks for the header rank badge (same meaning as techRows: rank by % of goal)
-  (function computeSectionRanks(){
-    try{
-      const allCatsSet = new Set();
-      for(const t of techsAll){
-        for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
-      }
-
-      const rows = [];
-      for(const sec of sections){
-        const secName = String(sec?.name||'').trim();
-        if(!secName) continue;
-        const key = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-        const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
-        const aggs = services.map(buildServiceAgg);
-
-        const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
-        const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
-        const secRos = totalRos;
-        const asrpr = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : NaN;
-        const soldpct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : NaN;
-
-        const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
-        let num=0, den=0;
-        for(const cat of services){
-          const gR = Number(getGoal(cat,'req'))||0;
-          const gC = Number(getGoal(cat,'close'))||0;
-          if(Number.isFinite(gR) && gR>0){
-            den += gR;
-            if(Number.isFinite(gC) && gC>0) num += (gR * gC);
-          }
-        }
-        const secGoalSoldPct = (den>0) ? (num/den) : NaN;
-
-        const pct = (rankMetric==='sold')
-          ? ((Number.isFinite(soldpct) && Number.isFinite(secGoalSoldPct) && secGoalSoldPct>0) ? (soldpct/secGoalSoldPct) : -Infinity)
-          : ((Number.isFinite(asrpr) && Number.isFinite(secGoalAsr) && secGoalAsr>0) ? (asrpr/secGoalAsr) : -Infinity);
-
-        rows.push({key, pct});
-      }
-
-      rows.sort((a,b)=>{
-        if(a.pct===b.pct) return String(a.key).localeCompare(String(b.key));
-        return a.pct < b.pct ? 1 : -1;
-      });
-
-      const total = rows.length || 1;
-      const map = new Map();
-      rows.forEach((r,i)=> map.set(r.key, {rank:String(i+1), total:String(total)}));
-      window.__svcSectionRankMap = map;
-    }catch(e){
-      window.__svcSectionRankMap = new Map();
-    }
-  })();
-
   const sectionsHtml = sections.map(renderSection).join('');
 
   // ---- Diag panel (Services vs Goal + Tech top/bottom by avg goal performance across all services) ----
