@@ -24,14 +24,6 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
       .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
-      /* Section header layout: title on top + pills below */
-      .pageServicesDash .svcDashSecHead{align-items:flex-start;}
-      .pageServicesDash .svcDashSecHeadLeft{min-width:0;display:flex;flex-direction:column;gap:10px;}
-      .pageServicesDash .secHeadTop{display:flex;align-items:flex-start;gap:10px;min-width:0;}
-      .pageServicesDash .svcDashSecPills{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
-      .pageServicesDash .svcDashSecPills .pillMini{padding:6px 10px;}
-      .pageServicesDash .svcDashSecPills .pillMini .k{font-size:11px;text-transform:none;}
-      .pageServicesDash .svcDashSecPills .pillMini .v{font-size:14px;}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
@@ -324,6 +316,16 @@ function renderServicesHome(){
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
   const comparison = 'goal';
 
+  // Sections (apply Fluids filter to the Services page content + diag calculations)
+  const sectionsAll = Array.isArray(DATA.sections) ? DATA.sections : [];
+  const sectionsFiltered = sectionsAll.filter(sec=>{
+    const n = String(sec?.name||'').trim().toLowerCase();
+    if(fluidsSel==='with') return true;
+    if(fluidsSel==='without') return n !== 'fluids';
+    if(fluidsSel==='only') return n === 'fluids';
+    return true;
+  });
+
   const pickView = (st.pickView === 'services') ? 'services' : 'tech';
 
   const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
@@ -335,7 +337,11 @@ function renderServicesHome(){
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
     : [];
 
-  const techs = techsAll;
+  const techs = techsAll.filter(t=>{
+    if(teamSel==='express') return t.team === 'EXPRESS';
+    if(teamSel==='kia') return t.team === 'KIA';
+    return true; // store/all teams
+  });
 
   // Determine the metric used for goal comparisons/ranking
   const rankMetric = (focus==='goal') ? goalMetric : (focus==='sold' ? 'sold' : 'asr');
@@ -478,9 +484,9 @@ function serviceGoalDial(pct, sz){
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
-  for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
+  for(const t of techs){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
 
-  const _allServiceNames = (Array.isArray(DATA.sections)?DATA.sections:[])
+  const _allServiceNames = sectionsFiltered
     .flatMap(s => (s?.categories||[]).map(String).filter(Boolean))
     .filter(c => _allCatsSet.has(c));
   const _uniqServices = Array.from(new Set(_allServiceNames));
@@ -489,7 +495,7 @@ function serviceGoalDial(pct, sz){
   for(const svcName of _uniqServices){
     // Build minimal aggregates
     let ros=0, asr=0, sold=0;
-    for(const t of techsAll){
+    for(const t of techs){
       const row = (t.categories||{})[svcName];
       if(!row) continue;
       ros  += Number(row.ros)||0;
@@ -813,30 +819,10 @@ function serviceGoalDial(pct, sz){
 
     // Only include services that exist in dataset (intersection with any tech categories)
     const allCatsSet = new Set();
-    for(const t of techsAll){
+    for(const t of techs){
       for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
     }
     const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
-
-    // ---- Section rollups (team-filtered techs only) ----
-    // IMPORTANT: ROs are NOT summed per service (would double-count). We use tech ROs once.
-    const svcSet = new Set(services);
-    let secRos=0, secAsr=0, secSold=0;
-    let odoSum=0, odoCnt=0;
-    for(const t of techs){
-      const rosTech = Number(t.ros)||0;
-      secRos += rosTech;
-      const odo = Number(t.odo);
-      if(Number.isFinite(odo)) { odoSum += odo; odoCnt += 1; }
-      const cats = t.categories || {};
-      for(const k in cats){
-        if(!svcSet.has(k)) continue;
-        secAsr += Number(cats[k]?.asr)||0;
-        secSold += Number(cats[k]?.sold)||0;
-      }
-    }
-    const secAvgOdo = odoCnt ? (odoSum/odoCnt) : NaN;
-    const secSoldPerRo = secRos ? (secSold/secRos) : NaN;
 
     const aggs = services.map(buildServiceAgg);
 
@@ -922,18 +908,9 @@ function serviceGoalDial(pct, sz){
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
-            <div class="svcDashSecHeadLeft">
-              <div class="secHeadTop">
-                <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
-                <div class="svcDashSecTitle">${safe(secName)}</div>
-              </div>
-              <div class="svcDashSecPills pillsMini">
-                <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
-                <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>
-                <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
-                <div class="pillMini sold"><div class="k">Sold</div><div class="v">${fmtInt(secSold)}</div></div>
-                <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${fmt1(secSoldPerRo,2)}</div></div>
-              </div>
+            <div class="secHeadRow">
+              <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
+              <div class="svcDashSecTitle">${safe(secName)}</div>
             </div>
             <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
           </div>
@@ -945,8 +922,7 @@ function serviceGoalDial(pct, sz){
     `;
   }
 
-  const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
-  const sectionsHtml = sections.map(renderSection).join('');
+  const sectionsHtml = sectionsFiltered.map(renderSection).join('');
 
   // ---- Diag panel (Services vs Goal + Tech top/bottom by avg goal performance across all services) ----
   function bandOfPct(pct){
@@ -1107,7 +1083,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   // Tech average % of goal across all services
   function techAvgPctOfGoal(mode){
     const out = [];
-    for(const t of techsAll){
+    for(const t of techs){
       let sum=0, n=0;
       for(const svcName of _uniqServices){
         const row = (t.categories||{})[svcName];
@@ -1137,7 +1113,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       const gReq = Number(getGoal(svcName,'req'));
       const gClose = Number(getGoal(svcName,'close'));
       const scored = [];
-      for(const t of techsAll){
+      for(const t of techs){
         const row = (t.categories||{})[svcName];
         if(!row) continue;
         const rosTech = Number(t.ros)||0;
@@ -1159,7 +1135,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         sums.set(s.id, cur);
       });
     }
-    return techsAll.map(t=>{
+    return techs.map(t=>{
       const cur = sums.get(String(t.id));
       const avgPos = (cur && cur.count) ? (cur.sum/cur.count) : NaN;
       return {id:t.id, name:t.name, avgPos};
