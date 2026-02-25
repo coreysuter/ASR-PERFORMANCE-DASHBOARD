@@ -119,7 +119,7 @@ function _fmtGoalNum(x){
   return n.toFixed(2);
 }
 // Outlined mini-goals box with a thin vertical divider
-function _miniGoalsBoxHtml(asrro, soldro, asrId, soldId, asrLab="ASRs/RO", soldLab="SOLD"){
+function _miniGoalsBoxHtml(asrro, soldro, asrId, soldId, asrLab="ASRs/RO", soldLab="Sold/RO"){
   const asrVal = safe(_fmtGoalNum(asrro));
   const soldVal = safe(_fmtGoalNum(soldro));
   const asrSpan = asrId ? `<div id="${safe(asrId)}" style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>` :
@@ -488,6 +488,12 @@ app.innerHTML = `
           <div style="display:flex; align-items:flex-start; gap:12px;">
             <div>
               <div class="goalsH1">GOALS</div>
+              <div class="sub" style="margin-top:6px;max-width:980px;">
+                <i>
+                  Define the ASRs (Additional Service Requests) Goal for each Service as a percentage of all ROs and the Sold Goal as the percentage of the total ASRs Sold. Use ONE GOAL FOR ALL RECS for applicable Categories to apply the same goal across all Services within that Category.<br>
+                  Overall and Category ASRs/RO and Sold/Ro Goals reflect the number of ASRs and Sold Services if desired Goals are achieved.
+                </i>
+              </div>
             </div>
           </div>
 
@@ -503,7 +509,7 @@ app.innerHTML = `
                 <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
                 <div style="text-align:center;">
                   <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                  <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
+                  <div style="font-size:13px; opacity:.75; margin-top:2px;">Sold/RO</div>
                 </div>
               </div>
             </div>
