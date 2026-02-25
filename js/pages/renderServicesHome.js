@@ -20,7 +20,7 @@ function renderServicesHome(){
       .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
 
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
-      .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
+      .pageServicesDash .svcDashSecTitle{font-size:32px;font-weight:1400;letter-spacing:.8px;line-height:1.05;}
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
@@ -136,7 +136,7 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:12px !important;}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
 
 
 
@@ -182,31 +182,15 @@ function renderServicesHome(){
       /* Status icons */
       /* Make warning triangles a touch smaller + lighter visual weight */
       .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;vertical-align:middle;margin-left:6px;}
-      .pageServicesDash .svcIcon svg{width:12px;height:12px;display:block}
+      .pageServicesDash .svcIcon svg{width:100%;height:100%;display:block}
+      .pageServicesDash .svcIcon.good{width:18px;height:18px;}
+      .pageServicesDash .svcIcon.warn,.pageServicesDash .svcIcon.bad{width:24px;height:24px;}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
       /* Header filters sizing (local to this page) */
-      /* Header filters: 13px */
-
-      /* Header note under filters (2-line italic, far-left) */
-      .pageServicesDash .techHeaderPanel .svcHdrNote{
-  margin-top:0;
-  font-size:13px;
-  color:rgba(255,255,255,.70);
-  line-height:1.15;
-  text-align:left;
-}
-.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL1,
-.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL2{white-space:nowrap;}
-.pageServicesDash .techHeaderPanel .svcHdrNote em{font-style:italic;}
-
-      .pageServicesDash .techHeaderPanel .mainFiltersBar,
-      .pageServicesDash .techHeaderPanel .mainFiltersBar label,
-      .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
-
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
       .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
@@ -423,9 +407,9 @@ function renderServicesHome(){
 
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
-    const focusLbl = (rankMetric==='sold') ? 'SOLD' : 'ASR';
+    const focusLbl = (rankMetric==='sold') ? 'SOLD Goal' : 'ASR Goal';
     return `
-      <div class="rankFocusBadge sm" title="${safe(focusLbl)} goal rank">
+      <div class="rankFocusBadge sm" title="${safe(focusLbl)} rank">
         <div class="rfbFocus">${safe(focusLbl)}</div>
         <div class="rfbMain">${rk}</div>
         <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${fmtInt(_svcRankDen)}</span></div>
@@ -543,9 +527,7 @@ function renderServicesHome(){
                       </div>
                       ` : ``}
                     </div>
-        
-        <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
-      </div>
+        </div>
       </div>
     </div>
   `;
@@ -568,7 +550,8 @@ function renderServicesHome(){
   }
 
   function iconHtml(pctOfBase){
-    return `<span class="svcIcon">${iconSvg(iconKindFromPctOfBase(pctOfBase))}</span>`;
+    const kind = iconKindFromPctOfBase(pctOfBase);
+    return `<span class="svcIcon ${kind}">${iconSvg(kind)}</span>`;
   }
   function safeSvcIdLocal(cat){
     return "svc-" + String(cat||"").toLowerCase()
@@ -1101,13 +1084,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
     const key = d.getAttribute('data-sec');
-    const _sync = ()=>{
-      st.open[key] = d.open;
-      const btn = d.querySelector('.secToggle');
-      if(btn) btn.textContent = d.open ? '−' : '+';
-    };
-    d.addEventListener('toggle', _sync);
-    _sync();
+    d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
   });
 
 // Animate gauges (sets ring fill + enables hold interaction)
