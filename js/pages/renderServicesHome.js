@@ -1012,7 +1012,19 @@ function serviceGoalDial(pct, sz){
     const soldpct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : null;       // SOLD/ASR
     const soldRoVal = (Number.isFinite(secRos) && secRos>0) ? (secSold/secRos) : null;     // SOLD/RO
 
-    // Goals for this section (aggregate from service goals)
+    // Goals for this section (aggregate from service goals) — identical logic used in computeSectionRanks()
+    const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
+    let __num=0, __den=0;
+    for(const cat of services){
+      const gR = Number(getGoal(cat,'req'))||0;
+      const gC = Number(getGoal(cat,'close'))||0;
+      if(Number.isFinite(gR) && gR>0){
+        __den += gR;
+        if(Number.isFinite(gC) && gC>0) __num += (gR * gC);
+      }
+    }
+    const secGoalSoldPct = (__den>0) ? (__num/__den) : null;
+
     const asrGoalTarget = (Number.isFinite(secGoalAsr) && secGoalAsr>0) ? secGoalAsr : null;
     const soldGoalTarget = (Number.isFinite(secGoalSoldPct) && secGoalSoldPct>0) ? secGoalSoldPct : null;
     const soldRoGoalTarget = (Number.isFinite(asrGoalTarget) && Number.isFinite(soldGoalTarget)) ? (asrGoalTarget * soldGoalTarget) : null;
