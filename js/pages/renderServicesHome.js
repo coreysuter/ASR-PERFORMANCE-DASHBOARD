@@ -216,7 +216,10 @@ function renderServicesHome(){
 .pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL2{white-space:nowrap;}
 .pageServicesDash .techHeaderPanel .svcHdrNote em{font-style:italic;}
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar,
+      
+      /* Header stat tags under numbers */
+      .pageServicesDash .techHeaderPanel .tag{font-size:14px !important;}
+.pageServicesDash .techHeaderPanel .mainFiltersBar,
       .pageServicesDash .techHeaderPanel .mainFiltersBar label,
       .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
 
