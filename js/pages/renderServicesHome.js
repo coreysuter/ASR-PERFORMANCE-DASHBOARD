@@ -11,8 +11,6 @@ function renderServicesHome(){
     el.textContent = `
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:0 !important;}
-      /* Services Dashboard header title size */
-      .pageServicesDash .techH2Big{font-size:34px !important;}
 
       /* Header + diag wrapper (match Tech Details layout) */
       .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
@@ -22,7 +20,7 @@ function renderServicesHome(){
       .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
 
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
-      .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
+      .pageServicesDash .svcDashSecTitle{font-size:32px;font-weight:1400;letter-spacing:.8px;line-height:1.05;}
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
@@ -132,25 +130,19 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
       /* Header divider (used by this page): move it closer to the filters */
-      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:0}
-      /* Put divider exactly midway between dials and filters */
-      .pageServicesDash .svcHdrGoalDials{margin-bottom:12px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:12px !important;}
+      .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:14px 0 6px}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
 
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
-      .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
       .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
       .pageServicesDash .catHdrLeft{min-width:0;}
       .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
-
-      .pageServicesDash .sdCatHdrRow .pctText{display:flex;align-items:center;justify-content:center;}
       @media (max-width: 540px){
         .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .sdCatHdrRow{justify-content:flex-start;white-space:normal;}
@@ -166,9 +158,8 @@ function renderServicesHome(){
       .pageServicesDash .svcTechMetaRow{display:block;}
 
       /* TechPickPanel toggle + thumbs (scoped) */
-      .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 2px -4px}
-      .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:16px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
-      .pageServicesDash .techPickPanel.diagSection .pickToggleRight{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
+      .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin:-2px 2px 0}
+      .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:12px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .techPickPanel.diagSection .pickToggle{position:relative;width:46px;height:24px;flex:0 0 auto}
       .pageServicesDash .techPickPanel.diagSection .pickToggle input{opacity:0;width:0;height:0}
       .pageServicesDash .techPickPanel.diagSection .pickToggle .slider{position:absolute;inset:0;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.12);cursor:pointer;transition:background 140ms ease}
@@ -176,61 +167,24 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider{background:rgba(31,203,106,.28)}
       .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider:before{transform:translateX(22px)}
 
-      .pageServicesDash .techPickPanel.diagSection .thumbIcon{font-size:28px;line-height:1;display:inline-flex;align-items:center;justify-content:center;margin-left:6px}
+      .pageServicesDash .techPickPanel.diagSection .thumbIcon{font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;margin-left:6px}
       .pageServicesDash .techPickPanel.diagSection .thumbIcon.up{color:#1fcb6a}
       .pageServicesDash .techPickPanel.diagSection .thumbIcon.down{color:#ff4b4b}
 
-      /* Mini headers (Top/Bottom 3) */
-      .pageServicesDash .techPickPanel.diagSection .pickMiniHdr{font-size:14px !important;line-height:1.1 !important;}
-
       /* Status icons */
-      .pageServicesDash .svcIcon{
-        display:inline-flex;align-items:center;justify-content:center;
-        vertical-align:middle;margin-left:6px;
-      }
-      /* Base sizes: triangles 2x, green circle +50% */
-      .pageServicesDash .svcIcon-good{width:18px;height:18px;}
-      .pageServicesDash .svcIcon-warn,
-      .pageServicesDash .svcIcon-bad{width:24px;height:24px;}
-      .pageServicesDash .svcIcon-good svg{width:18px;height:18px;display:block}
-      .pageServicesDash .svcIcon-warn svg,
-      .pageServicesDash .svcIcon-bad svg{width:24px;height:24px;display:block}
-      /* Make the ! a bit smaller inside triangles */
-      .pageServicesDash .svcIcon-warn text,
-      .pageServicesDash .svcIcon-bad text{font-size:7.9px !important;}
+      /* Make warning triangles a touch smaller + lighter visual weight */
+      .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;vertical-align:middle;margin-left:6px;}
+      .pageServicesDash .svcIcon svg{width:12px;height:12px;display:block}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
       /* Header filters sizing (local to this page) */
-      /* Header filters: 13px */
-
-      /* Header note under filters (2-line italic, far-left) */
-      .pageServicesDash .techHeaderPanel .svcHdrNote{
-  margin-top:0;
-  font-size:13px;
-  color:rgba(255,255,255,.70);
-  line-height:1.15;
-  text-align:left;
-}
-.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL1,
-.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL2{white-space:nowrap;}
-.pageServicesDash .techHeaderPanel .svcHdrNote em{font-style:italic;}
-
-      
-      /* Header stat tags under numbers */
-      .pageServicesDash .techHeaderPanel .tag{font-size:14px !important;}
-.pageServicesDash .techHeaderPanel .mainFiltersBar,
-      .pageServicesDash .techHeaderPanel .mainFiltersBar label,
-      .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
-
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
-      .pageServicesDash .techHeaderPanel .pillMini{padding:8px 12px !important;}
-
-      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:16px !important;text-transform:none !important;}
-      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:20px !important;line-height:1.05 !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:18px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pillMini.sold .v{color:#fff !important;}
 
 
@@ -246,16 +200,7 @@ function renderServicesHome(){
       .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
       .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
-      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:12px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
-      /* Header goal dial text sizing */
-      .pageServicesDash .svcHdrGoalDials .pctMain{font-size:18px;font-weight:1000;line-height:1;}
-      .pageServicesDash .svcHdrGoalDials .pctArrow{font-size:18px;line-height:1;}
-      /* Service card header (sdCatHdrRow) dial is 2px smaller than header */
-      .pageServicesDash .sdCatHdrRow .pctMain{font-size:16px;font-weight:1000;line-height:1;}
-      .pageServicesDash .sdCatHdrRow .pctArrow{font-size:16px;line-height:1;}
-      .pageServicesDash .sdCatHdrRow .pctSub{font-size:10px;font-weight:900;letter-spacing:.3px;line-height:1;}
-      .pageServicesDash .sdCatHdrRow .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
-
+      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:8px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
 
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
@@ -362,7 +307,7 @@ function renderServicesHome(){
     const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
 
     const defaultHtml = `<span class="pctText pctDefault"><span class="pctTitle">${safe(top)}</span><span class="pctTitle">${safe(bot)}</span></span>`;
-    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">Goal</span></span>`;
+    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">GOAL</span></span>`;
 
     return `<span class="svcGauge ${cls}" data-p="${ring}">
       <svg viewBox="0 0 36 36" aria-hidden="true">
@@ -401,49 +346,11 @@ function renderServicesHome(){
         <span class="pctStack2">
           <span class="pctMain">${absDelta}%</span>
           <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-          <span class="pctSub">Goal</span>
+          <span class="pctSub">GOAL</span>
         </span>
       </span>
     </span>`;
   }
-
-// --- Service tile goal dial (same stacked % / arrow / Goal format as svcHdrGoalDials) ---
-function serviceGoalDial(pct, sz){
-  const p = Number(pct);
-  const finite = Number.isFinite(p);
-  const pClamped = finite ? Math.max(0, p) : 0;
-  const ring = Math.round(Math.min(pClamped, 1) * 100);
-
-  let cls = "gRed";
-  if(pClamped >= 0.80) cls = "gGreen";
-  else if(pClamped >= 0.60) cls = "gYellow";
-
-  const delta = finite ? Math.round((pClamped - 1) * 100) : null;
-  const absDelta = (delta===null) ? "—" : Math.abs(delta);
-  const arrow = (delta===null) ? "" : (delta >= 0 ? "▲" : "▼");
-  const arrowColor = (delta===null) ? "rgba(255,255,255,.55)" : (delta >= 0 ? "rgba(34,197,94,.98)" : "rgba(239,68,68,.98)");
-
-  const s = Number(sz);
-  const size = Number.isFinite(s) && s>0 ? Math.round(s) : 72;
-
-  /* IMPORTANT: the dial size MUST be applied to the svcGauge itself (not just the wrapper),
-     because app.css defines a default --sz on .svcGauge. */
-  return `<span class="svcGauge ${cls}" data-p="${ring}" style="--sz:${size}px;width:${size}px;height:${size}px">
-    <svg viewBox="0 0 36 36" aria-hidden="true">
-      <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
-      <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
-    </svg>
-    <span class="pctText">
-      <span class="pctStack2">
-        <span class="pctMain">${absDelta}%</span>
-        <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-        <span class="pctSub">Goal</span>
-      </span>
-    </span>
-  </span>`;
-}
-
-
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
@@ -490,18 +397,15 @@ function serviceGoalDial(pct, sz){
 
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
-    const top = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
-    const total = fmtInt(_svcRankDen);
-    // Match renderTech rank badge sizing + typography (inline weights) using the shared .rankFocusBadge CSS.
+    const focusLbl = (rankMetric==='sold') ? 'SOLD' : 'ASR';
     return `
-      <div class="rankFocusBadge" style="--w:90px;--h:90px;--r:20px;" title="${safe(top)} rank">
-        <div class="rfbFocus" style="font-weight:1000;text-transform:none">${safe(top)}</div>
-        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${rk}</div>
-        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${total}</span></div>
+      <div class="rankFocusBadge sm" title="${safe(focusLbl)} goal rank">
+        <div class="rfbFocus">${safe(focusLbl)}</div>
+        <div class="rfbMain">${rk}</div>
+        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${fmtInt(_svcRankDen)}</span></div>
       </div>
     `;
   }
-
 
   // Top-right block
   let topVal = asrPerRo;
@@ -513,14 +417,12 @@ function serviceGoalDial(pct, sz){
     subVal = asrPerRo;  subLbl = 'ASRs/RO';
   }
   if(focus === 'goal'){
-    // When Focus=GOAL, do NOT show the goal % here.
-    // Instead, show the per-RO metric that corresponds to the selected goal:
-    //   Goal/ASR  -> ASRs/RO
-    //   Goal/SOLD -> Sold/RO
-    topVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
-    topLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
-    subVal = (goalMetric==='sold') ? asrPerRo : soldPerRo;
-    subLbl = (goalMetric==='sold') ? 'ASRs/RO' : 'Sold/RO';
+    // show the selected goal metric % of goal big
+    topVal = (goalMetric==='sold') ? goalsAgg.soldPctOfGoal : goalsAgg.asrPctOfGoal;
+    // When Focus=GOAL, do NOT show the word "Goal" in the focus stat label
+    topLbl = (goalMetric==='sold') ? 'SOLD' : 'ASR';
+    subVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
+    subLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
   }
 
   // Header panel (copied structure from Technician Dashboard)
@@ -564,7 +466,7 @@ function serviceGoalDial(pct, sz){
 
           <div class="overallBlock">
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topVal===null ? "—" : (focus==='goal' ? fmt1(topVal,2) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
+              ${topVal===null ? "—" : (focus==='goal' ? fmtPct(topVal) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
             </div>
             <div class="tag">${safe(topLbl)}</div>
 
@@ -615,9 +517,7 @@ function serviceGoalDial(pct, sz){
                       </div>
                       ` : ``}
                     </div>
-        
-        <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
-      </div>
+        </div>
       </div>
     </div>
   `;
@@ -635,13 +535,12 @@ function serviceGoalDial(pct, sz){
 
   function iconSvg(kind){
     if(kind==='good') return `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(26,196,96,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><path d="M4.3 8.3 L7 11 L12 5.6" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
-    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
   }
 
   function iconHtml(pctOfBase){
-    const k = iconKindFromPctOfBase(pctOfBase);
-    return `<span class="svcIcon svcIcon-${k}">${iconSvg(k)}</span>`;
+    return `<span class="svcIcon">${iconSvg(iconKindFromPctOfBase(pctOfBase))}</span>`;
   }
   function safeSvcIdLocal(cat){
     return "svc-" + String(cat||"").toLowerCase()
@@ -774,8 +673,6 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-            const sdDialSz = 80; // increased by 25% from 64px
-
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
         ? '—'
@@ -820,8 +717,8 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="sdCatHdrRow">
-              <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+              <div class="svcGaugeWrap" style="--sz:72px">
+                ${svcGaugeStack((Number.isFinite(dialPct)?dialPct:0), (rankMetric==='sold'?'SOLD':'ASR'), 'GOAL')}
               </div>
               ${goalRankBadge(s.serviceName)}
             </div>
@@ -837,10 +734,7 @@ function serviceGoalDial(pct, sz){
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
-            <div class="secHeadRow">
-              <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
-              <div class="svcDashSecTitle">${safe(secName)}</div>
-            </div>
+            <div class="svcDashSecTitle">${safe(secName)}</div>
             <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
           </div>
         </summary>
@@ -922,7 +816,7 @@ function serviceGoalDial(pct, sz){
     const path = isDown
       ? "M10 14H6c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h4v8zm1 0V6l2-4c.3-.7 1.1-1 1.8-.7.5.2.8.7.7 1.2L15 6h3.5c.8 0 1.5.7 1.5 1.5 0 .1 0 .2-.1.3l-1.3 4.6c-.2.6-.8 1.1-1.5 1.1H11z"
       : "M10 6H6c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h4V6zm1 0v8l2 4c.3.7 1.1 1 1.8.7.5-.2.8-.7.7-1.2L15 14h3.5c.8 0 1.5-.7 1.5-1.5 0-.1 0-.2-.1-.3l-1.3-4.6c-.2-.6-.8-1.1-1.5-1.1H11z";
-    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:28px;height:28px;display:block"><path d="${path}" fill="currentColor"/></svg>`;
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:14px;height:14px;display:block"><path d="${path}" fill="currentColor"/></svg>`;
   }
 function tbMiniBoxSvc(title, rows, mode, kind){
     const html = rows.length ? rows.map((x,i)=>tbRowSvc(x,i+1,mode)).join('') : `<div class="notice">No data</div>`;
@@ -1109,19 +1003,17 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <div class="pickToggleRow">
-          <div class="pickHdrLabel asrTop" style="margin:0;margin-top:-5px;font-size:22px;line-height:1">ASR</div>
-          <div class="pickToggleRight">
-            <div class="pickToggleLbl">Technicians/Services</div>
-            <label class="pickToggle" title="Toggle Technicians / Services">
-              <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
-              <span class="slider"></span>
-            </label>
-          </div>
+          <div class="pickToggleLbl">Technicnan/Services</div>
+          <label class="pickToggle" title="Toggle Technicians / Services">
+            <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
+            <span class="slider"></span>
+          </label>
         </div>
         <!-- ASR row -->
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
+              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">ASR</div>
               ${diagPieChartServices('asr')}
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services ASR', topSvcAsr, 'asr', 'up') : tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
@@ -1135,7 +1027,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
+              <div class="pickHdrLabel" style="margin:0;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services SOLD', topSvcSold, 'sold', 'up') : tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
@@ -1176,13 +1068,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
     const key = d.getAttribute('data-sec');
-    const _sync = ()=>{
-      st.open[key] = d.open;
-      const btn = d.querySelector('.secToggle');
-      if(btn) btn.textContent = d.open ? '−' : '+';
-    };
-    d.addEventListener('toggle', _sync);
-    _sync();
+    d.addEventListener('toggle', ()=>{ st.open[key] = d.open; });
   });
 
 // Animate gauges (sets ring fill + enables hold interaction)
