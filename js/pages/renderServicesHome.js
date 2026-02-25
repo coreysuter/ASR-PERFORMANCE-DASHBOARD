@@ -27,8 +27,8 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start;}
-      @media (max-width: 1200px){ .pageServicesDash .svcCardsGrid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(3,minmax(462px,1fr));gap:14px;align-items:start;}
+      @media (max-width: 1200px){ .pageServicesDash .svcCardsGrid{grid-template-columns:repeat(2,minmax(420px,1fr));} }
       @media (max-width: 820px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
       /* =====================================================================
@@ -159,7 +159,7 @@ function renderServicesHome(){
 
       /* Tech list inside service cards */
       /* Service cards: allow rows to expand/show full text (no ellipsis) */
-      .pageServicesDash .catCard{min-width:0;}
+      .pageServicesDash .catCard{min-width:0;max-width:none;width:100%;}
       .pageServicesDash .svcTechRow{align-items:flex-start;}
       .pageServicesDash .svcTechLeft{min-width:0;flex:1 1 auto;}
       .pageServicesDash .svcTechLeft a{max-width:none;white-space:normal;overflow:visible;text-overflow:clip;}
