@@ -180,9 +180,20 @@ function renderServicesHome(){
       .pageServicesDash .techPickPanel.diagSection .pickMiniHdr{font-size:14px !important;line-height:1.1 !important;}
 
       /* Status icons */
-      /* Make warning triangles a touch smaller + lighter visual weight */
-      .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;vertical-align:middle;margin-left:6px;}
-      .pageServicesDash .svcIcon svg{width:12px;height:12px;display:block}
+      .pageServicesDash .svcIcon{
+        display:inline-flex;align-items:center;justify-content:center;
+        vertical-align:middle;margin-left:6px;
+      }
+      /* Base sizes: triangles 2x, green circle +50% */
+      .pageServicesDash .svcIcon-good{width:18px;height:18px;}
+      .pageServicesDash .svcIcon-warn,
+      .pageServicesDash .svcIcon-bad{width:24px;height:24px;}
+      .pageServicesDash .svcIcon-good svg{width:18px;height:18px;display:block}
+      .pageServicesDash .svcIcon-warn svg,
+      .pageServicesDash .svcIcon-bad svg{width:24px;height:24px;display:block}
+      /* Make the ! a bit smaller inside triangles */
+      .pageServicesDash .svcIcon-warn text,
+      .pageServicesDash .svcIcon-bad text{font-size:7.9px !important;}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
@@ -379,7 +390,7 @@ function renderServicesHome(){
   }
 
 // --- Service tile goal dial (same stacked % / arrow / Goal format as svcHdrGoalDials) ---
-function serviceGoalDial(pct){
+function serviceGoalDial(pct, sz){
   const p = Number(pct);
   const finite = Number.isFinite(p);
   const pClamped = finite ? Math.max(0, p) : 0;
@@ -394,7 +405,12 @@ function serviceGoalDial(pct){
   const arrow = (delta===null) ? "" : (delta >= 0 ? "▲" : "▼");
   const arrowColor = (delta===null) ? "rgba(255,255,255,.55)" : (delta >= 0 ? "rgba(34,197,94,.98)" : "rgba(239,68,68,.98)");
 
-  return `<span class="svcGauge ${cls}" data-p="${ring}">
+  const s = Number(sz);
+  const size = Number.isFinite(s) && s>0 ? Math.round(s) : 72;
+
+  /* IMPORTANT: the dial size MUST be applied to the svcGauge itself (not just the wrapper),
+     because app.css defines a default --sz on .svcGauge. */
+  return `<span class="svcGauge ${cls}" data-p="${ring}" style="--sz:${size}px;width:${size}px;height:${size}px">
     <svg viewBox="0 0 36 36" aria-hidden="true">
       <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
       <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
@@ -408,6 +424,7 @@ function serviceGoalDial(pct){
     </span>
   </span>`;
 }
+
 
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
@@ -595,12 +612,13 @@ function serviceGoalDial(pct){
 
   function iconSvg(kind){
     if(kind==='good') return `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(26,196,96,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><path d="M4.3 8.3 L7 11 L12 5.6" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
-    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
   }
 
   function iconHtml(pctOfBase){
-    return `<span class="svcIcon">${iconSvg(iconKindFromPctOfBase(pctOfBase))}</span>`;
+    const k = iconKindFromPctOfBase(pctOfBase);
+    return `<span class="svcIcon svcIcon-${k}">${iconSvg(k)}</span>`;
   }
   function safeSvcIdLocal(cat){
     return "svc-" + String(cat||"").toLowerCase()
@@ -733,7 +751,7 @@ function serviceGoalDial(pct){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const sdDialSz = (rankMetric==='sold') ? 72 : 90;
+      const sdDialSz = (rankMetric==='sold') ? 108 : 135;
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
@@ -780,7 +798,7 @@ function serviceGoalDial(pct){
 
             <div class="sdCatHdrRow">
               <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0)}
+                ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
               </div>
               ${goalRankBadge(s.serviceName)}
             </div>
