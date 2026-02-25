@@ -27,40 +27,54 @@
         <label for="menuToggle" class="menuClose" aria-label="Close menu" title="Close">✕</label>
       </div>
 
-      <a class="menuLink topLink" href="#/">Technician Dashboard</a>
-
+      <!-- Services Dashboard (TOP) -->
       <details class="menuGroup" open>
-        <summary><span class="mIcon">🔧</span>Technicians</summary>
-
-        <details class="menuSub" open>
-          <summary>Express</summary>
-          <div id="menuTechListExpress"></div>
-        </details>
-
-        <details class="menuSub">
-          <summary>Kia</summary>
-          <div id="menuTechListKia"></div>
-        </details>
-      </details>
-
-      <details class="menuGroup" open>
-        <summary>
-          <span class="mIcon asrIcon" aria-hidden="true">
+        <summary style="font-weight:800;">
+          <span class="mIcon asrIcon" aria-hidden="true" style="font-weight:800;">
             <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
               <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
               <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
               <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
             </svg>
           </span>
-          Services
+          Services Dashboard
         </summary>
         <div id="asrMenuLinks"></div>
       </details>
 
-      <details class="menuGroup">
-        <summary><span class="mIcon">⚙️</span>Settings</summary>
-        <a class="menuLink" href="#/settings/goals">Goals</a>
+      <!-- Technician Dashboard -->
+      <a class="menuLink topLink" href="#/" style="font-weight:800;">
+        <span class="mIcon" aria-hidden="true" style="font-weight:800;">🔧</span>
+        Technician Dashboard
+      </a>
+
+      <details class="menuGroup" open>
+        <summary style="font-weight:800;">
+          <span class="mIcon" aria-hidden="true" style="font-weight:800;">🔧</span>
+          Technicians
+        </summary>
+
+        <details class="menuSub" open>
+          <summary style="font-weight:800;font-size:13px;">Express Techs</summary>
+          <div id="menuTechListExpress" style="margin-left:10px;"></div>
+        </details>
+
+        <details class="menuSub">
+          <summary style="font-weight:800;font-size:13px;">Kia Techs</summary>
+          <div id="menuTechListKia" style="margin-left:10px;"></div>
+        </details>
       </details>
+
+      <!-- Settings -->
+      <details class="menuGroup">
+        <summary style="font-weight:800;">
+          <span class="mIcon" aria-hidden="true" style="font-weight:800;">⚙️</span>
+          Settings
+        </summary>
+        <a class="menuLink" href="#/settings/goals">Goals Settings</a>
+        <a class="menuLink" href="#/settings/dealer">Dealer Settings</a>
+      </details>
+
     </div>
 
     <label for="menuToggle" id="menuScrim" class="menuScrim" aria-hidden="true"></label>
