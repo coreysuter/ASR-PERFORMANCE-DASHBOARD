@@ -322,7 +322,7 @@ const hash = location.hash || "";
   function rankBadgeHtml(rank, total, focus, size="lg"){
     // Badge title depends on current focus; Goal focus uses the selected goal metric label.
     let top;
-    if(focus==="sold") top = "SOLD%";
+    if(focus==="sold") top = (size==="lg") ? "Sold/RO" : "SOLD%";
     else if(focus==="goal") top = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
     else top = "ASRs/RO";
 
