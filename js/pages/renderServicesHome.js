@@ -861,6 +861,11 @@ function serviceGoalDial(pct, sz){
     const secRos  = aggs.reduce((s,x)=>s+(Number(x.totalRos)||0),0);
     const secAsr  = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
     const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
+    // Avg ODO is technician-level (consistent with the Technician Dashboard logic);
+    // fall back safely if odo is missing.
+    const _odoVals = techs.map(t=>Number(t?.odo)).filter(v=>Number.isFinite(v) && v>0);
+    const secAvgOdo = _odoVals.length ? (_odoVals.reduce((a,b)=>a+b,0) / _odoVals.length) : 0;
+    const secSoldPerRo = secRos ? (secSold/secRos) : null;
     const secAsrPerRo = secRos ? (secAsr/secRos) : null;
     const secSoldPct = secAsr ? (secSold/secAsr) : null;
 const gAsrRoGoal = Number(getGoal('__META_GLOBAL','req'));
