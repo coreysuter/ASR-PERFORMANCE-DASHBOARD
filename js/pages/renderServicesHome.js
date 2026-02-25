@@ -131,17 +131,17 @@ function renderServicesHome(){
 
       /* Header divider (used by this page): move it closer to the filters */
       .pageServicesDash .svcHdrDivider{height:1px;background:rgba(255,255,255,.12);margin:0}
-      /* Put divider exactly midway between dials and filters */
-      .pageServicesDash .svcHdrGoalDials{margin-bottom:12px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:12px !important;}
+      .pageServicesDash .svcHdrMid{padding:12px 0;}
+      /* Keep dials and filters tight; mid wrapper provides the equal spacing */
+      .pageServicesDash .svcHdrGoalDials{margin-bottom:0 !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{padding-top:0 !important;}
       /* Header panel: keep divider above filters, remove line below filters, push filters to bottom */
       .pageServicesDash .techHeaderPanel>.phead{display:flex;flex-direction:column;height:100%;border-bottom:none !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar{margin-top:auto;}
 
 
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
-      .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
       .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
       .pageServicesDash .catHdrLeft{min-width:0;}
       .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
@@ -189,24 +189,6 @@ function renderServicesHome(){
         .pageServicesDash .svcTechLeft a{max-width:100%;}
       }
       /* Header filters sizing (local to this page) */
-      /* Header filters: 13px */
-
-      /* Header note under filters (2-line italic, far-left) */
-      .pageServicesDash .techHeaderPanel .svcHdrNote{
-  margin-top:0;
-  font-size:13px;
-  color:rgba(255,255,255,.70);
-  line-height:1.15;
-  text-align:left;
-}
-.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL1,
-.pageServicesDash .techHeaderPanel .svcHdrNote .svcHdrNoteL2{white-space:nowrap;}
-.pageServicesDash .techHeaderPanel .svcHdrNote em{font-style:italic;}
-
-      .pageServicesDash .techHeaderPanel .mainFiltersBar,
-      .pageServicesDash .techHeaderPanel .mainFiltersBar label,
-      .pageServicesDash .techHeaderPanel .mainFiltersBar select{font-size:13px !important;}
-
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
       .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
@@ -503,7 +485,7 @@ function renderServicesHome(){
           </div>
         </div>
 
-        <div class="svcHdrDivider"></div>
+        <div class="svcHdrMid"><div class="svcHdrDivider"></div></div>
         <div class="mainFiltersBar">
                               <div class="controls mainAlwaysOpen">
                       <div>
@@ -543,9 +525,7 @@ function renderServicesHome(){
                       </div>
                       ` : ``}
                     </div>
-        
-        <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
-      </div>
+        </div>
       </div>
     </div>
   `;
@@ -762,10 +742,7 @@ function renderServicesHome(){
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
-            <div class="secHeadRow">
-              <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
-              <div class="svcDashSecTitle">${safe(secName)}</div>
-            </div>
+            <div class="svcDashSecTitle">${safe(secName)}</div>
             <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
           </div>
         </summary>
