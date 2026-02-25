@@ -841,6 +841,11 @@ function serviceGoalDial(pct, sz){
     if(fluidsSel==='without' && secLower==='fluids') return '';
 
     const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+
+    // Section rank among visible sections (computed above)
+    const _secRankInfo = SECTION_RANK_INFO;
+    const secRank = SECTION_RANK_MAP[openKey] || 0;
+    const secRankTop = secRank>0 && secRank<=3;
     const isOpen = !!st.open[openKey];
 
     // Only include services that exist in dataset (intersection with any tech categories)
@@ -1008,6 +1013,54 @@ const gAsrRoGoal = Number(getGoal('__META_GLOBAL','req'));
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
+  // ------------------------------------------------------------
+  // Section ranking (used by svcDashSecHead rank badge)
+  // Rank is based on the current Goal metric (% of goal), scoped
+  // to the currently selected Team and Fluids filter.
+  // ------------------------------------------------------------
+  const SECTION_RANK_MAP = {};
+  const SECTION_RANK_INFO = { den: 0 };
+  (function buildSectionRanks(){
+    const goalAsr = Number(getGoal('__META_GLOBAL','req'));
+    const goalSoldPct = Number(getGoal('__META_GLOBAL','close'));
+    const visible = [];
+
+    for(const sec of sections){
+      const secName = sec && sec.name ? sec.name : '';
+      const secLower = String(secName).toLowerCase();
+      if(fluidsSel==='only' && secLower!=='fluids') continue;
+      if(fluidsSel==='without' && secLower==='fluids') continue;
+
+      const openKey = String(secName).toLowerCase().replace(/[^a-z0-9]+/g,'_');
+
+      const svcs = Array.isArray(sec.services) ? sec.services : [];
+      let secRos = 0, secAsr = 0, secSold = 0;
+      for(const svc of svcs){
+        const agg = buildServiceAgg(svc);
+        secRos += agg.totalRos||0;
+        secAsr += agg.asr||0;
+        secSold += agg.sold||0;
+      }
+
+      const secAsrPerRo = (secRos>0) ? (secAsr/secRos) : NaN;
+      const secSoldPct  = (secAsr>0) ? (secSold/secAsr) : NaN;
+      const secPctGoalAsr  = (Number.isFinite(secAsrPerRo) && Number.isFinite(goalAsr) && goalAsr>0) ? (secAsrPerRo/goalAsr) : NaN;
+      const secPctGoalSold = (Number.isFinite(secSoldPct) && Number.isFinite(goalSoldPct) && goalSoldPct>0) ? (secSoldPct/goalSoldPct) : NaN;
+      const score = (goalMetric==='sold') ? secPctGoalSold : secPctGoalAsr;
+
+      visible.push({ openKey, score });
+    }
+
+    visible.sort((a,b)=>{
+      const av = Number.isFinite(a.score) ? a.score : -Infinity;
+      const bv = Number.isFinite(b.score) ? b.score : -Infinity;
+      if(av===bv) return 0;
+      return av < bv ? 1 : -1;
+    });
+
+    SECTION_RANK_INFO.den = visible.length;
+    visible.forEach((it, idx)=>{ SECTION_RANK_MAP[it.openKey] = idx + 1; });
+  })();
   const sectionsHtml = sections.map(renderSection).join('');
 
   // ---- Diag panel (Services vs Goal + Tech top/bottom by avg goal performance across all services) ----
