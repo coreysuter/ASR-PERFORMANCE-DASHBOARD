@@ -26,6 +26,57 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
+      /* =========================================================
+         Services Dashboard section rows (match Tech Dashboard techRows)
+         ========================================================= */
+      .pageServicesDash details.svcDashSec > summary{padding:0;margin:0;}
+      .pageServicesDash .svcSecRow{
+        padding:10px 12px;
+        border-bottom:1px solid var(--border);
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        margin:0 !important;
+        border-radius:0 !important;
+      }
+      .pageServicesDash .svcSecLeft{display:flex;align-items:flex-start;gap:10px;min-width:0;flex:1 1 auto;}
+      .pageServicesDash .svcSecToggle{
+        width:26px;height:26px;flex:0 0 26px;
+        border-radius:10px;
+        border:1px solid rgba(255,255,255,.14);
+        background:rgba(0,0,0,.18);
+        display:flex;align-items:center;justify-content:center;
+        color:rgba(255,255,255,.78);
+        font-weight:1000;
+        line-height:1;
+        user-select:none;
+      }
+      .pageServicesDash .svcSecNameWrap{min-width:0;}
+      .pageServicesDash .svcSecName{font-size:23px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;}
+
+      /* Match main dashboard mini stats typography (but scoped to ServicesDash) */
+      .pageServicesDash .svcSecRow .techNameStats .tnLbl{font-size:11px !important;line-height:1.05 !important;text-transform:none !important;letter-spacing:.2px !important;}
+      .pageServicesDash .svcSecRow .techNameStats .tnVal{font-size:15px !important;line-height:1.05 !important;}
+      .pageServicesDash .svcSecRow .techNameStats{margin-top:4px;}
+      .pageServicesDash .svcSecRow .tnRow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+      .pageServicesDash .svcSecRow .tnMini{display:inline-flex;gap:6px;align-items:baseline;}
+      .pageServicesDash .svcSecRow .miniDot{color:rgba(255,255,255,.45);margin:0 2px;}
+
+      .pageServicesDash .svcSecRight{display:flex;align-items:center;gap:12px;justify-content:flex-end;flex:0 0 auto;white-space:nowrap;}
+      .pageServicesDash .svcSecRight .pills{margin-top:0;display:flex;gap:10px;align-items:center;flex-wrap:nowrap;}
+      .pageServicesDash .svcSecRight .pill{padding:8px 12px;}
+      .pageServicesDash .svcSecRight .pill .k{font-size:11px;color:rgba(255,255,255,.55);font-weight:900;letter-spacing:.2px;text-transform:none;}
+      .pageServicesDash .svcSecRight .pill .v{font-size:18px;font-weight:1000;line-height:1.05;}
+
+      /* Keep section rank badge aligned/consistent */
+      .pageServicesDash .svcSecRight .rankFocusBadge.sm{transform:scale(1.0);transform-origin:center center;}
+
+      @media (max-width: 920px){
+        .pageServicesDash .svcSecRow{flex-direction:column;align-items:flex-start;}
+        .pageServicesDash .svcSecRight{width:100%;justify-content:flex-start;}
+      }
+
       /* Service cards grid (same vibe as tech details) */
       .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(3,minmax(462px,1fr));gap:14px;align-items:start;}
       @media (max-width: 1200px){ .pageServicesDash .svcCardsGrid{grid-template-columns:repeat(2,minmax(420px,1fr));} }
@@ -814,6 +865,40 @@ function serviceGoalDial(pct, sz){
 
     const aggs = services.map(buildServiceAgg);
 
+    // Section-level rollups (for the section header row)
+    const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
+    const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
+    const secRos = (aggs[0] && Number.isFinite(Number(aggs[0].totalRos))) ? Number(aggs[0].totalRos) : (totalRos||0);
+    const secAsrPerRo = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : null;
+    const secSoldPct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : null;
+
+    // Category goals (aggregate service goals -> section goals)
+    const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
+    const secGoalSoldPct = (function(){
+      // Weighted by ASR/RO goal (same structure as Goals page rollups)
+      let num=0, den=0;
+      for(const cat of services){
+        const gR = Number(getGoal(cat,'req'))||0;
+        const gC = Number(getGoal(cat,'close'))||0;
+        if(Number.isFinite(gR) && gR>0){
+          den += gR;
+          if(Number.isFinite(gC) && gC>0) num += (gR * gC);
+        }
+      }
+      return (den>0) ? (num/den) : null;
+    })();
+
+    function compCls(actual, goal){
+      if(!Number.isFinite(actual) || !Number.isFinite(goal) || goal<=0) return "";
+      const r = actual/goal;
+      if(r>=0.80) return " compG";
+      if(r>=0.60) return " compY";
+      return " compR";
+    }
+
+    const clsSecAsr = compCls(secAsrPerRo, secGoalAsr);
+    const clsSecSold = compCls(secSoldPct, secGoalSoldPct);
+
     // Section averages (used for dials when not GOAL focus)
     const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
     const avgClose = aggs.length ? aggs.reduce((s,x)=>s+x.closeTot,0)/aggs.length : 0;
@@ -892,15 +977,40 @@ function serviceGoalDial(pct, sz){
       `;
     }).join('');
 
+    // Rank badge for the section (ranked by selected Focus vs Goals)
+    const secRank = (typeof window.__svcSectionRankMap!=='undefined' && window.__svcSectionRankMap)
+      ? (window.__svcSectionRankMap.get(openKey) || {rank:"—", total:"—"})
+      : {rank:"—", total:"—"};
+    const topLbl = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
+
     return `
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
-          <div class="svcDashSecHead">
-            <div class="secHeadRow">
-              <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
-              <div class="svcDashSecTitle">${safe(secName)}</div>
+          <div class="svcSecRow techRow dashTechRow">
+            <div class="svcSecLeft">
+              <div class="svcSecToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
+              <div class="svcSecNameWrap">
+                <div class="svcSecName">${safe(secName)}</div>
+                <div class="techNameStats">
+                  <div class="tnRow tnRow1">
+                    <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(secRos)}</span></span>
+                  </div>
+                  <div class="tnRow tnRow2">
+                    <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(secAsr)}</span></span>
+                    <span class="miniDot">•</span>
+                    <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(secSold)}</span></span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
+
+            <div class="svcSecRight">
+              <div class="pills">
+                <div class="pill${clsSecAsr}"><div class="k">ASRs/RO</div><div class="v">${secAsrPerRo==null?"—":fmt1(secAsrPerRo,1)}</div></div>
+                <div class="pill${clsSecSold}"><div class="k">SOLD/ASR</div><div class="v">${secSoldPct==null?"—":fmtPct(secSoldPct)}</div></div>
+              </div>
+              ${rankBadgeHtmlSvc(secRank.rank, secRank.total, topLbl)}
+            </div>
           </div>
         </summary>
         <div class="svcDashBody">
@@ -911,6 +1021,54 @@ function serviceGoalDial(pct, sz){
   }
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
+
+  // Precompute section ranks (Goal Rank Badge in the right section)
+  (function computeSectionRanks(){
+    const allCatsSet = new Set();
+    for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) allCatsSet.add(k); }
+
+    const secRows = sections.map(sec=>{
+      const secName = String(sec?.name||'').trim();
+      const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+      const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
+      const aggs = services.map(buildServiceAgg);
+      const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
+      const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
+      const secRos = (aggs[0] && Number.isFinite(Number(aggs[0].totalRos))) ? Number(aggs[0].totalRos) : (totalRos||0);
+
+      const secAsrPerRo = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : NaN;
+      const secSoldPct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : NaN;
+
+      const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
+      let num=0, den=0;
+      for(const cat of services){
+        const gR = Number(getGoal(cat,'req'))||0;
+        const gC = Number(getGoal(cat,'close'))||0;
+        if(Number.isFinite(gR) && gR>0){
+          den += gR;
+          if(Number.isFinite(gC) && gC>0) num += (gR * gC);
+        }
+      }
+      const secGoalSoldPct = (den>0) ? (num/den) : NaN;
+
+      const pct = (rankMetric==='sold')
+        ? ((Number.isFinite(secSoldPct) && Number.isFinite(secGoalSoldPct) && secGoalSoldPct>0) ? (secSoldPct/secGoalSoldPct) : -Infinity)
+        : ((Number.isFinite(secAsrPerRo) && Number.isFinite(secGoalAsr) && secGoalAsr>0) ? (secAsrPerRo/secGoalAsr) : -Infinity);
+
+      return {openKey, pct};
+    });
+
+    secRows.sort((a,b)=>{
+      if(a.pct===b.pct) return String(a.openKey).localeCompare(String(b.openKey));
+      return (a.pct < b.pct) ? 1 : -1;
+    });
+
+    const map = new Map();
+    const total = secRows.length || 1;
+    secRows.forEach((r,i)=> map.set(r.openKey, {rank: String(i+1), total: String(total)}));
+    window.__svcSectionRankMap = map;
+  })();
+
   const sectionsHtml = sections.map(renderSection).join('');
 
   // ---- Diag panel (Services vs Goal + Tech top/bottom by avg goal performance across all services) ----
@@ -1257,7 +1415,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     const key = d.getAttribute('data-sec');
     const _sync = ()=>{
       st.open[key] = d.open;
-      const btn = d.querySelector('.secToggle');
+      const btn = d.querySelector('.svcSecToggle, .secToggle');
       if(btn) btn.textContent = d.open ? '−' : '+';
     };
     d.addEventListener('toggle', _sync);
