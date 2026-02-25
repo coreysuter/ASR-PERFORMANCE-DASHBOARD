@@ -270,7 +270,7 @@ function renderTech(techId){
 
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
-    document.getElementById('app').innerHTML = `<div class="panel"><div class="phead"><div class="h2">Technician not found</div><div class="sub"><a href="#/">Back</a></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="panel"><div class="phead" style="display:flex;flex-direction:column;min-height:0"><div class="h2">Technician not found</div><div class="sub"><a href="#/">Back</a></div></div></div>`;
     return;
   }
 
@@ -557,7 +557,7 @@ function countBandsFor(mode){
     return {rank: (idx>=0 ? idx+1 : total), total};
   }
   const filters = `
-    <div class="controls" style="margin-top:10px">
+    <div class="controls" style="margin-top:0">
       <div>
         <label>Fluids</label>
         <select id="techFilter">
@@ -690,6 +690,7 @@ const header = `
 
   <div class="panel techHeaderPanel" style="height:100%;min-width:0;border-top-left-radius:0px;border-left:none;">
       <div class="phead">
+        <div class="techHdrTop" style="display:flex;flex-direction:column;min-height:0">
         <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
           <div class="techTitlePinnedLeft" style="display:flex;align-items:flex-start;gap:18px;min-width:0;flex:1 1 auto;">
 <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
@@ -731,9 +732,11 @@ const header = `
     <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
   </div>
 </div>
-
-        <div style="height:1px; background:rgba(255,255,255,.14); margin:10px 0 6px 0;"></div>
-        ${filters}
+        </div>
+        <div class="techHdrBottom" style="margin-top:auto">
+          <div style="height:1px; background:rgba(255,255,255,.14); margin:12px 0 12px 0;"></div>
+          ${filters}
+        </div>
       </div>
     </div>
   </div>
