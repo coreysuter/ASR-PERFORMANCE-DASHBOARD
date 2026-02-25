@@ -232,10 +232,10 @@ function fmtPctPlain(v){
 
 // Focus Rank Badge (matches Technician Details page)
 function rankBadgeHtmlDash(rank, total, focus, size="sm"){
-  let top = "ASR%";
+  let top = "ASRs/RO";
   if(focus==="sold") top = "SOLD%";
-  if(focus==="goal_asr") top = "ASR GOAL";
-  if(focus==="goal_sold") top = "SOLD GOAL";
+  if(focus==="goal_asr") top = "ASR Goal";
+  if(focus==="goal_sold") top = "Sold Goal";
   const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
   const t = (total===null || total===undefined || total==="") ? "—" : total;
   const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
