@@ -443,12 +443,18 @@ function brakeRowHtml(key,label,mappedCat){
   }
 
   // One big box; inside we render a 2x2 grid of quadrants
-  app.innerHTML = `
-    <div class="panel goalsBig halfPage">
+  // One big box; inside we render a 2x2 grid of quadrants
+app.innerHTML = `
+  <!-- Dock row: hamburger OUTSIDE the main panel, directly to the left -->
+  <div class="goalsDockRow" style="display:flex; align-items:stretch; gap:14px; width:100%;">
+    <div class="goalsDock" style="flex:0 0 auto; display:flex; align-items:flex-start; padding-top:12px;">
+      <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
+    </div>
+
+    <div class="panel goalsBig halfPage" style="flex:1; min-width:0;">
       <div class="goalsBigTop">
         <div class="goalsTitleRow" style="position:relative; display:flex; align-items:flex-start; gap:14px; width:100%;">
           <div style="display:flex; align-items:flex-start; gap:12px;">
-            <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
             <div>
               <div class="goalsH1">GOALS</div>
             </div>
@@ -481,10 +487,9 @@ function brakeRowHtml(key,label,mappedCat){
         ${quadHtml("Tires", TIRES, false, false, true)}
       </div>
     </div>
-  `;
-
-
-  // -------------------- Live projections for category + total goals --------------------
+  </div>
+`;
+// -------------------- Live projections for category + total goals --------------------
   // Category ASRs/RO Goal = sum over services of (ASR% / 100)
   // Category Sold/RO Goal = sum over services of (ASR%/100) * (Sold%/100)
   // Total goals = sum of category goals
