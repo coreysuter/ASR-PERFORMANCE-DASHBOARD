@@ -2334,3 +2334,18 @@ body.route-tech .secHdrStats .secStatTitle{
   color:var(--muted) !important;
 }
 
+/* === PATCH 2026-02-25: Tech Details catCard header dial sizing (+25%) ===
+   Targets the service catCards (Rotate, Alignment, etc.) ONLY.
+   Does NOT affect the Category titleRow dials (Maintenance/Fluids/Brakes/Tires).
+*/
+body.route-tech .catCard .catHeader .svcGaugeWrap{
+  --sz:80px !important; /* 64px * 1.25 */
+  width:var(--sz) !important;
+  height:var(--sz) !important;
+  flex:0 0 var(--sz) !important;
+}
+body.route-tech .catCard .catHeader .svcGauge{
+  --sz:80px !important;
+  width:var(--sz) !important;
+  height:var(--sz) !important;
+}
