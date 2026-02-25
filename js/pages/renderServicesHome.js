@@ -174,7 +174,7 @@ function renderServicesHome(){
 
       .pageServicesDash .svcTechRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18);}
       .pageServicesDash .svcTechLeft{display:flex;align-items:center;gap:8px;min-width:0;}
-      .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;font-weight:700 !important;}
+      .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
       .pageServicesDash .svcTechMetaRow{display:block;font-size:14px;font-weight:700;}
@@ -502,18 +502,25 @@ function serviceGoalDial(pct, sz){
   const _svcRankMap = new Map();
   _ranked.forEach((name, idx)=> _svcRankMap.set(name, idx+1));
 
+  // Match renderTech's in-card (sm) rank badge markup/typography exactly.
+  // Keep local to Services Dashboard so it won't affect other pages.
+  function rankBadgeHtmlSvc(rank, total, top){
+    const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+    const t = (total===null || total===undefined || total==="") ? "—" : total;
+    return `
+      <div class="rankFocusBadge sm">
+        <div class="rfbFocus" style="font-weight:1000;text-transform:none">${safe(top)}</div>
+        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
+        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
+      </div>
+    `;
+  }
+
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
     const top = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
     const total = fmtInt(_svcRankDen);
-    // Match renderTech rank badge sizing + typography (inline weights) using the shared .rankFocusBadge CSS.
-    return `
-      <div class="rankFocusBadge" style="--w:90px;--h:90px;--r:20px;" title="${safe(top)} rank">
-        <div class="rfbFocus" style="font-weight:1000;text-transform:none">${safe(top)}</div>
-        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${rk}</div>
-        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${total}</span></div>
-      </div>
-    `;
+    return rankBadgeHtmlSvc(rk, total, top);
   }
 
 
