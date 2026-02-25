@@ -656,27 +656,27 @@ const header = `
 </div>
 ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div></div>
-        <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
-          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
-          </div>
+        <div class="pillsMini" style="margin-top:8px !important; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+  </div>
 
-          <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
-          </div>
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+  </div>
 
-          <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
-          </div>
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+  </div>
 
-          <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
-            <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
-          </div>
-        </div>
+  <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:5px 10px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
+  </div>
+</div>
 
         <div style="height:1px; background:rgba(255,255,255,.14); margin:10px 0 6px 0;"></div>
         ${filters}
