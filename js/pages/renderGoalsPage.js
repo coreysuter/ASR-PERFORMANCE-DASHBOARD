@@ -460,6 +460,7 @@ app.innerHTML = `
       justify-content:center;
       border-top-right-radius:0px;
       border-bottom-right-radius:0px;
+      border-right:none;
       z-index:2;
     ">
       <label for="menuToggle" class="hamburger" aria-label="Menu" style="
@@ -479,6 +480,7 @@ app.innerHTML = `
     <div class="panel goalsBig halfPage" style="
       width:100%;
       border-top-left-radius:0px;
+      border-left:none;
       min-width:0;
     ">
       <div class="goalsBigTop">
