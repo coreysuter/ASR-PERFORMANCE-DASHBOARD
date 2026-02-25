@@ -308,7 +308,7 @@ const hash = location.hash || "";
 
   // Focus Rank Badge (replaces x/x rankings)
   function rankBadgeHtml(rank, total, focus, size="lg"){
-    let top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR");
+    let top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? ((goalMetric==="sold") ? "Sold Goal" : "ASR Goal") : "ASR");
     // ASR focus: use context-specific labels
     if(focus==="asr"){
       if(size==="dial") top = "ASRs/RO";
