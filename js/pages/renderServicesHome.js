@@ -483,15 +483,18 @@ function serviceGoalDial(pct, sz){
 
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
-    const focusLbl = (rankMetric==='sold') ? 'SOLD' : 'ASR';
+    const top = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
+    const total = fmtInt(_svcRankDen);
+    // Match renderTech rank badge sizing + typography (inline weights) using the shared .rankFocusBadge CSS.
     return `
-      <div class="rankFocusBadge sm" title="${safe(focusLbl)} goal rank">
-        <div class="rfbFocus">${safe(focusLbl)}</div>
-        <div class="rfbMain">${rk}</div>
-        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${fmtInt(_svcRankDen)}</span></div>
+      <div class="rankFocusBadge sm" title="${safe(top)} rank">
+        <div class="rfbFocus" style="font-weight:1000;text-transform:none">${safe(top)}</div>
+        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${rk}</div>
+        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${total}</span></div>
       </div>
     `;
   }
+
 
   // Top-right block
   let topVal = asrPerRo;
@@ -762,7 +765,7 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const sdDialSz = 80; // +25% vs prior (was 64px)
+      const sdDialSz = 64; // 25% smaller than header goal dials (85px)
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
