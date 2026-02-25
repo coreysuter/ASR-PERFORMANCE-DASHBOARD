@@ -147,6 +147,8 @@ function renderServicesHome(){
       .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
+
+      .pageServicesDash .sdCatHdrRow .pctText{display:flex;align-items:center;justify-content:center;}
       @media (max-width: 540px){
         .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .sdCatHdrRow{justify-content:flex-start;white-space:normal;}
@@ -237,7 +239,16 @@ function renderServicesHome(){
       .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
       .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
-      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
+      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:12px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
+      /* Header goal dial text sizing */
+      .pageServicesDash .svcHdrGoalDials .pctMain{font-size:18px;font-weight:1000;line-height:1;}
+      .pageServicesDash .svcHdrGoalDials .pctArrow{font-size:18px;line-height:1;}
+      /* Service card header (sdCatHdrRow) dial is 2px smaller than header */
+      .pageServicesDash .sdCatHdrRow .pctMain{font-size:16px;font-weight:1000;line-height:1;}
+      .pageServicesDash .sdCatHdrRow .pctArrow{font-size:16px;line-height:1;}
+      .pageServicesDash .sdCatHdrRow .pctSub{font-size:10px;font-weight:900;letter-spacing:.3px;line-height:1;}
+      .pageServicesDash .sdCatHdrRow .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
+
 
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
@@ -751,7 +762,7 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const sdDialSz = (rankMetric==='sold') ? 108 : 135;
+      const sdDialSz = 64; // 25% smaller than header goal dials (85px)
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
