@@ -445,77 +445,75 @@ function brakeRowHtml(key,label,mappedCat){
   // One big box; inside we render a 2x2 grid of quadrants
   // One big box; inside we render a 2x2 grid of quadrants
 // One big box; inside we render a 2x2 grid of quadrants
+// One big box; inside we render a 2x2 grid of quadrants
 app.innerHTML = `
-  <!-- Notched panel: hamburger is a "notch" extension of the Goals panel -->
-  <div class="panel goalsBig halfPage" style="position:relative; overflow:visible;">
-    <!-- Notch extension -->
-    <div style="
-      position:absolute;
-      left:-128px;
-      top:-1px;
-      width:128px;
-      height:78px;
-      background:inherit;
-      border:1px solid rgba(255,255,255,0.18);
-      border-right:none;
-      border-top-left-radius:14px;
-      border-bottom-left-radius:0px;
-      z-index:2;
+  <!-- Notched panel (true continuation): notch + goals panel share one continuous border -->
+  <div class="goalsNotchWrap" style="display:flex; align-items:stretch; gap:0; width:100%;">
+    <!-- Notch: same panel styling, rounded like the panel, no break -->
+    <div class="panel goalsMenuNotch" style="
+      flex:0 0 132px;
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:flex-start;
-      padding-left:16px;
+      padding:12px 14px;
+      border-top-right-radius:0px;
+      border-bottom-right-radius:0px;
     ">
-      <label for="menuToggle" class="hamburger" aria-label="Menu"
-        style="font-size:1.5em; line-height:1; display:flex; align-items:center; justify-content:center; padding:8px 10px; cursor:pointer;">
-        ☰
-      </label>
+      <label for="menuToggle" class="hamburger" aria-label="Menu" style="
+        font-size:1.5em;
+        line-height:1;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:8px 10px;
+        cursor:pointer;
+        color:inherit;
+        user-select:none;
+      ">☰</label>
     </div>
 
-    <!-- Mask the panel's left border behind the notch so it looks continuous -->
-    <div style="
-      position:absolute;
-      left:-1px;
-      top:0px;
-      width:3px;
-      height:78px;
-      background:inherit;
-      z-index:1;
-    "></div>
-
-    <div class="goalsBigTop">
-      <div class="goalsTitleRow" style="position:relative; display:flex; align-items:flex-start; gap:14px; width:100%;">
-        <div style="display:flex; align-items:flex-start; gap:12px;">
-          <div>
-            <div class="goalsH1">GOALS</div>
+    <!-- Main Goals panel: remove left border + left rounding so it joins the notch cleanly -->
+    <div class="panel goalsBig halfPage" style="
+      flex:1;
+      min-width:0;
+      border-left:none;
+      border-top-left-radius:0px;
+      border-bottom-left-radius:0px;
+    ">
+      <div class="goalsBigTop">
+        <div class="goalsTitleRow" style="position:relative; display:flex; align-items:flex-start; gap:14px; width:100%;">
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <div>
+              <div class="goalsH1">GOALS</div>
+            </div>
           </div>
-        </div>
 
-        <!-- top-right container inside GOALSBIGTOP -->
-        <div class="goalsBigTopRight" style="margin-left:auto; display:flex; justify-content:flex-end; flex:1;">
-          <div class="goalsMidGoals" style="text-align:center; border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:10px 14px; flex-shrink:0;">
-            <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
-            <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
-              <div style="text-align:center;">
-                <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
-              </div>
-              <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
-              <div style="text-align:center;">
-                <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
-                <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
+          <!-- top-right container inside GOALSBIGTOP -->
+          <div class="goalsBigTopRight" style="margin-left:auto; display:flex; justify-content:flex-end; flex:1;">
+            <div class="goalsMidGoals" style="text-align:center; border:1px solid rgba(180,180,180,.55); border-radius:12px; padding:10px 14px; flex-shrink:0;">
+              <div style="font-size:14px; letter-spacing:.08em; opacity:.85; font-weight:800;">OVERALL GOALS</div>
+              <div style="display:flex; gap:22px; margin-top:5px; justify-content:center;">
+                <div style="text-align:center;">
+                  <div id="gh_mid_asrro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
+                  <div style="font-size:13px; opacity:.75; margin-top:2px;">ASRs/RO</div>
+                </div>
+                <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
+                <div style="text-align:center;">
+                  <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
+                  <div style="font-size:13px; opacity:.75; margin-top:2px;">SOLD</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="goalsQuads">
-      ${quadHtml("Maintenance", MAINT, true, false)}
-      ${quadHtml("Fluids", FLUIDS, false, false)}
-      ${quadHtml("Brakes", BRAKES, false, true)}
-      ${quadHtml("Tires", TIRES, false, false, true)}
+      <div class="goalsQuads">
+        ${quadHtml("Maintenance", MAINT, true, false)}
+        ${quadHtml("Fluids", FLUIDS, false, false)}
+        ${quadHtml("Brakes", BRAKES, false, true)}
+        ${quadHtml("Tires", TIRES, false, false, true)}
+      </div>
     </div>
   </div>
 `;
