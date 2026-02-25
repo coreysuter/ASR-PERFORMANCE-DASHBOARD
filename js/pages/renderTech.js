@@ -678,29 +678,29 @@ const header = `
               </div>
               <div class="techFocusBottom" style="text-align:right">
                 <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__botFocusVal}</div>
-                <div style="margin-top:4px;font-size:13px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.55);text-transform:none;">${__botFocusLbl}</div>
+                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__botFocusLbl}</div>
               </div>
             </div>
           </div></div>
         <div class="pillsMini" style="margin-top:8px !important; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+    <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
   </div>
 
-  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
+    <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
   </div>
 
-  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
+    <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
   </div>
 
-  <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
-    <div class="v" style="font-size:18px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
+  <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
+    <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
   </div>
 </div>
 

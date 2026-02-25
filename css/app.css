@@ -2379,3 +2379,45 @@ body.route-tech .secFocusDial .svcGauge .pctSub::after{
   color:rgba(255,255,255,.90);
   white-space:nowrap;
 }
+
+
+/* === PATCH 2026-02-25: Tech Details pill + header stat sizing adjustments (requested) ===
+   - Tech header pills: 16px label / 20px value, padding 8px 12px
+   - Category titleRow pills (secNamePills): 15px label / 18px value, padding 7px 10px
+   - Category titleRow focus stat (top): 36px (ensure not overridden), secondary: 28px
+*/
+body.route-tech .techHeaderPanel .pillMini{
+  padding:8px 12px !important;
+}
+body.route-tech .techHeaderPanel .pillMini .k{
+  font-size:16px !important;
+  line-height:1.05 !important;
+}
+body.route-tech .techHeaderPanel .pillMini .v,
+body.route-tech .techHeaderPanel .pillMini .v *{
+  font-size:20px !important;
+  line-height:1.05 !important;
+}
+
+/* Section header pills (Maintenance/Fluids/etc. title row) */
+body.route-tech .secNamePills .pill{
+  padding:7px 10px !important;
+  gap:8px !important;
+}
+body.route-tech .secNamePills .pill .k{
+  font-size:15px !important;
+  line-height:1.05 !important;
+  text-transform:none !important;
+}
+body.route-tech .secNamePills .pill .v{
+  font-size:18px !important;
+  line-height:1.05 !important;
+}
+
+/* Category titleRow focus stats sizing */
+body.route-tech .secHdrStats .secStatBlock:first-child .secStatVal{
+  font-size:36px !important;
+}
+body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{
+  font-size:28px !important;
+}
