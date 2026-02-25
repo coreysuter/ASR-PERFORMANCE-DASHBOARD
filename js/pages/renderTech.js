@@ -751,7 +751,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
           ${(focus==="goal") ? `
           <div class="mbRow">
             <div class="mbItem">
-              <div class="mbLbl">Goal</div>
+              <div class="mbLbl">ASR Goal</div>
               <div class="mbNum">${fmtPct(goalReq)}</div>
             </div>
             <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq):""}</div>
@@ -773,7 +773,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
           </div>
           <div class="mbRow">
             <div class="mbItem">
-              <div class="mbLbl">Goal</div>
+              <div class="mbLbl">ASR Goal</div>
               <div class="mbNum">${fmtPct(goalReq)}</div>
             </div>
             <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq):""}</div>
@@ -800,7 +800,7 @@ const soldBlock = `
           ${(focus==="goal") ? `
           <div class="mbRow">
             <div class="mbItem">
-              <div class="mbLbl">Goal</div>
+              <div class="mbLbl">Sold Goal</div>
               <div class="mbNum">${fmtPct(goalClose)}</div>
             </div>
             <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose):""}</div>
@@ -822,7 +822,7 @@ const soldBlock = `
           </div>
           <div class="mbRow">
             <div class="mbItem">
-              <div class="mbLbl">Goal</div>
+              <div class="mbLbl">Sold Goal</div>
               <div class="mbNum">${fmtPct(goalClose)}</div>
             </div>
             <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose):""}</div>
