@@ -27,54 +27,115 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* =========================================================
-         Services Dashboard section rows (match Tech Dashboard techRows)
+         Services Dashboard section header row
+         MUST match Technician Dashboard techRows (shape/size/font/config)
          ========================================================= */
       .pageServicesDash details.svcDashSec > summary{padding:0;margin:0;}
-      .pageServicesDash .svcSecRow{
-        padding:10px 12px;
-        border-bottom:1px solid var(--border);
+
+      /* Force ALL pill text white (local to ServicesDash section rows) */
+      .pageServicesDash .svcSecRow .pill,
+      .pageServicesDash .svcSecRow .pill *{ color:#fff !important; }
+
+      /* Pill grouping frame + focus scaling (copied from base.js dash overrides) */
+      .pageServicesDash .svcSecRow .pillGroup{
         display:flex;
         align-items:center;
-        justify-content:space-between;
-        gap:12px;
+        gap:10px;
+        padding:6px 8px;
+        border:1px solid rgba(190,190,190,.35);
+        border-radius:14px;
+      }
+      .pageServicesDash .svcSecRow.techRow .pillGroup.focusGroup .pill{
+        transform:scale(1.1);
+        transform-origin:center;
+      }
+      .pageServicesDash .svcSecRow.techRow .pill.goalFocusSel{
+        transform:scale(1.1);
+        transform-origin:center;
+      }
+
+      /* Exact dashboard techRow flex layout + sizing */
+      .pageServicesDash .svcSecRow.techRow.dashTechRow{
+        position:relative !important;
+        display:flex !important;
+        align-items:center !important;
+        gap:18px !important;
+        padding:12px 14px !important;
+        min-height:auto !important;
+        overflow:visible !important;
+        border-radius:14px !important;
+        border:1px solid var(--border) !important;
+        background:rgba(255,255,255,.06) !important;
         margin:0 !important;
-        border-radius:0 !important;
       }
-      .pageServicesDash .svcSecLeft{display:flex;align-items:flex-start;gap:10px;min-width:0;flex:1 1 auto;}
-      .pageServicesDash .svcSecToggle{
-        width:26px;height:26px;flex:0 0 26px;
-        border-radius:10px;
-        border:1px solid rgba(255,255,255,.14);
-        background:rgba(0,0,0,.18);
-        display:flex;align-items:center;justify-content:center;
-        color:rgba(255,255,255,.78);
-        font-weight:1000;
-        line-height:1;
-        user-select:none;
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .dashLeft{
+        flex:1 1 260px !important;
+        max-width:260px !important;
+        min-width:0 !important;
+        display:flex !important;
+        flex-direction:column !important;
+        gap:8px !important;
       }
-      .pageServicesDash .svcSecNameWrap{min-width:0;}
-      .pageServicesDash .svcSecName{font-size:23px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;}
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .dashLeft *{min-width:0 !important;}
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .val.name{
+        overflow:hidden !important;
+        text-overflow:ellipsis !important;
+        white-space:nowrap !important;
+        max-width:100% !important;
+        font-size:24px !important;
+        font-weight:1000 !important;
+        line-height:1.1 !important;
+      }
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .techNameStats{position:static !important;max-width:100% !important;overflow:hidden !important;}
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .techNameStats .tnRow{display:flex !important;flex-wrap:nowrap !important;gap:12px !important;}
 
-      /* Match main dashboard mini stats typography (but scoped to ServicesDash) */
-      .pageServicesDash .svcSecRow .techNameStats .tnLbl{font-size:11px !important;line-height:1.05 !important;text-transform:none !important;letter-spacing:.2px !important;}
-      .pageServicesDash .svcSecRow .techNameStats .tnVal{font-size:15px !important;line-height:1.05 !important;}
-      .pageServicesDash .svcSecRow .techNameStats{margin-top:4px;}
-      .pageServicesDash .svcSecRow .tnRow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-      .pageServicesDash .svcSecRow .tnMini{display:inline-flex;gap:6px;align-items:baseline;}
-      .pageServicesDash .svcSecRow .miniDot{color:rgba(255,255,255,.45);margin:0 2px;}
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .dashRight{
+        flex:0 0 auto !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        gap:12px !important;
+        min-width:0 !important;
+      }
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .pills{
+        position:static !important;
+        transform:none !important;
+        left:auto !important;
+        right:auto !important;
+        top:auto !important;
+        display:flex !important;
+        flex-wrap:nowrap !important;
+        justify-content:flex-start !important;
+        gap:10px !important;
+        padding:0 !important;
+        margin:0 !important;
+      }
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .techMetaRight{position:static !important;transform:none !important;margin:0 !important;}
 
-      .pageServicesDash .svcSecRight{display:flex;align-items:center;gap:12px;justify-content:flex-end;flex:0 0 auto;white-space:nowrap;}
-      .pageServicesDash .svcSecRight .pills{margin-top:0;display:flex;gap:10px;align-items:center;flex-wrap:nowrap;}
-      .pageServicesDash .svcSecRight .pill{padding:8px 12px;}
-      .pageServicesDash .svcSecRight .pill .k{font-size:11px;color:rgba(255,255,255,.55);font-weight:900;letter-spacing:.2px;text-transform:none;}
-      .pageServicesDash .svcSecRight .pill .v{font-size:18px;font-weight:1000;line-height:1.05;}
+      /* Mini-stats typography (same as dashboard) */
+      .pageServicesDash .svcSecRow.techRow .techNameStats .tnVal{font-size:15px !important;line-height:1 !important;}
+      .pageServicesDash .svcSecRow.techRow .techNameStats .tnLbl{font-size:11px !important;line-height:1 !important;text-transform:none !important;letter-spacing:.2px !important;}
 
-      /* Keep section rank badge aligned/consistent */
-      .pageServicesDash .svcSecRight .rankFocusBadge.sm{transform:scale(1.0);transform-origin:center center;}
+      /* TechRow colored pills sizing (same as dashboard tech rows) */
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .pill .k{font-size:10px !important;line-height:1.05 !important;text-transform:none !important;}
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .pill .v{font-size:16px !important;line-height:1.05 !important;}
+      .pageServicesDash .svcSecRow.techRow.dashTechRow .pillGroup.focusGroup .pill .v{font-size:17px !important;}
+
+      /* Comparison shading (same visual treatment as dashboard tech-row pills) */
+      .pageServicesDash .svcSecRow.techRow .pill{position:relative;overflow:hidden;box-shadow: inset 0 10px 26px rgba(0,0,0,.60) !important;}
+      .pageServicesDash .svcSecRow.techRow .pill::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:transparent;}
+      .pageServicesDash .svcSecRow.techRow .pill::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;}
+      .pageServicesDash .svcSecRow.techRow .pill > *{position:relative !important;z-index:2 !important;}
+      .pageServicesDash .svcSecRow.techRow .pill.compR::before{opacity:.78;background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.30) 0 42%,rgba(255,55,55,.40) 70%,rgba(255,55,55,.65) 100%),linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10));}
+      .pageServicesDash .svcSecRow.techRow .pill.compR::after{opacity:1;box-shadow:inset 0 0 0 1px rgba(255, 90, 90, .55), inset 0 0 16px rgba(255, 70, 70, .35);}
+      .pageServicesDash .svcSecRow.techRow .pill.compY::before{opacity:.80;background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.28) 0 42%,rgba(255,210,60,.42) 70%,rgba(255,210,60,.66) 100%),linear-gradient(180deg, rgba(255,210,60,.22), rgba(255,210,60,.08));}
+      .pageServicesDash .svcSecRow.techRow .pill.compY::after{opacity:1;box-shadow:inset 0 0 0 1px rgba(255, 225, 120, .55), inset 0 0 16px rgba(255, 210, 70, .30);}
+      .pageServicesDash .svcSecRow.techRow .pill.compG::before{opacity:.78;background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.30) 0 42%,rgba(90,220,120,.40) 70%,rgba(90,220,120,.65) 100%),linear-gradient(180deg, rgba(90,220,120,.22), rgba(90,220,120,.08));}
+      .pageServicesDash .svcSecRow.techRow .pill.compG::after{opacity:1;box-shadow:inset 0 0 0 1px rgba(124, 255, 178, .52), inset 0 0 16px rgba(90, 220, 120, .28);}
 
       @media (max-width: 920px){
-        .pageServicesDash .svcSecRow{flex-direction:column;align-items:flex-start;}
-        .pageServicesDash .svcSecRight{width:100%;justify-content:flex-start;}
+        .pageServicesDash .svcSecRow.techRow.dashTechRow{flex-direction:column;align-items:flex-start;}
+        .pageServicesDash .svcSecRow.techRow.dashTechRow .dashLeft{max-width:none !important;}
       }
 
       /* Service cards grid (same vibe as tech details) */
@@ -865,40 +926,6 @@ function serviceGoalDial(pct, sz){
 
     const aggs = services.map(buildServiceAgg);
 
-    // Section-level rollups (for the section header row)
-    const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
-    const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
-    const secRos = (aggs[0] && Number.isFinite(Number(aggs[0].totalRos))) ? Number(aggs[0].totalRos) : (totalRos||0);
-    const secAsrPerRo = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : null;
-    const secSoldPct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : null;
-
-    // Category goals (aggregate service goals -> section goals)
-    const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
-    const secGoalSoldPct = (function(){
-      // Weighted by ASR/RO goal (same structure as Goals page rollups)
-      let num=0, den=0;
-      for(const cat of services){
-        const gR = Number(getGoal(cat,'req'))||0;
-        const gC = Number(getGoal(cat,'close'))||0;
-        if(Number.isFinite(gR) && gR>0){
-          den += gR;
-          if(Number.isFinite(gC) && gC>0) num += (gR * gC);
-        }
-      }
-      return (den>0) ? (num/den) : null;
-    })();
-
-    function compCls(actual, goal){
-      if(!Number.isFinite(actual) || !Number.isFinite(goal) || goal<=0) return "";
-      const r = actual/goal;
-      if(r>=0.80) return " compG";
-      if(r>=0.60) return " compY";
-      return " compR";
-    }
-
-    const clsSecAsr = compCls(secAsrPerRo, secGoalAsr);
-    const clsSecSold = compCls(secSoldPct, secGoalSoldPct);
-
     // Section averages (used for dials when not GOAL focus)
     const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
     const avgClose = aggs.length ? aggs.reduce((s,x)=>s+x.closeTot,0)/aggs.length : 0;
@@ -977,6 +1004,48 @@ function serviceGoalDial(pct, sz){
       `;
     }).join('');
 
+    // ===== Section rollups (used for techRow-style header) =====
+    const secRos = totalRos;
+    const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
+    const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
+    const asrpr = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : null;          // ASRs/RO
+    const soldpct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : null;       // SOLD/ASR
+    const soldRoVal = (Number.isFinite(secRos) && secRos>0) ? (secSold/secRos) : null;     // SOLD/RO
+
+    // Goals for this section (aggregate from service goals)
+    const asrGoalTarget = (Number.isFinite(secGoalAsr) && secGoalAsr>0) ? secGoalAsr : null;
+    const soldGoalTarget = (Number.isFinite(secGoalSoldPct) && secGoalSoldPct>0) ? secGoalSoldPct : null;
+    const soldRoGoalTarget = (Number.isFinite(asrGoalTarget) && Number.isFinite(soldGoalTarget)) ? (asrGoalTarget * soldGoalTarget) : null;
+
+    const asrGoalRatio = (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
+    const soldGoalRatio = (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
+
+    const asrGoalTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
+    const soldGoalTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
+
+    // Comparison mode for ServicesDash is ALWAYS goal
+    const inGoalMode = true;
+    const compAsrBase = asrGoalTarget;
+    const compSoldAsrBase = soldGoalTarget;
+    const soldRoBase = soldRoGoalTarget;
+
+    function compClassLocal(val, base){
+      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) return "";
+      const pct = val/base;
+      if(pct>=0.80) return " compG";
+      if(pct>=0.60) return " compY";
+      return " compR";
+    }
+
+    const clsAsrpr   = compClassLocal(asrpr, compAsrBase);
+    const clsAsrGoal = compClassLocal(asrGoalRatio, inGoalMode ? 1 : 1);
+    const clsSoldAsr = compClassLocal(soldpct, compSoldAsrBase);
+    const clsSoldRo  = compClassLocal(soldRoVal, soldRoBase);
+    const clsSoldGoal= compClassLocal(soldGoalRatio, inGoalMode ? 1 : 1);
+
+    const focusIsSold = (focus === 'sold');
+    const focusIsGoal = (focus === 'goal');
+
     // Rank badge for the section (ranked by selected Focus vs Goals)
     const secRank = (typeof window.__svcSectionRankMap!=='undefined' && window.__svcSectionRankMap)
       ? (window.__svcSectionRankMap.get(openKey) || {rank:"—", total:"—"})
@@ -987,29 +1056,60 @@ function serviceGoalDial(pct, sz){
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcSecRow techRow dashTechRow">
-            <div class="svcSecLeft">
-              <div class="svcSecToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
-              <div class="svcSecNameWrap">
-                <div class="svcSecName">${safe(secName)}</div>
-                <div class="techNameStats">
-                  <div class="tnRow tnRow1">
-                    <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(secRos)}</span></span>
-                  </div>
-                  <div class="tnRow tnRow2">
-                    <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(secAsr)}</span></span>
-                    <span class="miniDot">•</span>
-                    <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(secSold)}</span></span>
-                  </div>
+            <div class="dashLeft">
+              <div class="val name" style="font-size:22px">${safe(secName)}</div>
+
+              <div class="techNameStats">
+                <div class="tnRow tnRow1">
+                  <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(secRos)}</span></span>
+                </div>
+                <div class="tnRow tnRow2">
+                  <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(secAsr)}</span></span>
+                  <span class="miniDot">•</span>
+                  <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(secSold)}</span></span>
                 </div>
               </div>
             </div>
 
-            <div class="svcSecRight">
+            <div class="dashRight">
               <div class="pills">
-                <div class="pill${clsSecAsr}"><div class="k">ASRs/RO</div><div class="v">${secAsrPerRo==null?"—":fmt1(secAsrPerRo,1)}</div></div>
-                <div class="pill${clsSecSold}"><div class="k">SOLD/ASR</div><div class="v">${secSoldPct==null?"—":fmtPct(secSoldPct)}</div></div>
+                ${/* Focus ordering (closest to rank badge) */""}
+                ${focusIsGoal ? `
+                  <div class="pillGroup pillGroupNonGoal">
+                    <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${asrpr==null?"—":fmt1(asrpr,1)}</div></div>
+                    <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${soldpct==null?"—":fmtPct(soldpct)}</div></div>
+                    <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${soldRoVal==null?"—":fmt1(soldRoVal,2)}</div></div>
+                  </div>
+                  <div class="pillGroup pillGroupGoal">
+                    <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                  </div>
+                ` : (focusIsSold ? `
+                  <div class="pillGroup pillGroupA">
+                    <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${asrpr==null?"—":fmt1(asrpr,1)}</div></div>
+                    <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+                  </div>
+                  <div class="pillGroup pillGroupB focusGroup">
+                    <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${soldpct==null?"—":fmtPct(soldpct)}</div></div>
+                    <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${soldRoVal==null?"—":fmt1(soldRoVal,2)}</div></div>
+                    <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                  </div>
+                ` : `
+                  <div class="pillGroup pillGroupB">
+                    <div class="pill${clsSoldAsr}"><div class="k">SOLD/ASR</div><div class="v">${soldpct==null?"—":fmtPct(soldpct)}</div></div>
+                    <div class="pill${clsSoldRo}"><div class="k">SOLD/RO</div><div class="v">${soldRoVal==null?"—":fmt1(soldRoVal,2)}</div></div>
+                    <div class="pill${clsSoldGoal}"><div class="k">SOLD GOAL</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                  </div>
+                  <div class="pillGroup pillGroupA focusGroup">
+                    <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${asrpr==null?"—":fmt1(asrpr,1)}</div></div>
+                    <div class="pill${clsAsrGoal}"><div class="k">ASR GOAL</div><div class="v">${safe(asrGoalTxt)}</div></div>
+                  </div>
+                `)}
               </div>
-              ${rankBadgeHtmlSvc(secRank.rank, secRank.total, topLbl)}
+
+              <div class="techMetaRight">
+                ${rankBadgeHtmlSvc(secRank.rank, secRank.total, topLbl)}
+              </div>
             </div>
           </div>
         </summary>
@@ -1022,51 +1122,59 @@ function serviceGoalDial(pct, sz){
 
   const sections = Array.isArray(DATA.sections) ? DATA.sections : [];
 
-  // Precompute section ranks (Goal Rank Badge in the right section)
+  // Precompute section ranks for the header rank badge (same meaning as techRows: rank by % of goal)
   (function computeSectionRanks(){
-    const allCatsSet = new Set();
-    for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) allCatsSet.add(k); }
-
-    const secRows = sections.map(sec=>{
-      const secName = String(sec?.name||'').trim();
-      const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-      const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
-      const aggs = services.map(buildServiceAgg);
-      const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
-      const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
-      const secRos = (aggs[0] && Number.isFinite(Number(aggs[0].totalRos))) ? Number(aggs[0].totalRos) : (totalRos||0);
-
-      const secAsrPerRo = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : NaN;
-      const secSoldPct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : NaN;
-
-      const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
-      let num=0, den=0;
-      for(const cat of services){
-        const gR = Number(getGoal(cat,'req'))||0;
-        const gC = Number(getGoal(cat,'close'))||0;
-        if(Number.isFinite(gR) && gR>0){
-          den += gR;
-          if(Number.isFinite(gC) && gC>0) num += (gR * gC);
-        }
+    try{
+      const allCatsSet = new Set();
+      for(const t of techsAll){
+        for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
       }
-      const secGoalSoldPct = (den>0) ? (num/den) : NaN;
 
-      const pct = (rankMetric==='sold')
-        ? ((Number.isFinite(secSoldPct) && Number.isFinite(secGoalSoldPct) && secGoalSoldPct>0) ? (secSoldPct/secGoalSoldPct) : -Infinity)
-        : ((Number.isFinite(secAsrPerRo) && Number.isFinite(secGoalAsr) && secGoalAsr>0) ? (secAsrPerRo/secGoalAsr) : -Infinity);
+      const rows = [];
+      for(const sec of sections){
+        const secName = String(sec?.name||'').trim();
+        if(!secName) continue;
+        const key = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+        const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
+        const aggs = services.map(buildServiceAgg);
 
-      return {openKey, pct};
-    });
+        const secAsr = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
+        const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
+        const secRos = totalRos;
+        const asrpr = (Number.isFinite(secRos) && secRos>0) ? (secAsr/secRos) : NaN;
+        const soldpct = (Number.isFinite(secAsr) && secAsr>0) ? (secSold/secAsr) : NaN;
 
-    secRows.sort((a,b)=>{
-      if(a.pct===b.pct) return String(a.openKey).localeCompare(String(b.openKey));
-      return (a.pct < b.pct) ? 1 : -1;
-    });
+        const secGoalAsr = services.reduce((sum,cat)=> sum + (Number(getGoal(cat,'req'))||0), 0);
+        let num=0, den=0;
+        for(const cat of services){
+          const gR = Number(getGoal(cat,'req'))||0;
+          const gC = Number(getGoal(cat,'close'))||0;
+          if(Number.isFinite(gR) && gR>0){
+            den += gR;
+            if(Number.isFinite(gC) && gC>0) num += (gR * gC);
+          }
+        }
+        const secGoalSoldPct = (den>0) ? (num/den) : NaN;
 
-    const map = new Map();
-    const total = secRows.length || 1;
-    secRows.forEach((r,i)=> map.set(r.openKey, {rank: String(i+1), total: String(total)}));
-    window.__svcSectionRankMap = map;
+        const pct = (rankMetric==='sold')
+          ? ((Number.isFinite(soldpct) && Number.isFinite(secGoalSoldPct) && secGoalSoldPct>0) ? (soldpct/secGoalSoldPct) : -Infinity)
+          : ((Number.isFinite(asrpr) && Number.isFinite(secGoalAsr) && secGoalAsr>0) ? (asrpr/secGoalAsr) : -Infinity);
+
+        rows.push({key, pct});
+      }
+
+      rows.sort((a,b)=>{
+        if(a.pct===b.pct) return String(a.key).localeCompare(String(b.key));
+        return a.pct < b.pct ? 1 : -1;
+      });
+
+      const total = rows.length || 1;
+      const map = new Map();
+      rows.forEach((r,i)=> map.set(r.key, {rank:String(i+1), total:String(total)}));
+      window.__svcSectionRankMap = map;
+    }catch(e){
+      window.__svcSectionRankMap = new Map();
+    }
   })();
 
   const sectionsHtml = sections.map(renderSection).join('');
@@ -1415,7 +1523,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     const key = d.getAttribute('data-sec');
     const _sync = ()=>{
       st.open[key] = d.open;
-      const btn = d.querySelector('.svcSecToggle, .secToggle');
+      const btn = d.querySelector('.secToggle');
       if(btn) btn.textContent = d.open ? '−' : '+';
     };
     d.addEventListener('toggle', _sync);
