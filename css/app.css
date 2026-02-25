@@ -2339,13 +2339,13 @@ body.route-tech .secHdrStats .secStatTitle{
    Does NOT affect the Category titleRow dials (Maintenance/Fluids/Brakes/Tires).
 */
 body.route-tech .catCard .catHeader .svcGaugeWrap{
-  --sz:80px !important; /* 64px * 1.25 */
+  --sz:74px !important; /* match Category titleRow mini dials */
   width:var(--sz) !important;
   height:var(--sz) !important;
   flex:0 0 var(--sz) !important;
 }
 body.route-tech .catCard .catHeader .svcGauge{
-  --sz:80px !important;
+  --sz:74px !important;
   width:var(--sz) !important;
   height:var(--sz) !important;
 }

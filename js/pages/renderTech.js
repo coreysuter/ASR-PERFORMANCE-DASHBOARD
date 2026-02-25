@@ -329,7 +329,7 @@ const hash = location.hash || "";
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
-    const style = (size==="dial") ? ' style="--w:90px;--h:90px;--r:20px;"' : "";
+    const style = (size==="lg") ? ' style="--w:99px;--h:99px;--r:20px;"' : ((size==="dial") ? ' style="--w:90px;--h:90px;--r:20px;"' : "");
     // NOTE: We set font-weight inline so the header (lg) badge text matches the in-card (sm) badge text.
     return `
       <div class="${cls}"${style}>
@@ -753,8 +753,8 @@ const tb = getTeamBenchmarks(cat, team) || {};
       if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
       hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%")))}</div>
-` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:74px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%")))}</div>
+` : `<div class="svcGaugeWrap" style="--sz:74px"></div>`;
 
     const rk = rankFor(cat);
 
@@ -863,7 +863,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:74px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
