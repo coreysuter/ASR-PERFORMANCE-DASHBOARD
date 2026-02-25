@@ -2256,3 +2256,28 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
   letter-spacing:.15px !important;
 }
 
+/* === PATCH 2026-02-24: TechHeaderPanel pill sizing + ASR Rank label (CSS-only) === */
+/* Technician Dashboard main header pills (techHeaderPanel): labels 15px, numbers 18px */
+.techHeaderPanel .pills .pill .k{
+  font-size:15px !important;
+  text-transform:none !important; /* preserve casing */
+  letter-spacing:.15px !important;
+}
+.techHeaderPanel .pills .pill .v{
+  font-size:18px !important;
+  line-height:1.05 !important;
+}
+
+/* Tech Details category titleRows (Maintenance/Fluids/etc.): show "ASR" instead of "ASR%" on the rank label */
+body.route-tech .catRank .rankLbl{
+  position:relative;
+  color:transparent !important; /* hide underlying text (often 'ASR%') */
+}
+body.route-tech .catRank .rankLbl::after{
+  content:"ASR";
+  position:absolute;
+  inset:0;
+  display:block;
+  text-align:center;
+  color:rgba(234,240,255,.70);
+}

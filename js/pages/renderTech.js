@@ -304,7 +304,7 @@ const hash = location.hash || "";
 
   // Focus Rank Badge (replaces x/x rankings)
   function rankBadgeHtml(rank, total, focus, size="lg"){
-    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
+    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR");
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
