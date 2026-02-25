@@ -1291,7 +1291,26 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   app.querySelectorAll('select[data-svcdash="1"]').forEach(sel=>{
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
-      if(ctl==='fluids') st.fluids = sel.value;
+      if(ctl==='team'){
+        st.team = (sel.value==='express' || sel.value==='kia' || sel.value==='store') ? sel.value : 'store';
+      }
+      if(ctl==='fluids'){
+        st.fluids = (sel.value==='with' || sel.value==='without' || sel.value==='only') ? sel.value : 'with';
+      }
+      if(ctl==='goal'){
+        st.goalMetric = (sel.value==='sold') ? 'sold' : 'asr';
+      }
+
+      // Keep URL in sync so filters persist on refresh/back.
+      try{
+        const cur = location.hash || '';
+        const base = cur.includes('?') ? cur.split('?')[0] : cur;
+        const baseSafe = base || '#/services';
+        const qs = `team=${encodeURIComponent(st.team||'store')}&fluids=${encodeURIComponent(st.fluids||'with')}&goal=${encodeURIComponent(st.goalMetric||'asr')}`;
+        const next = `${baseSafe}?${qs}`;
+        if(location.hash !== next) location.hash = next;
+      }catch(e){}
+
       renderServicesHome();
     });
   });
