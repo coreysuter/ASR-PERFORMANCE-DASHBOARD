@@ -27,8 +27,9 @@ function renderServicesHome(){
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(520px,1fr));gap:14px;align-items:start;}
-      @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start;}
+      @media (max-width: 1200px){ .pageServicesDash .svcCardsGrid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+      @media (max-width: 820px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
       /* =====================================================================
          ServicesHome diagSection: match Tech Details (renderTech) styling
@@ -157,6 +158,14 @@ function renderServicesHome(){
 }
 
       /* Tech list inside service cards */
+      /* Service cards: allow rows to expand/show full text (no ellipsis) */
+      .pageServicesDash .catCard{min-width:0;}
+      .pageServicesDash .svcTechRow{align-items:flex-start;}
+      .pageServicesDash .svcTechLeft{min-width:0;flex:1 1 auto;}
+      .pageServicesDash .svcTechLeft a{max-width:none;white-space:normal;overflow:visible;text-overflow:clip;}
+      .pageServicesDash .svcTechMeta{white-space:normal;}
+      .pageServicesDash .svcTechMetaRow{white-space:normal;}
+
       .pageServicesDash .svcTechList{margin-top:10px;display:grid;gap:8px;}
       /* Tech name + meta typography in section header (requested) */
       .pageServicesDash .svcDashSecHead .svcTechLeft,
