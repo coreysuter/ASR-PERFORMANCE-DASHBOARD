@@ -225,8 +225,10 @@ function renderServicesHome(){
 
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
-      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
-      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:18px !important;line-height:1.05 !important;}
+      .pageServicesDash .techHeaderPanel .pillMini{padding:8px 12px !important;}
+
+      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:16px !important;text-transform:none !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:20px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pillMini.sold .v{color:#fff !important;}
 
 
