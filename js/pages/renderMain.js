@@ -111,6 +111,19 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
     ">☰</label>
   </div>
 
+  <!-- Mask the header panel's left border behind the notch so it looks continuous -->
+  <div style="
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:3px;
+    height:56px;
+    background:inherit;
+    z-index:2;
+  "></div>
+
+>
+
   <div class="panel techHeaderPanel" style="width:100%; min-width:0;">
       <div class="phead">
         <style>
