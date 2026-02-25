@@ -1116,43 +1116,43 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 
 /* ===== v277_UNIQUE: category header dial sizing & spacing to match reference ===== */
 /* Small dials */
-.route-tech .secMiniDials .svcGaugeWrap{--sz:74px; width:var(--sz); height:var(--sz); flex:0 0 var(--sz);}
-.route-tech .secMiniDials .svcGauge{--sz:74px !important; width:var(--sz) !important; height:var(--sz) !important;}
-.route-tech .secMiniDials{gap:26px !important;}
+.route-tech .secMiniDials .svcGaugeWrap{--sz:93px; width:var(--sz); height:var(--sz); flex:0 0 var(--sz);}
+.route-tech .secMiniDials .svcGauge{--sz:93px !important; width:var(--sz) !important; height:var(--sz) !important;}
+.route-tech .secMiniDials{gap:33px !important;}
 
 /* Focus dial ~2x small, visually like reference */
-.route-tech .secFocusDial .svcGaugeWrap{--sz:148px; width:var(--sz); height:var(--sz); flex:0 0 var(--sz);}
-.route-tech .secFocusDial .svcGauge{--sz:90px !important; width:var(--sz) !important; height:var(--sz) !important;}
-.route-tech .secHdrRight{gap:22px !important;}
+.route-tech .secFocusDial .svcGaugeWrap{--sz:185px; width:var(--sz); height:var(--sz); flex:0 0 var(--sz);}
+.route-tech .secFocusDial .svcGauge{--sz:113px !important; width:var(--sz) !important; height:var(--sz) !important;}
+.route-tech .secHdrRight{gap:28px !important;}
 
 /* Keep header height consistent so big dial doesn't clip */
 .route-tech .panel .phead{overflow:visible}
 
 /* ===== v278_UNIQUE: force dial order + sizing (high specificity) ===== */
-.route-tech .secHdrRight{display:flex !important; align-items:center !important; gap:22px !important;}
+.route-tech .secHdrRight{display:flex !important; align-items:center !important; gap:28px !important;}
 .route-tech .secHdrRight .secFocusDial{order:0 !important;}
 .route-tech .secHdrRight .secHdrStats{order:1 !important; text-align:right !important;}
 
 /* small dials */
-.route-tech .secHdrLeft .secMiniDials .svcGauge{--sz:74px !important; width:74px !important; height:74px !important;}
-.route-tech .secHdrLeft .secMiniDials .svcGaugeWrap{--sz:74px !important; width:74px !important; height:74px !important; flex:0 0 74px !important;}
-.route-tech .secHdrLeft .secMiniDials{gap:26px !important;}
+.route-tech .secHdrLeft .secMiniDials .svcGauge{--sz:93px !important; width:93px !important; height:93px !important;}
+.route-tech .secHdrLeft .secMiniDials .svcGaugeWrap{--sz:93px !important; width:93px !important; height:93px !important; flex:0 0 93px !important;}
+.route-tech .secHdrLeft .secMiniDials{gap:33px !important;}
 
 /* focus dial 2x */
-.route-tech .secHdrRight .secFocusDial .svcGauge{--sz:90px !important; width:90px !important; height:90px !important;}
-.route-tech .secHdrRight .secFocusDial .svcGaugeWrap{--sz:148px !important; width:148px !important; height:90px !important; flex:0 0 148px !important;}
+.route-tech .secHdrRight .secFocusDial .svcGauge{--sz:113px !important; width:113px !important; height:113px !important;}
+.route-tech .secHdrRight .secFocusDial .svcGaugeWrap{--sz:185px !important; width:185px !important; height:113px !important; flex:0 0 185px !important;}
 
 /* ===== v279_UNIQUE: ensure dial wrappers exist + enforce reference sizing ===== */
-.route-tech .secMiniDials{display:flex;align-items:center;gap:26px !important;}
-.route-tech .secMiniDials .svcGaugeWrap{width:74px !important;height:74px !important;flex:0 0 74px !important;}
-.route-tech .secMiniDials .svcGauge{--sz:74px !important;width:74px !important;height:74px !important;}
+.route-tech .secMiniDials{display:flex;align-items:center;gap:33px !important;}
+.route-tech .secMiniDials .svcGaugeWrap{width:93px !important;height:93px !important;flex:0 0 93px !important;}
+.route-tech .secMiniDials .svcGauge{--sz:93px !important;width:93px !important;height:93px !important;}
 
-.route-tech .secHdrRight{display:flex;align-items:center;gap:22px !important;justify-content:flex-end;}
+.route-tech .secHdrRight{display:flex;align-items:center;gap:28px !important;justify-content:flex-end;}
 .route-tech .secFocusDial{order:0;}
 .route-tech .secHdrStats{order:1;}
 
-.route-tech .secFocusDial .svcGaugeWrap{width:90px !important;height:90px !important;flex:0 0 148px !important;}
-.route-tech .secFocusDial .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
+.route-tech .secFocusDial .svcGaugeWrap{width:113px !important;height:113px !important;flex:0 0 185px !important;}
+.route-tech .secFocusDial .svcGauge{--sz:113px !important;width:113px !important;height:113px !important;}
 
 /* === Tech details: Top/Bottom 3 panel (scoped; does not affect other pages) === */
 .techHeaderWrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
