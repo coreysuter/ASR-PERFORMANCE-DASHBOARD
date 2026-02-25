@@ -252,25 +252,13 @@ function renderTech(techId){
       .techPickPanel.diagSection .diagBandLegend .legendRed{color:#ff4b4b}
       .techPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
       .techPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
-    
-      /* Filters: keep the selected display value white, but dropdown option text black */
-      .controls select{color:#fff}
-      .controls select option{color:#000}
-
-      /* CatCard (service tiles) dial label sizing */
-      body.route-tech .catCard .catHeader .svcGauge .pctSub,
-      body.route-tech .catCard .catHeader .svcGauge .pctTitle{
-        font-size:12px !important;
-        letter-spacing:.25px !important;
-      }
-
-`;
+    `;
     document.head.appendChild(st);
   })();
 
   const t = (DATA.techs||[]).find(x=>x.id===techId);
   if(!t){
-    document.getElementById('app').innerHTML = `<div class="panel"><div class="phead" style="display:flex;flex-direction:column;min-height:0"><div class="h2">Technician not found</div><div class="sub"><a href="#/">Back</a></div></div></div>`;
+    document.getElementById('app').innerHTML = `<div class="panel"><div class="phead"><div class="h2">Technician not found</div><div class="sub"><a href="#/">Back</a></div></div></div>`;
     return;
   }
 
@@ -302,10 +290,6 @@ const hash = location.hash || "";
       }
     }
   }
-
-  // expose focus to CSS for scoped label overrides
-  try{ document.body.dataset.techFocus = focus; document.body.dataset.techGoalMetric = goalMetric; }catch(e){}
-
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
   
@@ -320,21 +304,16 @@ const hash = location.hash || "";
 
   // Focus Rank Badge (replaces x/x rankings)
   function rankBadgeHtml(rank, total, focus, size="lg"){
-    // Badge title depends on current focus; Goal focus uses the selected goal metric label.
-    let top;
-    if(focus==="sold") top = (size==="lg") ? "Sold/RO" : "SOLD%";
-    else if(focus==="goal") top = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
-    else top = "ASRs/RO";
-
+    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
-    const style = (size==="lg") ? ' style="--w:99px;--h:99px;--r:20px;"' : ((size==="dial") ? ' style="--w:90px;--h:90px;--r:20px;"' : "");
+    const style = (size==="dial") ? ' style="--w:90px;--h:90px;--r:20px;"' : "";
     // NOTE: We set font-weight inline so the header (lg) badge text matches the in-card (sm) badge text.
     return `
       <div class="${cls}"${style}>
-        <div class="rfbFocus" style="font-weight:1000;text-transform:none">${top}</div>
-        <div class="rfbMain" style="font-weight:1000">${r}</div>
+        <div class="rfbFocus" style="font-weight:1000">${top}</div>
+        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
         <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
       </div>
     `;
@@ -557,7 +536,7 @@ function countBandsFor(mode){
     return {rank: (idx>=0 ? idx+1 : total), total};
   }
   const filters = `
-    <div class="controls" style="margin-top:0">
+    <div class="controls" style="margin-top:10px">
       <div>
         <label>Fluids</label>
         <select id="techFilter">
@@ -629,20 +608,13 @@ function countBandsFor(mode){
   const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __rosTotal = Number(t.ros);
-  // Sold/ASRs shown as a percent in parenthesis.
-  const __soldAsrPct = (Number.isFinite(__soldTotal) && Number.isFinite(__asrsTotal) && __asrsTotal>0) ? (__soldTotal/__asrsTotal) : NaN;
-  const __soldAsrPctTxt = Number.isFinite(__soldAsrPct) ? `(${(__soldAsrPct*100).toFixed(1)}%)` : "";
+  // Sold/RO shown as a decimal (e.g., 0.42) instead of a percent.
+  const __soldPerRoDec = (Number.isFinite(__soldTotal) && Number.isFinite(__rosTotal) && __rosTotal>0) ? (__soldTotal/__rosTotal) : NaN;
+  const __soldPerRoDecTxt = Number.isFinite(__soldPerRoDec) ? `(${__soldPerRoDec.toFixed(2)})` : "";
   const __asrPerRoVal = techAsrPerRo(t, filterKey);
   const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
   const __soldPerRoTxt = Number.isFinite(__soldPerRoVal) ? fmt1(__soldPerRoVal, 1) : "—";
-
-  // Header focus stats: when Focus=Goal, mirror the exact stats for the selected goal metric.
-  const __effFocusHdr = (focus==="goal") ? goalMetric : focus; // "asr" | "sold"
-  const __topFocusVal = (__effFocusHdr==="sold") ? __soldPerRoTxt : __asrPerRoTxt;
-  const __topFocusLbl = (__effFocusHdr==="sold") ? "Sold/RO" : "ASRs/RO";
-  const __botFocusVal = (__effFocusHdr==="sold") ? __asrPerRoTxt : __soldPerRoTxt;
-  const __botFocusLbl = (__effFocusHdr==="sold") ? "ASRs/RO" : "Sold/RO";
 
 
   const __fullName = String(t.name||"").trim();
@@ -657,91 +629,58 @@ function countBandsFor(mode){
 
   
 const header = `
-
-    <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
-<div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
-  <!-- Notch extension (matches Goals notch) -->
-  <div class="panel techMenuNotch" style="
-    position:absolute;
-    left:-68px;
-    top:0px;
-    width:68px;
-    height:56px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-top-right-radius:0px;
-    border-bottom-right-radius:0px;
-    border-right:none;
-    z-index:3;
-  ">
-    <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
-      font-size:1.5em;
-      line-height:1;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:8px 10px;
-      cursor:pointer;
-      color:inherit;
-      user-select:none;
-    ">☰</label>
-  </div>
-
-  <div class="panel techHeaderPanel" style="height:100%;min-width:0;border-top-left-radius:0px;border-left:none;">
+    <div class="panel techHeaderPanel" style="height:100%;min-width:0">
       <div class="phead">
-        <div class="techHdrTop" style="display:flex;flex-direction:column;min-height:0">
         <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
           <div class="techTitlePinnedLeft" style="display:flex;align-items:flex-start;gap:18px;min-width:0;flex:1 1 auto;">
-<div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
+            <div class="techTitleLeft">
+              <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
+            </div>
+            <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
               <div class="h2 techH2Big">${__nameHtml}</div>
               <div class="techTeamLine">${safe(team)}</div>
             </div>
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
-            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-            <div class="techFocusStatsPinned" style="text-align:right;line-height:1;align-self:center;display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-right:4px;">
-              <div class="techFocusTop" style="text-align:right">
-                <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__topFocusVal}</div>
-                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__topFocusLbl}</div>
-              </div>
-              <div class="techFocusBottom" style="text-align:right">
-                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__botFocusVal}</div>
-                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__botFocusLbl}</div>
-              </div>
+            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
             </div>
-          </div></div>
-        <div class="pillsMini" style="margin-top:8px !important; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-    <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
-  </div>
-
-  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-    <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
-  </div>
-
-  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-    <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
-  </div>
-
-  <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
-    <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
-  </div>
+            <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
+  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
 </div>
+${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+          </div></div>
+        <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
+          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+          </div>
+
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+          </div>
+
+          <div class="pill" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+          </div>
+
+          <div class="pill sold" style="padding:12px 18px; gap:12px;">
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
+            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldPerRoDecTxt}</span></div>
+          </div>
         </div>
-        <div class="techHdrBottom" style="margin-top:auto">
-          <div style="height:1px; background:rgba(255,255,255,.14); margin:12px 0 12px 0;"></div>
-          ${filters}
-        </div>
+
+        <div style="height:1px; background:rgba(255,255,255,.14); margin:10px 0 6px 0;"></div>
+        ${filters}
       </div>
     </div>
-  </div>
   `;
-function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
+
+  function fmtDelta(val){ return val===null || val===undefined || !Number.isFinite(Number(val)) ? "—" : (Number(val)*100).toFixed(1); }
 
   function renderCategoryRectSafe(cat, compareBasis){
     const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
@@ -784,8 +723,8 @@ const tb = getTeamBenchmarks(cat, team) || {};
       if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
       hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:74px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%")))}</div>
-` : `<div class="svcGaugeWrap" style="--sz:74px"></div>`;
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR")))}</div>
+` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
 
@@ -894,11 +833,11 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:74px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
-              <span class="svcMetaTopLine">${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><br><span class="svcMetaSoldLine" style="display:block;margin-top:2px;">${fmt1(soldCount,0)} Sold</span>
+              ${fmt1(asrCount,0)} ASR · ${fmt1(soldCount,0)} Sold · ${fmt1(techRos,0)} ROs
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
@@ -1008,24 +947,24 @@ const goalFocusLbl = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
 
 // Focus dial: when focus=goal, use the selected goal metric (ASR Goal or Sold Goal)
 const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? goalFocusPct : pctAsr);
-const focusLbl = (focus==="sold") ? "Sold%" : (focus==="goal" ? goalFocusLbl : "ASRs/RO");
+const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? goalFocusLbl : "ASR");
 
 const dialASR = Number.isFinite(pctAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASRs/RO")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
 const dialSold = Number.isFinite(pctSold)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold%")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
 const dialGoalAsr = Number.isFinite(pctGoalAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
 const dialGoalSold = Number.isFinite(pctGoalSold)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
 
 const dialFocus = Number.isFinite(focusPct)
-  ? `<div class="svcGaugeWrap" style="--sz:140px">${svcGauge(focusPct,focusLbl)}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:140px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
 
 // --- Section header mini-dials: always show exactly 3 (exclude the current focus dial).
 // Minis sit immediately LEFT of the focus dial (we render minis BEFORE the focus dial).
@@ -1376,26 +1315,6 @@ return `
   const headerWrap = `<div class="techHeaderWrap" style="display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
-
-// Force the notch to match the header panel background exactly (prevents any shade mismatch)
-(function syncNotchBg(){
-  const notch = document.querySelector('.techNotchStage .techMenuNotch');
-  const panel = document.querySelector('.techNotchStage .techHeaderPanel');
-  if(!notch || !panel) return;
-
-  const apply = ()=>{
-    const cs = getComputedStyle(panel);
-    notch.style.backgroundColor = cs.backgroundColor;
-    notch.style.backgroundImage = cs.backgroundImage;
-    notch.style.backgroundRepeat = cs.backgroundRepeat;
-    notch.style.backgroundPosition = cs.backgroundPosition;
-    notch.style.backgroundSize = cs.backgroundSize;
-    notch.style.backgroundAttachment = cs.backgroundAttachment;
-    notch.style.borderColor = cs.borderTopColor;
-  };
-
-  requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
-})();
   // Top/Bottom 3 clicks: jump to service card reliably
   const tp = document.querySelector('.techPickPanel');
   if(tp){
