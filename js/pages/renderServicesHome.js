@@ -181,11 +181,8 @@ function renderServicesHome(){
 
       /* Status icons */
       /* Make warning triangles a touch smaller + lighter visual weight */
-      .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:6px;}
-      .pageServicesDash .svcIcon svg{width:100%;height:100%;display:block}
-      .pageServicesDash .svcIcon.good{width:18px;height:18px;}
-      .pageServicesDash .svcIcon.warn,
-      .pageServicesDash .svcIcon.bad{width:24px;height:24px;}
+      .pageServicesDash .svcIcon{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;vertical-align:middle;margin-left:6px;}
+      .pageServicesDash .svcIcon svg{width:12px;height:12px;display:block}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
         .pageServicesDash .svcTechMeta{white-space:normal;}
@@ -229,7 +226,7 @@ function renderServicesHome(){
       .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
       .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
-      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:8px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
+      .pageServicesDash .svcHdrGoalDials .pctSub{font-size:10px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
 
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
@@ -336,7 +333,7 @@ function renderServicesHome(){
     const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
 
     const defaultHtml = `<span class="pctText pctDefault"><span class="pctTitle">${safe(top)}</span><span class="pctTitle">${safe(bot)}</span></span>`;
-    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">GOAL</span></span>`;
+    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">Goal</span></span>`;
 
     return `<span class="svcGauge ${cls}" data-p="${ring}">
       <svg viewBox="0 0 36 36" aria-hidden="true">
@@ -375,11 +372,43 @@ function renderServicesHome(){
         <span class="pctStack2">
           <span class="pctMain">${absDelta}%</span>
           <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-          <span class="pctSub">GOAL</span>
+          <span class="pctSub">Goal</span>
         </span>
       </span>
     </span>`;
   }
+
+// --- Service tile goal dial (same stacked % / arrow / Goal format as svcHdrGoalDials) ---
+function serviceGoalDial(pct){
+  const p = Number(pct);
+  const finite = Number.isFinite(p);
+  const pClamped = finite ? Math.max(0, p) : 0;
+  const ring = Math.round(Math.min(pClamped, 1) * 100);
+
+  let cls = "gRed";
+  if(pClamped >= 0.80) cls = "gGreen";
+  else if(pClamped >= 0.60) cls = "gYellow";
+
+  const delta = finite ? Math.round((pClamped - 1) * 100) : null;
+  const absDelta = (delta===null) ? "—" : Math.abs(delta);
+  const arrow = (delta===null) ? "" : (delta >= 0 ? "▲" : "▼");
+  const arrowColor = (delta===null) ? "rgba(255,255,255,.55)" : (delta >= 0 ? "rgba(34,197,94,.98)" : "rgba(239,68,68,.98)");
+
+  return `<span class="svcGauge ${cls}" data-p="${ring}">
+    <svg viewBox="0 0 36 36" aria-hidden="true">
+      <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
+      <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
+    </svg>
+    <span class="pctText">
+      <span class="pctStack2">
+        <span class="pctMain">${absDelta}%</span>
+        <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
+        <span class="pctSub">Goal</span>
+      </span>
+    </span>
+  </span>`;
+}
+
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
@@ -426,9 +455,9 @@ function renderServicesHome(){
 
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
-    const focusLbl = (rankMetric==='sold') ? 'SOLD Goal' : 'ASR Goal';
+    const focusLbl = (rankMetric==='sold') ? 'SOLD' : 'ASR';
     return `
-      <div class="rankFocusBadge sm" title="${safe(focusLbl)} rank">
+      <div class="rankFocusBadge sm" title="${safe(focusLbl)} goal rank">
         <div class="rfbFocus">${safe(focusLbl)}</div>
         <div class="rfbMain">${rk}</div>
         <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${fmtInt(_svcRankDen)}</span></div>
@@ -566,13 +595,12 @@ function renderServicesHome(){
 
   function iconSvg(kind){
     if(kind==='good') return `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(26,196,96,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><path d="M4.3 8.3 L7 11 L12 5.6" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
-    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="10.5" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
   }
 
   function iconHtml(pctOfBase){
-    const k = iconKindFromPctOfBase(pctOfBase);
-    return `<span class="svcIcon ${k}">${iconSvg(k)}</span>`;
+    return `<span class="svcIcon">${iconSvg(iconKindFromPctOfBase(pctOfBase))}</span>`;
   }
   function safeSvcIdLocal(cat){
     return "svc-" + String(cat||"").toLowerCase()
@@ -705,6 +733,8 @@ function renderServicesHome(){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
+      const sdDialSz = (rankMetric==='sold') ? 72 : 90;
+
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
         ? '—'
@@ -749,8 +779,8 @@ function renderServicesHome(){
             </div>
 
             <div class="sdCatHdrRow">
-              <div class="svcGaugeWrap" style="--sz:72px">
-                ${svcGaugeStack((Number.isFinite(dialPct)?dialPct:0), (rankMetric==='sold'?'SOLD':'ASR'), 'GOAL')}
+              <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
+                ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0)}
               </div>
               ${goalRankBadge(s.serviceName)}
             </div>
