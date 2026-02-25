@@ -82,11 +82,11 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
   const header = `
 
     <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
-<div class="techNotchStage" style="position:relative; width:100%; padding-left:68px;">
+<div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
   <!-- Notch extension (no seam to the main panel) -->
   <div class="panel techMenuNotch" style="
     position:absolute;
-    left:0px;
+    left:-68px;
     top:0px;
     width:68px;
     height:56px;
@@ -111,12 +111,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
     ">☰</label>
   </div>
 
-  <div class="panel techHeaderPanel" style="
-    width:100%;
-    border-top-left-radius:0px;
-    border-left:none;
-    min-width:0;
-  ">
+  <div class="panel techHeaderPanel" style="width:100%; min-width:0;">
       <div class="phead">
         <style>
           /* Keep pills in the top row and prevent overlap with the title */
