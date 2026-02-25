@@ -487,7 +487,7 @@ function serviceGoalDial(pct, sz){
     const total = fmtInt(_svcRankDen);
     // Match renderTech rank badge sizing + typography (inline weights) using the shared .rankFocusBadge CSS.
     return `
-      <div class="rankFocusBadge sm" title="${safe(top)} rank">
+      <div class="rankFocusBadge" style="--w:90px;--h:90px;--r:20px;" title="${safe(top)} rank">
         <div class="rfbFocus" style="font-weight:1000;text-transform:none">${safe(top)}</div>
         <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${rk}</div>
         <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${total}</span></div>
@@ -765,7 +765,7 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const sdDialSz = 64; // 25% smaller than header goal dials (85px)
+            const sdDialSz = 80; // increased by 25% from 64px
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
