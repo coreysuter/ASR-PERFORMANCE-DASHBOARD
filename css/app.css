@@ -2245,17 +2245,13 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
 }
 
 
-/* === Technician Dashboard (renderMain): colored TechRow pill casing + sizing === */
-.pageTechDash .techTiles .techTile .tLbl,
-.pageTechDash .techTiles .techTile .tVal,
-.pageTechDash .techTile .tLbl,
-.pageTechDash .techTile .tVal{
+/* === Technician Dashboard (renderMain): TechRow colored pill casing + 10px font (labels + values) === */
+.pageTechDash .techRow.dashTechRow .pill .k,
+.pageTechDash .techRow.dashTechRow .pill .v{
   font-size:10px !important;
   line-height:1.05 !important;
 }
-.pageTechDash .techTiles .techTile .tLbl,
-.pageTechDash .techTile .tLbl{
+.pageTechDash .techRow.dashTechRow .pill .k{
   text-transform:none !important;
   letter-spacing:.15px !important;
 }
-

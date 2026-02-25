@@ -44,10 +44,6 @@ function renderMain(){
     if(state.EXPRESS.compare !== undefined) state.KIA.compare = state.EXPRESS.compare;
   }
 
-  // Force Technician Dashboard filter to Fluids Only (per request)
-  if(state && state.EXPRESS) state.EXPRESS.filterKey = "fluids_only";
-  if(state && state.KIA) state.KIA.filterKey = "fluids_only";
-
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA"))
     : [];
@@ -63,7 +59,7 @@ function renderMain(){
 
   
   const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const focusIsGoal = st.sortBy === "goal";
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
   // If Focus=GOAL, force Comparison=GOAL (and keep both teams in sync)
@@ -194,31 +190,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
 
   app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
 
-// Normalize colored TechRow pill labels (covers any panel rendering via shared code)
-  (function normalizeTechRowPills(){
-    const map = [
-      [/\bSOLD\s*\/\s*ASRS\b/gi, "Sold/ASRs"],
-      [/\bSOLD\s*\/\s*ASR\b/gi,  "Sold/ASRs"],
-      [/\bSOLD\s*\/\s*RO\b/gi,   "Sold/RO"],
-      [/\bSOLD\s*\/\s*GOAL\b/gi, "Sold/Goal"],
-      [/\bASR\s*\/\s*GOAL\b/gi,  "ASR/Goal"],
-      [/\bASRS\s*\/\s*RO\b/gi,   "ASRs/RO"],
-    ];
-
-    const nodes = document.querySelectorAll(
-      ".pageTechDash .techTiles .tLbl, .pageTechDash .techTile .tLbl, .pageTechDash .statTile .tLbl"
-    );
-    nodes.forEach(n=>{
-      let t = (n.textContent || "").trim();
-      if(!t) return;
-      const orig = t;
-      for(const [rx, rep] of map) t = t.replace(rx, rep);
-      if(t !== orig) n.textContent = t;
-    });
-  })();
-
   document.querySelectorAll('[data-ctl]').forEach(el=>{
-
     const ctl=el.getAttribute('data-ctl');
     const scope=el.getAttribute('data-scope');
     const team=el.getAttribute('data-team');
