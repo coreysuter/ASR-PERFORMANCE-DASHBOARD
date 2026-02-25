@@ -22,6 +22,9 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .pill{display:inline-flex;gap:8px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(0,0,0,.25)}
 .pill .k{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.2px;text-transform:uppercase}
 .pill .v{font-size:18px;font-weight:1000;line-height:1}
+
+/* Tech detail header pills: force stat values to pure white */
+body.route-tech .techHeaderPanel .pill .v{color:#fff !important;}
 .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .controls label{display:block;font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.2px;margin-bottom:6px}
 select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);outline:none}
@@ -2244,34 +2247,3 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
   transform:scale(1.02);
 }
 
-
-
-
-/* ===== MENU PATCH: ServicesHome link + Tech submenu sizing/indent ===== */
-.menuSubHdr{
-  font-weight:800;
-  font-size:15px;       /* larger than technician names */
-  letter-spacing:.15px;
-  cursor:pointer;
-  list-style:none;
-}
-.menuSubHdr::-webkit-details-marker{display:none}
-
-/* tech list under Express/Kia: offset/indent */
-.menuTechList{margin-top:8px;margin-left:14px}
-
-/* technician name links inside menu lists */
-.menuTechLink{
-  display:block;
-  margin-top:8px;
-  padding:8px 10px 8px 18px; /* extra left padding for offset */
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.10);
-  text-decoration:none;
-  color:var(--text);
-  background:rgba(0,0,0,.18);
-  font-weight:900;
-  font-size:13px;       /* smaller than Express/Kia headers */
-  opacity:.95;
-}
-.menuTechLink:hover{background:rgba(0,0,0,.28)}
