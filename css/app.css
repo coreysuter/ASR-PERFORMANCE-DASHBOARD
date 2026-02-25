@@ -1319,7 +1319,7 @@ body.route-tech .catTitle .meta{
   font-size: calc(var(--h) * 0.14);
   font-weight:1100;
   letter-spacing:.35px;
-  text-transform:uppercase;
+  text-transform:none !important;
   color:rgba(234,240,255,.90);
   line-height:1;
 }
