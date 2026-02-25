@@ -353,6 +353,35 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .menuGroup summary{display:flex;align-items:center;gap:6px;}
 .menuGroup>summary{cursor:pointer;font-weight:1100;list-style:none}
 .menuGroup>summary::-webkit-details-marker{display:none}
+
+/* Menu expand/collapse indicator (+ / −) */
+.menuGroup>summary::before{
+  content:"+";
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:14px;
+  height:14px;
+  margin-right:2px;
+  font-weight:1200;
+  opacity:.9;
+}
+.menuGroup[open]>summary::before{content:"−";}
+
+.menuSub>summary{list-style:none;cursor:pointer}
+.menuSub>summary::-webkit-details-marker{display:none}
+.menuSub>summary::before{
+  content:"+";
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:12px;
+  height:12px;
+  margin-right:6px;
+  font-weight:1200;
+  opacity:.85;
+}
+.menuSub[open]>summary::before{content:"−";}
 .menuLink{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);text-decoration:none;color:var(--text);background:rgba(0,0,0,.18);font-weight:900}
 .menuLink:hover{background:rgba(0,0,0,.28)}
 
@@ -2113,11 +2142,11 @@ body.route-tech .techH2Big{font-size:34px !important;}
 /* === PATCH 2026-02-18: Tech details header pills + category header bottom focus stat === */
 /* Tech Details / Group pages (body.route-tech): header pills sizing */
 body.route-tech .techHeaderPanel .pills .pill .v{
-  font-size:22px !important;
+  font-size:18px !important;
   line-height:1.05 !important;
 }
 body.route-tech .techHeaderPanel .pills .pill .k{
-  font-size:14px !important;
+  font-size:15px !important;
   line-height:1.05 !important;
   color:rgba(255,255,255,.55) !important;
   text-transform:none !important;
@@ -2244,96 +2273,33 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
   transform:scale(1.02);
 }
 
-
-/* === Technician Dashboard (renderMain): FORCE TechRow colored pill casing + 10px font (labels + values) === */
-.pageTechDash .techRow .pill .k,
-.pageTechDash .techRow .pill .v{
-  font-size:10px !important;
-  line-height:1.05 !important;
-}
-.pageTechDash .techRow .pill .k{
-  text-transform:none !important; /* defeat any global uppercase */
-  letter-spacing:.15px !important;
-}
-
-/* === PATCH 2026-02-24: TechHeaderPanel pill sizing + ASR Rank label (CSS-only) === */
-/* Technician Dashboard main header pills (techHeaderPanel): labels 15px, numbers 18px */
-.techHeaderPanel .pills .pill .k{
-  font-size:15px !important;
-  text-transform:none !important; /* preserve casing */
-  letter-spacing:.15px !important;
-}
-.techHeaderPanel .pills .pill .v{
-  font-size:18px !important;
-  line-height:1.05 !important;
-}
-
-/* Tech Details category titleRows (Maintenance/Fluids/etc.): show "ASR" instead of "ASR%" on the rank label */
-body.route-tech .catRank .rankLbl{
-  position:relative;
-  color:transparent !important; /* hide underlying text (often 'ASR%') */
-}
-body.route-tech .catRank .rankLbl::after{
-  content:"ASR";
-  position:absolute;
-  inset:0;
-  display:block;
-  text-align:center;
-  color:rgba(234,240,255,.70);
-}
-
-
-
-/* ===============================
-   Tech Details fixes (scoped)
-   =============================== */
-body.route-tech .techHeaderPanel .pills .pill .k{
-  font-size:15px !important;
-  text-transform:none !important;
-}
-body.route-tech .techHeaderPanel .pills .pill .v{
-  font-size:18px !important;
-}
-body.route-tech .techHeaderPanel .pills .pill .v *{
-  font-size:18px !important;
-}
-
-/* svcMetaLine: mixed case + 14px and Sold on 2nd row */
+/* === PATCH 2026-02-24: svcMetaLine (tech details) font + casing ===
+   - Set muted svcMetaLine to 14px
+   - Preserve casing (ROs / ASRs / Sold) by disabling uppercase transforms
+   Scoped to tech details only.
+*/
+body.route-tech .muted.svcMetaLine,
 body.route-tech .svcMetaLine{
   font-size:14px !important;
   text-transform:none !important;
-  letter-spacing:.2px;
-}
-body.route-tech .svcMetaLine .svcMetaSoldLine{
-  display:block;
-  margin-top:2px;
+  letter-spacing:.2px !important;
+  font-weight:900 !important;
+  color:var(--muted) !important;
 }
 
-/* Rank badge labels:
-   - Section titleRows (Maintenance/Fluids/etc.): ASRs/RO
-   - Service catCards: ASR%
-   Only when focus = ASR (set by renderTech via body[data-tech-focus]).
-*/
-body.route-tech[data-tech-focus="asr"] .secHdrRank .rankLbl{
-  font-size:0 !important;
+
+/* === PATCH 2026-02-24: TechRow colored pills value sizing (Technician Dashboard only) === */
+/* Labels stay 10px; values (numbers/%/ratios) 16px; values in the active Focus group 17px */
+.pageTechDash .techRow.dashTechRow .pill .k{
+  font-size:10px !important;
+  line-height:1.05 !important;
   text-transform:none !important;
+  letter-spacing:.15px !important;
 }
-body.route-tech[data-tech-focus="asr"] .secHdrRank .rankLbl::after{
-  content:"ASRs/RO";
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.3px;
-  opacity:.75;
-  text-transform:none;
+.pageTechDash .techRow.dashTechRow .pill .v{
+  font-size:16px !important;
+  line-height:1.05 !important;
 }
-
-body.route-tech[data-tech-focus="asr"] .catRank .rankLbl{
-  font-size:0 !important;
-}
-body.route-tech[data-tech-focus="asr"] .catRank .rankLbl::after{
-  content:"ASR%";
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.3px;
-  opacity:.75;
+.pageTechDash .techRow.dashTechRow .pillGroup.focusGroup .pill .v{
+  font-size:17px !important;
 }
