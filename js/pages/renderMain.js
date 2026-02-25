@@ -10,11 +10,15 @@ function renderMain(){
     document.head.appendChild(el);
   }
   el.textContent = `
-    /* Tech row colored pills (stat tiles) font size */
+    /* Tech row colored pills (stat tiles): requested sizing + casing */
     .pageTechDash .techTiles .techTile .tLbl,
     .pageTechDash .techTiles .techTile .tVal{
       font-size:10px !important;
       line-height:1.05 !important;
+    }
+    .pageTechDash .techTiles .techTile .tLbl{
+      text-transform:none !important;
+      letter-spacing:.15px !important;
     }
 
     /* Scope EVERYTHING to main technician dashboard only */
@@ -51,16 +55,6 @@ function renderMain(){
     if(state.EXPRESS.compare !== undefined) state.KIA.compare = state.EXPRESS.compare;
   }
 
-  // Force default Filter to Fluids Only (one-time), but allow user changes afterward
-  if(state && !state.__forcedFluids){
-    state.EXPRESS = state.EXPRESS || {};
-    state.KIA = state.KIA || {};
-    state.EXPRESS.filterKey = "fluids_only";
-    state.KIA.filterKey = "fluids_only";
-    state.__forcedFluids = true;
-  }
-
-
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA"))
     : [];
@@ -76,7 +70,7 @@ function renderMain(){
 
   
   const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const focusIsGoal = st.sortBy === "goal";
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
   // If Focus=GOAL, force Comparison=GOAL (and keep both teams in sync)
@@ -157,7 +151,7 @@ const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goal
         <div class="mainFiltersBar">
           <div class="controls mainAlwaysOpen">
             <div>
-              <label>Fluids</label>
+              <label>Filter</label>
               <select data-scope="main" data-ctl="filter">
                 <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
                 <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
@@ -207,18 +201,19 @@ const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goal
 
   app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
 
-  // Normalize any remaining labels rendered by shared components (e.g., tech row pills)
-  document.querySelectorAll('.pageTechDash *').forEach(n=>{
-    if(n && n.childNodes && n.childNodes.length===1 && n.childNodes[0].nodeType===3){
-      const t = n.textContent;
-      if(!t) return;
-      const next = t
-        .replace(/\bSold\/ASR\b/g, "Sold/ASRs")
-        .replace(/\bSOLD\/ASR\b/g, "SOLD/ASRs");
-      if(next !== t) n.textContent = next;
-    }
+  // Normalize tech-row colored pill labels (covers any panel rendering via shared code)
+  document.querySelectorAll('.pageTechDash .techTiles .tLbl').forEach(n=>{
+    const t = (n.textContent || "").trim();
+    if(!t) return;
+    const next = t
+      .replace(/^SOLD\/ASRS$/i, "Sold/ASRs")
+      .replace(/^SOLD\/ASR$/i, "Sold/ASRs")
+      .replace(/^SOLD\/RO$/i, "Sold/RO")
+      .replace(/^SOLD\/GOAL$/i, "Sold/Goal")
+      .replace(/^ASR\/GOAL$/i, "ASR/Goal")
+      .replace(/^ASRS\/RO$/i, "ASRs/RO");
+    if(next !== t) n.textContent = next;
   });
-
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
     const ctl=el.getAttribute('data-ctl');
