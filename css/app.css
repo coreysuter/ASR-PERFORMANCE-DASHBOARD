@@ -2159,7 +2159,7 @@ body.route-tech .svcGauge .pctTitle{
 }
 
 
-/* === renderTech: section header pills next to section name (Avg ODO / ROs / ASRs / Sold/ASRs) === */
+/* === renderTech: section header pills next to section name (Avg ODO / ROs / ASRs / Sold/ASR) === */
 
 body.route-tech .secNamePills{
   display:flex;
@@ -2245,13 +2245,14 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
 }
 
 
-/* === Technician Dashboard (renderMain): TechRow colored pill casing + 10px font (labels + values) === */
-.pageTechDash .techRow.dashTechRow .pill .k,
-.pageTechDash .techRow.dashTechRow .pill .v{
+/* === Technician Dashboard (renderMain): FORCE TechRow colored pill casing + 10px font (labels + values) === */
+.pageTechDash .techRow .pill .k,
+.pageTechDash .techRow .pill .v{
   font-size:10px !important;
   line-height:1.05 !important;
 }
-.pageTechDash .techRow.dashTechRow .pill .k{
-  text-transform:none !important;
+.pageTechDash .techRow .pill .k{
+  text-transform:none !important; /* defeat any global uppercase */
   letter-spacing:.15px !important;
 }
+
