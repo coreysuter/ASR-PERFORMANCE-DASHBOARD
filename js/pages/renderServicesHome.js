@@ -506,12 +506,14 @@ function serviceGoalDial(pct, sz){
     subVal = asrPerRo;  subLbl = 'ASRs/RO';
   }
   if(focus === 'goal'){
-    // show the selected goal metric % of goal big
-    topVal = (goalMetric==='sold') ? goalsAgg.soldPctOfGoal : goalsAgg.asrPctOfGoal;
-    // When Focus=GOAL, do NOT show the word "Goal" in the focus stat label
-    topLbl = (goalMetric==='sold') ? 'SOLD' : 'ASR';
-    subVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
-    subLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
+    // When Focus=GOAL, do NOT show the goal % here.
+    // Instead, show the per-RO metric that corresponds to the selected goal:
+    //   Goal/ASR  -> ASRs/RO
+    //   Goal/SOLD -> Sold/RO
+    topVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
+    topLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
+    subVal = (goalMetric==='sold') ? asrPerRo : soldPerRo;
+    subLbl = (goalMetric==='sold') ? 'ASRs/RO' : 'Sold/RO';
   }
 
   // Header panel (copied structure from Technician Dashboard)
