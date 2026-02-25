@@ -2132,7 +2132,7 @@ body.route-tech .techH2Big{font-size:34px !important;}
 .pageTechDash .catHeaderSplit .pill .v,
 .pageTechDash .catHeaderSplit .pill .v *{font-size:18px !important;line-height:1.05 !important;}
 .pageTechDash .catHeaderSplit .pill .k,
-.pageTechDash .catHeaderSplit .pill .k *{font-size:15px !important;line-height:1.05 !important;text-transform:none !important;}
+.pageTechDash .catHeaderSplit .pill .k *{font-size:13px !important;line-height:1.05 !important;text-transform:none !important;}
 
 /* Mini stats under technician names (tech rows) */
 .pageTechDash .techRow .cell .val{font-size:15px !important;line-height:1.05 !important;}
