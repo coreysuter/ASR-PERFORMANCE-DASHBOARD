@@ -256,6 +256,14 @@ function renderTech(techId){
       /* Filters: keep the selected display value white, but dropdown option text black */
       .controls select{color:#fff}
       .controls select option{color:#000}
+
+      /* CatCard (service tiles) dial label sizing */
+      body.route-tech .catCard .catHeader .svcGauge .pctSub,
+      body.route-tech .catCard .catHeader .svcGauge .pctTitle{
+        font-size:12px !important;
+        letter-spacing:.25px !important;
+      }
+
 `;
     document.head.appendChild(st);
   })();
@@ -745,7 +753,7 @@ const tb = getTeamBenchmarks(cat, team) || {};
       if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
       hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR")))}</div>
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:72px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%")))}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:72px"></div>`;
 
     const rk = rankFor(cat);
@@ -855,7 +863,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold":(focus==="goal"?"Goal":"ASR"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:72px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%"))) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
@@ -969,10 +977,10 @@ const goalFocusLbl = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
 
 // Focus dial: when focus=goal, use the selected goal metric (ASR Goal or Sold Goal)
 const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? goalFocusPct : pctAsr);
-const focusLbl = (focus==="sold") ? "Sold%" : (focus==="goal" ? goalFocusLbl : "ASR%");
+const focusLbl = (focus==="sold") ? "Sold%" : (focus==="goal" ? goalFocusLbl : "ASRs/RO");
 
 const dialASR = Number.isFinite(pctAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASR%")}</div>`
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASRs/RO")}</div>`
   : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialSold = Number.isFinite(pctSold)
   ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold%")}</div>`
