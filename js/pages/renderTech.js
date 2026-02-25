@@ -625,6 +625,13 @@ function countBandsFor(mode){
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
   const __soldPerRoTxt = Number.isFinite(__soldPerRoVal) ? fmt1(__soldPerRoVal, 1) : "—";
 
+  // Header focus stats: when Focus=Goal, mirror the exact stats for the selected goal metric.
+  const __effFocusHdr = (focus==="goal") ? goalMetric : focus; // "asr" | "sold"
+  const __topFocusVal = (__effFocusHdr==="sold") ? __soldPerRoTxt : __asrPerRoTxt;
+  const __topFocusLbl = (__effFocusHdr==="sold") ? "Sold/RO" : "ASRs/RO";
+  const __botFocusVal = (__effFocusHdr==="sold") ? __asrPerRoTxt : __soldPerRoTxt;
+  const __botFocusLbl = (__effFocusHdr==="sold") ? "ASRs/RO" : "Sold/RO";
+
 
   const __fullName = String(t.name||"").trim();
   const __parts = __fullName.split(/\s+/).filter(Boolean);
@@ -651,15 +658,17 @@ const header = `
             </div>
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
-            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
-              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+            <div class="techFocusStatsPinned" style="text-align:right;line-height:1;align-self:center;display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-right:4px;">
+              <div class="techFocusTop" style="text-align:right">
+                <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__topFocusVal}</div>
+                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__topFocusLbl}</div>
+              </div>
+              <div class="techFocusBottom" style="text-align:right">
+                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:rgba(255,255,255,.82);">${__botFocusVal}</div>
+                <div style="margin-top:4px;font-size:13px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.55);text-transform:none;">${__botFocusLbl}</div>
+              </div>
             </div>
-            <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
-  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
-</div>
-${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div></div>
         <div class="pillsMini" style="margin-top:8px !important; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
   <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
