@@ -762,7 +762,7 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const sdDialSz = 64; // 25% smaller than header goal dials (85px)
+      const sdDialSz = 80; // +25% vs prior (was 64px)
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
