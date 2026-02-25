@@ -22,9 +22,6 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .pill{display:inline-flex;gap:8px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(0,0,0,.25)}
 .pill .k{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.2px;text-transform:uppercase}
 .pill .v{font-size:18px;font-weight:1000;line-height:1}
-
-/* Tech detail header pills: force stat values to pure white */
-body.route-tech .techHeaderPanel .pill .v{color:#fff !important;}
 .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .controls label{display:block;font-size:11px;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.2px;margin-bottom:6px}
 select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);outline:none}
@@ -356,6 +353,35 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 .menuGroup summary{display:flex;align-items:center;gap:6px;}
 .menuGroup>summary{cursor:pointer;font-weight:1100;list-style:none}
 .menuGroup>summary::-webkit-details-marker{display:none}
+
+/* Menu expand/collapse indicator (+ / −) */
+.menuGroup>summary::before{
+  content:"+";
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:14px;
+  height:14px;
+  margin-right:2px;
+  font-weight:1200;
+  opacity:.9;
+}
+.menuGroup[open]>summary::before{content:"−";}
+
+.menuSub>summary{list-style:none;cursor:pointer}
+.menuSub>summary::-webkit-details-marker{display:none}
+.menuSub>summary::before{
+  content:"+";
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:12px;
+  height:12px;
+  margin-right:6px;
+  font-weight:1200;
+  opacity:.85;
+}
+.menuSub[open]>summary::before{content:"−";}
 .menuLink{display:block;margin-top:8px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);text-decoration:none;color:var(--text);background:rgba(0,0,0,.18);font-weight:900}
 .menuLink:hover{background:rgba(0,0,0,.28)}
 
@@ -1293,7 +1319,7 @@ body.route-tech .catTitle .meta{
   font-size: calc(var(--h) * 0.14);
   font-weight:1100;
   letter-spacing:.35px;
-  text-transform:uppercase;
+  text-transform:none !important;
   color:rgba(234,240,255,.90);
   line-height:1;
 }
@@ -1312,7 +1338,8 @@ body.route-tech .catTitle .meta{
   color:rgba(234,240,255,.96);
 }
 .rankFocusBadge .rfbMain::before{
-  content:"#";
+  content:"";
+  display:none;
   position:absolute;
   left: calc(50% - (var(--w) * 0.22));
   top: 50%;
@@ -2098,14 +2125,14 @@ body.route-tech .techH2Big{font-size:34px !important;}
 
 
 /* === Scoped: Main Technician Dashboard (renderMain) typography overrides === */
-.pageTechDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
+.pageTechDash .techHeaderPanel .pills .pill .v{font-size:22px !important;line-height:1.05 !important;}
 .pageTechDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;text-transform:none !important;color:rgba(255,255,255,.55) !important;}
 
 /* EXPRESS/KIA category header pills */
 .pageTechDash .catHeaderSplit .pill .v,
-.pageTechDash .catHeaderSplit .pill .v *{font-size:22px !important;line-height:1.05 !important;}
+.pageTechDash .catHeaderSplit .pill .v *{font-size:18px !important;line-height:1.05 !important;}
 .pageTechDash .catHeaderSplit .pill .k,
-.pageTechDash .catHeaderSplit .pill .k *{font-size:14px !important;line-height:1.05 !important;text-transform:none !important;}
+.pageTechDash .catHeaderSplit .pill .k *{font-size:15px !important;line-height:1.05 !important;text-transform:none !important;}
 
 /* Mini stats under technician names (tech rows) */
 .pageTechDash .techRow .cell .val{font-size:15px !important;line-height:1.05 !important;}
@@ -2116,11 +2143,11 @@ body.route-tech .techH2Big{font-size:34px !important;}
 /* === PATCH 2026-02-18: Tech details header pills + category header bottom focus stat === */
 /* Tech Details / Group pages (body.route-tech): header pills sizing */
 body.route-tech .techHeaderPanel .pills .pill .v{
-  font-size:22px !important;
+  font-size:18px !important;
   line-height:1.05 !important;
 }
 body.route-tech .techHeaderPanel .pills .pill .k{
-  font-size:14px !important;
+  font-size:15px !important;
   line-height:1.05 !important;
   color:rgba(255,255,255,.55) !important;
   text-transform:none !important;
@@ -2247,3 +2274,151 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
   transform:scale(1.02);
 }
 
+/* === PATCH 2026-02-24: svcMetaLine (tech details) font + casing ===
+   - Set muted svcMetaLine to 14px
+   - Preserve casing (ROs / ASRs / Sold) by disabling uppercase transforms
+   Scoped to tech details only.
+*/
+body.route-tech .muted.svcMetaLine,
+body.route-tech .svcMetaLine{
+  font-size:14px !important;
+  text-transform:none !important;
+  letter-spacing:.2px !important;
+  font-weight:900 !important;
+  color:var(--muted) !important;
+}
+
+
+/* === PATCH 2026-02-24: TechRow colored pills value sizing (Technician Dashboard only) === */
+/* Labels stay 10px; values (numbers/%/ratios) 16px; values in the active Focus group 17px */
+.pageTechDash .techRow.dashTechRow .pill .k{
+  font-size:10px !important;
+  line-height:1.05 !important;
+  text-transform:none !important;
+  letter-spacing:.15px !important;
+}
+.pageTechDash .techRow.dashTechRow .pill .v{
+  font-size:16px !important;
+  line-height:1.05 !important;
+}
+.pageTechDash .techRow.dashTechRow .pillGroup.focusGroup .pill .v{
+  font-size:17px !important;
+}
+
+
+/* === PATCH 2026-02-25: Requested sizing tweaks === */
+/* Header (top-right) tags on Technician Dashboard */
+.pageTechDash .techHeaderPanel .overallBlock .tag,
+.pageTechDash .techHeaderPanel .tag{
+  font-size:14px !important;
+}
+
+/* EXPRESS / KIA catHeader pill padding + label sizing */
+.pageTechDash .catHeaderSplit .pill{
+  padding:7px 10px !important;
+}
+
+/* Tech Details: section header right stats */
+body.route-tech .secHdrStats .secStatVal{
+  font-size:26px !important;
+}
+body.route-tech .secHdrStats .secStatTitle{
+  font-size:13px !important;
+}
+
+
+/* === PATCH 2026-02-25: CatHeader (EXPRESS/KIA) right stats sizing + muted tags === */
+.pageTechDash .catHeaderSplit .catRank .rankNum.sub{font-size:26px !important;}
+.pageTechDash .catHeaderSplit .catRank .rankLbl,
+.pageTechDash .catHeaderSplit .catRank .rankLbl.sub{
+  font-size:13px !important;
+  color:var(--muted) !important;
+}
+
+/* === PATCH 2026-02-25: Tech Details catCard header dial sizing (+25%) ===
+   Targets the service catCards (Rotate, Alignment, etc.) ONLY.
+   Does NOT affect the Category titleRow dials (Maintenance/Fluids/Brakes/Tires).
+*/
+body.route-tech .catCard .catHeader .svcGaugeWrap{
+  --sz:74px !important; /* match Category titleRow mini dials */
+  width:var(--sz) !important;
+  height:var(--sz) !important;
+  flex:0 0 var(--sz) !important;
+}
+body.route-tech .catCard .catHeader .svcGauge{
+  --sz:74px !important;
+  width:var(--sz) !important;
+  height:var(--sz) !important;
+}
+
+
+
+/* === PATCH 2026-02-25: CatCard dial label +% and Category header dial label ASRs/RO === */
+
+/* Service catCards (Rotate, Alignment, etc.): dial label 12px and append % (ASR% / Sold%) */
+body.route-tech .catCard .catHeader .svcGauge .pctSub{
+  font-size:12px !important;
+  letter-spacing:.25px !important;
+}
+body.route-tech .catCard .catHeader .svcGauge .pctSub::after{
+  content:"%";
+  margin-left:1px;
+}
+
+/* Category titleRows (Maintenance, Fluids, Brakes, Tires): show ASRs/RO instead of ASR% inside mini + focus dials */
+body.route-tech .secMiniDials .svcGauge .pctSub,
+body.route-tech .secFocusDial .svcGauge .pctSub{
+  position:relative !important;
+  color:transparent !important; /* hide original (e.g., ASR%) */
+}
+body.route-tech .secMiniDials .svcGauge .pctSub::after,
+body.route-tech .secFocusDial .svcGauge .pctSub::after{
+  content:"ASRs/RO";
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.90);
+  white-space:nowrap;
+}
+
+
+/* === PATCH 2026-02-25: Tech Details pill + header stat sizing adjustments (requested) ===
+   - Tech header pills: 16px label / 20px value, padding 8px 12px
+   - Category titleRow pills (secNamePills): 15px label / 18px value, padding 7px 10px
+   - Category titleRow focus stat (top): 36px (ensure not overridden), secondary: 28px
+*/
+body.route-tech .techHeaderPanel .pillMini{
+  padding:8px 12px !important;
+}
+body.route-tech .techHeaderPanel .pillMini .k{
+  font-size:16px !important;
+  line-height:1.05 !important;
+}
+body.route-tech .techHeaderPanel .pillMini .v,
+body.route-tech .techHeaderPanel .pillMini .v *{
+  font-size:20px !important;
+  line-height:1.05 !important;
+}
+
+/* Section header pills (Maintenance/Fluids/etc. title row) */
+body.route-tech .secNamePills .pill{
+  padding:7px 10px !important;
+  gap:8px !important;
+}
+body.route-tech .secNamePills .pill .k{
+  font-size:15px !important;
+  line-height:1.05 !important;
+  text-transform:none !important;
+}
+body.route-tech .secNamePills .pill .v{
+  font-size:18px !important;
+  line-height:1.05 !important;
+}
+
+/* Category titleRow focus stats sizing */
+body.route-tech .secHdrStats .secStatBlock:first-child .secStatVal{
+  font-size:36px !important;
+}
+body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{
+  font-size:28px !important;
+}
