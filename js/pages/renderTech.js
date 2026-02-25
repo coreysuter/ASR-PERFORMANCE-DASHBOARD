@@ -311,8 +311,9 @@ const hash = location.hash || "";
     let top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? ((goalMetric==="sold") ? "Sold Goal" : "ASR Goal") : "ASR");
     // ASR focus: use context-specific labels
     if(focus==="asr"){
-      if(size==="dial") top = "ASRs/RO";
-      else if(size==="sm") top = "ASR%";
+      // Tech header + section header badges should show ASRs/RO; service catCards use ASR%
+      if(size==="sm") top = "ASR%";
+      else top = "ASRs/RO";
     }
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
