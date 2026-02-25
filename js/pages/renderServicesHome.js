@@ -151,6 +151,17 @@ function renderServicesHome(){
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
 
+      /* sdCatHdrRow rank badge: +15% size and adjust # position for double-digits */
+      .pageServicesDash .sdCatHdrRow .rankFocusBadge.sm{
+        transform:scale(1.15);
+        transform-origin: top right;
+      }
+      /* Move the hash up/left so it hugs the top-left of the number (esp. 2 digits) */
+      .pageServicesDash .sdCatHdrRow .rankFocusBadge.sm .rfbMain::before{
+        left: calc(50% - (var(--w) * 0.27));
+        transform: translate(-50%,-58%);
+      }
+
       .pageServicesDash .sdCatHdrRow .pctText{display:flex;align-items:center;justify-content:center;}
       @media (max-width: 540px){
         .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
