@@ -447,8 +447,8 @@ function brakeRowHtml(key,label,mappedCat){
 app.innerHTML = `
   <!-- Dock row: hamburger OUTSIDE the main panel, directly to the left -->
   <div class="goalsDockRow" style="display:flex; align-items:stretch; gap:14px; width:100%;">
-    <div class="goalsDock" style="flex:0 0 auto; display:flex; align-items:flex-start; padding-top:12px;">
-      <label for="menuToggle" class="hamburger" aria-label="Menu">☰</label>
+    <div class="panel goalsDock" style="flex:0 0 auto; display:flex; align-items:flex-start; justify-content:center; padding:10px; border:1px solid rgba(255,255,255,0.18); border-radius:14px; background:inherit;">
+      <label for="menuToggle" class="hamburger" aria-label="Menu" style="font-size:1.5em; line-height:1; display:flex; align-items:center; justify-content:center; padding:8px 10px; cursor:pointer;">☰</label>
     </div>
 
     <div class="panel goalsBig halfPage" style="flex:1; min-width:0;">
