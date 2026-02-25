@@ -972,8 +972,10 @@ function ensureDashTypographyOverrides(){
 
 
 /* === Requested: EXPRESS/KIA category header pills font sizing === */
-.catDashPills .pill .v{font-size:22px !important; line-height:1.05 !important;}
-.catDashPills .pill .k{font-size:14px !important; line-height:1.05 !important; text-transform:none !important;}
+.catDashPills .pill .v{font-size:18px !important; line-height:1.05 !important;}
+.catDashPills .pill .k{font-size:13px !important; line-height:1.05 !important; text-transform:none !important;}
+/* Requested: EXPRESS/KIA category header pills padding */
+.catDashPills .pill{padding:7px 10px !important;}
 
 /* === Requested: Technician mini stats under names (tnVal/tnLbl) === */
 .techRow .techNameStats .tnVal{font-size:15px !important; line-height:1 !important;}

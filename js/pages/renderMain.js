@@ -126,7 +126,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
           .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
 
           /* Tech header stat pills sizing (requested) */
-          .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
+          .techHeaderPanel .pills .pill .v{font-size:22px !important;line-height:1.05 !important;}
           .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
           /* Make the header filters 30% wider than the base app.css sizing */
@@ -163,7 +163,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             </div>
             <div class="tag">${topStatLbl}</div>
 
-            <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
+            <div class="overallMetric" style="font-size:26px;line-height:1.05;color:#fff;font-weight:1000">
               ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmt1(subStatVal,2))}
             </div>
             <div class="tag">${subStatLbl}</div>

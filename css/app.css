@@ -2124,14 +2124,14 @@ body.route-tech .techH2Big{font-size:34px !important;}
 
 
 /* === Scoped: Main Technician Dashboard (renderMain) typography overrides === */
-.pageTechDash .techHeaderPanel .pills .pill .v{font-size:26px !important;line-height:1.05 !important;}
+.pageTechDash .techHeaderPanel .pills .pill .v{font-size:22px !important;line-height:1.05 !important;}
 .pageTechDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;text-transform:none !important;color:rgba(255,255,255,.55) !important;}
 
 /* EXPRESS/KIA category header pills */
 .pageTechDash .catHeaderSplit .pill .v,
-.pageTechDash .catHeaderSplit .pill .v *{font-size:22px !important;line-height:1.05 !important;}
+.pageTechDash .catHeaderSplit .pill .v *{font-size:18px !important;line-height:1.05 !important;}
 .pageTechDash .catHeaderSplit .pill .k,
-.pageTechDash .catHeaderSplit .pill .k *{font-size:14px !important;line-height:1.05 !important;text-transform:none !important;}
+.pageTechDash .catHeaderSplit .pill .k *{font-size:13px !important;line-height:1.05 !important;text-transform:none !important;}
 
 /* Mini stats under technician names (tech rows) */
 .pageTechDash .techRow .cell .val{font-size:15px !important;line-height:1.05 !important;}
@@ -2302,4 +2302,25 @@ body.route-tech .svcMetaLine{
 }
 .pageTechDash .techRow.dashTechRow .pillGroup.focusGroup .pill .v{
   font-size:17px !important;
+}
+
+
+/* === PATCH 2026-02-25: Requested sizing tweaks === */
+/* Header (top-right) tags on Technician Dashboard */
+.pageTechDash .techHeaderPanel .overallBlock .tag,
+.pageTechDash .techHeaderPanel .tag{
+  font-size:14px !important;
+}
+
+/* EXPRESS / KIA catHeader pill padding + label sizing */
+.pageTechDash .catHeaderSplit .pill{
+  padding:7px 10px !important;
+}
+
+/* Tech Details: section header right stats */
+body.route-tech .secHdrStats .secStatVal{
+  font-size:26px !important;
+}
+body.route-tech .secHdrStats .secStatTitle{
+  font-size:13px !important;
 }
