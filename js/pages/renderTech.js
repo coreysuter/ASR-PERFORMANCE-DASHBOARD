@@ -308,7 +308,12 @@ const hash = location.hash || "";
 
   // Focus Rank Badge (replaces x/x rankings)
   function rankBadgeHtml(rank, total, focus, size="lg"){
-    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR");
+    let top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR");
+    // ASR focus: use context-specific labels
+    if(focus==="asr"){
+      if(size==="dial") top = "ASRs/RO";
+      else if(size==="sm") top = "ASR%";
+    }
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
