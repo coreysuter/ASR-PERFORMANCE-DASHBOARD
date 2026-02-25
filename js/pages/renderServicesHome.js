@@ -557,7 +557,7 @@ function serviceGoalDial(pct, sz){
 
           <div class="overallBlock">
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topVal===null ? "—" : (focus==='goal' ? fmtPct(topVal) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
+              ${topVal===null ? "—" : (focus==='goal' ? fmt1(topVal,2) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
             </div>
             <div class="tag">${safe(topLbl)}</div>
 
