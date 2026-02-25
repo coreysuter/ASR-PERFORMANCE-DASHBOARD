@@ -369,16 +369,6 @@ function renderServicesHome(){
     }
     const uniq = Array.from(new Set(activeCats));
 
-    // Sum GOALS across active categories
-    let gAsr = 0;   // sum(goal ASR/RO) across cats
-    let gSold = 0;  // sum(goal sold/RO) approx = sum(goalReq * goalClose)
-    for(const cat of uniq){
-      const gReq = Number(getGoal(cat,'req'));
-      const gClose = Number(getGoal(cat,'close'));
-      if(Number.isFinite(gReq)) gAsr += gReq;
-      if(Number.isFinite(gReq) && Number.isFinite(gClose)) gSold += (gReq * gClose);
-    }
-
     // Sum ACTUALS across the SAME active categories (team-scoped techs)
     let aRos = 0, aAsr = 0, aSold = 0;
     for(const t of techs){
@@ -391,13 +381,31 @@ function renderServicesHome(){
       }
     }
 
-    const asrPerRoActive  = aRos ? (aAsr/aRos) : null;
-    const soldPerRoActive = aRos ? (aSold/aRos) : null;
+    const asrPerRoActive  = aRos ? (aAsr/aRos) : null;     // ASR/RO (ratio)
+    const soldPerRoActive = aRos ? (aSold/aRos) : null;    // Sold/RO (ratio)
 
-    const asrPctOfGoal  = (Number.isFinite(asrPerRoActive)  && Number.isFinite(gAsr)  && gAsr>0)  ? (asrPerRoActive/gAsr)  : null;
-    const soldPctOfGoal = (Number.isFinite(soldPerRoActive) && Number.isFinite(gSold) && gSold>0) ? (soldPerRoActive/gSold) : null;
+    // Compare ACTIVE focus stats to OVERALL goals from Goals page
+    // Overall ASR/RO goal:
+    const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
+    // Overall SOLD/RO goal is derived from overall ASR/RO goal * overall Sold% goal:
+    const gCloseOverall = Number(getGoal('__META_GLOBAL','close'));
+    const gSoldRoOverall = (Number.isFinite(gReqOverall) && Number.isFinite(gCloseOverall))
+      ? (gReqOverall * gCloseOverall)
+      : NaN;
 
-    return {gAsr, gSold, asrPctOfGoal, soldPctOfGoal};
+    const asrPctOfGoal  = (Number.isFinite(asrPerRoActive)  && Number.isFinite(gReqOverall)    && gReqOverall>0)    ? (asrPerRoActive/gReqOverall)    : null;
+    const soldPctOfGoal = (Number.isFinite(soldPerRoActive) && Number.isFinite(gSoldRoOverall) && gSoldRoOverall>0) ? (soldPerRoActive/gSoldRoOverall) : null;
+
+    return {
+      activeCats: uniq,
+      aRos, aAsr, aSold,
+      asrPerRoActive,
+      soldPerRoActive,
+      gReqOverall,
+      gSoldRoOverall,
+      asrPctOfGoal,
+      soldPctOfGoal
+    };
   }
 
   const goalsAgg = _storeGoalRatios();
@@ -438,8 +446,8 @@ function renderServicesHome(){
 
   // --- Header: goal focus dials (match Tech Details focus dial: % + arrow + GOAL stacked) ---
   function headerGoalDial(pct){
-    const p = Number(pct);
-    const finite = Number.isFinite(p);
+    const finite = (pct!==null && pct!==undefined && Number.isFinite(Number(pct)));
+    const p = finite ? Number(pct) : NaN;
     const pClamped = finite ? Math.max(0, p) : 0;
     const ring = Math.round(Math.min(pClamped, 1) * 100);
 
@@ -598,9 +606,9 @@ function serviceGoalDial(pct, sz){
     // Instead, show the per-RO metric that corresponds to the selected goal:
     //   Goal/ASR  -> ASRs/RO
     //   Goal/SOLD -> Sold/RO
-    topVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
+    topVal = (goalMetric==='sold') ? goalsAgg.soldPerRoActive : goalsAgg.asrPerRoActive;
     topLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
-    subVal = (goalMetric==='sold') ? asrPerRo : soldPerRo;
+    subVal = (goalMetric==='sold') ? goalsAgg.asrPerRoActive : goalsAgg.soldPerRoActive;
     subLbl = (goalMetric==='sold') ? 'ASRs/RO' : 'Sold/RO';
   }
 
