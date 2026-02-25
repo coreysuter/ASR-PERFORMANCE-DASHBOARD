@@ -665,7 +665,7 @@ const header = `
                 <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__topFocusLbl}</div>
               </div>
               <div class="techFocusBottom" style="text-align:right">
-                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:rgba(255,255,255,.82);">${__botFocusVal}</div>
+                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__botFocusVal}</div>
                 <div style="margin-top:4px;font-size:13px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.55);text-transform:none;">${__botFocusLbl}</div>
               </div>
             </div>
@@ -855,7 +855,7 @@ return `
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
-              <span class="svcMetaTopLine">${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><span class="svcMetaSoldLine">${fmt1(soldCount,0)} Sold</span>
+              <span class="svcMetaTopLine">${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><br><span class="svcMetaSoldLine" style="display:block;margin-top:2px;">${fmt1(soldCount,0)} Sold</span>
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
