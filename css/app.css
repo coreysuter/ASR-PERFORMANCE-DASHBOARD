@@ -2244,3 +2244,18 @@ body.route-tech .techPickPanel.diagSection .diagPieSlice:hover{
   transform:scale(1.02);
 }
 
+
+/* === Technician Dashboard (renderMain): colored TechRow pill casing + sizing === */
+.pageTechDash .techTiles .techTile .tLbl,
+.pageTechDash .techTiles .techTile .tVal,
+.pageTechDash .techTile .tLbl,
+.pageTechDash .techTile .tVal{
+  font-size:10px !important;
+  line-height:1.05 !important;
+}
+.pageTechDash .techTiles .techTile .tLbl,
+.pageTechDash .techTile .tLbl{
+  text-transform:none !important;
+  letter-spacing:.15px !important;
+}
+

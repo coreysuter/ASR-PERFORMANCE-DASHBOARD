@@ -10,17 +10,6 @@ function renderMain(){
     document.head.appendChild(el);
   }
   el.textContent = `
-    /* Tech row colored pills (stat tiles): requested sizing + casing */
-    .pageTechDash .techTiles .techTile .tLbl,
-    .pageTechDash .techTiles .techTile .tVal{
-      font-size:10px !important;
-      line-height:1.05 !important;
-    }
-    .pageTechDash .techTiles .techTile .tLbl{
-      text-transform:none !important;
-      letter-spacing:.15px !important;
-    }
-
     /* Scope EVERYTHING to main technician dashboard only */
     /* Add breathing room so the header panel never visually overlaps the two team panels */
     .pageTechDash .techHeaderPanel{
@@ -54,6 +43,10 @@ function renderMain(){
     if(state.EXPRESS.goalMetric !== undefined) state.KIA.goalMetric = state.EXPRESS.goalMetric;
     if(state.EXPRESS.compare !== undefined) state.KIA.compare = state.EXPRESS.compare;
   }
+
+  // Force Technician Dashboard filter to Fluids Only (per request)
+  if(state && state.EXPRESS) state.EXPRESS.filterKey = "fluids_only";
+  if(state && state.KIA) state.KIA.filterKey = "fluids_only";
 
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA"))
@@ -151,7 +144,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
         <div class="mainFiltersBar">
           <div class="controls mainAlwaysOpen">
             <div>
-              <label>Filter</label>
+              <label>Fluids</label>
               <select data-scope="main" data-ctl="filter">
                 <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
                 <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
@@ -201,21 +194,31 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
 
   app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
 
-  // Normalize tech-row colored pill labels (covers any panel rendering via shared code)
-  document.querySelectorAll('.pageTechDash .techTiles .tLbl').forEach(n=>{
-    const t = (n.textContent || "").trim();
-    if(!t) return;
-    const next = t
-      .replace(/^SOLD\/ASRS$/i, "Sold/ASRs")
-      .replace(/^SOLD\/ASR$/i, "Sold/ASRs")
-      .replace(/^SOLD\/RO$/i, "Sold/RO")
-      .replace(/^SOLD\/GOAL$/i, "Sold/Goal")
-      .replace(/^ASR\/GOAL$/i, "ASR/Goal")
-      .replace(/^ASRS\/RO$/i, "ASRs/RO");
-    if(next !== t) n.textContent = next;
-  });
+// Normalize colored TechRow pill labels (covers any panel rendering via shared code)
+  (function normalizeTechRowPills(){
+    const map = [
+      [/\bSOLD\s*\/\s*ASRS\b/gi, "Sold/ASRs"],
+      [/\bSOLD\s*\/\s*ASR\b/gi,  "Sold/ASRs"],
+      [/\bSOLD\s*\/\s*RO\b/gi,   "Sold/RO"],
+      [/\bSOLD\s*\/\s*GOAL\b/gi, "Sold/Goal"],
+      [/\bASR\s*\/\s*GOAL\b/gi,  "ASR/Goal"],
+      [/\bASRS\s*\/\s*RO\b/gi,   "ASRs/RO"],
+    ];
+
+    const nodes = document.querySelectorAll(
+      ".pageTechDash .techTiles .tLbl, .pageTechDash .techTile .tLbl, .pageTechDash .statTile .tLbl"
+    );
+    nodes.forEach(n=>{
+      let t = (n.textContent || "").trim();
+      if(!t) return;
+      const orig = t;
+      for(const [rx, rep] of map) t = t.replace(rx, rep);
+      if(t !== orig) n.textContent = t;
+    });
+  })();
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
+
     const ctl=el.getAttribute('data-ctl');
     const scope=el.getAttribute('data-scope');
     const team=el.getAttribute('data-team');
