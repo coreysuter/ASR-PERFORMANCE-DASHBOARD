@@ -28,19 +28,16 @@
       </div>
 
       <!-- Services Dashboard (TOP) -->
-      <details class="menuGroup" open>
-        <summary style="font-weight:800;">
-          <span class="mIcon asrIcon" aria-hidden="true" style="font-weight:800;">
-            <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
-              <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
-              <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
-              <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
-            </svg>
-          </span>
-          Services Dashboard
-        </summary>
-        <div id="asrMenuLinks"></div>
-      </details>
+      <a class="menuLink topLink" href="#/servicesHome" style="font-weight:800;">
+        <span class="mIcon asrIcon" aria-hidden="true" style="font-weight:800;">
+          <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
+            <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+            <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
+            <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
+          </svg>
+        </span>
+        Services Dashboard
+      </a>
 
       <!-- Technician Dashboard -->
       <a class="menuLink topLink" href="#/" style="font-weight:800;">
@@ -48,21 +45,16 @@
         Technician Dashboard
       </a>
 
-      <details class="menuGroup" open>
-        <summary style="font-weight:800;">
-          <span class="mIcon" aria-hidden="true" style="font-weight:800;">🔧</span>
-          Technicians
-        </summary>
+      <!-- Express Techs -->
+      <details class="menuGroup menuSubTop" open>
+        <summary class="menuSubHdr">Express Techs</summary>
+        <div id="menuTechListExpress" class="menuTechList"></div>
+      </details>
 
-        <details class="menuSub" open>
-          <summary style="font-weight:800;font-size:13px;">Express Techs</summary>
-          <div id="menuTechListExpress" style="margin-left:10px;"></div>
-        </details>
-
-        <details class="menuSub">
-          <summary style="font-weight:800;font-size:13px;">Kia Techs</summary>
-          <div id="menuTechListKia" style="margin-left:10px;"></div>
-        </details>
+      <!-- Kia Techs -->
+      <details class="menuGroup menuSubTop">
+        <summary class="menuSubHdr">Kia Techs</summary>
+        <div id="menuTechListKia" class="menuTechList"></div>
       </details>
 
       <!-- Settings -->
