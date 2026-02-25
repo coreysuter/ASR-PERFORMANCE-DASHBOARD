@@ -24,6 +24,14 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
       .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
+      /* Section header layout: title on top + pills below */
+      .pageServicesDash .svcDashSecHead{align-items:flex-start;}
+      .pageServicesDash .svcDashSecHeadLeft{min-width:0;display:flex;flex-direction:column;gap:10px;}
+      .pageServicesDash .secHeadTop{display:flex;align-items:flex-start;gap:10px;min-width:0;}
+      .pageServicesDash .svcDashSecPills{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+      .pageServicesDash .svcDashSecPills .pillMini{padding:6px 10px;}
+      .pageServicesDash .svcDashSecPills .pillMini .k{font-size:11px;text-transform:none;}
+      .pageServicesDash .svcDashSecPills .pillMini .v{font-size:14px;}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
@@ -810,6 +818,26 @@ function serviceGoalDial(pct, sz){
     }
     const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
 
+    // ---- Section rollups (team-filtered techs only) ----
+    // IMPORTANT: ROs are NOT summed per service (would double-count). We use tech ROs once.
+    const svcSet = new Set(services);
+    let secRos=0, secAsr=0, secSold=0;
+    let odoSum=0, odoCnt=0;
+    for(const t of techs){
+      const rosTech = Number(t.ros)||0;
+      secRos += rosTech;
+      const odo = Number(t.odo);
+      if(Number.isFinite(odo)) { odoSum += odo; odoCnt += 1; }
+      const cats = t.categories || {};
+      for(const k in cats){
+        if(!svcSet.has(k)) continue;
+        secAsr += Number(cats[k]?.asr)||0;
+        secSold += Number(cats[k]?.sold)||0;
+      }
+    }
+    const secAvgOdo = odoCnt ? (odoSum/odoCnt) : NaN;
+    const secSoldPerRo = secRos ? (secSold/secRos) : NaN;
+
     const aggs = services.map(buildServiceAgg);
 
     // Section averages (used for dials when not GOAL focus)
@@ -894,9 +922,18 @@ function serviceGoalDial(pct, sz){
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
-            <div class="secHeadRow">
-              <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
-              <div class="svcDashSecTitle">${safe(secName)}</div>
+            <div class="svcDashSecHeadLeft">
+              <div class="secHeadTop">
+                <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
+                <div class="svcDashSecTitle">${safe(secName)}</div>
+              </div>
+              <div class="svcDashSecPills pillsMini">
+                <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
+                <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>
+                <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
+                <div class="pillMini sold"><div class="k">Sold</div><div class="v">${fmtInt(secSold)}</div></div>
+                <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${fmt1(secSoldPerRo,2)}</div></div>
+              </div>
             </div>
             <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
           </div>
