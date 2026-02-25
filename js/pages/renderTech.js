@@ -290,6 +290,10 @@ const hash = location.hash || "";
       }
     }
   }
+
+  // expose focus to CSS for scoped label overrides
+  try{ document.body.dataset.techFocus = focus; document.body.dataset.techGoalMetric = goalMetric; }catch(e){}
+
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
   
@@ -837,7 +841,7 @@ return `
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
-              ${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs<br>${fmt1(soldCount,0)} Sold
+              <span class="svcMetaTopLine">${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><span class="svcMetaSoldLine">${fmt1(soldCount,0)} Sold</span>
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>

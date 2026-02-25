@@ -2281,3 +2281,59 @@ body.route-tech .catRank .rankLbl::after{
   text-align:center;
   color:rgba(234,240,255,.70);
 }
+
+
+
+/* ===============================
+   Tech Details fixes (scoped)
+   =============================== */
+body.route-tech .techHeaderPanel .pills .pill .k{
+  font-size:15px !important;
+  text-transform:none !important;
+}
+body.route-tech .techHeaderPanel .pills .pill .v{
+  font-size:18px !important;
+}
+body.route-tech .techHeaderPanel .pills .pill .v *{
+  font-size:18px !important;
+}
+
+/* svcMetaLine: mixed case + 14px and Sold on 2nd row */
+body.route-tech .svcMetaLine{
+  font-size:14px !important;
+  text-transform:none !important;
+  letter-spacing:.2px;
+}
+body.route-tech .svcMetaLine .svcMetaSoldLine{
+  display:block;
+  margin-top:2px;
+}
+
+/* Rank badge labels:
+   - Section titleRows (Maintenance/Fluids/etc.): ASRs/RO
+   - Service catCards: ASR%
+   Only when focus = ASR (set by renderTech via body[data-tech-focus]).
+*/
+body.route-tech[data-tech-focus="asr"] .secHdrRank .rankLbl{
+  font-size:0 !important;
+  text-transform:none !important;
+}
+body.route-tech[data-tech-focus="asr"] .secHdrRank .rankLbl::after{
+  content:"ASRs/RO";
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.3px;
+  opacity:.75;
+  text-transform:none;
+}
+
+body.route-tech[data-tech-focus="asr"] .catRank .rankLbl{
+  font-size:0 !important;
+}
+body.route-tech[data-tech-focus="asr"] .catRank .rankLbl::after{
+  content:"ASR%";
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.3px;
+  opacity:.75;
+}
