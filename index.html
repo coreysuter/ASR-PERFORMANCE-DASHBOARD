@@ -27,35 +27,34 @@
         <label for="menuToggle" class="menuClose" aria-label="Close menu" title="Close">✕</label>
       </div>
 
-      <a class="menuLink topLink" href="#/"><span class="mIcon">🔧</span>Technician Dashboard</a>
+      <a class="menuLink topLink" href="#/">Technician Dashboard</a>
 
-      <!-- Team pickers (collapsible) -->
       <details class="menuGroup" open>
-        <summary style="font-weight:1300;font-size:15px">Express</summary>
-        <div id="menuTechListExpress"></div>
+        <summary><span class="mIcon">🔧</span>Technicians</summary>
+
+        <details class="menuSub" open>
+          <summary>Express</summary>
+          <div id="menuTechListExpress"></div>
+        </details>
+
+        <details class="menuSub">
+          <summary>Kia</summary>
+          <div id="menuTechListKia"></div>
+        </details>
       </details>
 
-      <details class="menuGroup">
-        <summary>Kia</summary>
-        <div id="menuTechListKia"></div>
-      </details>
-
-      <!-- Services dashboard link (triangle icon) -->
-      <a class="menuLink" href="#/servicesHome">
-        <span class="mIcon asrIcon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
-            <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
-            <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
-            <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
-          </svg>
-        </span>
-        Services Dashboard
-      </a>
-
-      <!-- Categories (collapsible, sits below Services Dashboard) -->
       <details class="menuGroup" open>
-        <summary>Categories</summary>
-        <div id="menuCategoryLinks"></div>
+        <summary>
+          <span class="mIcon asrIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" class="asrSvg">
+              <path d="M12 3 L22 21 H2 Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+              <line x1="12" y1="9" x2="12" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round"></line>
+              <circle cx="12" cy="17" r="1.2" fill="#ffffff"></circle>
+            </svg>
+          </span>
+          Services
+        </summary>
+        <div id="asrMenuLinks"></div>
       </details>
 
       <details class="menuGroup">
@@ -90,7 +89,7 @@
   <script src="./js/pages/renderTech.js?v=1000"></script>
   <script src="./js/pages/renderGroupPage.js?v=4"></script>
   <script src="./js/pages/renderGoalsPage.js?v=10010"></script>
-  <script src="./js/pages/renderServicesHome.js?v=10006"></script>
+  <script src="./js/pages/renderServicesHome.js?v=4"></script>
   <script src="./js/pages/renderSettingsHome.js?v=10010"></script>
 
   <script type="module" src="./js/app.js?v=4"></script>

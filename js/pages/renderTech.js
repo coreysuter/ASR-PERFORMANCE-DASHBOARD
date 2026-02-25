@@ -334,7 +334,7 @@ const hash = location.hash || "";
     return `
       <div class="${cls}"${style}>
         <div class="rfbFocus" style="font-weight:1000;text-transform:none">${top}</div>
-        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
+        <div class="rfbMain" style="font-weight:1000">${r}</div>
         <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
       </div>
     `;

@@ -1338,7 +1338,8 @@ body.route-tech .catTitle .meta{
   color:rgba(234,240,255,.96);
 }
 .rankFocusBadge .rfbMain::before{
-  content:"#";
+  content:"";
+  display:none;
   position:absolute;
   left: calc(50% - (var(--w) * 0.22));
   top: 50%;
