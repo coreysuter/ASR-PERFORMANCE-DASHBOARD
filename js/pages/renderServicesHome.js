@@ -22,8 +22,23 @@ function renderServicesHome(){
       .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
 
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
+      .pageServicesDash .svcDashSecHeadLeft{display:flex;flex-direction:column;gap:6px;min-width:0;}
+      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:column;gap:10px;align-items:flex-end;min-width:0;}
+      .pageServicesDash .svcDashSecHeadRightTop{display:flex;align-items:flex-end;gap:12px;justify-content:flex-end;white-space:nowrap;}
+      .pageServicesDash .svcSecHeadDials{display:flex;align-items:flex-end;gap:10px;}
+      .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+      .pageServicesDash .svcDashSecPills{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;}
+
       .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
+
+      .pageServicesDash .svcDashSecRight{display:flex;align-items:flex-end;gap:18px;flex:0 0 auto;}
+      .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
+      .pageServicesDash .svcSecFocusValTop{font-size:36px;line-height:1;font-weight:1100;color:#fff;}
+      .pageServicesDash .svcSecFocusValBot{font-size:26px;line-height:1;font-weight:1000;color:var(--muted);}
+      .pageServicesDash .svcSecFocusLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;text-transform:none;}
+      .pageServicesDash .svcSecFocusLbl.muted{color:var(--muted);}
+
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
@@ -283,7 +298,7 @@ function renderServicesHome(){
 
 
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(3, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
@@ -303,14 +318,12 @@ function renderServicesHome(){
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
     for(const part of qs.split("&")){
-      const [k,v]=part.split("=");
-      if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
-      if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
+      const [k,v]=part.split("=");      if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
       if(k==="team") st.team = decodeURIComponent(v||"store") || "store";
       if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";    }
   }
 
-  const focus = (st.focus === 'sold' || st.focus === 'goal') ? st.focus : 'asr';
+  const focus = 'goal';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
@@ -319,18 +332,24 @@ function renderServicesHome(){
   const pickView = (st.pickView === 'services') ? 'services' : 'tech';
 
   const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
-  const focusLine = (focus === 'goal')
-    ? `Goal ${(goalMetric === 'sold') ? 'SOLD' : 'ASR'}`
-    : (focus === 'sold' ? 'SOLD' : 'ASR');
+  const focusLine = `Goal ${(goalMetric === 'sold') ? 'SOLD' : 'ASR'}`;
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
     : [];
 
-  const techs = techsAll;
+  // IMPORTANT: Team filter must control which techs are INCLUDED in *all* calculations on this page.
+  // - Express  -> only EXPRESS techs
+  // - Kia      -> only KIA techs
+  // - All      -> EXPRESS + KIA
+  const techs = (teamSel === 'express')
+    ? techsAll.filter(t => t.team === 'EXPRESS')
+    : (teamSel === 'kia')
+      ? techsAll.filter(t => t.team === 'KIA')
+      : techsAll;
 
   // Determine the metric used for goal comparisons/ranking
-  const rankMetric = (focus==='goal') ? goalMetric : (focus==='sold' ? 'sold' : 'asr');
+  const rankMetric = goalMetric;
 
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
@@ -342,25 +361,49 @@ function renderServicesHome(){
 
   // For GOAL focus, compute store/team-level goal ratios (rough: total metric / total goal)
   function _storeGoalRatios(){
-    // Sum goals across *existing* categories in DATA.sections
-    const cats = [];
-    (DATA.sections||[]).forEach(s=> (s.categories||[]).forEach(c=>{ if(c) cats.push(String(c)); }));
-    const uniq = Array.from(new Set(cats));
+    // Build ACTIVE category list based on Fluids filter (With / Without / Only)
+    const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
+    const activeCats = [];
+    for(const sec of secs){
+      const nm = String(sec?.name||'').trim().toLowerCase();
+      if(!nm) continue;
+      if(fluidsSel==='only' && nm!=='fluids') continue;
+      if(fluidsSel==='without' && nm==='fluids') continue;
+      for(const c of (sec?.categories||[])){
+        const cat = String(c||'').trim();
+        if(cat) activeCats.push(cat);
+      }
+    }
+    const uniq = Array.from(new Set(activeCats));
 
-    let gAsr = 0; // goal ASR/RO summed across cats (approx) using goal raw fractions (already per-RO for service)
-    let gSold = 0; // goal sold/RO approx = sum(goalReq * goalClose)
+    // Sum GOALS across active categories
+    let gAsr = 0;   // sum(goal ASR/RO) across cats
+    let gSold = 0;  // sum(goal sold/RO) approx = sum(goalReq * goalClose)
     for(const cat of uniq){
       const gReq = Number(getGoal(cat,'req'));
       const gClose = Number(getGoal(cat,'close'));
       if(Number.isFinite(gReq)) gAsr += gReq;
       if(Number.isFinite(gReq) && Number.isFinite(gClose)) gSold += (gReq * gClose);
     }
-    // Current team/store actuals across those same cats (sum req across cats per tech -> then average?)
-    // Keep it simple: use the main totals above.
-    // - asrPerRo is totalAsr/totalRos
-    // - soldPerRo is totalSold/totalRos
-    const asrPctOfGoal = (Number.isFinite(asrPerRo) && Number.isFinite(gAsr) && gAsr>0) ? (asrPerRo/gAsr) : null;
-    const soldPctOfGoal = (Number.isFinite(soldPerRo) && Number.isFinite(gSold) && gSold>0) ? (soldPerRo/gSold) : null;
+
+    // Sum ACTUALS across the SAME active categories (team-scoped techs)
+    let aRos = 0, aAsr = 0, aSold = 0;
+    for(const t of techs){
+      for(const cat of uniq){
+        const row = (t.categories||{})[cat];
+        if(!row) continue;
+        aRos  += Number(row.ros)||0;
+        aAsr  += Number(row.asr)||0;
+        aSold += Number(row.sold)||0;
+      }
+    }
+
+    const asrPerRoActive  = aRos ? (aAsr/aRos) : null;
+    const soldPerRoActive = aRos ? (aSold/aRos) : null;
+
+    const asrPctOfGoal  = (Number.isFinite(asrPerRoActive)  && Number.isFinite(gAsr)  && gAsr>0)  ? (asrPerRoActive/gAsr)  : null;
+    const soldPctOfGoal = (Number.isFinite(soldPerRoActive) && Number.isFinite(gSold) && gSold>0) ? (soldPerRoActive/gSold) : null;
+
     return {gAsr, gSold, asrPctOfGoal, soldPctOfGoal};
   }
 
@@ -472,7 +515,7 @@ function serviceGoalDial(pct, sz){
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
-  for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
+  for(const t of techs){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
 
   const _allServiceNames = (Array.isArray(DATA.sections)?DATA.sections:[])
     .flatMap(s => (s?.categories||[]).map(String).filter(Boolean))
@@ -483,7 +526,7 @@ function serviceGoalDial(pct, sz){
   for(const svcName of _uniqServices){
     // Build minimal aggregates
     let ros=0, asr=0, sold=0;
-    for(const t of techsAll){
+    for(const t of techs){
       const row = (t.categories||{})[svcName];
       if(!row) continue;
       ros  += Number(row.ros)||0;
@@ -654,16 +697,6 @@ function serviceGoalDial(pct, sz){
                           <option value="only" ${fluidsSel==='only'?'selected':''}>Fluids Only</option>
                         </select>
                       </div>
-          
-                      <div>
-                        <label>Focus</label>
-                        <select data-svcdash="1" data-ctl="focus">
-                          <option value="asr" ${focus==='asr'?'selected':''}>ASR</option>
-                          <option value="sold" ${focus==='sold'?'selected':''}>SOLD</option>
-                          <option value="goal" ${focus==='goal'?'selected':''}>GOAL</option>
-                        </select>
-                      </div>
-          
                       ${focus==='goal' ? `
                       <div>
                         <label>Goal</label>
@@ -797,59 +830,12 @@ function serviceGoalDial(pct, sz){
     return {serviceName, totalRos, asr, sold, reqTot, closeTot, storeAvgRos: storeAvgRosL, storeAvgAsr: storeAvgAsrL, storeAvgSold: storeAvgSoldL, teamBaseCounts: teamBaseCountsL, techRows};
   }
 
-  // Section ranking (Maintenance / Fluids / etc.) by the selected Goal filter.
-  // Uses Team + Fluids scope.
-  const _secRankInfo = (()=>{
-    const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
-    const rows = [];
-    const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
-    const gCloseOverall = Number(getGoal('__META_GLOBAL','close'));
-
-    for(const sec of secs){
-      const nm = String(sec?.name||'').trim();
-      if(!nm) continue;
-      const low = nm.toLowerCase();
-      if(fluidsSel==='only' && low!=='fluids') continue;
-      if(fluidsSel==='without' && low==='fluids') continue;
-
-      // Aggregate across all categories in this section for the filtered tech set
-      let ros=0, asr=0, sold=0;
-      for(const t of techs){
-        for(const cat of (sec.categories||[])){
-          const row = (t.categories||{})[cat];
-          if(!row) continue;
-          ros += Number(row.ros)||0;
-          asr += Number(row.asr)||0;
-          sold += Number(row.sold)||0;
-        }
-      }
-
-      const asrPerRo = ros ? (asr/ros) : NaN;
-      const soldPct = asr ? (sold/asr) : NaN;
-      const pctGoalAsr = (Number.isFinite(asrPerRo) && Number.isFinite(gReqOverall) && gReqOverall>0) ? (asrPerRo/gReqOverall) : NaN;
-      const pctGoalSold = (Number.isFinite(soldPct) && Number.isFinite(gCloseOverall) && gCloseOverall>0) ? (soldPct/gCloseOverall) : NaN;
-      const pct = (goalMetric==='sold') ? pctGoalSold : pctGoalAsr;
-      rows.push({name:nm, pct});
-    }
-
-    const den = rows.length || 1;
-    rows.sort((a,b)=>{
-      const av = Number.isFinite(a.pct) ? a.pct : -Infinity;
-      const bv = Number.isFinite(b.pct) ? b.pct : -Infinity;
-      if(av===bv) return a.name.localeCompare(b.name);
-      return av < bv ? 1 : -1;
-    });
-    const map = new Map();
-    rows.forEach((r,i)=> map.set(String(r.name), i+1));
-    return {map, den};
-  })();
-
   // Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
   function renderSection(sec){
     const secName = String(sec?.name||'').trim();
     if(!secName) return '';
 
-    // Fluids filter controls which sections participate in rendering/calcs
+    // Fluids filter controls which sections participate in all calculations/rendering
     const secLower = secName.toLowerCase();
     if(fluidsSel==='only' && secLower!=='fluids') return '';
     if(fluidsSel==='without' && secLower==='fluids') return '';
@@ -866,30 +852,18 @@ function serviceGoalDial(pct, sz){
 
     const aggs = services.map(buildServiceAgg);
 
-    // Section-level totals and focus stats (team + fluids scoped)
+    // Section-level focus stats (team + fluids scoped)
     const secRos  = aggs.reduce((s,x)=>s+(Number(x.totalRos)||0),0);
     const secAsr  = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
     const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
-    const secAvgOdo = techs.length ? (techs.reduce((s,t)=>s+(Number(t.odo)||0),0) / techs.length) : 0;
-    const secSoldPerRo = (Number.isFinite(secRos) && secRos>0) ? (secSold/secRos) : NaN;
     const secAsrPerRo = secRos ? (secAsr/secRos) : null;
     const secSoldPct = secAsr ? (secSold/secAsr) : null;
 
-    // Focus stats: determined by Goal filter
     const secTopIsSold = (goalMetric==='sold');
     const secTopVal = secTopIsSold ? secSoldPct : secAsrPerRo;
     const secTopLbl = secTopIsSold ? 'Sold%' : 'ASR/RO';
     const secBotVal = secTopIsSold ? secAsrPerRo : secSoldPct;
     const secBotLbl = secTopIsSold ? 'ASR/RO' : 'Sold%';
-
-    // Goal dials: compare section focus stats to OVERALL goals from Goals page
-    const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
-    const gCloseOverall = Number(getGoal('__META_GLOBAL','close'));
-    const secPctGoalAsr = (Number.isFinite(secAsrPerRo) && Number.isFinite(gReqOverall) && gReqOverall>0) ? (secAsrPerRo/gReqOverall) : NaN;
-    const secPctGoalSold = (Number.isFinite(secSoldPct) && Number.isFinite(gCloseOverall) && gCloseOverall>0) ? (secSoldPct/gCloseOverall) : NaN;
-
-    const secRank = _secRankInfo.map.get(secName) || '—';
-    const secRankTop = (goalMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
     // Section averages (used for dials when not GOAL focus)
     const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
@@ -978,39 +952,45 @@ function serviceGoalDial(pct, sz){
                 <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
                 <div class="svcDashSecTitle">${safe(secName)}</div>
               </div>
+            </div>
+
+            <div class="svcDashSecHeadRight">
+              <div class="svcDashSecHeadRightTop">
+                <!-- LEFT→RIGHT: Mini dial, Focus dial, Rank badge, Sold stats (so RIGHT→LEFT matches request) -->
+                <div class="svcSecHeadDials">
+                  ${goalMetric==='sold'
+                    ? `
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                    `
+                    : `
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                    `
+                  }
+                </div>
+
+                ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), secRankTop)}
+
+                <div class="svcSecFocusStats">
+                  <div>
+                    <div class="statValTop">${secTopVal===null ? "—" : (secTopLbl==="Sold%" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
+                    <div class="statLbl">${safe(secTopLbl)}</div>
+                  </div>
+                  <div>
+                    <div class="statValBot">${secBotVal===null ? "—" : (secBotLbl==="Sold%" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
+                    <div class="statLbl">${safe(secBotLbl)}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pills live in RIGHT container (per request) -->
               <div class="svcDashSecPills pillsMini">
                 <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
                 <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>
                 <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
                 <div class="pillMini sold"><div class="k">Sold</div><div class="v">${fmtInt(secSold)}</div></div>
                 <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'}</div></div>
-              </div>
-            </div>
-
-            <div class="svcDashSecHeadRight">
-              <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
-              <div class="svcSecHeadDials">
-                ${goalMetric==='sold'
-                  ? `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
-                  `
-                  : `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
-                  `
-                }
-              </div>
-              ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), secRankTop)}
-              <div class="svcSecFocusStats">
-                <div>
-                  <div class="statValTop">${secTopVal===null ? "—" : (secTopLbl==="Sold%" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
-                  <div class="statLbl">${safe(secTopLbl)}</div>
-                </div>
-                <div>
-                  <div class="statValBot">${secBotVal===null ? "—" : (secBotLbl==="Sold%" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
-                  <div class="statLbl">${safe(secBotLbl)}</div>
-                </div>
               </div>
             </div>
           </div>
@@ -1184,7 +1164,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   // Tech average % of goal across all services
   function techAvgPctOfGoal(mode){
     const out = [];
-    for(const t of techsAll){
+    for(const t of techs){
       let sum=0, n=0;
       for(const svcName of _uniqServices){
         const row = (t.categories||{})[svcName];
@@ -1214,7 +1194,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       const gReq = Number(getGoal(svcName,'req'));
       const gClose = Number(getGoal(svcName,'close'));
       const scored = [];
-      for(const t of techsAll){
+      for(const t of techs){
         const row = (t.categories||{})[svcName];
         if(!row) continue;
         const rosTech = Number(t.ros)||0;
@@ -1236,7 +1216,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         sums.set(s.id, cur);
       });
     }
-    return techsAll.map(t=>{
+    return techs.map(t=>{
       const cur = sums.get(String(t.id));
       const avgPos = (cur && cur.count) ? (cur.sum/cur.count) : NaN;
       return {id:t.id, name:t.name, avgPos};
@@ -1347,8 +1327,6 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   app.querySelectorAll('select[data-svcdash="1"]').forEach(sel=>{
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
-      if(ctl==='focus') st.focus = sel.value;
-      if(ctl==='goal') st.goalMetric = sel.value;      if(ctl==='team') st.team = sel.value;
       if(ctl==='fluids') st.fluids = sel.value;
       renderServicesHome();
     });
