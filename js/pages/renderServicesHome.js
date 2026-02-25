@@ -557,14 +557,41 @@ function serviceGoalDial(pct, sz){
 
   // Header panel (copied structure from Technician Dashboard)
   const header = `
-    <div class="panel techHeaderPanel" style="height:100%;min-width:0">
+
+    <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
+<div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
+  <!-- Notch extension (matches Goals notch configuration) -->
+  <div class="panel techMenuNotch" style="
+    position:absolute;
+    left:-68px;
+    top:0px;
+    width:68px;
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-top-right-radius:0px;
+    border-bottom-right-radius:0px;
+    border-right:none;
+    z-index:3;
+  ">
+    <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+      font-size:1.5em;
+      line-height:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 10px;
+      cursor:pointer;
+      color:inherit;
+      user-select:none;
+    ">☰</label>
+  </div>
+
+  <div class="panel techHeaderPanel" style="height:100%;min-width:0;border-top-left-radius:0px;border-left:none;">
       <div class="phead">
         <div class="titleRow techTitleRow">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-          </div>
-
-          <div class="techNameWrap">
+<div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
               <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
                 <div class="h2 techH2Big">Services Dashboard</div>
@@ -652,9 +679,9 @@ function serviceGoalDial(pct, sz){
       </div>
       </div>
     </div>
+  </div>
   `;
-
-  // ---- Helpers for cards + tech list ----
+// ---- Helpers for cards + tech list ----
   let storeAvgRos=0, storeAvgAsr=0, storeAvgSold=0;
   let teamBaseCounts=null;
 
@@ -1182,6 +1209,26 @@ function tbMiniBoxSvc(title, rows, mode, kind){
 
   const app = document.getElementById('app');
   app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;
+
+// Force the notch to match the header panel background exactly (prevents any shade mismatch)
+(function syncNotchBg(){
+  const notch = document.querySelector('.pageServicesDash .techNotchStage .techMenuNotch');
+  const panel = document.querySelector('.pageServicesDash .techNotchStage .techHeaderPanel');
+  if(!notch || !panel) return;
+
+  const apply = ()=>{
+    const cs = getComputedStyle(panel);
+    notch.style.backgroundColor = cs.backgroundColor;
+    notch.style.backgroundImage = cs.backgroundImage;
+    notch.style.backgroundRepeat = cs.backgroundRepeat;
+    notch.style.backgroundPosition = cs.backgroundPosition;
+    notch.style.backgroundSize = cs.backgroundSize;
+    notch.style.backgroundAttachment = cs.backgroundAttachment;
+    notch.style.borderColor = cs.borderTopColor;
+  };
+
+  requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
+})();
 
   // Wire events
   // Filters
