@@ -858,6 +858,11 @@ function serviceGoalDial(pct, sz){
     const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
     const secAsrPerRo = secRos ? (secAsr/secRos) : null;
     const secSoldPct = secAsr ? (secSold/secAsr) : null;
+const gAsrRoGoal = Number(getGoal('__META_GLOBAL','req'));
+    const gSoldPctGoal = Number(getGoal('__META_GLOBAL','close'));
+    const secPctGoalAsr = (secAsrPerRo!=null && Number.isFinite(gAsrRoGoal) && gAsrRoGoal>0) ? (secAsrPerRo/gAsrRoGoal) : NaN;
+    const secPctGoalSold = (secSoldPct!=null && Number.isFinite(gSoldPctGoal) && gSoldPctGoal>0) ? (secSoldPct/gSoldPctGoal) : NaN;
+
 
     const secTopIsSold = (goalMetric==='sold');
     const secTopVal = secTopIsSold ? secSoldPct : secAsrPerRo;
