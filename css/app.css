@@ -2324,3 +2324,13 @@ body.route-tech .secHdrStats .secStatVal{
 body.route-tech .secHdrStats .secStatTitle{
   font-size:13px !important;
 }
+
+
+/* === PATCH 2026-02-25: CatHeader (EXPRESS/KIA) right stats sizing + muted tags === */
+.pageTechDash .catHeaderSplit .catRank .rankNum.sub{font-size:26px !important;}
+.pageTechDash .catHeaderSplit .catRank .rankLbl,
+.pageTechDash .catHeaderSplit .catRank .rankLbl.sub{
+  font-size:13px !important;
+  color:var(--muted) !important;
+}
+

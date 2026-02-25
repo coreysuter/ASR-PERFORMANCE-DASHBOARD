@@ -405,9 +405,9 @@ function ensureDashTypographyOverrides(){
 .catRank{display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:8px !important;}
 .catRank .rankMain, .catRank .rankSub{display:flex !important; flex-direction:column !important; align-items:flex-end !important; gap:2px !important;}
 .catRank .rankNum{font-size:36px !important; font-weight:1000 !important; line-height:1 !important;}
-.catRank .rankLbl{font-size:11px !important; font-weight:900 !important; letter-spacing:.35px !important; text-transform:uppercase !important; opacity:.75 !important; margin-top:2px !important;}
-.catRank .rankNum.sub{font-size:28px !important;}
-.catRank .rankLbl.sub{font-size:10px !important;}
+.catRank .rankLbl{font-size:13px !important; font-weight:900 !important; letter-spacing:.35px !important; text-transform:uppercase !important; color:var(--muted) !important; opacity:.75 !important; margin-top:2px !important;}
+.catRank .rankNum.sub{font-size:26px !important;}
+.catRank .rankLbl.sub{font-size:13px !important;}
 @media (max-width: 700px){
   .catRank .rankNum{font-size:30px !important;}
   .catRank .rankNum.sub{font-size:24px !important;}
