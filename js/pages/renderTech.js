@@ -969,24 +969,24 @@ const goalFocusLbl = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
 
 // Focus dial: when focus=goal, use the selected goal metric (ASR Goal or Sold Goal)
 const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? goalFocusPct : pctAsr);
-const focusLbl = (focus==="sold") ? "Sold" : (focus==="goal" ? goalFocusLbl : "ASR");
+const focusLbl = (focus==="sold") ? "Sold%" : (focus==="goal" ? goalFocusLbl : "ASR%");
 
 const dialASR = Number.isFinite(pctAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctAsr,"ASR")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASR%")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialSold = Number.isFinite(pctSold)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctSold,"Sold")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold%")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialGoalAsr = Number.isFinite(pctGoalAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialGoalSold = Number.isFinite(pctGoalSold)
-  ? `<div class="svcGaugeWrap" style="--sz:44px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:44px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 
 const dialFocus = Number.isFinite(focusPct)
-  ? `<div class="svcGaugeWrap" style="--sz:112px">${svcGauge(focusPct,focusLbl)}</div>`
-  : `<div class="svcGaugeWrap" style="--sz:112px"></div>`;
+  ? `<div class="svcGaugeWrap" style="--sz:140px">${svcGauge(focusPct,focusLbl)}</div>`
+  : `<div class="svcGaugeWrap" style="--sz:140px"></div>`;
 
 // --- Section header mini-dials: always show exactly 3 (exclude the current focus dial).
 // Minis sit immediately LEFT of the focus dial (we render minis BEFORE the focus dial).
