@@ -2349,3 +2349,33 @@ body.route-tech .catCard .catHeader .svcGauge{
   width:var(--sz) !important;
   height:var(--sz) !important;
 }
+
+
+
+/* === PATCH 2026-02-25: CatCard dial label +% and Category header dial label ASRs/RO === */
+
+/* Service catCards (Rotate, Alignment, etc.): dial label 12px and append % (ASR% / Sold%) */
+body.route-tech .catCard .catHeader .svcGauge .pctSub{
+  font-size:12px !important;
+  letter-spacing:.25px !important;
+}
+body.route-tech .catCard .catHeader .svcGauge .pctSub::after{
+  content:"%";
+  margin-left:1px;
+}
+
+/* Category titleRows (Maintenance, Fluids, Brakes, Tires): show ASRs/RO instead of ASR% inside mini + focus dials */
+body.route-tech .secMiniDials .svcGauge .pctSub,
+body.route-tech .secFocusDial .svcGauge .pctSub{
+  position:relative !important;
+  color:transparent !important; /* hide original (e.g., ASR%) */
+}
+body.route-tech .secMiniDials .svcGauge .pctSub::after,
+body.route-tech .secFocusDial .svcGauge .pctSub::after{
+  content:"ASRs/RO";
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.90);
+  white-space:nowrap;
+}
