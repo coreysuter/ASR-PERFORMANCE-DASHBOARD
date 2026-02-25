@@ -290,6 +290,10 @@ const hash = location.hash || "";
       }
     }
   }
+
+  // expose focus to CSS for scoped label overrides
+  try{ document.body.dataset.techFocus = focus; document.body.dataset.techGoalMetric = goalMetric; }catch(e){}
+
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
   
@@ -304,7 +308,12 @@ const hash = location.hash || "";
 
   // Focus Rank Badge (replaces x/x rankings)
   function rankBadgeHtml(rank, total, focus, size="lg"){
-    const top = (focus==="sold") ? "SOLD%" : (focus==="goal" ? "GOAL%" : "ASR%");
+    // Badge title depends on current focus; Goal focus uses the selected goal metric label.
+    let top;
+    if(focus==="sold") top = "SOLD%";
+    else if(focus==="goal") top = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
+    else top = "ASRs/RO";
+
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
@@ -312,7 +321,7 @@ const hash = location.hash || "";
     // NOTE: We set font-weight inline so the header (lg) badge text matches the in-card (sm) badge text.
     return `
       <div class="${cls}"${style}>
-        <div class="rfbFocus" style="font-weight:1000">${top}</div>
+        <div class="rfbFocus" style="font-weight:1000;text-transform:none">${top}</div>
         <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${r}</div>
         <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
       </div>
@@ -608,23 +617,13 @@ function countBandsFor(mode){
   const __asrsTotal = Number(t.summary?.[filterKey]?.asr);
   const __soldTotal = Number(t.summary?.[filterKey]?.sold);
   const __rosTotal = Number(t.ros);
-  // Sold/RO shown as a decimal (e.g., 0.42) instead of a percent.
-  const __soldPerRoDec = (Number.isFinite(__soldTotal) && Number.isFinite(__rosTotal) && __rosTotal>0) ? (__soldTotal/__rosTotal) : NaN;
-  const __soldPerRoDecTxt = Number.isFinite(__soldPerRoDec) ? `(${__soldPerRoDec.toFixed(2)})` : "";
+  // Sold/ASRs shown as a percent in parenthesis.
+  const __soldAsrPct = (Number.isFinite(__soldTotal) && Number.isFinite(__asrsTotal) && __asrsTotal>0) ? (__soldTotal/__asrsTotal) : NaN;
+  const __soldAsrPctTxt = Number.isFinite(__soldAsrPct) ? `(${(__soldAsrPct*100).toFixed(1)}%)` : "";
   const __asrPerRoVal = techAsrPerRo(t, filterKey);
   const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
   const __soldPerRoTxt = Number.isFinite(__soldPerRoVal) ? fmt1(__soldPerRoVal, 1) : "—";
-
-  // Header focus stats behavior:
-  // - Focus=ASR: show ASRs/RO primary, Sold/RO secondary
-  // - Focus=Sold: show Sold/RO primary, ASRs/RO secondary
-  // - Focus=Goal: behave exactly like the selected goal metric (ASR -> ASR focus, Sold -> Sold focus)
-  const __effFocus = (focus === "goal") ? (goalMetric === "sold" ? "sold" : "asr") : focus;
-  const __primaryVal = (__effFocus === "sold") ? __soldPerRoTxt : __asrPerRoTxt;
-  const __primaryLbl = (__effFocus === "sold") ? "Sold/RO" : "ASRs/RO";
-  const __secondaryVal = (__effFocus === "sold") ? __asrPerRoTxt : __soldPerRoTxt;
-  const __secondaryLbl = (__effFocus === "sold") ? "ASRs/RO" : "Sold/RO";
 
 
   const __fullName = String(t.name||"").trim();
@@ -652,39 +651,37 @@ const header = `
             </div>
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
-            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-            <div class="techHdrStatsStack" style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right;line-height:1;">
-              <div class="techHdrStatTop" style="text-align:right;">
-                <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__primaryVal}</div>
-                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__primaryLbl}</div>
-              </div>
-              <div class="techHdrStatBot" style="text-align:right;">
-                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:rgba(255,255,255,.82);">${__secondaryVal}</div>
-                <div style="margin-top:4px;font-size:13px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.55);text-transform:none;">${__secondaryLbl}</div>
-              </div>
+            <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
+              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
             </div>
+            <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
+  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
+  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
+</div>
+${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
           </div></div>
-        <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
-          <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
-            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
-          </div>
+        <div class="pillsMini" style="margin-top:8px !important; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.odo)}</div>
+  </div>
 
-          <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
-          </div>
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+  </div>
 
-          <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
-          </div>
+  <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.asr)}</div>
+  </div>
 
-          <div class="pill" style="padding:12px 18px; gap:12px;">
-            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-            <div class="v" style="font-size:24px; font-weight:1000; line-height:1;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:24px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldPerRoDecTxt}</span></div>
-          </div>
-        </div>
+  <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:7px 10px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
+    <div class="k" style="font-size:15px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
+    <div class="v" style="font-size:18px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
+  </div>
+</div>
 
         <div style="height:1px; background:rgba(255,255,255,.14); margin:10px 0 6px 0;"></div>
         ${filters}
@@ -849,7 +846,7 @@ return `
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
-              ${fmt1(asrCount,0)} ASR · ${fmt1(soldCount,0)} Sold · ${fmt1(techRos,0)} ROs
+              <span class="svcMetaTopLine">${fmt1(techRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><span class="svcMetaSoldLine">${fmt1(soldCount,0)} Sold</span>
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
