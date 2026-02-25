@@ -59,7 +59,7 @@ function renderMain(){
 
   
   const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
+const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"team"};
   const focusIsGoal = st.sortBy === "goal";
   const goalMetric = (st.goalMetric === "sold") ? "sold" : "asr";
   // If Focus=GOAL, force Comparison=GOAL (and keep both teams in sync)
@@ -80,7 +80,43 @@ const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goal
   const subStatLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
 
   const header = `
-    <div class="panel techHeaderPanel">
+
+    <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
+<div class="techNotchStage" style="position:relative; width:100%; padding-left:68px;">
+  <!-- Notch extension (no seam to the main panel) -->
+  <div class="panel techMenuNotch" style="
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:68px;
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-top-right-radius:0px;
+    border-bottom-right-radius:0px;
+    border-right:none;
+    z-index:3;
+  ">
+    <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+      font-size:1.5em;
+      line-height:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 10px;
+      cursor:pointer;
+      color:inherit;
+      user-select:none;
+    ">☰</label>
+  </div>
+
+  <div class="panel techHeaderPanel" style="
+    width:100%;
+    border-top-left-radius:0px;
+    border-left:none;
+    min-width:0;
+  ">
       <div class="phead">
         <style>
           /* Keep pills in the top row and prevent overlap with the title */
@@ -106,11 +142,7 @@ const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goal
 
         </style>
         <div class="titleRow techTitleRow">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-          </div>
-          
-          <div class="techNameWrap">
+<div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
               <div class="h2 techH2Big">Technician Dashboard</div>
             <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
@@ -118,7 +150,7 @@ const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goal
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
               <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
               <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
-              <div class="pill"><div class="k">Sold/ASRs</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+              <div class="pill"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
             </div>
             </div>
             <div class="techTeamLine">EXPRESS <span class="teamDot">•</span> KIA</div>
@@ -140,7 +172,7 @@ const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goal
         <div class="mainFiltersBar">
           <div class="controls mainAlwaysOpen">
             <div>
-              <label>Fluids</label>
+              <label>Filter</label>
               <select data-scope="main" data-ctl="filter">
                 <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
                 <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
@@ -186,9 +218,9 @@ const st = state?.EXPRESS || {filterKey:"fluids_only", sortBy:"asr_per_ro", goal
         </div>
       </div>
     </div>
+  </div>
   `;
-
-  app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
+app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
     const ctl=el.getAttribute('data-ctl');
