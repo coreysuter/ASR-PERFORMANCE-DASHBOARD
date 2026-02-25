@@ -616,6 +616,16 @@ function countBandsFor(mode){
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
   const __soldPerRoTxt = Number.isFinite(__soldPerRoVal) ? fmt1(__soldPerRoVal, 1) : "—";
 
+  // Header focus stats behavior:
+  // - Focus=ASR: show ASRs/RO primary, Sold/RO secondary
+  // - Focus=Sold: show Sold/RO primary, ASRs/RO secondary
+  // - Focus=Goal: behave exactly like the selected goal metric (ASR -> ASR focus, Sold -> Sold focus)
+  const __effFocus = (focus === "goal") ? (goalMetric === "sold" ? "sold" : "asr") : focus;
+  const __primaryVal = (__effFocus === "sold") ? __soldPerRoTxt : __asrPerRoTxt;
+  const __primaryLbl = (__effFocus === "sold") ? "Sold/RO" : "ASRs/RO";
+  const __secondaryVal = (__effFocus === "sold") ? __asrPerRoTxt : __soldPerRoTxt;
+  const __secondaryLbl = (__effFocus === "sold") ? "ASRs/RO" : "Sold/RO";
+
 
   const __fullName = String(t.name||"").trim();
   const __parts = __fullName.split(/\s+/).filter(Boolean);
@@ -643,15 +653,17 @@ const header = `
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
             ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
-          <div class="asrroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-              <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__asrPerRoTxt}</div>
-              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">ASRs/RO</div>
+            <div class="techHdrStatsStack" style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;text-align:right;line-height:1;">
+              <div class="techHdrStatTop" style="text-align:right;">
+                <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__primaryVal}</div>
+                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__primaryLbl}</div>
+              </div>
+              <div class="techHdrStatBot" style="text-align:right;">
+                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:rgba(255,255,255,.82);">${__secondaryVal}</div>
+                <div style="margin-top:4px;font-size:13px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.55);text-transform:none;">${__secondaryLbl}</div>
+              </div>
             </div>
-            <div class="soldroPinned" style="text-align:right;line-height:1;align-self:center;margin-right:4px;">
-  <div style="font-size:40px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
-  <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
-</div>
-</div></div>
+          </div></div>
         <div class="pills" style="margin-top:8px !important; display:grid; grid-template-columns:repeat(3, max-content); gap:12px 14px; align-items:start;">
           <div class="pill" style="grid-column:1 / span 3; padding:12px 18px; gap:12px; width:fit-content; justify-self:start;">
             <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg Odo</div>
