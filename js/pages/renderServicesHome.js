@@ -24,7 +24,7 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
       /* Section head layout (left pills + right dials/badge/stats like renderTech) */
       .pageServicesDash .svcDashSecHeadLeft{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 auto;}
-      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:22px;min-width:0;flex:0 0 auto;}
+      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:column;gap:12px;align-items:flex-end;min-width:0;flex:0 0 auto;}
       .pageServicesDash .svcDashSecHeadRightTop{display:flex;align-items:center;gap:22px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .svcSecHeadDials{display:flex;align-items:center;gap:22px;}
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap{display:flex;align-items:center;justify-content:center;}
@@ -44,6 +44,10 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecPillsLeft{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;}
 
       .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
+      .pageServicesDash .svcDashSecTitleRow{display:flex;align-items:center;gap:10px;}
+      /* Indent pills so they start under the title (not under the +/-) */
+      .pageServicesDash .svcDashSecPillsLeft{padding-left:32px;}
+
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
@@ -1001,7 +1005,7 @@ function serviceGoalDial(pct, sz){
         <summary>
           <div class="svcDashSecHead">
             <div class="svcDashSecHeadLeft">
-              <div class="secHeadTop">
+              <div class="svcDashSecTitleRow">
                 <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
                 <div class="svcDashSecTitle">${safe(secName)}</div>
               </div>
@@ -1015,29 +1019,28 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="svcDashSecHeadRight">
-              <div class="svcDashSecHeadRightTop">
-                <div class="svcSecHeadDials">
-                  ${goalMetric==='sold'
-                    ? `
-                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
-                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
-                    `
-                    : `
-                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
-                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
-                    `
-                  }
+              <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
+              <div class="svcSecHeadDials">
+                ${goalMetric==='sold'
+                  ? `
+                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
+                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                  `
+                  : `
+                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
+                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                  `
+                }
+              </div>
+              ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), (goalMetric==='sold'?'Sold Goal':'ASR Goal'), false)}
+              <div class="svcSecFocusStats">
+                <div>
+                  <div class="statValTop">${secTopVal===null ? "—" : (secTopLbl==="Sold%" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
+                  <div class="statLbl">${safe(secTopLbl)}</div>
                 </div>
-                ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), 'goal', 'dial')}
-                <div class="svcSecFocusStats">
-                  <div>
-                    <div class="statValTop">${secTopVal===null ? "—" : (secTopLbl==="Sold%" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
-                    <div class="statLbl">${safe(secTopLbl)}</div>
-                  </div>
-                  <div>
-                    <div class="statValBot">${secBotVal===null ? "—" : (secBotLbl==="Sold%" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
-                    <div class="statLbl">${safe(secBotLbl)}</div>
-                  </div>
+                <div>
+                  <div class="statValBot">${secBotVal===null ? "—" : (secBotLbl==="Sold%" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
+                  <div class="statLbl">${safe(secBotLbl)}</div>
                 </div>
               </div>
             </div>
