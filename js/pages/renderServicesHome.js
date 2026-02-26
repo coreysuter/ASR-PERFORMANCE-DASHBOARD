@@ -29,16 +29,16 @@ function renderServicesHome(){
       .pageServicesDash .svcSecHeadDials{display:flex;align-items:center;gap:22px;}
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap{display:flex;align-items:center;justify-content:center;}
       /* Focus + mini dial sizing matches renderTech section header vibe */
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus{width:90px;height:90px;flex:0 0 auto;}
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini{width:74px;height:74px;flex:0 0 auto;opacity:.98;}
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini .svcGauge{--sz:74px !important;width:74px !important;height:74px !important;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus{width:77px;height:77px;flex:0 0 auto;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini{width:63px;height:63px;flex:0 0 auto;opacity:.98;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus .svcGauge{--sz:77px !important;width:77px !important;height:77px !important;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini .svcGauge{--sz:63px !important;width:63px !important;height:63px !important;}
       /* Rank badge: use the full-size badge (matches renderTech category header badge) */
-      .pageServicesDash .svcDashSecHead .rankFocusBadge{transform:scale(1.15);transform-origin:center center;align-self:center;}
+      .pageServicesDash .svcDashSecHeadRightTop .rankFocusBadge{transform:none;align-self:center;}
       /* Sold stats stack */
       .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
-      .pageServicesDash .svcSecFocusStats .statValTop{font-size:36px;line-height:1;font-weight:1000;color:#fff;}
-      .pageServicesDash .svcSecFocusStats .statValBot{font-size:26px;line-height:1;font-weight:1000;color:#fff;opacity:.92;}
+      .pageServicesDash .svcSecFocusStats .statValTop{font-size:34px;line-height:1;font-weight:1000;color:#fff;}
+      .pageServicesDash .svcSecFocusStats .statValBot{font-size:24px;line-height:1;font-weight:1000;color:#fff;opacity:.92;}
       .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;}
       /* Pills under category name (far-left) */
       .pageServicesDash .svcDashSecPillsLeft{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;}
@@ -546,20 +546,17 @@ function serviceGoalDial(pct, sz){
   // Match renderTech's in-card (sm) rank badge markup/typography exactly.
   // Keep local to Services Dashboard so it won't affect other pages.
   function rankBadgeHtmlSvc(rank, total, top, small){
-    // Replica of the Technician Dashboard (renderMain) rank badge:
-    // same class, same dimensions (via app.css), same bold weights.
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = small ? "rankFocusBadge sm" : "rankFocusBadge";
     return `
       <div class="${cls}">
-        <div class="rfbFocus" style="font-weight:1000">${safe(top)}</div>
-        <div class="rfbMain" style="font-weight:1000">${r}</div>
-        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
+        <div class="rfbFocus">${safe(top)}</div>
+        <div class="rfbMain">${r}</div>
+        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
       </div>
     `;
   }
-
 
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
@@ -1022,8 +1019,7 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="svcDashSecHeadRight">
-              <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
-              <div class="svcSecHeadDials">
+                            <div class="svcSecHeadDials">
                 ${goalMetric==='sold'
                   ? `
                     <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
