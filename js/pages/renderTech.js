@@ -660,18 +660,6 @@ const header = `
 
     <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
 <div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
-      <!-- Left border continuation: start below the notch height so there is no seam -->
-      <div class="techNotchLeftBorder" style="
-        position:absolute;
-        left:0px;
-        top:56px;
-        bottom:0px;
-        width:1px;
-        background:rgba(255,255,255,0.18);
-        z-index:2;
-        pointer-events:none;
-      "></div>
-
   <!-- Notch extension (matches Goals notch) -->
   <div class="panel techMenuNotch" style="
     position:absolute;
@@ -715,11 +703,11 @@ const header = `
             <div class="techFocusStatsPinned" style="text-align:right;line-height:1;align-self:center;display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-right:4px;">
               <div class="techFocusTop" style="text-align:right">
                 <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__topFocusVal}</div>
-                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(234,240,255,.75);text-transform:none;">${__topFocusLbl}</div>
+                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__topFocusLbl}</div>
               </div>
               <div class="techFocusBottom" style="text-align:right">
                 <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__botFocusVal}</div>
-                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(234,240,255,.75);text-transform:none;">${__botFocusLbl}</div>
+                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__botFocusLbl}</div>
               </div>
             </div>
           </div></div>
@@ -741,7 +729,7 @@ const header = `
 
   <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
     <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
-    <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#eaf0ff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
+    <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
   </div>
 </div>
         </div>
@@ -1153,12 +1141,12 @@ return `
             </div>
             <div class="secHdrRight">${miniHtml}<div class="secFocusDial">${dialFocus}</div><div class="secHdrRank" style="margin:0 12px">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
                 <div class="secStatBlock">
-                  <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#eaf0ff">${topStatVal}</div>
-                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(234,240,255,.75)">${topStatTitle}</div>
+                  <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
+                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>
                 </div>
                 <div class="secStatBlock" style="margin-top:10px">
-                  <div class="secStatVal" style="font-size:28px;font-weight:1000;line-height:1;color:#eaf0ff">${botStatVal}</div>
-                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(234,240,255,.75)">${botStatTitle}</div>
+                  <div class="secStatVal" style="font-size:28px;font-weight:1000;line-height:1;color:rgba(255,255,255,.78)">${botStatVal}</div>
+                  <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.55)">${botStatTitle}</div>
                 </div>
               </div>
             </div>
@@ -1404,22 +1392,7 @@ return `
     notch.style.backgroundSize = cs.backgroundSize;
     notch.style.backgroundAttachment = cs.backgroundAttachment;
     notch.style.borderColor = cs.borderTopColor;
-        
-    const leftBorder = document.querySelector('.techNotchStage .techNotchLeftBorder');
-    if(leftBorder){
-      leftBorder.style.backgroundColor = cs.borderLeftColor || cs.borderTopColor;
-    }
-    const corner = document.querySelector('.techNotchStage .techNotchCorner');
-    if(corner){
-      const bc = cs.borderLeftColor || cs.borderTopColor;
-      corner.style.borderLeftColor = bc;
-      corner.style.borderBottomColor = bc;
-    }
-const leftBorder = document.querySelector('body.route-tech .techNotchStage .techNotchLeftBorder');
-      if(leftBorder){
-        leftBorder.style.backgroundColor = cs.borderLeftColor || cs.borderTopColor;
-      }
-};
+  };
 
   requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
 })();
