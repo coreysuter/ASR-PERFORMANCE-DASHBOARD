@@ -34,7 +34,7 @@ function renderServicesHome(){
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini .svcGauge{--sz:74px !important;width:74px !important;height:74px !important;}
       /* Rank badge: use the full-size badge (matches renderTech category header badge) */
-      .pageServicesDash .svcDashSecHeadRightTop .rankFocusBadge{transform:none;align-self:center;}
+      .pageServicesDash .svcDashSecHead .rankFocusBadge{transform:scale(1.15);transform-origin:center center;align-self:center;}
       /* Sold stats stack */
       .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
       .pageServicesDash .svcSecFocusStats .statValTop{font-size:36px;line-height:1;font-weight:1000;color:#fff;}
@@ -546,17 +546,20 @@ function serviceGoalDial(pct, sz){
   // Match renderTech's in-card (sm) rank badge markup/typography exactly.
   // Keep local to Services Dashboard so it won't affect other pages.
   function rankBadgeHtmlSvc(rank, total, top, small){
+    // Replica of the Technician Dashboard (renderMain) rank badge:
+    // same class, same dimensions (via app.css), same bold weights.
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const t = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = small ? "rankFocusBadge sm" : "rankFocusBadge";
     return `
       <div class="${cls}">
-        <div class="rfbFocus">${safe(top)}</div>
-        <div class="rfbMain">${r}</div>
-        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
+        <div class="rfbFocus" style="font-weight:1000">${safe(top)}</div>
+        <div class="rfbMain" style="font-weight:1000">${r}</div>
+        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${t}</span></div>
       </div>
     `;
   }
+
 
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
