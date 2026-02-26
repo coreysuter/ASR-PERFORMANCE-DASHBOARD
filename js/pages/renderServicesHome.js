@@ -1028,7 +1028,7 @@ function serviceGoalDial(pct, sz){
                     `
                   }
                 </div>
-                ${rankBadgeHtml(secRank, fmtInt(_secRankInfo.den), 'goal', 'dial')}
+                ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), 'goal', 'dial')}
                 <div class="svcSecFocusStats">
                   <div>
                     <div class="statValTop">${secTopVal===null ? "—" : (secTopLbl==="Sold%" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
