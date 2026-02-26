@@ -11,6 +11,8 @@ function renderServicesHome(){
     el.textContent = `
       /* Scope everything to Services Dashboard only */
       .pageServicesDash .techHeaderPanel{margin-bottom:0 !important;}
+      /* Services Dashboard header title size */
+      .pageServicesDash .techH2Big{font-size:34px !important;}
 
       /* Header + diag wrapper (match Tech Details layout) */
       .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
@@ -19,29 +21,36 @@ function renderServicesHome(){
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
       .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
 
-      .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;}
-      /* Section header row: split like Tech Dashboard techRows */
-      .pageServicesDash .svcDashSecHead{align-items:center;}
-      .pageServicesDash .svcSecHeadRow{display:flex;align-items:center;gap:10px;min-width:0;}
-      .pageServicesDash .svcSecHeadRight{display:flex;align-items:center;gap:12px;flex:0 0 auto;justify-content:flex-end;}
-      .pageServicesDash .svcSecPills{display:flex;align-items:center;gap:10px;}
-      .pageServicesDash .svcSecPills .pillGroup{display:flex;align-items:center;gap:10px;padding:6px 8px;border:1px solid rgba(190,190,190,.35);border-radius:14px;}
-      .pageServicesDash .svcSecPills .pill{width:76px;height:76px;min-width:76px;padding:8px 8px;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:13px;gap:4px;background:linear-gradient(180deg, rgba(0,0,0,.42), rgba(0,0,0,.68));border:1px solid rgba(255,255,255,.16);box-shadow:0 10px 26px rgba(0,0,0,.60) inset, 0 10px 22px rgba(0,0,0,.18);}
-      .pageServicesDash .svcSecPills .pill .k{font-size:12px;font-weight:1000;letter-spacing:.22px;line-height:1;opacity:.92;text-transform:none;color:rgba(255,255,255,.70)}
-      .pageServicesDash .svcSecPills .pill .v{font-size:22px;font-weight:1000;line-height:1;color:var(--text)}
-      .pageServicesDash .svcSecPills .pill.bGreen .v{color:#7CFFB2}
-      .pageServicesDash .svcSecPills .pill.bYellow .v{color:#FFE27A}
-      .pageServicesDash .svcSecPills .pill.bRed .v{color:#FF6B6B}
-      .pageServicesDash .svcSecPills .pill.goalPill .v{color:var(--text)}
-      .pageServicesDash .svcDashSecTitle{font-weight:1000;}
+      .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
+      /* Section head layout (left pills + right dials/badge/stats like renderTech) */
+      .pageServicesDash .svcDashSecHeadLeft{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 auto;}
+      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:column;gap:12px;align-items:flex-end;min-width:0;flex:0 0 auto;}
+      .pageServicesDash .svcDashSecHeadRightTop{display:flex;align-items:center;gap:22px;justify-content:flex-end;white-space:nowrap;}
+      .pageServicesDash .svcSecHeadDials{display:flex;align-items:center;gap:22px;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap{display:flex;align-items:center;justify-content:center;}
+      /* Focus + mini dial sizing matches renderTech section header vibe */
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus{width:90px;height:90px;flex:0 0 auto;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini{width:74px;height:74px;flex:0 0 auto;opacity:.98;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini .svcGauge{--sz:74px !important;width:74px !important;height:74px !important;}
+      /* Rank badge: use the full-size badge (matches renderTech category header badge) */
+      .pageServicesDash .svcDashSecHeadRightTop .rankFocusBadge{transform:none;align-self:center;}
+      /* Sold stats stack */
+      .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+      .pageServicesDash .svcSecFocusStats .statValTop{font-size:36px;line-height:1;font-weight:1000;color:#fff;}
+      .pageServicesDash .svcSecFocusStats .statValBot{font-size:26px;line-height:1;font-weight:1000;color:#fff;opacity:.92;}
+      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;}
+      /* Pills under category name (far-left) */
+      .pageServicesDash .svcDashSecPillsLeft{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;}
 
       .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
       /* Service cards grid (same vibe as tech details) */
-      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(450px,1fr));gap:14px;align-items:start;}
-      @media (max-width: 980px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
+      .pageServicesDash .svcCardsGrid{display:grid;grid-template-columns:repeat(3,minmax(462px,1fr));gap:14px;align-items:start;}
+      @media (max-width: 1200px){ .pageServicesDash .svcCardsGrid{grid-template-columns:repeat(2,minmax(420px,1fr));} }
+      @media (max-width: 820px){ .pageServicesDash .svcCardsGrid{grid-template-columns:1fr;} }
 
       /* =====================================================================
          ServicesHome diagSection: match Tech Details (renderTech) styling
@@ -163,6 +172,17 @@ function renderServicesHome(){
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
 
+      /* sdCatHdrRow rank badge: +15% size and adjust # position for double-digits */
+      .pageServicesDash .sdCatHdrRow .rankFocusBadge.sm{
+        transform:scale(1.15);
+        transform-origin: top right;
+      }
+      /* Move the hash up/left so it hugs the top-left of the number (esp. 2 digits) */
+      .pageServicesDash .sdCatHdrRow .rankFocusBadge.sm .rfbMain::before{
+        left: calc(50% - (var(--w) * 0.27));
+        transform: translate(-50%,-58%);
+      }
+
       .pageServicesDash .sdCatHdrRow .pctText{display:flex;align-items:center;justify-content:center;}
       @media (max-width: 540px){
         .pageServicesDash .catHeader{flex-direction:column;align-items:flex-start;}
@@ -170,13 +190,26 @@ function renderServicesHome(){
 }
 
       /* Tech list inside service cards */
+      /* Service cards: allow rows to expand/show full text (no ellipsis) */
+      .pageServicesDash .catCard{min-width:0;max-width:none;width:100%;}
+      .pageServicesDash .svcTechRow{align-items:flex-start;}
+      .pageServicesDash .svcTechLeft{min-width:0;flex:1 1 auto;}
+      .pageServicesDash .svcTechLeft a{max-width:none;white-space:normal;overflow:visible;text-overflow:clip;}
+      .pageServicesDash .svcTechMeta{white-space:normal;}
+      .pageServicesDash .svcTechMetaRow{white-space:normal;}
+
       .pageServicesDash .svcTechList{margin-top:10px;display:grid;gap:8px;}
+      /* Tech name + meta typography in section header (requested) */
+      .pageServicesDash .svcDashSecHead .svcTechLeft,
+      .pageServicesDash .svcDashSecHead .svcTechLeft a{font-size:14px !important;font-weight:700 !important;}
+      .pageServicesDash .svcDashSecHead .svcTechMetaRow{font-size:14px !important;font-weight:700 !important;}
+
       .pageServicesDash .svcTechRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18);}
       .pageServicesDash .svcTechLeft{display:flex;align-items:center;gap:8px;min-width:0;}
       .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
       .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
       .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
-      .pageServicesDash .svcTechMetaRow{display:block;}
+      .pageServicesDash .svcTechMetaRow{display:block;font-size:14px;font-weight:700;}
 
       /* TechPickPanel toggle + thumbs (scoped) */
       .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 2px -4px}
@@ -240,9 +273,16 @@ function renderServicesHome(){
 
       /* Header pills: use mini pills */
       .pageServicesDash .techHeaderPanel .pillsMini{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:0;}
-      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:15px !important;text-transform:none !important;}
-      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:18px !important;line-height:1.05 !important;}
+      .pageServicesDash .techHeaderPanel .pillMini{padding:8px 12px !important;}
+
+      .pageServicesDash .techHeaderPanel .pillMini .k{font-size:16px !important;text-transform:none !important;}
+      .pageServicesDash .techHeaderPanel .pillMini .v{font-size:20px !important;line-height:1.05 !important;}
       .pageServicesDash .techHeaderPanel .pillMini.sold .v{color:#fff !important;}
+
+      /* Section header pills: label 15px muted grey, value 18px white, padding 7px 10px */
+      .pageServicesDash .svcDashSecHead .pillMini{padding:7px 10px !important;}
+      .pageServicesDash .svcDashSecHead .pillMini .k{font-size:15px !important;color:var(--muted) !important;font-weight:1000;text-transform:none !important;}
+      .pageServicesDash .svcDashSecHead .pillMini .v{font-size:18px !important;color:#fff !important;font-weight:1000;line-height:1.05 !important;}
 
 
       /* Header goal dials (match Tech Details focus dial sizing/typography) */
@@ -499,120 +539,27 @@ function serviceGoalDial(pct, sz){
   const _svcRankMap = new Map();
   _ranked.forEach((name, idx)=> _svcRankMap.set(name, idx+1));
 
-  function goalRankBadge(serviceName){
-    const rk = _svcRankMap.get(serviceName) || '—';
-    const top = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
-    const total = fmtInt(_svcRankDen);
-    // Match renderTech rank badge sizing + typography (inline weights) using the shared .rankFocusBadge CSS.
+  // Match renderTech's in-card (sm) rank badge markup/typography exactly.
+  // Keep local to Services Dashboard so it won't affect other pages.
+  function rankBadgeHtmlSvc(rank, total, top, small){
+    const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
+    const t = (total===null || total===undefined || total==="") ? "—" : total;
+    const cls = small ? "rankFocusBadge sm" : "rankFocusBadge";
     return `
-      <div class="rankFocusBadge" style="--w:90px;--h:90px;--r:20px;" title="${safe(top)} rank">
-        <div class="rfbFocus" style="font-weight:1000;text-transform:none">${safe(top)}</div>
-        <div class="rfbMain" style="font-weight:1000"><span class="rfbHash" style="font-weight:1000">#</span>${rk}</div>
-        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${total}</span></div>
+      <div class="${cls}">
+        <div class="rfbFocus">${safe(top)}</div>
+        <div class="rfbMain">${r}</div>
+        <div class="rfbOf"><span class="rfbOfWord">of</span><span class="rfbOfNum">${t}</span></div>
       </div>
     `;
   }
 
-
-// ===== Section header (svcDashSecHead) techrow-like right-side comp pills + rank badge =====
-function _bandClassFromPct(pct){
-  if(!Number.isFinite(pct)) return "";
-  if(pct >= 0.80) return "bGreen";
-  if(pct >= 0.60) return "bYellow";
-  return "bRed";
-}
-
-function _secStatsForServices(servicesList){
-  const svcList = (servicesList||[]).map(String).filter(Boolean);
-  let asr=0, sold=0;
-  for(const name of svcList){
-    // Use the same aggregation as service tiles
-    let a=0, so=0;
-    for(const t of techsAll){
-      const row = (t.categories||{})[name];
-      if(!row) continue;
-      a += Number(row.asr)||0;
-      so += Number(row.sold)||0;
-    }
-    asr += a; sold += so;
+  function goalRankBadge(serviceName){
+    const rk = _svcRankMap.get(serviceName) || '—';
+    const top = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
+    const total = fmtInt(_svcRankDen);
+    return rankBadgeHtmlSvc(rk, total, top, true);
   }
-  const ros = totalRos || 0;
-  const asrPerRo = ros ? (asr/ros) : NaN;
-  const soldPerRo = ros ? (sold/ros) : NaN;
-  const soldPerAsr = asr ? (sold/asr) : NaN;
-
-  // Goals aggregated the same way as _storeGoalRatios() but scoped to servicesList
-  let gAsr=0, gSold=0;
-  for(const name of svcList){
-    const gReq = Number(getGoal(name,'req'));
-    const gClose = Number(getGoal(name,'close'));
-    if(Number.isFinite(gReq) && gReq>0){
-      gAsr += gReq;
-      if(Number.isFinite(gClose) && gClose>0){
-        gSold += (gReq * gClose);
-      }
-    }
-  }
-  const closeGoal = (gAsr>0) ? (gSold/gAsr) : NaN;
-  const pctAsrGoal = (Number.isFinite(asrPerRo) && gAsr>0) ? (asrPerRo/gAsr) : NaN;
-  const pctSoldGoal = (Number.isFinite(soldPerRo) && gSold>0) ? (soldPerRo/gSold) : NaN;
-  const pctCloseGoal = (Number.isFinite(soldPerAsr) && Number.isFinite(closeGoal) && closeGoal>0) ? (soldPerAsr/closeGoal) : NaN;
-
-  return {asr, sold, ros, asrPerRo, soldPerRo, soldPerAsr, gAsr, gSold, closeGoal, pctAsrGoal, pctSoldGoal, pctCloseGoal};
-}
-
-function _secCompPillsHtml(secKey){
-  const info = _svcSecInfo.get(secKey);
-  if(!info) return '';
-  const s = info.stats;
-
-  const asrCls = _bandClassFromPct(s.pctAsrGoal);
-  const soldRoCls = _bandClassFromPct(s.pctSoldGoal);
-  const closeCls = _bandClassFromPct(s.pctCloseGoal);
-
-  const asrGoalTxt = (Number.isFinite(s.gAsr) && s.gAsr>0) ? fmt1(s.gAsr,2) : '—';
-  const soldGoalTxt = (Number.isFinite(s.gSold) && s.gSold>0) ? fmt1(s.gSold,2) : '—';
-
-  return `
-    <div class="pillGroup">
-      <div class="pill ${asrCls}">
-        <div class="k">ASRs/RO</div>
-        <div class="v">${Number.isFinite(s.asrPerRo) ? fmt1(s.asrPerRo,2) : '—'}</div>
-      </div>
-      <div class="pill goalPill">
-        <div class="k">ASR Goal</div>
-        <div class="v">${asrGoalTxt}</div>
-      </div>
-    </div>
-    <div class="pillGroup">
-      <div class="pill ${closeCls}">
-        <div class="k">Sold/ASR</div>
-        <div class="v">${Number.isFinite(s.soldPerAsr) ? fmtPct(s.soldPerAsr) : '—'}</div>
-      </div>
-      <div class="pill ${soldRoCls}">
-        <div class="k">Sold/RO</div>
-        <div class="v">${Number.isFinite(s.soldPerRo) ? fmt1(s.soldPerRo,2) : '—'}</div>
-      </div>
-      <div class="pill goalPill">
-        <div class="k">Sold Goal</div>
-        <div class="v">${soldGoalTxt}</div>
-      </div>
-    </div>
-  `;
-}
-
-function _secRankBadgeHtml(secKey){
-  const rk = _svcSecRank.get(secKey) || '—';
-  const total = fmtInt(_svcSecDen);
-  const top = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
-  return `
-    <div class="rankFocusBadge sm">
-      <div class="rfbFocus" style="font-weight:1000;text-transform:none">${safe(top)}</div>
-      <div class="rfbMain" style="font-weight:1000">${rk}</div>
-      <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${total}</span></div>
-    </div>
-  `;
-}
 
 
   // Top-right block
@@ -637,14 +584,41 @@ function _secRankBadgeHtml(secKey){
 
   // Header panel (copied structure from Technician Dashboard)
   const header = `
-    <div class="panel techHeaderPanel" style="height:100%;min-width:0">
+
+    <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
+<div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
+  <!-- Notch extension (matches Goals notch configuration) -->
+  <div class="panel techMenuNotch" style="
+    position:absolute;
+    left:-68px;
+    top:0px;
+    width:68px;
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-top-right-radius:0px;
+    border-bottom-right-radius:0px;
+    border-right:none;
+    z-index:3;
+  ">
+    <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+      font-size:1.5em;
+      line-height:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 10px;
+      cursor:pointer;
+      color:inherit;
+      user-select:none;
+    ">☰</label>
+  </div>
+
+  <div class="panel techHeaderPanel" style="height:100%;min-width:0;border-top-left-radius:0px;border-left:none;">
       <div class="phead">
         <div class="titleRow techTitleRow">
-          <div class="techTitleLeft">
-            <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-          </div>
-
-          <div class="techNameWrap">
+<div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;justify-content:flex-start">
               <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
                 <div class="h2 techH2Big">Services Dashboard</div>
@@ -732,9 +706,9 @@ function _secRankBadgeHtml(secKey){
       </div>
       </div>
     </div>
+  </div>
   `;
-
-  // ---- Helpers for cards + tech list ----
+// ---- Helpers for cards + tech list ----
   let storeAvgRos=0, storeAvgAsr=0, storeAvgSold=0;
   let teamBaseCounts=null;
 
@@ -850,58 +824,99 @@ function _secRankBadgeHtml(secKey){
     return {serviceName, totalRos, asr, sold, reqTot, closeTot, storeAvgRos: storeAvgRosL, storeAvgAsr: storeAvgAsrL, storeAvgSold: storeAvgSoldL, teamBaseCounts: teamBaseCountsL, techRows};
   }
 
-  
-// Precompute section-level stats + ranks (used by svcDashSecHead comp pills + rank badge)
-const _svcSecInfo = new Map();   // openKey -> {services, stats}
-const _svcSecRank = new Map();   // openKey -> rank (1=best)
-let _svcSecDen = 0;
+  // Section ranking (Maintenance / Fluids / etc.) by the selected Goal filter.
+  // Uses Team + Fluids scope.
+  const _secRankInfo = (()=>{
+    const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
+    const rows = [];
+    const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
+    const gCloseOverall = Number(getGoal('__META_GLOBAL','close'));
 
-(function _buildSectionStats(){
-  const allCatsSet = new Set();
-  for(const t of techsAll){
-    for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
-  }
-  const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
-  for(const sec of secs){
-    const secName = String(sec?.name||'').trim();
-    if(!secName) continue;
-    const key = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
-    const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
-    if(!services.length) continue;
-    const stats = _secStatsForServices(services);
-    _svcSecInfo.set(key, {services, stats, name: secName});
-  }
+    for(const sec of secs){
+      const nm = String(sec?.name||'').trim();
+      if(!nm) continue;
+      const low = nm.toLowerCase();
+      if(fluidsSel==='only' && low!=='fluids') continue;
+      if(fluidsSel==='without' && low==='fluids') continue;
 
-  const keys = Array.from(_svcSecInfo.keys());
-  _svcSecDen = keys.length || 1;
+      // Aggregate across all categories in this section for the filtered tech set
+      let ros=0, asr=0, sold=0;
+      for(const t of techs){
+        for(const cat of (sec.categories||[])){
+          const row = (t.categories||{})[cat];
+          if(!row) continue;
+          ros += Number(row.ros)||0;
+          asr += Number(row.asr)||0;
+          sold += Number(row.sold)||0;
+        }
+      }
 
-  // Rank sections by % of goal for current rankMetric (descending)
-  const scored = keys.map(k=>{
-    const stt = _svcSecInfo.get(k)?.stats;
-    const pct = (rankMetric==='sold') ? (stt?.pctSoldGoal) : (stt?.pctAsrGoal);
-    const v = Number.isFinite(pct) ? pct : -Infinity;
-    return {k, v};
-  }).sort((a,b)=> (b.v - a.v) || a.k.localeCompare(b.k));
+      const asrPerRo = ros ? (asr/ros) : NaN;
+      const soldPct = asr ? (sold/asr) : NaN;
+      const pctGoalAsr = (Number.isFinite(asrPerRo) && Number.isFinite(gReqOverall) && gReqOverall>0) ? (asrPerRo/gReqOverall) : NaN;
+      const pctGoalSold = (Number.isFinite(soldPct) && Number.isFinite(gCloseOverall) && gCloseOverall>0) ? (soldPct/gCloseOverall) : NaN;
+      const pct = (goalMetric==='sold') ? pctGoalSold : pctGoalAsr;
+      rows.push({name:nm, pct});
+    }
 
-  scored.forEach((x,i)=> _svcSecRank.set(x.k, i+1));
-})();
+    const den = rows.length || 1;
+    rows.sort((a,b)=>{
+      const av = Number.isFinite(a.pct) ? a.pct : -Infinity;
+      const bv = Number.isFinite(b.pct) ? b.pct : -Infinity;
+      if(av===bv) return a.name.localeCompare(b.name);
+      return av < bv ? 1 : -1;
+    });
+    const map = new Map();
+    rows.forEach((r,i)=> map.set(String(r.name), i+1));
+    return {map, den};
+  })();
 
-// Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
+  // Render one section panel (Maintenance/Fluids/Brakes/Tires/etc)
   function renderSection(sec){
     const secName = String(sec?.name||'').trim();
     if(!secName) return '';
+
+    // Fluids filter controls which sections participate in rendering/calcs
+    const secLower = secName.toLowerCase();
+    if(fluidsSel==='only' && secLower!=='fluids') return '';
+    if(fluidsSel==='without' && secLower==='fluids') return '';
 
     const openKey = secName.toLowerCase().replace(/[^a-z0-9]+/g,'_');
     const isOpen = !!st.open[openKey];
 
     // Only include services that exist in dataset (intersection with any tech categories)
     const allCatsSet = new Set();
-    for(const t of techsAll){
+    for(const t of techs){
       for(const k of Object.keys(t.categories||{})) allCatsSet.add(k);
     }
     const services = (sec.categories||[]).map(String).filter(Boolean).filter(c=>allCatsSet.has(c));
 
     const aggs = services.map(buildServiceAgg);
+
+    // Section-level totals and focus stats (team + fluids scoped)
+    const secRos  = aggs.reduce((s,x)=>s+(Number(x.totalRos)||0),0);
+    const secAsr  = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
+    const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
+    const secAvgOdo = techs.length ? (techs.reduce((s,t)=>s+(Number(t.odo)||0),0) / techs.length) : 0;
+    const secSoldPerRo = (Number.isFinite(secRos) && secRos>0) ? (secSold/secRos) : NaN;
+    const secAsrPerRo = secRos ? (secAsr/secRos) : null;
+    const secSoldPct = secAsr ? (secSold/secAsr) : null;
+
+    // Focus stats: determined by Goal filter
+    const secTopIsSold = (goalMetric==='sold');
+    const secTopVal = secTopIsSold ? secSoldPct : secAsrPerRo;
+    const secTopLbl = secTopIsSold ? 'Sold%' : 'ASR/RO';
+    const secBotVal = secTopIsSold ? secAsrPerRo : secSoldPct;
+    const secBotLbl = secTopIsSold ? 'ASR/RO' : 'Sold%';
+
+    // Goal dials: compare section focus stats to OVERALL goals from Goals page
+    const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
+    const gCloseOverall = Number(getGoal('__META_GLOBAL','close'));
+    const secPctGoalAsr = (Number.isFinite(secAsrPerRo) && Number.isFinite(gReqOverall) && gReqOverall>0) ? (secAsrPerRo/gReqOverall) : NaN;
+    const secPctGoalSold = (Number.isFinite(secSoldPct) && Number.isFinite(gCloseOverall) && gCloseOverall>0) ? (secSoldPct/gCloseOverall) : NaN;
+
+    const secRank = _secRankInfo.map.get(secName) || '—';
+    const secRankTop = (goalMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
     // Section averages (used for dials when not GOAL focus)
     const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
@@ -985,16 +1000,45 @@ let _svcSecDen = 0;
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
           <div class="svcDashSecHead">
-            <div class="svcSecHeadRow">
-              <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
-              <div style="display:flex;flex-direction:column;align-items:flex-start;min-width:0">
+            <div class="svcDashSecHeadLeft">
+              <div class="secHeadTop">
+                <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
                 <div class="svcDashSecTitle">${safe(secName)}</div>
-                <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
+              </div>
+              <div class="svcDashSecPillsLeft pillsMini">
+                <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
+                <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>
+                <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
+                <div class="pillMini sold"><div class="k">Sold</div><div class="v">${fmtInt(secSold)}</div></div>
+                <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'}</div></div>
               </div>
             </div>
-            <div class="svcSecHeadRight">
-              <div class="svcSecPills">${_secCompPillsHtml(openKey)}</div>
-              ${_secRankBadgeHtml(openKey)}
+
+            <div class="svcDashSecHeadRight">
+              <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
+              <div class="svcSecHeadDials">
+                ${goalMetric==='sold'
+                  ? `
+                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
+                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                  `
+                  : `
+                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
+                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                  `
+                }
+              </div>
+              ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), (goalMetric==='sold'?'Sold Goal':'ASR Goal'), false)}
+              <div class="svcSecFocusStats">
+                <div>
+                  <div class="statValTop">${secTopVal===null ? "—" : (secTopLbl==="Sold%" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
+                  <div class="statLbl">${safe(secTopLbl)}</div>
+                </div>
+                <div>
+                  <div class="statValBot">${secBotVal===null ? "—" : (secBotLbl==="Sold%" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
+                  <div class="statLbl">${safe(secBotLbl)}</div>
+                </div>
+              </div>
             </div>
           </div>
         </summary>
@@ -1304,6 +1348,26 @@ function tbMiniBoxSvc(title, rows, mode, kind){
 
   const app = document.getElementById('app');
   app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;
+
+// Force the notch to match the header panel background exactly (prevents any shade mismatch)
+(function syncNotchBg(){
+  const notch = document.querySelector('.pageServicesDash .techNotchStage .techMenuNotch');
+  const panel = document.querySelector('.pageServicesDash .techNotchStage .techHeaderPanel');
+  if(!notch || !panel) return;
+
+  const apply = ()=>{
+    const cs = getComputedStyle(panel);
+    notch.style.backgroundColor = cs.backgroundColor;
+    notch.style.backgroundImage = cs.backgroundImage;
+    notch.style.backgroundRepeat = cs.backgroundRepeat;
+    notch.style.backgroundPosition = cs.backgroundPosition;
+    notch.style.backgroundSize = cs.backgroundSize;
+    notch.style.backgroundAttachment = cs.backgroundAttachment;
+    notch.style.borderColor = cs.borderTopColor;
+  };
+
+  requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
+})();
 
   // Wire events
   // Filters
