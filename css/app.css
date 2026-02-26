@@ -2285,7 +2285,7 @@ body.route-tech .svcMetaLine{
   text-transform:none !important;
   letter-spacing:.2px !important;
   font-weight:900 !important;
-  color:var(--muted) !important;
+  color: rgba(234,240,255,.75) !important;
 }
 
 
@@ -2421,4 +2421,32 @@ body.route-tech .secHdrStats .secStatBlock:first-child .secStatVal{
 }
 body.route-tech .secHdrStats .secStatBlock:last-child .secStatVal{
   font-size:28px !important;
+}
+
+
+/* === PATCH 2026-02-25: Tech Details text colors (k/v, svcMetaLine, stat titles) === */
+/* K-class (labels): #eaf0ff @ 75% opacity */
+body.route-tech .pill .k,
+body.route-tech .secStatTitle,
+body.route-tech .mbKicker,
+body.route-tech .mbLbl,
+body.route-tech .tLbl,
+body.route-tech .benchHdr,
+body.route-tech .benchLbl{
+  color: rgba(234,240,255,.75) !important;
+  opacity: 1 !important;
+}
+
+/* svcMetaLine: #eaf0ff @ 75% opacity (explicit) */
+body.route-tech .svcMetaLine{
+  color: rgba(234,240,255,.75) !important;
+  opacity: 1 !important;
+}
+
+/* V-class (values): solid #eaf0ff */
+body.route-tech .pill .v,
+body.route-tech .secStatVal,
+body.route-tech .secStatValue{
+  color: #eaf0ff !important;
+  opacity: 1 !important;
 }
