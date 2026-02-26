@@ -24,7 +24,7 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
       /* Section head layout (left pills + right dials/badge/stats like renderTech) */
       .pageServicesDash .svcDashSecHeadLeft{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 auto;}
-      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:column;gap:12px;align-items:flex-end;min-width:0;flex:0 0 auto;}
+      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:row;gap:22px;align-items:center;justify-content:flex-end;white-space:nowrap;min-width:0;flex:0 0 auto;}
       .pageServicesDash .svcDashSecHeadRightTop{display:flex;align-items:center;gap:22px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .svcSecHeadDials{display:flex;align-items:center;gap:22px;}
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap{display:flex;align-items:center;justify-content:center;}
