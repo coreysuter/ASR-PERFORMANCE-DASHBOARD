@@ -660,6 +660,18 @@ const header = `
 
     <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
 <div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
+      <!-- Left border continuation: start below the notch height so there is no seam -->
+      <div class="techNotchLeftBorder" style="
+        position:absolute;
+        left:0px;
+        top:56px;
+        bottom:0px;
+        width:1px;
+        background:rgba(255,255,255,0.18);
+        z-index:2;
+        pointer-events:none;
+      "></div>
+
   <!-- Notch extension (matches Goals notch) -->
   <div class="panel techMenuNotch" style="
     position:absolute;
@@ -1392,7 +1404,11 @@ return `
     notch.style.backgroundSize = cs.backgroundSize;
     notch.style.backgroundAttachment = cs.backgroundAttachment;
     notch.style.borderColor = cs.borderTopColor;
-  };
+        const leftBorder = document.querySelector('body.route-tech .techNotchStage .techNotchLeftBorder');
+      if(leftBorder){
+        leftBorder.style.backgroundColor = cs.borderLeftColor || cs.borderTopColor;
+      }
+};
 
   requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
 })();
