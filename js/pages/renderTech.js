@@ -667,8 +667,8 @@ const header = `
         top:56px;
         bottom:0px;
         width:1px;
-        background:rgba(255,255,255,0.18);
-        z-index:2;
+        background:transparent;
+        z-index:1;
         pointer-events:none;
       "></div>
 
@@ -1404,7 +1404,7 @@ return `
     notch.style.backgroundSize = cs.backgroundSize;
     notch.style.backgroundAttachment = cs.backgroundAttachment;
     notch.style.borderColor = cs.borderTopColor;
-        const leftBorder = document.querySelector('body.route-tech .techNotchStage .techNotchLeftBorder');
+        const leftBorder = document.querySelector('.techNotchStage .techNotchLeftBorder');
       if(leftBorder){
         leftBorder.style.backgroundColor = cs.borderLeftColor || cs.borderTopColor;
       }
