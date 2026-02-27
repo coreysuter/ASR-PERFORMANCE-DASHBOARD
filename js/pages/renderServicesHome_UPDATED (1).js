@@ -37,9 +37,10 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHeadRightTop .rankFocusBadge{transform:none;align-self:center;}
       /* Sold stats stack */
       .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
-      .pageServicesDash .svcSecFocusStats .statValTop{font-size:34px;line-height:1;font-weight:1000;color:#fff;}
-      .pageServicesDash .svcSecFocusStats .statValBot{font-size:24px;line-height:1;font-weight:1000;color:#fff;opacity:.92;}
-      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;}
+      .pageServicesDash .svcSecFocusStats>div{display:flex;flex-direction:column;align-items:center;}
+      .pageServicesDash .svcSecFocusStats .statValTop{font-size:32px;line-height:1;font-weight:1000;color:#fff;text-align:center;}
+      .pageServicesDash .svcSecFocusStats .statValBot{font-size:22px;line-height:1;font-weight:1000;color:#fff;opacity:.92;text-align:center;}
+      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;text-align:center;width:100%;}
       /* Pills under category name (far-left) */
       .pageServicesDash .svcDashSecPillsLeft{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;}
 
@@ -909,9 +910,9 @@ function serviceGoalDial(pct, sz){
     // Focus stats: determined by Goal filter
     const secTopIsSold = (goalMetric==='sold');
     const secTopVal = secTopIsSold ? secSoldPct : secAsrPerRo;
-    const secTopLbl = secTopIsSold ? 'Sold%' : 'ASR/RO';
+    const secTopLbl = secTopIsSold ? 'Sold%' : 'ASRs/RO';
     const secBotVal = secTopIsSold ? secAsrPerRo : secSoldPct;
-    const secBotLbl = secTopIsSold ? 'ASR/RO' : 'Sold%';
+    const secBotLbl = secTopIsSold ? 'ASRs/RO' : 'Sold%';
 
     // Goal dials: compare section focus stats to OVERALL goals from Goals page
     const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
