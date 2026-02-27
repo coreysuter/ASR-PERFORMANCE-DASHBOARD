@@ -24,26 +24,30 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
       /* Section head layout (left pills + right dials/badge/stats like renderTech) */
       .pageServicesDash .svcDashSecHeadLeft{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 auto;}
-      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:column;gap:12px;align-items:flex-end;min-width:0;flex:0 0 auto;}
+      .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:row;gap:22px;align-items:center;justify-content:flex-end;white-space:nowrap;min-width:0;flex:0 0 auto;}
       .pageServicesDash .svcDashSecHeadRightTop{display:flex;align-items:center;gap:22px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .svcSecHeadDials{display:flex;align-items:center;gap:22px;}
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap{display:flex;align-items:center;justify-content:center;}
       /* Focus + mini dial sizing matches renderTech section header vibe */
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus{width:90px;height:90px;flex:0 0 auto;}
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini{width:74px;height:74px;flex:0 0 auto;opacity:.98;}
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
-      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini .svcGauge{--sz:74px !important;width:74px !important;height:74px !important;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus{width:77px;height:77px;flex:0 0 auto;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini{width:63px;height:63px;flex:0 0 auto;opacity:.98;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus .svcGauge{--sz:77px !important;width:77px !important;height:77px !important;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeWrap.mini .svcGauge{--sz:63px !important;width:63px !important;height:63px !important;}
       /* Rank badge: use the full-size badge (matches renderTech category header badge) */
       .pageServicesDash .svcDashSecHeadRightTop .rankFocusBadge{transform:none;align-self:center;}
       /* Sold stats stack */
       .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
       .pageServicesDash .svcSecFocusStats .statValTop{font-size:34px;line-height:1;font-weight:1000;color:#fff;}
       .pageServicesDash .svcSecFocusStats .statValBot{font-size:24px;line-height:1;font-weight:1000;color:#fff;opacity:.92;}
-      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;display:block;text-align:center;}
+      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;}
       /* Pills under category name (far-left) */
       .pageServicesDash .svcDashSecPillsLeft{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;}
 
       .pageServicesDash .svcDashSecTitle{font-size:33px;font-weight:900;letter-spacing:.2px;line-height:1.05;}
+      .pageServicesDash .svcDashSecTitleRow{display:flex;align-items:center;gap:10px;}
+      /* Indent pills so they start under the title (not under the +/-) */
+      .pageServicesDash .svcDashSecPillsLeft{padding-left:32px;}
+
       .pageServicesDash .svcDashSecMeta{font-size:12px;color:var(--muted);font-weight:900;letter-spacing:.2px;white-space:nowrap}
       .pageServicesDash .svcDashBody{padding:12px 12px 14px;}
 
@@ -905,9 +909,9 @@ function serviceGoalDial(pct, sz){
     // Focus stats: determined by Goal filter
     const secTopIsSold = (goalMetric==='sold');
     const secTopVal = secTopIsSold ? secSoldPct : secAsrPerRo;
-    const secTopLbl = secTopIsSold ? 'Sold%' : 'ASRs/RO';
+    const secTopLbl = secTopIsSold ? 'Sold%' : 'ASR/RO';
     const secBotVal = secTopIsSold ? secAsrPerRo : secSoldPct;
-    const secBotLbl = secTopIsSold ? 'ASRs/RO' : 'Sold%';
+    const secBotLbl = secTopIsSold ? 'ASR/RO' : 'Sold%';
 
     // Goal dials: compare section focus stats to OVERALL goals from Goals page
     const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
@@ -1001,7 +1005,7 @@ function serviceGoalDial(pct, sz){
         <summary>
           <div class="svcDashSecHead">
             <div class="svcDashSecHeadLeft">
-              <div class="secHeadTop">
+              <div class="svcDashSecTitleRow">
                 <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
                 <div class="svcDashSecTitle">${safe(secName)}</div>
               </div>
@@ -1015,8 +1019,7 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="svcDashSecHeadRight">
-              <div class="svcDashSecMeta">${fmtInt(services.length)} services</div>
-              <div class="svcSecHeadDials">
+                            <div class="svcSecHeadDials">
                 ${goalMetric==='sold'
                   ? `
                     <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
