@@ -2450,3 +2450,15 @@ body.route-tech .secStatValue{
   color: #eaf0ff !important;
   opacity: 1 !important;
 }
+
+
+/* === PATCH 2026-02-27: Rank Badge font weight ===
+   Force Rank Badge typography to 1000 weight (per request).
+*/
+.rankFocusBadge .rfbFocus,
+.rankFocusBadge .rfbMain,
+.rankFocusBadge .rfbMain::before,
+.rankFocusBadge .rfbOfWord,
+.rankFocusBadge .rfbOfNum{
+  font-weight:1000 !important;
+}
