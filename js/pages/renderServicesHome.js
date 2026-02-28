@@ -483,7 +483,7 @@ function renderServicesHome(){
   }
 
 // --- Service tile goal dial (same stacked % / arrow / Goal format as svcHdrGoalDials) ---
-function serviceGoalDial(pct, sz){
+function serviceGoalDial(pct, sz, subLabel){
   const p = Number(pct);
   const finite = Number.isFinite(p);
   const pClamped = finite ? Math.max(0, p) : 0;
@@ -512,7 +512,7 @@ function serviceGoalDial(pct, sz){
       <span class="pctStack2">
         <span class="pctMain">${absDelta}%</span>
         <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-        <span class="pctSub">Goal</span>
+        <span class="pctSub">${safe(subLabel || "Goal")}</span>
       </span>
     </span>
   </span>`;
@@ -1041,10 +1041,9 @@ function serviceGoalDial(pct, sz){
               <div class="sdCatHdrTop">
                 <div class="sdCatHdrDialCol">
                   <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz, (rankMetric==='sold' ? 'SOLD' : 'ASR'))}
                   </div>
-                  <div class="sdCatHdrDialLbl">${rankMetric==='sold' ? 'SOLD' : 'ASR'}</div>
-                </div>
+</div>
                 ${goalRankBadge(s.serviceName)}
               </div>
             </div>
