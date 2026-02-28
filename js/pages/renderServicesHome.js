@@ -1041,7 +1041,7 @@ function serviceGoalDial(pct, sz, subLabel){
               <div class="sdCatHdrTop">
                 <div class="sdCatHdrDialCol">
                   <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz, (rankMetric==='sold' ? 'SOLD' : 'ASR'))}
+                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz, (rankMetric==='sold' ? 'Sold Goal' : 'ASR Goal'))}
                   </div>
 </div>
                 ${goalRankBadge(s.serviceName)}
