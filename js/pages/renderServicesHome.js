@@ -176,6 +176,18 @@ function renderServicesHome(){
       .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
+      /* === Dial label stacking (section + service tiles) === */
+      .pageServicesDash .svcSecHeadDials .svcGaugeCol{display:flex;flex-direction:column;align-items:center;gap:6px;}
+      .pageServicesDash .svcSecHeadDials .svcGaugeLbl{margin-top:0;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
+      .pageServicesDash .sdCatHdrRow{display:flex;flex-direction:column;align-items:center;gap:6px;}
+      .pageServicesDash .sdCatHdrRow{flex-direction:column !important;align-items:center !important;justify-content:center !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatHdrDialLbl{width:100% !important;display:block !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatHdrTop{display:flex;align-items:center;gap:10px;justify-content:flex-end;white-space:nowrap;}
+      .pageServicesDash .sdCatHdrRow .sdCatHdrDialLbl{font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;text-align:center;}
+      /* Match sdCatHdr dial size to section focus dial */
+      .pageServicesDash .sdCatHdrRow .svcGaugeWrap{width:90px;height:90px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+      .pageServicesDash .sdCatHdrRow .svcGauge{--sz:90px !important;width:90px !important;height:90px !important;}
+
 
       /* sdCatHdrRow rank badge: +15% size and adjust # position for double-digits */
       .pageServicesDash .sdCatHdrRow .rankFocusBadge.sm{
@@ -320,10 +332,12 @@ function renderServicesHome(){
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
       .pageServicesDash .techHeaderPanel select option{color:#000 !important;}
-      /* === sdCatHdrRow micro-alignment tweaks (label slightly left + badge top aligned to dial) === */
-      .pageServicesDash .sdCatHdrRow{align-items:flex-start !important;}
-      .pageServicesDash .sdCatHdrRow .rankFocusBadge{margin-top:-1px;}
-      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{transform:translateX(-2px);}
+
+      /* === sdCatHdrRow: keep dial + badge in a row, but center label directly under the DIAL (not between dial+badge) === */
+      .pageServicesDash .sdCatHdrRow{flex-direction:row !important;align-items:flex-start !important;justify-content:flex-end !important;gap:10px !important;}
+      .pageServicesDash .sdCatHdrTop{display:flex;align-items:flex-start;gap:10px;justify-content:flex-end;white-space:nowrap;}
+      .pageServicesDash .sdCatHdrDialCol{display:flex;flex-direction:column;align-items:center;gap:6px;}
+      .pageServicesDash .sdCatHdrDialCol .sdCatHdrDialLbl{width:90px;text-align:center;}
 
     `;
   })();
@@ -423,7 +437,7 @@ function renderServicesHome(){
     const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
 
     const defaultHtml = `<span class="pctText pctDefault"><span class="pctTitle">${safe(top)}</span><span class="pctTitle">${safe(bot)}</span></span>`;
-    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">Goal</span></span>`;
+    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">${safe(subLbl||"Goal")}</span></span>`;
 
     return `<span class="svcGauge ${cls}" data-p="${ring}">
       <svg viewBox="0 0 36 36" aria-hidden="true">
@@ -462,14 +476,14 @@ function renderServicesHome(){
         <span class="pctStack2">
           <span class="pctMain">${absDelta}%</span>
           <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-          <span class="pctSub">Goal</span>
+          <span class="pctSub">${safe(subLbl||"Goal")}</span>
         </span>
       </span>
     </span>`;
   }
 
 // --- Service tile goal dial (same stacked % / arrow / Goal format as svcHdrGoalDials) ---
-function serviceGoalDial(pct, sz){
+function serviceGoalDial(pct, sz, subLbl){
   const p = Number(pct);
   const finite = Number.isFinite(p);
   const pClamped = finite ? Math.max(0, p) : 0;
@@ -498,7 +512,7 @@ function serviceGoalDial(pct, sz){
       <span class="pctStack2">
         <span class="pctMain">${absDelta}%</span>
         <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-        <span class="pctSub">Goal</span>
+        <span class="pctSub">${safe(subLbl||"Goal")}</span>
       </span>
     </span>
   </span>`;
@@ -978,7 +992,7 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-            const sdDialSz = 80; // increased by 25% from 64px
+            const sdDialSz = 90; // increased by 25% from 64px
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
       const goalTxt = `Goal ${(!Number.isFinite(goalForThis) || goalForThis<=0)
@@ -1024,10 +1038,15 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="sdCatHdrRow">
-              <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+              <div class="sdCatHdrTop">
+                <div class="sdCatHdrDialCol">
+                  <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
+                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz, (rankMetric==='sold'?'SOLD':'ASR'))}
+                  </div>
+                  <div class="sdCatHdrDialLbl">${rankMetric==='sold' ? 'SOLD' : 'ASR'}</div>
+                </div>
+                ${goalRankBadge(s.serviceName)}
               </div>
-              ${goalRankBadge(s.serviceName)}
             </div>
           </div>
 
@@ -1059,12 +1078,24 @@ function serviceGoalDial(pct, sz){
                             <div class="svcSecHeadDials">
                 ${goalMetric==='sold'
                   ? `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                    <div class="svcGaugeCol mini">
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
+                      <div class="svcGaugeLbl">ASR</div>
+                    </div>
+                    <div class="svcGaugeCol focus">
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                      <div class="svcGaugeLbl">SOLD</div>
+                    </div>
                   `
                   : `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                    <div class="svcGaugeCol mini">
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
+                      <div class="svcGaugeLbl">SOLD</div>
+                    </div>
+                    <div class="svcGaugeCol focus">
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                      <div class="svcGaugeLbl">ASR</div>
+                    </div>
                   `
                 }
               </div>
