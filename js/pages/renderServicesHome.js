@@ -829,13 +829,41 @@ function serviceGoalDial(pct, sz){
     return {serviceName, totalRos, asr, sold, reqTot, closeTot, storeAvgRos: storeAvgRosL, storeAvgAsr: storeAvgAsrL, storeAvgSold: storeAvgSoldL, teamBaseCounts: teamBaseCountsL, techRows};
   }
 
-  // Section ranking (Maintenance / Fluids / etc.) by the selected Goal filter.
+  
+  // --- Section goal helpers (Services Dashboard only) ---
+  function _secMetaKeyFromName(secName){
+    const nm = String(secName||"").trim().toUpperCase();
+    if(!nm) return "";
+    // Example: "Maintenance" -> "__META_MAINTENANCE"
+    return "__META_" + nm.replace(/[^A-Z0-9]+/g,"_").replace(/^_+|_+$/g,"");
+  }
+  function _avgGoalForCats(cats, metric){
+    let sum = 0, n = 0;
+    for(const c of (cats||[])){
+      const v = Number(getGoal(String(c), metric));
+      if(Number.isFinite(v) && v>0){ sum += v; n++; }
+    }
+    return n ? (sum/n) : NaN;
+  }
+  function _getSectionGoal(sec, metric){
+    const key = _secMetaKeyFromName(sec?.name);
+    // 1) Prefer explicit section meta goal, if it exists.
+    const metaVal = Number(getGoal(key, metric));
+    if(Number.isFinite(metaVal) && metaVal>0) return metaVal;
+
+    // 2) Fall back to "__META_GLOBAL" if you later add it.
+    const globalVal = Number(getGoal("__META_GLOBAL", metric));
+    if(Number.isFinite(globalVal) && globalVal>0) return globalVal;
+
+    // 3) Final fallback: average of service goals in this section.
+    return _avgGoalForCats(sec?.categories, metric);
+  }
+
+// Section ranking (Maintenance / Fluids / etc.) by the selected Goal filter.
   // Uses Team + Fluids scope.
   const _secRankInfo = (()=>{
     const secs = Array.isArray(DATA.sections) ? DATA.sections : [];
     const rows = [];
-    const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
-    const gCloseOverall = Number(getGoal('__META_GLOBAL','close'));
 
     for(const sec of secs){
       const nm = String(sec?.name||'').trim();
@@ -843,6 +871,9 @@ function serviceGoalDial(pct, sz){
       const low = nm.toLowerCase();
       if(fluidsSel==='only' && low!=='fluids') continue;
       if(fluidsSel==='without' && low==='fluids') continue;
+
+      const gReqSec = _getSectionGoal(sec,'req');
+      const gCloseSec = _getSectionGoal(sec,'close');
 
       // Aggregate across all categories in this section for the filtered tech set
       let ros=0, asr=0, sold=0;
@@ -858,8 +889,8 @@ function serviceGoalDial(pct, sz){
 
       const asrPerRo = ros ? (asr/ros) : NaN;
       const soldPct = asr ? (sold/asr) : NaN;
-      const pctGoalAsr = (Number.isFinite(asrPerRo) && Number.isFinite(gReqOverall) && gReqOverall>0) ? (asrPerRo/gReqOverall) : NaN;
-      const pctGoalSold = (Number.isFinite(soldPct) && Number.isFinite(gCloseOverall) && gCloseOverall>0) ? (soldPct/gCloseOverall) : NaN;
+      const pctGoalAsr = (Number.isFinite(asrPerRo) && Number.isFinite(gReqSec) && gReqSec>0) ? (asrPerRo/gReqSec) : NaN;
+      const pctGoalSold = (Number.isFinite(soldPct) && Number.isFinite(gCloseSec) && gCloseSec>0) ? (soldPct/gCloseSec) : NaN;
       const pct = (goalMetric==='sold') ? pctGoalSold : pctGoalAsr;
       rows.push({name:nm, pct});
     }
@@ -914,11 +945,11 @@ function serviceGoalDial(pct, sz){
     const secBotVal = secTopIsSold ? secAsrPerRo : secSoldPct;
     const secBotLbl = secTopIsSold ? 'ASRs/RO' : 'Sold%';
 
-    // Goal dials: compare section focus stats to OVERALL goals from Goals page
-    const gReqOverall = Number(getGoal('__META_GLOBAL','req'));
-    const gCloseOverall = Number(getGoal('__META_GLOBAL','close'));
-    const secPctGoalAsr = (Number.isFinite(secAsrPerRo) && Number.isFinite(gReqOverall) && gReqOverall>0) ? (secAsrPerRo/gReqOverall) : NaN;
-    const secPctGoalSold = (Number.isFinite(secSoldPct) && Number.isFinite(gCloseOverall) && gCloseOverall>0) ? (secSoldPct/gCloseOverall) : NaN;
+    // Goal dials: compare section focus stats to THIS SECTION's goals (with safe fallbacks)
+    const gReqSec = _getSectionGoal(sec,'req');
+    const gCloseSec = _getSectionGoal(sec,'close');
+    const secPctGoalAsr = (Number.isFinite(secAsrPerRo) && Number.isFinite(gReqSec) && gReqSec>0) ? (secAsrPerRo/gReqSec) : NaN;
+    const secPctGoalSold = (Number.isFinite(secSoldPct) && Number.isFinite(gCloseSec) && gCloseSec>0) ? (secSoldPct/gCloseSec) : NaN;
 
     const secRank = _secRankInfo.map.get(secName) || '—';
     const secRankTop = (goalMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
