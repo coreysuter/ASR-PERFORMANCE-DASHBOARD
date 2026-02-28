@@ -370,6 +370,10 @@ function renderServicesHome(){
         color:rgba(255,255,255,.70);
         letter-spacing:.2px;
       }
+      /* Force label BELOW dial inside the dial column (override earlier order rules) */
+      .pageServicesDash .sdCatHdrRow .svcGaugeCol .svcGaugeWrap{order:0 !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatHdrTop .svcGaugeWrap{order:0 !important;}
+      .pageServicesDash .sdCatHdrRow .svcGaugeCol .svcGaugeLbl{order:1 !important;width:100%;display:block;}
 `;
   })();
 
@@ -1071,7 +1075,7 @@ function serviceGoalDial(pct, sz, subLabel){
             <div class="sdCatHdrRow">
               <div class="svcGaugeCol focus">
                 <div class="svcGaugeWrap focus">
-                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, 77, (rankMetric==='sold' ? 'Sold Goal' : 'ASR Goal'))}
+                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, 77, 'Goal')}
                 </div>
                 <div class="svcGaugeLbl">${rankMetric==='sold' ? 'SOLD' : 'ASR'}</div>
               </div>
