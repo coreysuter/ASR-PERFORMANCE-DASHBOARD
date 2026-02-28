@@ -333,13 +333,44 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
       .pageServicesDash .techHeaderPanel select option{color:#000 !important;}
 
-      /* === sdCatHdrRow: keep dial + badge in a row, but center label directly under the DIAL (not between dial+badge) === */
-      .pageServicesDash .sdCatHdrRow{flex-direction:row !important;align-items:flex-start !important;justify-content:flex-end !important;gap:10px !important;}
-      .pageServicesDash .sdCatHdrTop{display:flex;align-items:flex-start;gap:10px;justify-content:flex-end;white-space:nowrap;}
-      .pageServicesDash .sdCatHdrDialCol{display:flex;flex-direction:column;align-items:center;gap:6px;}
-      .pageServicesDash .sdCatHdrDialCol .sdCatHdrDialLbl{width:90px;text-align:center;}
-
-    `;
+      /* === sdCatHdrRow: MATCH svcDashSec title-row FOCUS dial (same size/stack + label UNDER dial) === */
+      .pageServicesDash .sdCatHdrRow{
+        display:flex !important;
+        flex-direction:row !important;
+        align-items:center !important;
+        justify-content:flex-end !important;
+        gap:12px !important;
+        white-space:nowrap;
+      }
+      .pageServicesDash .sdCatHdrRow .svcGaugeCol{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:6px;
+      }
+      /* Match the section focus dial sizing */
+      .pageServicesDash .sdCatHdrRow .svcGaugeWrap.focus{
+        width:77px !important;
+        height:77px !important;
+        flex:0 0 77px !important;
+        display:flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+      }
+      .pageServicesDash .sdCatHdrRow .svcGaugeWrap.focus .svcGauge{
+        --sz:77px !important;
+        width:77px !important;
+        height:77px !important;
+      }
+      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{
+        margin-top:0;
+        text-align:center;
+        font-size:11px;
+        font-weight:1000;
+        color:rgba(255,255,255,.70);
+        letter-spacing:.2px;
+      }
+`;
   })();
 
   // ---- Local state (kept independent of main dashboard state) ----
@@ -1038,14 +1069,13 @@ function serviceGoalDial(pct, sz, subLabel){
             </div>
 
             <div class="sdCatHdrRow">
-              <div class="sdCatHdrTop">
-                <div class="sdCatHdrDialCol">
-                  <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz, (rankMetric==='sold' ? 'Sold Goal' : 'ASR Goal'))}
-                  </div>
-</div>
-                ${goalRankBadge(s.serviceName)}
+              <div class="svcGaugeCol focus">
+                <div class="svcGaugeWrap focus">
+                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, 77, (rankMetric==='sold' ? 'Sold Goal' : 'ASR Goal'))}
+                </div>
+                <div class="svcGaugeLbl">${rankMetric==='sold' ? 'SOLD' : 'ASR'}</div>
               </div>
+              ${goalRankBadge(s.serviceName)}
             </div>
           </div>
 
