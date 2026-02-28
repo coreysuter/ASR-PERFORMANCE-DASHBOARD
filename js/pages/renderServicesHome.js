@@ -301,12 +301,6 @@ function renderServicesHome(){
 
       .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
-      /* Section (svcDashSec) header dials: stack % / arrow / Goal vertically */
-      .pageServicesDash .svcDashSecHead .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
-      .pageServicesDash .svcDashSecHead .pctMain{line-height:1;}
-      .pageServicesDash .svcDashSecHead .pctArrow{line-height:1;}
-      .pageServicesDash .svcDashSecHead .pctSub{line-height:1;}
-
       .pageServicesDash .svcHdrGoalDials .pctArrow{font-weight:1200;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));}
       .pageServicesDash .svcHdrGoalDials .pctSub{font-size:12px;opacity:.85;font-style:normal;font-weight:900;letter-spacing:.3px;line-height:1;}
       /* Header goal dial text sizing */
