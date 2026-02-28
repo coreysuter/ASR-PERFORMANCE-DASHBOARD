@@ -332,6 +332,13 @@ function renderServicesHome(){
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
       .pageServicesDash .techHeaderPanel select option{color:#000 !important;}
+
+      /* === sdCatHdrRow: keep dial + badge in a row, but center label directly under the DIAL (not between dial+badge) === */
+      .pageServicesDash .sdCatHdrRow{flex-direction:row !important;align-items:flex-start !important;justify-content:flex-end !important;gap:10px !important;}
+      .pageServicesDash .sdCatHdrTop{display:flex;align-items:flex-start;gap:10px;justify-content:flex-end;white-space:nowrap;}
+      .pageServicesDash .sdCatHdrDialCol{display:flex;flex-direction:column;align-items:center;gap:6px;}
+      .pageServicesDash .sdCatHdrDialCol .sdCatHdrDialLbl{width:90px;text-align:center;}
+
     `;
   })();
 
@@ -1032,12 +1039,14 @@ function serviceGoalDial(pct, sz){
 
             <div class="sdCatHdrRow">
               <div class="sdCatHdrTop">
-                <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+                <div class="sdCatHdrDialCol">
+                  <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
+                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+                  </div>
+                  <div class="sdCatHdrDialLbl">${rankMetric==='sold' ? 'SOLD' : 'ASR'}</div>
                 </div>
                 ${goalRankBadge(s.serviceName)}
               </div>
-              <div class="sdCatHdrDialLbl">${rankMetric==='sold' ? 'SOLD' : 'ASR'}</div>
             </div>
           </div>
 
