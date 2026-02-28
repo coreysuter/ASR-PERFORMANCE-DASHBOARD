@@ -180,6 +180,8 @@ function renderServicesHome(){
       .pageServicesDash .svcSecHeadDials .svcGaugeCol{display:flex;flex-direction:column;align-items:center;gap:6px;}
       .pageServicesDash .svcSecHeadDials .svcGaugeLbl{margin-top:0;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .sdCatHdrRow{display:flex;flex-direction:column;align-items:center;gap:6px;}
+      .pageServicesDash .sdCatHdrRow{flex-direction:column !important;align-items:center !important;justify-content:center !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatHdrDialLbl{width:100% !important;display:block !important;}
       .pageServicesDash .sdCatHdrRow .sdCatHdrTop{display:flex;align-items:center;gap:10px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .sdCatHdrRow .sdCatHdrDialLbl{font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;text-align:center;}
       /* Match sdCatHdr dial size to section focus dial */
