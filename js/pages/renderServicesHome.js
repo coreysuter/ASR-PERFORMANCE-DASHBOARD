@@ -338,11 +338,6 @@ function renderServicesHome(){
       .pageServicesDash .sdCatHdrTop{display:flex;align-items:flex-start;gap:10px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .sdCatHdrDialCol{display:flex;flex-direction:column;align-items:center;gap:6px;}
       .pageServicesDash .sdCatHdrDialCol .sdCatHdrDialLbl{width:90px;text-align:center;}
-      /* Force label BELOW the dial (override any inherited order rules) */
-      .pageServicesDash .sdCatHdrDialCol .svcGaugeWrap{order:0 !important;}
-      .pageServicesDash .sdCatHdrDialCol .sdCatHdrDialLbl{order:1 !important;display:block;}
-      .pageServicesDash .sdCatHdrDialCol{align-items:center !important;}
-
 
     `;
   })();
@@ -442,7 +437,7 @@ function renderServicesHome(){
     const arrowColor = (delta >= 0) ? "#2ecc71" : "#f04545";
 
     const defaultHtml = `<span class="pctText pctDefault"><span class="pctTitle">${safe(top)}</span><span class="pctTitle">${safe(bot)}</span></span>`;
-    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">Goal</span></span>`;
+    const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">${safe(subLbl||"Goal")}</span></span>`;
 
     return `<span class="svcGauge ${cls}" data-p="${ring}">
       <svg viewBox="0 0 36 36" aria-hidden="true">
@@ -481,14 +476,14 @@ function renderServicesHome(){
         <span class="pctStack2">
           <span class="pctMain">${absDelta}%</span>
           <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-          <span class="pctSub">Goal</span>
+          <span class="pctSub">${safe(subLbl||"Goal")}</span>
         </span>
       </span>
     </span>`;
   }
 
 // --- Service tile goal dial (same stacked % / arrow / Goal format as svcHdrGoalDials) ---
-function serviceGoalDial(pct, sz){
+function serviceGoalDial(pct, sz, subLbl){
   const p = Number(pct);
   const finite = Number.isFinite(p);
   const pClamped = finite ? Math.max(0, p) : 0;
@@ -517,7 +512,7 @@ function serviceGoalDial(pct, sz){
       <span class="pctStack2">
         <span class="pctMain">${absDelta}%</span>
         <span class="pctArrow" style="color:${arrowColor}">${arrow}</span>
-        <span class="pctSub">Goal</span>
+        <span class="pctSub">${safe(subLbl||"Goal")}</span>
       </span>
     </span>
   </span>`;
@@ -1046,7 +1041,7 @@ function serviceGoalDial(pct, sz){
               <div class="sdCatHdrTop">
                 <div class="sdCatHdrDialCol">
                   <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+                    ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz, (rankMetric==='sold'?'SOLD':'ASR'))}
                   </div>
                   <div class="sdCatHdrDialLbl">${rankMetric==='sold' ? 'SOLD' : 'ASR'}</div>
                 </div>
