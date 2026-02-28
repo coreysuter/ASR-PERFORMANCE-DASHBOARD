@@ -338,6 +338,11 @@ function renderServicesHome(){
       .pageServicesDash .sdCatHdrTop{display:flex;align-items:flex-start;gap:10px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .sdCatHdrDialCol{display:flex;flex-direction:column;align-items:center;gap:6px;}
       .pageServicesDash .sdCatHdrDialCol .sdCatHdrDialLbl{width:90px;text-align:center;}
+      /* Force label BELOW the dial (override any inherited order rules) */
+      .pageServicesDash .sdCatHdrDialCol .svcGaugeWrap{order:0 !important;}
+      .pageServicesDash .sdCatHdrDialCol .sdCatHdrDialLbl{order:1 !important;display:block;}
+      .pageServicesDash .sdCatHdrDialCol{align-items:center !important;}
+
 
     `;
   })();
