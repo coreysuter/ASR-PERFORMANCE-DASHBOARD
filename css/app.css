@@ -2496,3 +2496,23 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge
 body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin-left:8px !important;
 }
+
+/* === PATCH 2026-02-28: Tech Details section titleRow dial spacing
+   Match RenderServicesHome dial spacing (22px) and keep focus dial wrapper from reserving 148px.
+   Scope: Tech Details only, section title rows (Maintenance/Fluids/Brakes/Tires).
+*/
+body.route-tech .panel > .phead > .titleRow .secHdrRight{
+  gap:22px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secMiniDials{
+  gap:22px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge{
+  width:90px !important;
+  height:90px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGaugeWrap{
+  width:90px !important;
+  height:90px !important;
+  flex:0 0 90px !important; /* critical: prevent hidden 148px buffer */
+}
