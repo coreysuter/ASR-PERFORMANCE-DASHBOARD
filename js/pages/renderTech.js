@@ -1065,7 +1065,7 @@ const minisOrdered = _rest.map(k => _miniMap[k]);
 
 if(_miniMap[_adjKey]) minisOrdered.push(_miniMap[_adjKey]);
 
-const miniHtml = `<div class="secMiniDials" style="gap:8px">${minisOrdered.join("")}</div>`;
+const miniHtml = `<div class="secMiniDials" style="gap:22px">${minisOrdered.join("")}</div>`;
 
 const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
 
@@ -1139,7 +1139,7 @@ return `
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight" style="gap:8px">${miniHtml}<div class="secFocusDial" style="margin:0">${dialFocus}</div><div class="secHdrRank" style="margin:0">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
+            <div class="secHdrRight" style="gap:22px">${miniHtml}<div class="secFocusDial" style="margin:0">${dialFocus}</div><div class="secHdrRank" style="margin:0">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
                 <div class="secStatBlock">
                   <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
                   <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>
