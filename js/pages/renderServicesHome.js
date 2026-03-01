@@ -27,6 +27,25 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:row;gap:22px;align-items:center;justify-content:flex-end;white-space:nowrap;min-width:0;flex:0 0 auto;}
       .pageServicesDash .svcDashSecHeadRightTop{display:flex;align-items:center;gap:22px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .svcSecHeadDials{display:flex;align-items:center;gap:22px;}
+      /* Dial columns (label directly under dial) — scoped to section heads + service card headers only */
+      .pageServicesDash .svcSecHeadDials .svcGaugeCol,
+      .pageServicesDash .sdCatHdrRow .svcGaugeCol{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:flex-start;
+      }
+      .pageServicesDash .svcSecHeadDials .svcGaugeLbl,
+      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{
+        margin-top:6px;
+        text-align:center;
+        font-size:11px;
+        font-weight:1000;
+        color:rgba(255,255,255,.70);
+        letter-spacing:.2px;
+        text-transform:none;
+      }
+
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap{display:flex;align-items:center;justify-content:center;}
       /* Focus + mini dial sizing matches renderTech section header vibe */
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus{width:77px;height:77px;flex:0 0 auto;}
@@ -173,7 +192,7 @@ function renderServicesHome(){
       .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
       .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
       .pageServicesDash .catHdrLeft{min-width:0;}
-      .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
+      .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:22px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
 
@@ -219,6 +238,33 @@ function renderServicesHome(){
       /* TechPickPanel toggle + thumbs (scoped) */
       .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 2px -4px}
       .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:16px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
+
+      /* Pick toggle emphasis: do NOT change toggle color; instead emphasize active word */
+      .pageServicesDash .techPickPanel.diagSection .pickToggleWord{
+        display:inline-block;
+        transition:transform 140ms ease, opacity 140ms ease;
+        opacity:.65;
+        transform:scale(1);
+        transform-origin:center center;
+      }
+      .pageServicesDash .techPickPanel.diagSection .pickToggleSlash{
+        display:inline-block;
+        margin:0 6px;
+        opacity:.55;
+      }
+      .pageServicesDash .techPickPanel.diagSection .pickToggleState-tech .pickWordTech,
+      .pageServicesDash .techPickPanel.diagSection .pickToggleState-services .pickWordSvc{
+        opacity:1 !important;
+        transform:scale(1.15);
+      }
+      .pageServicesDash .techPickPanel.diagSection .pickToggleState-tech .pickWordSvc,
+      .pageServicesDash .techPickPanel.diagSection .pickToggleState-services .pickWordTech{
+        opacity:.55 !important;
+      }
+      /* Keep the toggle track color the same in both states */
+      .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider{
+        background:rgba(255,255,255,.18) !important;
+      }
       .pageServicesDash .techPickPanel.diagSection .pickToggleRight{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
       .pageServicesDash .techPickPanel.diagSection .pickToggle{position:relative;width:46px;height:24px;flex:0 0 auto}
       .pageServicesDash .techPickPanel.diagSection .pickToggle input{opacity:0;width:0;height:0}
@@ -314,20 +360,46 @@ function renderServicesHome(){
 
 
 
-      /* sdCatHdrRow: dial column (dial + label below, centered under dial) */
-      .pageServicesDash .sdCatHdrRow .sdCatHdrDialCol{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;}
-      .pageServicesDash .sdCatHdrRow .sdCatHdrDialLbl{width:var(--sz,64px);text-align:center;}
-
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
       .pageServicesDash .techHeaderPanel select option{color:#000 !important;}
-      /* === sdCatHdrRow micro-alignment tweaks (label slightly left + badge top aligned to dial) === */
+      /* === sdCatHdrRow dial label positioning (service card header dials ONLY) === */
+      .pageServicesDash .sdCatHdrRow{align-items:center !important;}
+      .pageServicesDash .sdCatHdrRow .svcGaugeCol{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:flex-start;
+      }
+      .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1;}
+      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{
+        order:2;
+        margin-top:6px;
+        text-align:center;
+        width:100%;
+        transform:none;
+      }
+
+      /* === sdCatHdrRow micro-align (service card header ONLY) === */
       .pageServicesDash .sdCatHdrRow{align-items:flex-start !important;}
-      .pageServicesDash .sdCatHdrRow .rankFocusBadge{margin-top:-1px;}
-      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{transform:translateX(-2px);}
+      /* Lock the dial column to the dial size so the label centers perfectly */
+      .pageServicesDash .sdCatHdrRow .sdCatDialCol{width:80px !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatDialCol .svcGaugeWrap{width:80px !important;height:80px !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatDialCol .svcGaugeLbl{
+        width:80px !important;
+        padding-left:0 !important;
+        padding-right:0 !important;
+        margin-left:0 !important;
+        margin-right:0 !important;
+        left:auto !important;
+        right:auto !important;
+      }
+      /* Keep the (scaled) rank badge pinned to the top of the row */
+      .pageServicesDash .sdCatHdrRow .rankFocusBadge{align-self:flex-start !important;margin-top:0 !important;}
+
 
     `;
   })();
@@ -982,6 +1054,8 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
+      const sdDialTitle = (rankMetric==='sold') ? 'Sold' : 'ASR';
+
             const sdDialSz = 80; // increased by 25% from 64px
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
@@ -1028,12 +1102,11 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="sdCatHdrRow">
-              <div class="sdCatHdrDialCol">
-              <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
-              </div>
-              
-              <div class="svcGaugeLbl sdCatHdrDialLbl">${(rankMetric==='sold') ? 'SOLD' : 'ASR'}</div>
+              <div class="svcGaugeCol sdCatDialCol">
+                <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
+                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+                </div>
+                <div class="svcGaugeLbl">${sdDialTitle}</div>
               </div>
               ${goalRankBadge(s.serviceName)}
             </div>
@@ -1067,12 +1140,24 @@ function serviceGoalDial(pct, sz){
                             <div class="svcSecHeadDials">
                 ${goalMetric==='sold'
                   ? `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
+                      <div class="svcGaugeLbl">ASR</div>
+                    </div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                      <div class="svcGaugeLbl">Sold</div>
+                    </div>
                   `
                   : `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
+                      <div class="svcGaugeLbl">Sold</div>
+                    </div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                      <div class="svcGaugeLbl">ASR</div>
+                    </div>
                   `
                 }
               </div>
@@ -1357,7 +1442,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="pickToggleRow">
           <div class="pickHdrLabel asrTop" style="margin:0;margin-top:-5px;font-size:22px;line-height:1">ASR</div>
           <div class="pickToggleRight">
-            <div class="pickToggleLbl">Technicians/Services</div>
+            <div class="pickToggleLbl"><span class="pickToggleWord pickWordTech">Technicians</span><span class="pickToggleSlash">/</span><span class="pickToggleWord pickWordSvc">Services</span></div>
             <label class="pickToggle" title="Toggle Technicians / Services">
               <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
               <span class="slider"></span>
@@ -1431,13 +1516,22 @@ function tbMiniBoxSvc(title, rows, mode, kind){
 
 
   // Pick view toggle (Technicians / Services)
+  function _syncPickToggleLabel(){
+    const row = app.querySelector('.pageServicesDash .techPickPanel.diagSection .pickToggleRight');
+    if(!row) return;
+    row.classList.remove('pickToggleState-tech','pickToggleState-services');
+    row.classList.add((st.pickView === 'services') ? 'pickToggleState-services' : 'pickToggleState-tech');
+  }
+
   const pickChk = app.querySelector('.techPickPanel.diagSection input[data-ctl="pickview"]');
   if(pickChk){
     pickChk.addEventListener('change', ()=>{
       st.pickView = pickChk.checked ? 'services' : 'tech';
+      _syncPickToggleLabel();
       renderServicesHome();
     });
   }
+  _syncPickToggleLabel();
 
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
