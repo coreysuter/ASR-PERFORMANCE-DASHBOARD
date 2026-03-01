@@ -257,6 +257,10 @@ function renderServicesHome(){
         opacity:1 !important;
         transform:scale(1.15);
       }
+      /* When Technicians is the active word, nudge it slightly right so it doesn't crowd the slash */
+      .pageServicesDash .techPickPanel.diagSection .pickToggleState-tech .pickWordTech{
+        transform:scale(1.15) translateX(3px);
+      }
       .pageServicesDash .techPickPanel.diagSection .pickToggleState-tech .pickWordSvc,
       .pageServicesDash .techPickPanel.diagSection .pickToggleState-services .pickWordTech{
         opacity:.55 !important;
