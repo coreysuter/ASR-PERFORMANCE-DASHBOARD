@@ -445,9 +445,13 @@ function renderServicesHome(){
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
     : [];
 
-  const techs = techsAll;
-
-  // Determine the metric used for goal comparisons/ranking
+  // Apply Team filter (Express / Kia / All Teams) across the entire Services Dashboard page
+  const techs = (teamSel === 'express')
+    ? techsAll.filter(t=>t.team === 'EXPRESS')
+    : (teamSel === 'kia')
+      ? techsAll.filter(t=>t.team === 'KIA')
+      : techsAll;
+// Determine the metric used for goal comparisons/ranking
   const rankMetric = (focus==='sold') ? 'sold' : 'asr';
 
   // Overall totals (team-scoped)
@@ -590,7 +594,7 @@ function serviceGoalDial(pct, sz){
 
   // --- Build a global goal-rank map for services (denominator = total services on this page) ---
   const _allCatsSet = new Set();
-  for(const t of techsAll){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
+  for(const t of techs){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
 
   const _allServiceNames = (Array.isArray(DATA.sections)?DATA.sections:[])
     .flatMap(s => (s?.categories||[]).map(String).filter(Boolean))
@@ -601,7 +605,7 @@ function serviceGoalDial(pct, sz){
   for(const svcName of _uniqServices){
     // Build minimal aggregates
     let ros=0, asr=0, sold=0;
-    for(const t of techsAll){
+    for(const t of techs){
       const row = (t.categories||{})[svcName];
       if(!row) continue;
       ros  += Number(row.ros)||0;
@@ -1330,7 +1334,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   // Tech average % of goal across all services
   function techAvgPctOfGoal(mode){
     const out = [];
-    for(const t of techsAll){
+    for(const t of techs){
       let sum=0, n=0;
       for(const svcName of _uniqServices){
         const row = (t.categories||{})[svcName];
@@ -1360,7 +1364,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       const gReq = Number(getGoal(svcName,'req'));
       const gClose = Number(getGoal(svcName,'close'));
       const scored = [];
-      for(const t of techsAll){
+      for(const t of techs){
         const row = (t.categories||{})[svcName];
         if(!row) continue;
         const rosTech = Number(t.ros)||0;
@@ -1382,7 +1386,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         sums.set(s.id, cur);
       });
     }
-    return techsAll.map(t=>{
+    return techs.map(t=>{
       const cur = sums.get(String(t.id));
       const avgPos = (cur && cur.count) ? (cur.sum/cur.count) : NaN;
       return {id:t.id, name:t.name, avgPos};
