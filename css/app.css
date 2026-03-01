@@ -2472,3 +2472,25 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight{
 body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
+
+
+
+/* === PATCH 2026-02-28b: make title-row focus dial gaps match the other dials exactly ===
+   Problem: the big focus dial in the section title row had extra space on BOTH sides.
+   Fix: remove the rank badge inline margin and force a single consistent gap across
+   mini dials ↔ focus dial ↔ rank badge.
+   Scoped to Tech Details only.
+*/
+body.route-tech .phead > .titleRow .secHdrRight{
+  gap:8px !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secMiniDials{
+  gap:8px !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secFocusDial{
+  margin:0 !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secHdrRank{
+  margin:0 !important; /* overrides inline margin="0 12px" */
+}
+
