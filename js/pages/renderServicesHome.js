@@ -339,10 +339,22 @@ function renderServicesHome(){
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
       .pageServicesDash .techHeaderPanel select option{color:#000 !important;}
-      /* === sdCatHdrRow micro-alignment tweaks (label slightly left + badge top aligned to dial) === */
-      .pageServicesDash .sdCatHdrRow{align-items:flex-start !important;}
-      .pageServicesDash .sdCatHdrRow .rankFocusBadge{margin-top:-1px;}
-      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{transform:translateX(-2px);}
+      /* === sdCatHdrRow dial label positioning (service card header dials ONLY) === */
+      .pageServicesDash .sdCatHdrRow{align-items:center !important;}
+      .pageServicesDash .sdCatHdrRow .svcGaugeCol{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:flex-start;
+      }
+      .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1;}
+      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{
+        order:2;
+        margin-top:6px;
+        text-align:center;
+        width:100%;
+        transform:none;
+      }
 
     `;
   })();
