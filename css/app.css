@@ -2472,3 +2472,59 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight{
 body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
+
+
+
+/* === PATCH 2026-02-28b: make title-row focus dial gaps match the other dials exactly ===
+   Problem: the big focus dial in the section title row had extra space on BOTH sides.
+   Fix: remove the rank badge inline margin and force a single consistent gap across
+   mini dials ↔ focus dial ↔ rank badge.
+   Scoped to Tech Details only.
+*/
+body.route-tech .phead > .titleRow .secHdrRight{
+  gap:8px !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secMiniDials{
+  gap:8px !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secFocusDial{
+  margin:0 !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secHdrRank{
+  margin:0 !important; /* overrides inline margin="0 12px" */
+}
+
+
+/* === FIX: Section title-row focus dial perceived "extra gap" ===
+   The large whitespace on BOTH SIDES of the focus dial was caused by an old rule that
+   forces the inner .svcGauge to 90px while the wrapper remains ~148px wide (extra padding).
+   This restores the focus dial to fill its wrapper, WITHOUT changing the spacing between other dials. */
+
+.secHdrRight{
+  /* restore original section-header cluster spacing */
+  gap:22px !important;
+  justify-content:flex-end !important;
+}
+
+.secHdrRight .secMiniDials{
+  /* keep mini-dial spacing as-designed */
+  gap:8px !important;
+}
+
+.secHdrRight .secFocusDial{
+  margin:0 !important;
+}
+
+.secHdrRight .secFocusDial .svcGaugeWrap{
+  --sz:140px !important;
+  width:140px !important;
+  height:140px !important;
+  flex:0 0 140px !important;
+}
+
+.secHdrRight .secFocusDial .svcGauge{
+  --sz:140px !important;
+  width:140px !important;
+  height:140px !important;
+}
+
