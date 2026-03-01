@@ -192,7 +192,7 @@ function renderServicesHome(){
       .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
       .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
       .pageServicesDash .catHdrLeft{min-width:0;}
-      .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
+      .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:16px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
       .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
 
