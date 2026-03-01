@@ -2473,15 +2473,26 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
 
-
-/* ===== Tech Details: section header dial spacing tweaks =====
-   Goal: keep the visible gaps consistent between:
-   - mini dials (within .secMiniDials)
-   - last mini dial -> focus dial
-   - focus dial -> rank badge
+/* === PATCH 2026-02-28: titleRow dial spacing parity (fix flex-basis regression) ===
+   Ensure the section titleRow focus dial reserves ONLY its visible size,
+   so spacing matches the mini dials (no hidden left/right buffer).
 */
-body.route-tech .panel .phead .titleRow .secFocusDial{
-  margin-left:8px !important;  /* add a touch of breathing room after minis */
-  margin-right:8px !important; /* keep focus dial off the rank badge */
+body.route-tech .panel > .phead > .titleRow .secHdrRight{
+  gap:8px !important; /* same as mini-dial gap */
 }
-
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secMiniDials{
+  gap:8px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge{
+  width:90px !important;
+  height:90px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGaugeWrap{
+  width:90px !important;
+  height:90px !important;
+  flex:0 0 90px !important; /* critical: remove old 148px flex-basis */
+}
+/* Give the rank badge a touch more breathing room without changing mini-dial rhythm */
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
+  margin-left:8px !important;
+}
