@@ -238,33 +238,6 @@ function renderServicesHome(){
       /* TechPickPanel toggle + thumbs (scoped) */
       .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 2px -4px}
       .pageServicesDash .techPickPanel.diagSection .pickToggleLbl{font-size:16px;font-weight:1000;color:rgba(255,255,255,.80);letter-spacing:.2px;white-space:nowrap}
-
-      /* Pick toggle emphasis: do NOT change toggle color; instead emphasize active word */
-      .pageServicesDash .techPickPanel.diagSection .pickToggleWord{
-        display:inline-block;
-        transition:transform 140ms ease, opacity 140ms ease;
-        opacity:.65;
-        transform:scale(1);
-        transform-origin:center center;
-      }
-      .pageServicesDash .techPickPanel.diagSection .pickToggleSlash{
-        display:inline-block;
-        margin:0 6px;
-        opacity:.55;
-      }
-      .pageServicesDash .techPickPanel.diagSection .pickToggleState-tech .pickWordTech,
-      .pageServicesDash .techPickPanel.diagSection .pickToggleState-services .pickWordSvc{
-        opacity:1 !important;
-        transform:scale(1.15);
-      }
-      .pageServicesDash .techPickPanel.diagSection .pickToggleState-tech .pickWordSvc,
-      .pageServicesDash .techPickPanel.diagSection .pickToggleState-services .pickWordTech{
-        opacity:.55 !important;
-      }
-      /* Keep the toggle track color the same in both states */
-      .pageServicesDash .techPickPanel.diagSection .pickToggle input:checked + .slider{
-        background:rgba(255,255,255,.18) !important;
-      }
       .pageServicesDash .techPickPanel.diagSection .pickToggleRight{display:flex;align-items:center;gap:10px;justify-content:flex-end;}
       .pageServicesDash .techPickPanel.diagSection .pickToggle{position:relative;width:46px;height:24px;flex:0 0 auto}
       .pageServicesDash .techPickPanel.diagSection .pickToggle input{opacity:0;width:0;height:0}
@@ -1442,7 +1415,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="pickToggleRow">
           <div class="pickHdrLabel asrTop" style="margin:0;margin-top:-5px;font-size:22px;line-height:1">ASR</div>
           <div class="pickToggleRight">
-            <div class="pickToggleLbl"><span class="pickToggleWord pickWordTech">Technicians</span><span class="pickToggleSlash">/</span><span class="pickToggleWord pickWordSvc">Services</span></div>
+            <div class="pickToggleLbl">Technicians/Services</div>
             <label class="pickToggle" title="Toggle Technicians / Services">
               <input type="checkbox" data-ctl="pickview" ${pickView==='services'?'checked':''}>
               <span class="slider"></span>
@@ -1516,22 +1489,13 @@ function tbMiniBoxSvc(title, rows, mode, kind){
 
 
   // Pick view toggle (Technicians / Services)
-  function _syncPickToggleLabel(){
-    const row = app.querySelector('.pageServicesDash .techPickPanel.diagSection .pickToggleRight');
-    if(!row) return;
-    row.classList.remove('pickToggleState-tech','pickToggleState-services');
-    row.classList.add((st.pickView === 'services') ? 'pickToggleState-services' : 'pickToggleState-tech');
-  }
-
   const pickChk = app.querySelector('.techPickPanel.diagSection input[data-ctl="pickview"]');
   if(pickChk){
     pickChk.addEventListener('change', ()=>{
       st.pickView = pickChk.checked ? 'services' : 'tech';
-      _syncPickToggleLabel();
       renderServicesHome();
     });
   }
-  _syncPickToggleLabel();
 
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
