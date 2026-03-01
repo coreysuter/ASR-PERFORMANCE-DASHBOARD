@@ -27,6 +27,25 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHeadRight{display:flex;flex-direction:row;gap:22px;align-items:center;justify-content:flex-end;white-space:nowrap;min-width:0;flex:0 0 auto;}
       .pageServicesDash .svcDashSecHeadRightTop{display:flex;align-items:center;gap:22px;justify-content:flex-end;white-space:nowrap;}
       .pageServicesDash .svcSecHeadDials{display:flex;align-items:center;gap:22px;}
+      /* Dial columns (label directly under dial) — scoped to section heads + service card headers only */
+      .pageServicesDash .svcSecHeadDials .svcGaugeCol,
+      .pageServicesDash .sdCatHdrRow .svcGaugeCol{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:flex-start;
+      }
+      .pageServicesDash .svcSecHeadDials .svcGaugeLbl,
+      .pageServicesDash .sdCatHdrRow .svcGaugeLbl{
+        margin-top:6px;
+        text-align:center;
+        font-size:11px;
+        font-weight:1000;
+        color:rgba(255,255,255,.70);
+        letter-spacing:.2px;
+        text-transform:none;
+      }
+
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap{display:flex;align-items:center;justify-content:center;}
       /* Focus + mini dial sizing matches renderTech section header vibe */
       .pageServicesDash .svcSecHeadDials .svcGaugeWrap.focus{width:77px;height:77px;flex:0 0 auto;}
@@ -978,6 +997,8 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
+      const sdDialTitle = (rankMetric==='sold') ? 'Sold' : 'ASR';
+
             const sdDialSz = 80; // increased by 25% from 64px
 
       const goalForThis = (rankMetric==='sold') ? gClose : gReq;
@@ -1024,8 +1045,11 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="sdCatHdrRow">
-              <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+              <div class="svcGaugeCol sdCatDialCol">
+                <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
+                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+                </div>
+                <div class="svcGaugeLbl">${sdDialTitle}</div>
               </div>
               ${goalRankBadge(s.serviceName)}
             </div>
@@ -1059,12 +1083,24 @@ function serviceGoalDial(pct, sz){
                             <div class="svcSecHeadDials">
                 ${goalMetric==='sold'
                   ? `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
+                      <div class="svcGaugeLbl">ASR</div>
+                    </div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                      <div class="svcGaugeLbl">Sold</div>
+                    </div>
                   `
                   : `
-                    <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
-                    <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
+                      <div class="svcGaugeLbl">Sold</div>
+                    </div>
+                    <div class="svcGaugeCol">
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                      <div class="svcGaugeLbl">ASR</div>
+                    </div>
                   `
                 }
               </div>
