@@ -314,6 +314,10 @@ function renderServicesHome(){
 
 
 
+      /* sdCatHdrRow: dial column (dial + label below, centered under dial) */
+      .pageServicesDash .sdCatHdrRow .sdCatHdrDialCol{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;}
+      .pageServicesDash .sdCatHdrRow .sdCatHdrDialLbl{width:var(--sz,64px);text-align:center;}
+
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
       @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
@@ -346,14 +350,8 @@ function renderServicesHome(){
       if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";    }
   }
 
-
-  // Legacy deep-link support: older URLs may use focus=goal&goal=asr|sold
-  if(st.focus === 'goal') st.focus = (st.goalMetric === 'sold') ? 'sold' : 'asr';
-
-  // Focus is always evaluated against Goals on this page.
-  // Keep values as 'asr' | 'sold' (legacy deep-links that used focus=goal are mapped below).
-  const focus = (st.focus === 'sold') ? 'sold' : 'asr';
-  const goalMetric = focus;
+  const focus = (st.focus === 'sold' || st.focus === 'goal') ? st.focus : 'asr';
+  const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
   const comparison = 'goal';
@@ -361,7 +359,9 @@ function renderServicesHome(){
   const pickView = (st.pickView === 'services') ? 'services' : 'tech';
 
   const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
-    const focusLine = (focus === 'sold') ? 'Sold Goal' : 'ASR Goal';
+  const focusLine = (focus === 'goal')
+    ? `Goal ${(goalMetric === 'sold') ? 'SOLD' : 'ASR'}`
+    : (focus === 'sold' ? 'SOLD' : 'ASR');
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
@@ -370,7 +370,7 @@ function renderServicesHome(){
   const techs = techsAll;
 
   // Determine the metric used for goal comparisons/ranking
-  const rankMetric = focus;
+  const rankMetric = (focus==='goal') ? goalMetric : (focus==='sold' ? 'sold' : 'asr');
 
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
@@ -585,6 +585,16 @@ function serviceGoalDial(pct, sz){
     topVal = soldPerRo; topLbl = 'Sold/RO';
     subVal = asrPerRo;  subLbl = 'ASRs/RO';
   }
+  if(focus === 'goal'){
+    // When Focus=GOAL, do NOT show the goal % here.
+    // Instead, show the per-RO metric that corresponds to the selected goal:
+    //   Goal/ASR  -> ASRs/RO
+    //   Goal/SOLD -> Sold/RO
+    topVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
+    topLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
+    subVal = (goalMetric==='sold') ? asrPerRo : soldPerRo;
+    subLbl = (goalMetric==='sold') ? 'ASRs/RO' : 'Sold/RO';
+  }
 
   // Header panel (copied structure from Technician Dashboard)
   const header = `
@@ -654,7 +664,7 @@ function serviceGoalDial(pct, sz){
 
           <div class="overallBlock">
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topVal===null ? "—" : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1))}
+              ${topVal===null ? "—" : (focus==='goal' ? fmt1(topVal,2) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
             </div>
             <div class="tag">${safe(topLbl)}</div>
 
@@ -689,10 +699,21 @@ function serviceGoalDial(pct, sz){
                       <div>
                         <label>Focus</label>
                         <select data-svcdash="1" data-ctl="focus">
-                          <option value="asr" ${focus==='asr'?'selected':''}>ASR Goal</option>
-                          <option value="sold" ${focus==='sold'?'selected':''}>Sold Goal</option>
+                          <option value="asr" ${focus==='asr'?'selected':''}>ASR</option>
+                          <option value="sold" ${focus==='sold'?'selected':''}>SOLD</option>
+                          <option value="goal" ${focus==='goal'?'selected':''}>GOAL</option>
                         </select>
                       </div>
+          
+                      ${focus==='goal' ? `
+                      <div>
+                        <label>Goal</label>
+                        <select data-svcdash="1" data-ctl="goal">
+                          <option value="asr" ${goalMetric==='asr'?'selected':''}>ASR</option>
+                          <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
+                        </select>
+                      </div>
+                      ` : ``}
                     </div>
         
         <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
@@ -977,15 +998,18 @@ function serviceGoalDial(pct, sz){
 
       // Tech list sorting
       const rows = s.techRows.slice().map(r=>{
-        const gP = (focus==='sold')
-          ? ((Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null)
-          : ((Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null);
+        const gP = (focus==='goal')
+          ? (goalMetric==='sold'
+              ? ((Number.isFinite(r.close) && Number.isFinite(gClose) && gClose>0) ? (r.close/gClose) : null)
+              : ((Number.isFinite(r.req) && Number.isFinite(gReq) && gReq>0) ? (r.req/gReq) : null)
+            )
+          : null;
         return {...r, goalPct: gP};
       });
 
       rows.sort((a,b)=>{
-        const av = (a.goalPct ?? -Infinity);
-        const bv = (b.goalPct ?? -Infinity);
+        const av = (focus==='goal') ? (a.goalPct ?? -Infinity) : (focus==='sold' ? a.close : a.req);
+        const bv = (focus==='goal') ? (b.goalPct ?? -Infinity) : (focus==='sold' ? b.close : b.req);
         if(av===bv) return 0;
         return av < bv ? 1 : -1;
       });
@@ -1004,8 +1028,12 @@ function serviceGoalDial(pct, sz){
             </div>
 
             <div class="sdCatHdrRow">
+              <div class="sdCatHdrDialCol">
               <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
                 ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+              </div>
+              
+              <div class="svcGaugeLbl sdCatHdrDialLbl">${(rankMetric==='sold') ? 'SOLD' : 'ASR'}</div>
               </div>
               ${goalRankBadge(s.serviceName)}
             </div>
