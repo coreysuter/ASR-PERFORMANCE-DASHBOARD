@@ -2489,3 +2489,18 @@ body.route-tech .secHdrRight .secFocusDial .svcGauge{
   height: var(--sz) !important;
 }
 
+
+/* === PATCH 2026-02-28b: section titleRow focus dial gap fix (actual override) ===
+   Previous rules were still reserving extra space via flex-basis (148px) on the focus dial wrapper.
+   This forces the wrapper's flex-basis to match its visible width so the gap matches mini dials.
+   Scoped to Tech Details only.
+*/
+body.route-tech .secHdrRight .secFocusDial .svcGaugeWrap{
+  flex: 0 0 auto !important;     /* do NOT reserve extra horizontal space */
+  width: 90px !important;
+  height: 90px !important;
+}
+body.route-tech .secHdrRight .secFocusDial .svcGauge{
+  width: 90px !important;
+  height: 90px !important;
+}
