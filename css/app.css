@@ -2553,3 +2553,17 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge
   color:rgba(234,240,255,.75) !important;
   opacity:1 !important;
 }
+
+
+
+/* === PATCH 2026-02-28: FORCE Tech Details header pill values fully opaque ===
+   Fix: header-row ASRs pill value was still rendering like 75% opacity.
+   Scope: Tech Details header panel only.
+*/
+body.route-tech .techHeaderPanel .pillMini .v,
+body.route-tech .techHeaderPanel .pillMini .v *,
+body.route-tech .techHeaderPanel .pillsMini .pillMini .v,
+body.route-tech .techHeaderPanel .pillsMini .pillMini .v *{
+  color:#eaf0ff !important;
+  opacity:1 !important;
+}
