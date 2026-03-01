@@ -2516,3 +2516,40 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge
   height:90px !important;
   flex:0 0 90px !important; /* critical: prevent hidden 148px buffer */
 }
+
+
+/* === PATCH 2026-02-28: Global pill text colors for .k and .v ===
+   Requirement:
+   - All .v (values) inside pills must be #eaf0ff with NO opacity reduction
+   - All .k (keys/labels) inside pills must be #eaf0ff with 75% opacity
+   Applies to ALL pages.
+*/
+.pill .v,
+.pillMini .v,
+.statPill .v,
+.tnPillVal{
+  color:#eaf0ff !important;
+  opacity:1 !important;
+}
+.pill .v *,
+.pillMini .v *,
+.statPill .v *,
+.tnPillVal *{
+  color:#eaf0ff !important;
+  opacity:1 !important;
+}
+
+.pill .k,
+.pillMini .k,
+.statPill .k,
+.tnPillKey{
+  color:rgba(234,240,255,.75) !important;
+  opacity:1 !important;
+}
+.pill .k *,
+.pillMini .k *,
+.statPill .k *,
+.tnPillKey *{
+  color:rgba(234,240,255,.75) !important;
+  opacity:1 !important;
+}
