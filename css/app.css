@@ -2472,3 +2472,20 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight{
 body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
+
+
+/* === PATCH 2026-02-28: section titleRow focus dial wrapper spacing ===
+   Make the focus dial wrapper hug the dial so the "empty" space on either side
+   matches the same spacing behavior as the mini dials.
+   Scoped to Tech Details only.
+*/
+body.route-tech .secHdrRight .secFocusDial .svcGaugeWrap{
+  width: var(--sz) !important;
+  height: var(--sz) !important;
+  flex: 0 0 var(--sz) !important;
+}
+body.route-tech .secHdrRight .secFocusDial .svcGauge{
+  width: var(--sz) !important;
+  height: var(--sz) !important;
+}
+
