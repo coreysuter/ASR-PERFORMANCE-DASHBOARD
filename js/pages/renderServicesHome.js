@@ -422,7 +422,7 @@ function renderServicesHome(){
       if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";    }
   }
 
-  const focus = (st.focus === 'sold' || st.focus === 'goal') ? st.focus : 'asr';
+  const focus = (st.focus === 'sold') ? 'sold' : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
@@ -431,9 +431,7 @@ function renderServicesHome(){
   const pickView = (st.pickView === 'services') ? 'services' : 'tech';
 
   const teamLine = (teamSel === 'express') ? 'Express' : (teamSel === 'kia') ? 'Kia' : 'All Teams';
-  const focusLine = (focus === 'goal')
-    ? `Goal ${(goalMetric === 'sold') ? 'SOLD' : 'ASR'}`
-    : (focus === 'sold' ? 'SOLD' : 'ASR');
+  const focusLine = (focus === 'sold') ? 'Sold Goal' : 'ASR Goal';
 
   const techsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team === 'EXPRESS' || t.team === 'KIA'))
@@ -442,7 +440,7 @@ function renderServicesHome(){
   const techs = techsAll;
 
   // Determine the metric used for goal comparisons/ranking
-  const rankMetric = (focus==='goal') ? goalMetric : (focus==='sold' ? 'sold' : 'asr');
+  const rankMetric = (focus==='sold') ? 'sold' : 'asr';
 
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
@@ -657,16 +655,6 @@ function serviceGoalDial(pct, sz){
     topVal = soldPerRo; topLbl = 'Sold/RO';
     subVal = asrPerRo;  subLbl = 'ASRs/RO';
   }
-  if(focus === 'goal'){
-    // When Focus=GOAL, do NOT show the goal % here.
-    // Instead, show the per-RO metric that corresponds to the selected goal:
-    //   Goal/ASR  -> ASRs/RO
-    //   Goal/SOLD -> Sold/RO
-    topVal = (goalMetric==='sold') ? soldPerRo : asrPerRo;
-    topLbl = (goalMetric==='sold') ? 'Sold/RO' : 'ASRs/RO';
-    subVal = (goalMetric==='sold') ? asrPerRo : soldPerRo;
-    subLbl = (goalMetric==='sold') ? 'ASRs/RO' : 'Sold/RO';
-  }
 
   // Header panel (copied structure from Technician Dashboard)
   const header = `
@@ -771,22 +759,12 @@ function serviceGoalDial(pct, sz){
                       <div>
                         <label>Focus</label>
                         <select data-svcdash="1" data-ctl="focus">
-                          <option value="asr" ${focus==='asr'?'selected':''}>ASR</option>
-                          <option value="sold" ${focus==='sold'?'selected':''}>SOLD</option>
-                          <option value="goal" ${focus==='goal'?'selected':''}>GOAL</option>
+                          <option value="asr" ${focus==='asr'?'selected':''}>ASR Goal</option>
+                          <option value="sold" ${focus==='sold'?'selected':''}>Sold Goal</option>
                         </select>
                       </div>
           
-                      ${focus==='goal' ? `
-                      <div>
-                        <label>Goal</label>
-                        <select data-svcdash="1" data-ctl="goal">
-                          <option value="asr" ${goalMetric==='asr'?'selected':''}>ASR</option>
-                          <option value="sold" ${goalMetric==='sold'?'selected':''}>SOLD</option>
-                        </select>
                       </div>
-                      ` : ``}
-                    </div>
         
         <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
       </div>
@@ -1508,7 +1486,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
       if(ctl==='focus') st.focus = sel.value;
-      if(ctl==='goal') st.goalMetric = sel.value;      if(ctl==='team') st.team = sel.value;
+if(ctl==='team') st.team = sel.value;
       if(ctl==='fluids') st.fluids = sel.value;
       renderServicesHome();
     });
