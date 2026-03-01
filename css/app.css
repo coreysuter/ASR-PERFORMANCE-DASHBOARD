@@ -2474,33 +2474,14 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
 }
 
 
-/* === PATCH 2026-02-28: section titleRow focus dial wrapper spacing ===
-   Make the focus dial wrapper hug the dial so the "empty" space on either side
-   matches the same spacing behavior as the mini dials.
-   Scoped to Tech Details only.
+/* ===== Tech Details: section header dial spacing tweaks =====
+   Goal: keep the visible gaps consistent between:
+   - mini dials (within .secMiniDials)
+   - last mini dial -> focus dial
+   - focus dial -> rank badge
 */
-body.route-tech .secHdrRight .secFocusDial .svcGaugeWrap{
-  width: var(--sz) !important;
-  height: var(--sz) !important;
-  flex: 0 0 var(--sz) !important;
-}
-body.route-tech .secHdrRight .secFocusDial .svcGauge{
-  width: var(--sz) !important;
-  height: var(--sz) !important;
+body.route-tech .panel .phead .titleRow .secFocusDial{
+  margin-left:8px !important;  /* add a touch of breathing room after minis */
+  margin-right:8px !important; /* keep focus dial off the rank badge */
 }
 
-
-/* === PATCH 2026-02-28b: section titleRow focus dial gap fix (actual override) ===
-   Previous rules were still reserving extra space via flex-basis (148px) on the focus dial wrapper.
-   This forces the wrapper's flex-basis to match its visible width so the gap matches mini dials.
-   Scoped to Tech Details only.
-*/
-body.route-tech .secHdrRight .secFocusDial .svcGaugeWrap{
-  flex: 0 0 auto !important;     /* do NOT reserve extra horizontal space */
-  width: 90px !important;
-  height: 90px !important;
-}
-body.route-tech .secHdrRight .secFocusDial .svcGauge{
-  width: 90px !important;
-  height: 90px !important;
-}
