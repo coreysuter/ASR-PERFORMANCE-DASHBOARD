@@ -2472,3 +2472,58 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight{
 body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
+
+
+
+/* === PATCH 2026-02-28b: make title-row focus dial gaps match the other dials exactly ===
+   Problem: the big focus dial in the section title row had extra space on BOTH sides.
+   Fix: remove the rank badge inline margin and force a single consistent gap across
+   mini dials ↔ focus dial ↔ rank badge.
+   Scoped to Tech Details only.
+*/
+body.route-tech .phead > .titleRow .secHdrRight{
+  gap:8px !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secMiniDials{
+  gap:8px !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secFocusDial{
+  margin:0 !important;
+}
+body.route-tech .phead > .titleRow .secHdrRight .secHdrRank{
+  margin:0 !important; /* overrides inline margin="0 12px" */
+}
+
+/* === PATCH 2026-03-01c: FORCE equal gaps around section title-row focus dial (Tech Details only) ===
+   This is intentionally the LAST rule in the file to win the cascade.
+   It makes the big focus dial spacing match the mini-dial spacing exactly.
+*/
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:8px !important;
+  column-gap:8px !important;
+  row-gap:8px !important;
+}
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .secMiniDials{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  column-gap:8px !important;
+  row-gap:8px !important;
+}
+/* Remove ANY stray margins/padding on the dial wrappers and badge wrapper */
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .secMiniDials,
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .secMiniDials * ,
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .secFocusDial,
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .secFocusDial * ,
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .secHdrRank,
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .secHdrRank *{
+  margin:0 !important;
+  padding:0 !important;
+}
+/* Keep the gauge wrappers from adding phantom width */
+body.route-tech #app .panel > .phead > .titleRow .secHdrRightTight .svcGaugeWrap{
+  flex:0 0 auto !important;
+}
