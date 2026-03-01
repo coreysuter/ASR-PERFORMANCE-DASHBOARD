@@ -2462,3 +2462,13 @@ body.route-tech .secStatValue{
 .rankFocusBadge .rfbOfNum{
   font-weight:1000 !important;
 }
+/* === PATCH 2026-03-01: tighten section titleRow focus dial spacing ===
+   The main focus dial in the section titleRow had too much gap on either side.
+   This only affects Tech Details (body.route-tech).
+*/
+body.route-tech .panel > .phead > .titleRow .secHdrRight{
+  gap:8px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
+  margin:0 6px !important;
+}
