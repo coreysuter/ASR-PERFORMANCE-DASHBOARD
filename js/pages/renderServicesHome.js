@@ -356,6 +356,24 @@ function renderServicesHome(){
         transform:none;
       }
 
+      /* === sdCatHdrRow micro-align (service card header ONLY) === */
+      .pageServicesDash .sdCatHdrRow{align-items:flex-start !important;}
+      /* Lock the dial column to the dial size so the label centers perfectly */
+      .pageServicesDash .sdCatHdrRow .sdCatDialCol{width:80px !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatDialCol .svcGaugeWrap{width:80px !important;height:80px !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatDialCol .svcGaugeLbl{
+        width:80px !important;
+        padding-left:0 !important;
+        padding-right:0 !important;
+        margin-left:0 !important;
+        margin-right:0 !important;
+        left:auto !important;
+        right:auto !important;
+      }
+      /* Keep the (scaled) rank badge pinned to the top of the row */
+      .pageServicesDash .sdCatHdrRow .rankFocusBadge{align-self:flex-start !important;margin-top:0 !important;}
+
+
     `;
   })();
 
