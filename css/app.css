@@ -2513,25 +2513,25 @@ body.route-tech .pills .k *{
 
 
 /* === Service Settings page === */
-.svcSetPanel .phead{padding:12px 12px 10px}
-.svcSetGrid{margin-top:10px;display:grid;gap:8px}
-.svcSetHdr{display:flex;align-items:center;justify-content:flex-start;padding:8px 10px;border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.18);font-size:11px;color:var(--muted);font-weight:1000;letter-spacing:.25px;text-transform:uppercase}
-.svcSetHdrLeft{flex:0 0 var(--svcSetNameW, 22ch);min-width:var(--svcSetNameW, 22ch);padding-right:16px}
-.svcSetHdrRight{flex:0 0 auto;padding-left:10px}
+.svcSetGrid{margin-top:8px;display:grid;gap:8px}
 
-.svcSetSection{border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;background:rgba(0,0,0,.10)}
-.svcSetSectionHdr{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);font-size:16px;font-weight:1200;letter-spacing:.2px}
-.svcSetRows{padding:8px 10px;display:grid;gap:7px}
+/* header row (column labels) */
+.svcSetHdr{display:flex;align-items:center;justify-content:flex-start;padding:8px 10px;border:1px solid var(--border);border-radius:12px;background:rgba(0,0,0,.18);font-size:10px;color:var(--muted);font-weight:1000;letter-spacing:.25px;text-transform:uppercase}
+.svcSetHdrLeft{flex:0 0 var(--svcSetNameW, 22ch);min-width:var(--svcSetNameW, 22ch);padding-right:20px}
+.svcSetHdrRight{flex:0 0 auto}
 
-.svcSetRow{display:flex;align-items:center;justify-content:flex-start;padding:7px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18)}
-.svcSetLeft{flex:0 0 var(--svcSetNameW, 22ch);min-width:var(--svcSetNameW, 22ch);padding-right:16px}
-.svcSetRight{flex:0 0 auto}
-.svcSetName{font-weight:900;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* category sections */
+.svcSetSection{border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.10)}
+.svcSetSectionHdr{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);font-size:15px;font-weight:1200;letter-spacing:.2px}
+.svcSetRows{padding:8px 10px;display:grid;gap:6px}
 
-.svcSetInput{width:130px;max-width:130px;padding:9px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);outline:none}
-@media(max-width:720px){
-  .svcSetHdr,.svcSetRow{flex-direction:column;align-items:stretch}
-  .svcSetHdrLeft,.svcSetLeft{flex:1 1 auto;min-width:0;padding-right:0}
-  .svcSetHdrRight,.svcSetRight{padding-left:0;margin-top:6px}
-  .svcSetInput{width:100%;max-width:none}
-}
+/* rows */
+.svcSetRow{display:flex;align-items:center;justify-content:flex-start;padding:7px 9px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18)}
+.svcSetLeft{flex:0 0 var(--svcSetNameW, 22ch);min-width:var(--svcSetNameW, 22ch);padding-right:20px}
+.svcSetName{font-size:14px;font-weight:900;letter-spacing:.1px}
+
+/* right container + input */
+.svcSetRight{flex:0 0 auto;display:flex;align-items:center}
+.svcSetInput{width:120px;max-width:120px;padding:8px 10px;margin-left:10px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);outline:none}
+.svcSetInput:focus{border-color:rgba(255,255,255,.25)}
+
