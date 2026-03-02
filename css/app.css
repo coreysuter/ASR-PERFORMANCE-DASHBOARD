@@ -2473,97 +2473,29 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
 
-/* === PATCH 2026-02-28: titleRow dial spacing parity (fix flex-basis regression) ===
-   Ensure the section titleRow focus dial reserves ONLY its visible size,
-   so spacing matches the mini dials (no hidden left/right buffer).
+/* === PATCH 2026-02-28: Global pill k/v color enforcement ===
+   Goal: In ALL pills across ALL pages:
+   - .v (values) are solid #eaf0ff with NO opacity
+   - .k (labels) are #eaf0ff at 75% opacity
+   Notes:
+   - Include .pillMini variants (Tech header mini pills) explicitly.
+   - Use !important and include nested nodes so symbols/spans inherit correctly.
 */
-body.route-tech .panel > .phead > .titleRow .secHdrRight{
-  gap:8px !important; /* same as mini-dial gap */
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secMiniDials{
-  gap:8px !important;
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge{
-  width:90px !important;
-  height:90px !important;
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGaugeWrap{
-  width:90px !important;
-  height:90px !important;
-  flex:0 0 90px !important; /* critical: remove old 148px flex-basis */
-}
-/* Give the rank badge a touch more breathing room without changing mini-dial rhythm */
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
-  margin-left:8px !important;
-}
 
-/* === PATCH 2026-02-28: Tech Details section titleRow dial spacing
-   Match RenderServicesHome dial spacing (22px) and keep focus dial wrapper from reserving 148px.
-   Scope: Tech Details only, section title rows (Maintenance/Fluids/Brakes/Tires).
-*/
-body.route-tech .panel > .phead > .titleRow .secHdrRight{
-  gap:22px !important;
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secMiniDials{
-  gap:22px !important;
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge{
-  width:90px !important;
-  height:90px !important;
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGaugeWrap{
-  width:90px !important;
-  height:90px !important;
-  flex:0 0 90px !important; /* critical: prevent hidden 148px buffer */
-}
-
-
-/* === PATCH 2026-02-28: Global pill text colors for .k and .v ===
-   Requirement:
-   - All .v (values) inside pills must be #eaf0ff with NO opacity reduction
-   - All .k (keys/labels) inside pills must be #eaf0ff with 75% opacity
-   Applies to ALL pages.
-*/
-.pill .v,
-.pillMini .v,
-.statPill .v,
-.tnPillVal{
-  color:#eaf0ff !important;
-  opacity:1 !important;
-}
-.pill .v *,
-.pillMini .v *,
-.statPill .v *,
-.tnPillVal *{
-  color:#eaf0ff !important;
-  opacity:1 !important;
-}
-
+/* Labels */
 .pill .k,
-.pillMini .k,
-.statPill .k,
-.tnPillKey{
-  color:rgba(234,240,255,.75) !important;
-  opacity:1 !important;
-}
 .pill .k *,
-.pillMini .k *,
-.statPill .k *,
-.tnPillKey *{
-  color:rgba(234,240,255,.75) !important;
-  opacity:1 !important;
+.pillMini .k,
+.pillMini .k *{
+  color: rgba(234,240,255,.75) !important;
+  opacity: 1 !important;
 }
 
-
-
-/* === PATCH 2026-02-28: FORCE Tech Details header pill values fully opaque ===
-   Fix: header-row ASRs pill value was still rendering like 75% opacity.
-   Scope: Tech Details header panel only.
-*/
-body.route-tech .techHeaderPanel .pillMini .v,
-body.route-tech .techHeaderPanel .pillMini .v *,
-body.route-tech .techHeaderPanel .pillsMini .pillMini .v,
-body.route-tech .techHeaderPanel .pillsMini .pillMini .v *{
-  color:#eaf0ff !important;
-  opacity:1 !important;
+/* Values */
+.pill .v,
+.pill .v *,
+.pillMini .v,
+.pillMini .v *{
+  color: #eaf0ff !important;
+  opacity: 1 !important;
 }
