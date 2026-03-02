@@ -26,22 +26,27 @@ function renderServiceSettingsPage(){
     return (v==null || v==="") ? "" : String(v);
   }
 
-  // Compute a stable name column width (matches the longest service name)
-  const allCats = secs.flatMap(s => Array.isArray(s?.categories) ? s.categories : []).map(v=>String(v||""));
-  const longest = allCats.reduce((a,b)=> (String(b||"").length > String(a||"").length ? b : a), "");
-  const nameWch = Math.max(14, Math.min(44, String(longest||"").length + 2));
-  const nameW = `${nameWch}ch`;
+  // Compute fixed name column width (in ch) based on the longest service name
+  let maxChars = 18;
+  try{
+    const all = [];
+    secs.forEach(sec=>{
+      const cats = Array.isArray(sec?.categories) ? sec.categories : [];
+      cats.forEach(c=>{ if(c!=null) all.push(String(c)); });
+    });
+    all.forEach(s=>{ maxChars = Math.max(maxChars, String(s).trim().length); });
+    maxChars = Math.min(Math.max(maxChars + 2, 18), 56); // clamp
+  }catch(e){}
+  app.style.setProperty('--svcSetNameW', `${maxChars}ch`);
 
   function rowHtml(cat){
     const k = keyFor(cat);
     const id = "minMiles_" + encodeURIComponent(k);
     return `
       <div class="svcSetRow">
-        <div class="svcSetLeft">
-          <div class="svcSetName">${esc(cat)}</div>
-        </div>
+        <div class="svcSetLeft"><div class="svcSetName">${esc(cat)}</div></div>
         <div class="svcSetRight">
-          <input class="svcSetMiles" id="${id}" type="number" inputmode="numeric" min="0" step="500" placeholder="0" value="${esc(valFor(cat))}">
+          <input class="svcSetInput" id="${id}" type="number" inputmode="numeric" min="0" step="500" placeholder="0" value="${esc(valFor(cat))}">
         </div>
       </div>
     `;
@@ -62,30 +67,59 @@ function renderServiceSettingsPage(){
   }).join("");
 
   app.innerHTML = `
-    <div class="panel svcSetPanel" style="--svcSetNameW:${nameW}">
-      <div class="phead">
-        <div class="titleRow">
-          <div>
-            <div class="h2">SERVICE SETTINGS</div>
-            <div class="sub"><a href="#/settings" style="text-decoration:none">← Back to settings</a></div>
+    <div class="techNotchStage pageServiceSettings" style="position:relative; width:100%; overflow:visible;">
+      <div class="panel techMenuNotch" style="
+        position:absolute;
+        left:-68px;
+        top:0px;
+        width:68px;
+        height:56px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-top-right-radius:0px;
+        border-bottom-right-radius:0px;
+        border-right:none;
+        z-index:3;
+      ">
+        <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+          font-size:1.5em;
+          line-height:1;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:8px 10px;
+          cursor:pointer;
+          color:inherit;
+          user-select:none;
+        ">☰</label>
+      </div>
+
+      <div class="panel techHeaderPanel svcSetPanel" style="border-top-left-radius:0px;border-left:none;min-width:0;">
+        <div class="phead">
+          <div class="titleRow">
+            <div>
+              <div class="h2">SERVICE SETTINGS</div>
+            </div>
           </div>
-        </div>
 
-        <div class="notice" style="padding:8px 0 0 0">
-          Set the minimum vehicle mileage required for each service to be included in reporting.
-        </div>
-
-        <div class="svcSetGrid">
-          <div class="svcSetHdr">
-            <div class="svcSetHdrLeft">Service</div>
-            <div class="svcSetHdrRight">Minimum Miles</div>
+          <div class="notice svcSetNotice">
+            Set the minimum vehicle mileage required for each service to be included in reporting.
           </div>
-          ${sectionsHtml || `<div class="notice">No services found in DATA.sections.</div>`}
-        </div>
 
-        <div style="display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px">
-          <button id="svcSetClear" class="menuClose" style="width:auto;padding:8px 12px">Clear</button>
-          <div id="svcSetSaved" class="sub" style="margin:0;opacity:.8;display:none">Saved</div>
+          <div class="svcSetGrid">
+            <div class="svcSetHdr">
+              <div class="svcSetHdrLeft">Service</div>
+              <div class="svcSetHdrRight">Minimum Miles</div>
+            </div>
+
+            ${sectionsHtml || `<div class="notice">No services found in DATA.sections.</div>`}
+          </div>
+
+          <div class="svcSetFooter">
+            <button id="svcSetClear" class="menuClose svcSetClearBtn">Clear</button>
+            <div id="svcSetSaved" class="sub svcSetSaved" style="display:none">Saved</div>
+          </div>
         </div>
       </div>
     </div>
@@ -105,8 +139,9 @@ function renderServiceSettingsPage(){
     inp.addEventListener("input", ()=>{
       const id = inp.id || "";
       const k = decodeURIComponent(id.replace(/^minMiles_/, ""));
-      const n = Number(String(inp.value||"").trim());
-      if(String(inp.value||"").trim()===""){
+      const raw = String(inp.value||"").trim();
+      const n = Number(raw);
+      if(raw===""){
         delete map[k];
       }else if(Number.isFinite(n) && n>=0){
         map[k] = Math.round(n);
@@ -121,7 +156,6 @@ function renderServiceSettingsPage(){
   if(btn){
     btn.addEventListener("click", ()=>{
       try{ localStorage.removeItem(LS_KEY); }catch(e){}
-      // reset UI
       app.querySelectorAll(".svcSetInput").forEach(inp=>inp.value="");
       for(const k of Object.keys(map)) delete map[k];
       flashSaved();
