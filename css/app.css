@@ -2513,44 +2513,99 @@ body.route-tech .pills .k *{
 
 
 /* === Service Settings page === */
-.svcSetPanel{display:inline-block;width:fit-content;max-width:100%}
-.svcSetNotice{padding:10px 0 0 0}
-.svcSetGrid{margin-top:10px;display:grid;gap:10px;width:fit-content}
+/* Shrink-to-fit panel + two-column table (service name + minimum miles input) */
+.svcSetPanel{
+  display:inline-block;
+  width:fit-content;
+  max-width:100%;
+}
+.svcSetPanel .phead{width:fit-content}
+.svcSetGrid{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+  width:fit-content;
+  max-width:100%;
+}
 
-/* Column headers (no border, larger text) */
-.svcSetHdr{display:flex;align-items:flex-end;justify-content:flex-start;padding:0 2px;font-size:14px;color:rgba(255,255,255,.75);font-weight:1000;letter-spacing:.2px;text-transform:none}
-.svcSetHdrLeft{flex:0 0 var(--svcSetNameW, 22ch);min-width:var(--svcSetNameW, 22ch);padding-right:20px}
+.svcSetHdr{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:10px 12px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:rgba(0,0,0,.18);
+  font-size:11px;
+  color:var(--muted);
+  font-weight:1000;
+  letter-spacing:.25px;
+  text-transform:uppercase;
+  width:fit-content;
+  max-width:100%;
+}
+.svcSetHdrLeft{
+  flex:0 0 var(--svcSetNameW, 22ch);
+  min-width:var(--svcSetNameW, 22ch);
+  padding-right:20px; /* more breathing room between columns */
+}
 .svcSetHdrRight{flex:0 0 auto}
 
-/* Category section containers tighten to content */
-.svcSetSection{width:fit-content;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;background:rgba(0,0,0,.10)}
-.svcSetSectionHdr{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);font-size:16px;font-weight:1200;letter-spacing:.2px}
-.svcSetRows{padding:10px 12px;display:grid;gap:8px;width:fit-content}
+.svcSetSection{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  overflow:hidden;
+  background:rgba(0,0,0,.10);
+  width:fit-content;
+  max-width:100%;
+}
+.svcSetSectionHdr{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  font-size:16px;
+  font-weight:1200;
+  letter-spacing:.2px;
+}
+.svcSetRows{
+  padding:10px 12px;
+  display:grid;
+  gap:8px;
+  width:fit-content;
+  max-width:100%;
+}
 
-.svcSetRow{width:fit-content;display:flex;align-items:center;justify-content:flex-start;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18)}
-.svcSetLeft{flex:0 0 var(--svcSetNameW, 22ch);min-width:var(--svcSetNameW, 22ch);padding-right:20px}
+.svcSetRow{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding:8px 10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.18);
+  width:fit-content;
+  max-width:100%;
+}
+.svcSetLeft{
+  flex:0 0 var(--svcSetNameW, 22ch);
+  min-width:var(--svcSetNameW, 22ch);
+  padding-right:20px; /* more breathing room between columns */
+}
+.svcSetName{
+  font-weight:900;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .svcSetRight{flex:0 0 auto}
-
-/* Service name */
-.svcSetName{font-weight:900;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* Input (10px from right container edge via margin-left) */
-.svcSetInput{margin-left:10px;width:140px;max-width:140px;padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);outline:none}
-
-/* Footer */
-.svcSetFooter{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:10px}
-.svcSetClearBtn{width:auto;padding:8px 12px}
-.svcSetSaved{margin:0;opacity:.8}
-
-@media(max-width:720px){
-  .svcSetPanel{display:block;width:100%}
-  .svcSetGrid,.svcSetSection,.svcSetRows,.svcSetRow{width:100%}
-  .svcSetHdr,.svcSetRow{flex-direction:column;align-items:stretch}
-  .svcSetHdrLeft,.svcSetLeft{flex:1 1 auto;min-width:0;padding-right:0}
-  .svcSetHdrRight,.svcSetRight{margin-top:6px}
-  .svcSetInput{margin-left:0;width:100%;max-width:none}
+.svcSetMiles{
+  width:110px;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.18);
+  color:var(--text);
+  outline:none;
+  margin-left:10px; /* required 10px between right container and textbox */
 }
-  .svcSetHdrLeft,.svcSetLeft{flex:1 1 auto;min-width:0;padding-right:0}
-  .svcSetHdrRight,.svcSetRight{padding-left:0;margin-top:6px}
-  .svcSetInput{width:100%;max-width:none}
-}
+.svcSetMiles:focus{border-color:rgba(120,190,255,.55)}
