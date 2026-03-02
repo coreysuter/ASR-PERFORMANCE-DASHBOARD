@@ -2473,39 +2473,39 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
 
-/* === PATCH 2026-02-28: Global pill k/v color enforcement ===
-   Goal: In ALL pills across ALL pages:
-   - .v (values) are solid #eaf0ff with NO opacity
-   - .k (labels) are #eaf0ff at 75% opacity
-   Notes:
-   - Include .pillMini variants (Tech header mini pills) explicitly.
-   - Use !important and include nested nodes so symbols/spans inherit correctly.
+/* === PATCH 2026-02-28: titleRow dial spacing parity (fix flex-basis regression) ===
+   Ensure the section titleRow focus dial reserves ONLY its visible size,
+   so spacing matches the mini dials (no hidden left/right buffer).
 */
-
-/* Labels */
-.pill .k,
-.pill .k *,
-.pillMini .k,
-.pillMini .k *{
-  color: rgba(234,240,255,.75) !important;
-  opacity: 1 !important;
+body.route-tech .panel > .phead > .titleRow .secHdrRight{
+  gap:8px !important; /* same as mini-dial gap */
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secMiniDials{
+  gap:8px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge{
+  width:90px !important;
+  height:90px !important;
+}
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGaugeWrap{
+  width:90px !important;
+  height:90px !important;
+  flex:0 0 90px !important; /* critical: remove old 148px flex-basis */
+}
+/* Give the rank badge a touch more breathing room without changing mini-dial rhythm */
+body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
+  margin-left:8px !important;
 }
 
-/* Values */
-.pill .v,
-.pill .v *,
-.pillMini .v,
-.pillMini .v *{
-  color: #eaf0ff !important;
-  opacity: 1 !important;
-}
-
-/* === PATCH 2026-03-02: Force Tech Details header mini-pill values fully opaque ===
-   Issue observed: ASRs pill value (.pillMini .v) appearing ~75% opacity.
-   This patch:
-   - Forces the mini-pill containers to full opacity.
-   - Forces .v to solid #eaf0ff with opacity:1 using high specificity.
+/* === PATCH 2026-03-02b: Tech Details header ASRs pill value must be fully opaque ===
+   Deterministic override (last-in-file):
+   - Forces header mini-pill containers to full opacity
+   - Forces .v values (and nested spans/symbols) to solid #eaf0ff with opacity:1
+   Note: If an ancestor element has opacity < 1, children cannot override; this patch also
+   asserts opacity:1 on the immediate wrappers we control.
 */
+body.route-tech .techHeaderPanel,
+body.route-tech .techHeaderPanel .phead,
 body.route-tech .techHeaderPanel .pillsMini,
 body.route-tech .techHeaderPanel .pillMini{
   opacity: 1 !important;
@@ -2515,4 +2515,6 @@ body.route-tech .techHeaderPanel .pillMini .v,
 body.route-tech .techHeaderPanel .pillMini .v *{
   color: #eaf0ff !important;
   opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
 }
