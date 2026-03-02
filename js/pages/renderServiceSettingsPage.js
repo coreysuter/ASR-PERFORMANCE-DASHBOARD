@@ -2,6 +2,11 @@ function renderServiceSettingsPage(){
   const app = document.getElementById("app");
   const secs = (typeof DATA!=='undefined' && Array.isArray(DATA.sections)) ? DATA.sections : [];
 
+  // compute a stable name column width (in ch units) based on the longest service name
+  const _allSvcNames = secs.flatMap(s => Array.isArray(s?.categories) ? s.categories.map(String) : []).map(s=>String(s||"").trim()).filter(Boolean);
+  const _maxLenRaw = _allSvcNames.reduce((m,n)=>Math.max(m, n.length), 0);
+  const _nameColCh = Math.max(16, Math.min(46, _maxLenRaw || 16)); // clamp for sanity
+
   const LS_KEY = "svcMinMilesByService_v1";
   function _load(){
     try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}") || {}; }
@@ -31,8 +36,8 @@ function renderServiceSettingsPage(){
     const id = "minMiles_" + encodeURIComponent(k);
     return `
       <div class="svcSetRow">
-        <div class="svcSetName">${esc(cat)}</div>
-        <input class="svcSetInput" id="${id}" type="number" inputmode="numeric" min="0" step="500" placeholder="0" value="${esc(valFor(cat))}">
+        <div class="svcSetLeft"><div class="svcSetName">${esc(cat)}</div></div>
+        <div class="svcSetRight"><input class="svcSetInput" id="${id}" type="number" inputmode="numeric" min="0" step="500" placeholder="0" value="${esc(valFor(cat))}"></div>
       </div>
     `;
   }
@@ -65,10 +70,10 @@ function renderServiceSettingsPage(){
           Set the minimum vehicle mileage required for each service to be included in reporting.
         </div>
 
-        <div class="svcSetGrid">
+        <div class="svcSetGrid" style="--svcSetNameW: ${_nameColCh}ch;">
           <div class="svcSetHdr">
-            <div>Service</div>
-            <div>Minimum Miles</div>
+            <div class="svcSetHdrLeft">Service</div>
+            <div class="svcSetHdrRight">Minimum Miles</div>
           </div>
           ${sectionsHtml || `<div class="notice">No services found in DATA.sections.</div>`}
         </div>
