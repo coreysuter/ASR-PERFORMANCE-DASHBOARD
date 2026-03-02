@@ -58,7 +58,6 @@ function setRouteBodyClass(parts){
     const root = (parts && parts.length) ? parts[0] : "";
     if(!root){ b.classList.add("route-main"); return; }
     if(root==="tech") b.classList.add("route-tech");
-    else if(root==="advisors") b.classList.add("route-advisors");
     else if(root==="services") b.classList.add("route-services");
     else if(root==="settings") b.classList.add("route-settings");
     else if(root==="servicesHome") b.classList.add("route-servicesHome");
@@ -73,11 +72,11 @@ function route(){
     removeLegacyTopHeader();
     if(parts.length===0){ window.renderMain?.(); window.animateSvcGauges?.(); return; }
     if(parts[0]==="tech" && parts[1]){ window.renderTech?.(parts[1]); window.animateSvcGauges?.(); return; }
-    if(parts[0]==="advisors"){ window.renderAdvisorMain?.(); window.animateSvcGauges?.(); return; }
     if(parts[0]==="services" && parts[1]){ window.renderGroupPage?.(parts[1]); window.animateSvcGauges?.(); return; }
     if(parts[0]==="settings" && parts[1]==="goals"){ window.renderGoalsPage?.(); return; }
     if(parts[0]==="settings"){ window.renderSettingsHome?.(); return; }
     if(parts[0]==="servicesHome"){ window.renderServicesHome?.(); return; }
+    if(parts[0]==="advisors"){ window.renderAdvisorMain?.(); window.animateSvcGauges?.(); return; }
     window.renderMain?.(); window.animateSvcGauges?.();
   }catch(e){
     const app = document.getElementById("app");
