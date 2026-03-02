@@ -2473,48 +2473,40 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   margin:0 6px !important;
 }
 
-/* === PATCH 2026-02-28: titleRow dial spacing parity (fix flex-basis regression) ===
-   Ensure the section titleRow focus dial reserves ONLY its visible size,
-   so spacing matches the mini dials (no hidden left/right buffer).
+
+/* === vXXX_TECH_PILL_TEXT_COLOR (2026-02-28) ===
+   Tech Details page: enforce pill text colors consistently.
+   - All .v (values) are #eaf0ff at 100% opacity
+   - All .k (keys/labels) are #eaf0ff at 75% opacity
+   Scoped to body.route-tech to avoid impacting other pages.
 */
-body.route-tech .panel > .phead > .titleRow .secHdrRight{
-  gap:8px !important; /* same as mini-dial gap */
+body.route-tech .pill .v,
+body.route-tech .pillMini .v,
+body.route-tech .secNamePills .v,
+body.route-tech .pills .v{
+  color:#eaf0ff !important;
+  opacity:1 !important;
 }
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secMiniDials{
-  gap:8px !important;
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGauge{
-  width:90px !important;
-  height:90px !important;
-}
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secFocusDial .svcGaugeWrap{
-  width:90px !important;
-  height:90px !important;
-  flex:0 0 90px !important; /* critical: remove old 148px flex-basis */
-}
-/* Give the rank badge a touch more breathing room without changing mini-dial rhythm */
-body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
-  margin-left:8px !important;
+body.route-tech .pill .v *,
+body.route-tech .pillMini .v *,
+body.route-tech .secNamePills .v *,
+body.route-tech .pills .v *{
+  color:#eaf0ff !important;
+  opacity:1 !important;
 }
 
-/* === PATCH 2026-03-02b: Tech Details header ASRs pill value must be fully opaque ===
-   Deterministic override (last-in-file):
-   - Forces header mini-pill containers to full opacity
-   - Forces .v values (and nested spans/symbols) to solid #eaf0ff with opacity:1
-   Note: If an ancestor element has opacity < 1, children cannot override; this patch also
-   asserts opacity:1 on the immediate wrappers we control.
-*/
-body.route-tech .techHeaderPanel,
-body.route-tech .techHeaderPanel .phead,
-body.route-tech .techHeaderPanel .pillsMini,
-body.route-tech .techHeaderPanel .pillMini{
-  opacity: 1 !important;
+body.route-tech .pill .k,
+body.route-tech .pillMini .k,
+body.route-tech .secNamePills .k,
+body.route-tech .pills .k{
+  color:#eaf0ff !important;
+  opacity:.75 !important;
+}
+body.route-tech .pill .k *,
+body.route-tech .pillMini .k *,
+body.route-tech .secNamePills .k *,
+body.route-tech .pills .k *{
+  color:#eaf0ff !important;
+  opacity:.75 !important;
 }
 
-body.route-tech .techHeaderPanel .pillMini .v,
-body.route-tech .techHeaderPanel .pillMini .v *{
-  color: #eaf0ff !important;
-  opacity: 1 !important;
-  filter: none !important;
-  mix-blend-mode: normal !important;
-}
