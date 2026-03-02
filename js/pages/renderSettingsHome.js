@@ -13,6 +13,10 @@ function renderSettingsHome(){
             <div style="font-weight:1000;letter-spacing:.2px">Goals</div>
             <div class="sub" style="margin-top:4px">Set goal thresholds used on technician + service pages.</div>
           </a>
+          <a class="menuLink" href="#/settings/services" style="display:block;border-radius:14px;background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid rgba(255,255,255,.08);padding:12px 14px;text-decoration:none;color:inherit">
+            <div style="font-weight:1000;letter-spacing:.2px">Service Settings</div>
+            <div class="sub" style="margin-top:4px">Set minimum mileage thresholds used to include services in reporting.</div>
+          </a>
         </div>
       </div>
     </div>
@@ -47,6 +51,10 @@ function router(){
       const msg = (err && (err.stack||err.message||String(err))) || "Unknown error";
       document.getElementById("app").innerHTML = `<div class="panel"><div class="h2">Could not load category page</div><div class="sub">${safe(msg)}</div></div>`;
     }
+    return;
+  }
+  if(h.startsWith("#/settings/services")){
+    window.renderServiceSettingsPage?.();
     return;
   }
   if(h.startsWith("#/settings/goals")){

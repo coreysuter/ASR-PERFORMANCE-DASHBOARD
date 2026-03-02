@@ -2510,3 +2510,17 @@ body.route-tech .pills .k *{
   opacity:.75 !important;
 }
 
+
+
+/* === Service Settings page === */
+.svcSetGrid{margin-top:12px;display:grid;gap:10px}
+.svcSetHdr{display:grid;grid-template-columns:1fr 320px;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:rgba(0,0,0,.18);font-size:11px;color:var(--muted);font-weight:1000;letter-spacing:.25px;text-transform:uppercase}
+.svcSetSection{border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;background:rgba(0,0,0,.10)}
+.svcSetSectionHdr{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);font-size:16px;font-weight:1200;letter-spacing:.2px}
+.svcSetRows{padding:10px 12px;display:grid;gap:8px}
+.svcSetRow{display:grid;grid-template-columns:1fr 320px;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18)}
+.svcSetName{font-weight:900;min-width:0}
+.svcSetInput{width:100%;padding:10px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(0,0,0,.25);color:var(--text);outline:none}
+@media(max-width:720px){
+  .svcSetHdr,.svcSetRow{grid-template-columns:1fr}
+}
