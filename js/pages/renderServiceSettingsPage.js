@@ -41,7 +41,7 @@ function renderServiceSettingsPage(){
           <div class="svcSetName">${esc(cat)}</div>
         </div>
         <div class="svcSetRight">
-          <input class="svcSetInput" id="${id}" type="number" inputmode="numeric" min="0" step="500" placeholder="0" value="${esc(valFor(cat))}">
+          <input class="svcSetMiles" id="${id}" type="number" inputmode="numeric" min="0" step="500" placeholder="0" value="${esc(valFor(cat))}">
         </div>
       </div>
     `;
