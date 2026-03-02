@@ -68,7 +68,7 @@ function renderServiceSettingsPage(){
         <div class="svcSetGrid">
           <div class="svcSetHdr">
             <div>Service</div>
-            <div>Minimum Miles for Inclusion in Reporting</div>
+            <div>Minimum Miles</div>
           </div>
           ${sectionsHtml || `<div class="notice">No services found in DATA.sections.</div>`}
         </div>
