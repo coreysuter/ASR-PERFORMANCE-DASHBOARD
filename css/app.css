@@ -2499,3 +2499,20 @@ body.route-tech .panel > .phead > .titleRow .secHdrRight .secHdrRank{
   color: #eaf0ff !important;
   opacity: 1 !important;
 }
+
+/* === PATCH 2026-03-02: Force Tech Details header mini-pill values fully opaque ===
+   Issue observed: ASRs pill value (.pillMini .v) appearing ~75% opacity.
+   This patch:
+   - Forces the mini-pill containers to full opacity.
+   - Forces .v to solid #eaf0ff with opacity:1 using high specificity.
+*/
+body.route-tech .techHeaderPanel .pillsMini,
+body.route-tech .techHeaderPanel .pillMini{
+  opacity: 1 !important;
+}
+
+body.route-tech .techHeaderPanel .pillMini .v,
+body.route-tech .techHeaderPanel .pillMini .v *{
+  color: #eaf0ff !important;
+  opacity: 1 !important;
+}
