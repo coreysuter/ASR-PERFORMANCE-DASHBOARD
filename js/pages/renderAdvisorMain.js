@@ -20,11 +20,15 @@ function renderAdvisorMain(){
       }
       .pageTechDash .teamsGrid{position:relative !important; z-index:1 !important;}
   
-      /* Advisor rows: shading visible but text floats above it uncolored */
-      .pageAdvisorDash .techRow .pill::before,
-      .pageAdvisorDash .techRow .pill::after { z-index: 0 !important; }
-      .pageAdvisorDash .techRow .pill > * { position: relative !important; z-index: 3 !important; }
+      /* Advisor rows: subtle tint only, text stays white */
+      .pageAdvisorDash .techRow .pill.compG::before,
+      .pageAdvisorDash .techRow .pill.compY::before,
+      .pageAdvisorDash .techRow .pill.compR::before { opacity: 0.55 !important; }
+      .pageAdvisorDash .techRow .pill.compG::after,
+      .pageAdvisorDash .techRow .pill.compY::after,
+      .pageAdvisorDash .techRow .pill.compR::after { opacity: 0.55 !important; }
       .pageAdvisorDash .techRow .pill .v,
+      .pageAdvisorDash .techRow .pill .v { color: #fff !important; }
       .pageAdvisorDash .techRow .pill .k { color: #fff !important; }
 
       .pageTechDash .techRow .techNameStats .tnLbl{

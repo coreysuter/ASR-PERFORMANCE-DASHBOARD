@@ -96,17 +96,25 @@
     <div class="footer">GitHub Pages build</div>
   </div>
 
-  <!-- ✅ Scripts (ORDER MATTERS) -->
-  <script src="./js/core/base.js?v=10001"></script>
-  <script src="./js/pages/renderMain.js?v=5"></script>
-  <script src="./js/pages/renderTech.js?v=1000"></script>
-  <script src="./js/pages/renderGroupPage.js?v=4"></script>
-  <script src="./js/pages/renderGoalsPage.js?v=10010"></script>
-  <script src="./js/pages/renderServicesHome.js?v=4"></script>
-  <script src="./js/pages/renderServiceSettingsPage.js?v=1"></script>
-  <script src="./js/pages/renderSettingsHome.js?v=10011"></script>  <script src="./js/pages/renderAdvisorMain.js?v=2"></script>
-
-
+  <!-- ✅ Scripts (ORDER MATTERS) — cache-busted automatically on every load -->
+  <script>
+    const _v = Date.now();
+    [
+      './js/core/base.js',
+      './js/pages/renderMain.js',
+      './js/pages/renderTech.js',
+      './js/pages/renderGroupPage.js',
+      './js/pages/renderGoalsPage.js',
+      './js/pages/renderServicesHome.js',
+      './js/pages/renderServiceSettingsPage.js',
+      './js/pages/renderSettingsHome.js',
+      './js/pages/renderAdvisorMain.js',
+    ].forEach(src => {
+      const s = document.createElement('script');
+      s.src = src + '?v=' + _v;
+      document.currentScript.parentNode.appendChild(s);
+    });
+  </script>
 
   <script type="module" src="./js/app.js?v=6"></script>
 </body>
