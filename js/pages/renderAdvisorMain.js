@@ -1,6 +1,40 @@
 // v2: uses Technician Dashboard styling; no panel wrapper; relies on index.html loading this file.
 function renderAdvisorMain(){
 
+  // Ensure the exact Technician Dashboard style overrides are present (same as renderMain).
+  (function ensureTechDashOverrides(){
+    const id = "techDashOverrides";
+    let el = document.getElementById(id);
+    if(!el){
+      el = document.createElement("style");
+      el.id = id;
+      document.head.appendChild(el);
+    }
+    el.textContent = `
+      /* Scope EVERYTHING to main technician dashboard only */
+      /* Add breathing room so the header panel never visually overlaps the two team panels */
+      .pageTechDash .techHeaderPanel{
+        margin-bottom:14px !important;
+        position:relative !important;
+        z-index:2 !important;
+      }
+      .pageTechDash .teamsGrid{position:relative !important; z-index:1 !important;}
+  
+      .pageTechDash .techRow .techNameStats .tnLbl{
+        font-size:11px !important;
+        line-height:1.05 !important;
+        text-transform:none !important;
+        letter-spacing:.2px !important;
+      }
+      .pageTechDash .techRow .techNameStats .tnVal{
+        font-size:15px !important;
+        line-height:1.05 !important;
+      }
+    `;
+  })();
+  
+
+
   const app = document.getElementById('app');
   if(!app) return;
 

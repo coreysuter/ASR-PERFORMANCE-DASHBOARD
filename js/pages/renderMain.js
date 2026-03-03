@@ -360,3 +360,4 @@ function bandClass(val, base){
 
 
 window.renderMain = renderMain;
+
