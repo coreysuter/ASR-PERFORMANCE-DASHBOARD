@@ -2564,9 +2564,29 @@ body.route-tech .pills .k *{
 .svcSetSectionHdr{
   padding:10px 12px;
   border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-start;
+  gap:20px;
   font-size:23px;
   font-weight:1200;
   letter-spacing:.2px;
+}
+.svcSetSectionHdrName{
+  flex:0 0 var(--svcSetNameW, 22ch);
+  min-width:var(--svcSetNameW, 22ch);
+  padding-right:20px;
+}
+.svcSetSectionHdrMiles{
+  margin-left:auto;
+  flex:0 0 auto;
+  font-size:15px;
+  font-weight:1000;
+  color:rgba(234,240,255,.80);
+  letter-spacing:.2px;
+  /* line up over the inputs */
+  width:calc(110px + 10px);
+  text-align:right;
 }
 .svcSetRows{
   padding:10px 12px;

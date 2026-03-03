@@ -53,7 +53,10 @@ function renderServiceSettingsPage(){
     if(!name || !cats.length) return "";
     return `
       <div class="svcSetSection">
-        <div class="svcSetSectionHdr">${esc(name)}</div>
+        <div class="svcSetSectionHdr">
+          <div class="svcSetSectionHdrName">${esc(name)}</div>
+          <div class="svcSetSectionHdrMiles">Min. Miles</div>
+        </div>
         <div class="svcSetRows">
           ${cats.map(rowHtml).join("")}
         </div>
@@ -105,10 +108,6 @@ function renderServiceSettingsPage(){
         </div>
 
         <div class="svcSetGrid">
-          <div class="svcSetHdr">
-            <div class="svcSetHdrLeft">Service</div>
-            <div class="svcSetHdrRight">Minimum Miles</div>
-          </div>
           ${sectionsHtml || `<div class="notice">No services found in DATA.sections.</div>`}
         </div>
 
