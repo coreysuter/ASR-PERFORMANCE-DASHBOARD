@@ -20,15 +20,25 @@ function renderAdvisorMain(){
       }
       .pageTechDash .teamsGrid{position:relative !important; z-index:1 !important;}
   
+      /* Advisor rows: shading visible but text floats above it uncolored */
+      .pageAdvisorDash .techRow .pill::before,
+      .pageAdvisorDash .techRow .pill::after { z-index: 0 !important; }
+      .pageAdvisorDash .techRow .pill > * { position: relative !important; z-index: 3 !important; }
+      .pageAdvisorDash .techRow .pill .v,
+      .pageAdvisorDash .techRow .pill .k { color: #fff !important; }
+
       .pageTechDash .techRow .techNameStats .tnLbl{
         font-size:11px !important;
         line-height:1.05 !important;
-        text-transform:none !important;
+        color:var(--muted) !important;
+        font-weight:900 !important;
+        text-transform:uppercase !important;
         letter-spacing:.2px !important;
       }
       .pageTechDash .techRow .techNameStats .tnVal{
         font-size:15px !important;
-        line-height:1.05 !important;
+        font-weight:1000 !important;
+        line-height:1 !important;
       }
     `;
   })();
@@ -44,14 +54,15 @@ function renderAdvisorMain(){
 
   // Local, independent state
   if(typeof window.advisorDashState === 'undefined'){
-    window.advisorDashState = { filterKey:"total", sortBy:"asr_per_ro", goalMetric:"asr", compare:"advisors" };
+    window.advisorDashState = { filterKey:"total", compare:"advisors" };
   }
   const st = window.advisorDashState;
 
-  const focusIsGoal = String(st.sortBy||"") === "goal";
-  const focusIsSold = String(st.sortBy||"") === "sold_pct";
-  const goalMetric = (String(st.goalMetric||"asr") === "sold") ? "sold" : "asr";
-  const compareMode = focusIsGoal ? "goal" : ((String(st.compare||"advisors")==="goal") ? "goal" : "advisors");
+  // Advisors always focus on Sold
+  const focusIsGoal = false;
+  const focusIsSold = true;
+  const goalMetric = "sold";
+  const compareMode = (String(st.compare||"advisors")==="goal") ? "goal" : "advisors";
 
   function _ss(a){
     return (a && a.summary && a.summary[st.filterKey]) ? a.summary[st.filterKey] : {};
@@ -152,7 +163,7 @@ function renderAdvisorMain(){
           .pageAdvisorDash .techHeaderPanel .techH2Big{flex:0 0 auto !important;}
           .pageAdvisorDash .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
 
-          /* Header stat pills sizing */
+          /* Header stat pills sizing - scoped to header panel only */
           .pageAdvisorDash .techHeaderPanel .pills .pill .v{font-size:22px !important;line-height:1.05 !important;}
           .pageAdvisorDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
 
@@ -206,38 +217,12 @@ function renderAdvisorMain(){
               </select>
             </div>
             <div>
-              <label>Focus</label>
-              <select data-scope="advisor" data-ctl="sort">
-                <option value="asr_per_ro" ${st.sortBy==="asr_per_ro"?"selected":""}>ASR/RO</option>
-                <option value="sold_pct" ${st.sortBy==="sold_pct"?"selected":""}>Sold</option>
-                <option value="goal" ${st.sortBy==="goal"?"selected":""}>Goal</option>
+              <label>Comparison</label>
+              <select data-scope="advisor" data-ctl="compare">
+                <option value="advisors" ${compareMode==="advisors"?"selected":""}>Advisors</option>
+                <option value="goal" ${compareMode==="goal"?"selected":""}>Goal</option>
               </select>
             </div>
-
-            ${focusIsGoal ? `
-              <div>
-                <label>Goal</label>
-                <select data-scope="advisor" data-ctl="goal">
-                  <option value="asr" ${goalMetric==="asr"?"selected":""}>ASR</option>
-                  <option value="sold" ${goalMetric==="sold"?"selected":""}>Sold</option>
-                </select>
-              </div>
-              <div>
-                <label>Comparison</label>
-                <select data-scope="advisor" data-ctl="compare" disabled style="opacity:.55;filter:grayscale(1);cursor:not-allowed">
-                  <option value="advisors">Advisors</option>
-                  <option value="goal" selected>Goal</option>
-                </select>
-              </div>
-            ` : `
-              <div>
-                <label>Comparison</label>
-                <select data-scope="advisor" data-ctl="compare">
-                  <option value="advisors" ${compareMode==="advisors"?"selected":""}>Advisors</option>
-                  <option value="goal" ${compareMode==="goal"?"selected":""}>Goal</option>
-                </select>
-              </div>
-            `}
           </div>
         </div>
       </div>
@@ -342,7 +327,7 @@ function renderAdvisorMain(){
     return `
       <div class="techRow dashTechRow">
         <div class="dashLeft">
-          <div class="val name" style="font-size:22px">${safe(a.name||a.id)}</div>
+          <div class="val name">${safe(a.name||a.id)}</div>
 
           <div class="techNameStats">
             <div class="tnRow tnRow1">
@@ -362,19 +347,19 @@ function renderAdvisorMain(){
           <div class="pills">
             ${focusIsGoal ? `
               <div class="pillGroup pillGroupNonGoal">
-                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0) ? fmt1(Number(s.sold)/Number(a.ros),2) : "—"}</div></div>
+                <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+                <div class="pill"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                <div class="pill"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0) ? fmt1(Number(s.sold)/Number(a.ros),2) : "—"}</div></div>
               </div>
               <div class="pillGroup pillGroupGoal">
                 ${goalMetric==='asr'
                   ? `
-                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                    <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
+                    <div class="pill${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                    <div class="pill${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
                   `
                   : `
-                    <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                    <div class="pill${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
+                    <div class="pill${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
                   `
                 }
               </div>
@@ -390,13 +375,13 @@ function renderAdvisorMain(){
               </div>
             ` : `
               <div class="pillGroup pillGroupB">
-                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0) ? fmt1(Number(s.sold)/Number(a.ros),2) : "—"}</div></div>
-                <div class="pill${clsSoldGoal}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                <div class="pill"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                <div class="pill"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0) ? fmt1(Number(s.sold)/Number(a.ros),2) : "—"}</div></div>
+                <div class="pill"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
               </div>
               <div class="pillGroup pillGroupA focusGroup">
-                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                <div class="pill${clsAsrGoal}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
+                <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
+                <div class="pill"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
               </div>
             `)}
           </div>
@@ -442,8 +427,6 @@ function renderAdvisorMain(){
     const ctl = el.getAttribute('data-ctl');
     const apply = ()=>{
       if(ctl==="filter") st.filterKey = el.value;
-      if(ctl==="sort") st.sortBy = el.value;
-      if(ctl==="goal") st.goalMetric = el.value;
       if(ctl==="compare") st.compare = el.value;
       renderAdvisorMain();
     };
