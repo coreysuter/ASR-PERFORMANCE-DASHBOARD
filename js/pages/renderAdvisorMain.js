@@ -3,55 +3,40 @@ function renderAdvisorMain(){
 
   // Ensure the exact Technician Dashboard style overrides are present (same as renderMain).
   (function ensureTechDashOverrides(){
-    const id = "advisorDashOverrides";
+    const id = "techDashOverrides";
     let el = document.getElementById(id);
-    if(!el){ el = document.createElement("style"); el.id = id; document.head.appendChild(el); }
+    if(!el){
+      el = document.createElement("style");
+      el.id = id;
+      document.head.appendChild(el);
+    }
     el.textContent = `
-      /* ADVISOR DASHBOARD: full standalone row CSS, .pageAdvisorDash-scoped so base.js cannot override */
-
-      /* Row flex layout (.techRow card appearance comes from app.css) */
-      .pageAdvisorDash .techRow.dashTechRow{ position:relative !important; display:flex !important; align-items:center !important; gap:18px !important; padding:12px 14px !important; min-height:auto !important; overflow:visible !important; }
-      .pageAdvisorDash .techRow.dashTechRow .dashLeft{ flex:1 1 260px !important; max-width:260px !important; min-width:0 !important; display:flex !important; flex-direction:column !important; gap:8px !important; }
-      .pageAdvisorDash .techRow.dashTechRow .dashLeft *{ min-width:0 !important; }
-      .pageAdvisorDash .techRow.dashTechRow .val.name{ position:static !important; max-width:100% !important; font-size:24px !important; font-weight:1000 !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
-
-      /* Mini-stats (Avg ODO / ROs / ASRs / Sold) */
-      .pageAdvisorDash .techRow.dashTechRow .techNameStats{ position:static !important; max-width:100% !important; overflow:hidden !important; display:flex !important; flex-direction:column !important; gap:6px !important; }
-      .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnRow{ display:flex !important; flex-wrap:nowrap !important; align-items:baseline !important; gap:12px !important; }
-      .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnMini{ display:inline-flex !important; align-items:baseline !important; gap:8px !important; }
-      .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnLbl{ font-size:11px !important; line-height:1.05 !important; color:var(--muted) !important; font-weight:900 !important; text-transform:uppercase !important; letter-spacing:.2px !important; }
-      .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnVal{ font-size:15px !important; font-weight:1000 !important; line-height:1 !important; }
-
-      /* Right column (pills + badge) */
-      .pageAdvisorDash .techRow.dashTechRow .dashRight{ flex:0 0 auto !important; display:flex !important; align-items:center !important; gap:12px !important; min-width:0 !important; }
-      .pageAdvisorDash .techRow.dashTechRow .techMetaRight{ position:static !important; transform:none !important; margin:0 !important; flex:0 0 auto !important; }
-
-      /* Pill row */
-      .pageAdvisorDash .techRow.dashTechRow .pills{ position:static !important; transform:none !important; left:auto !important; right:auto !important; top:auto !important; display:flex !important; flex-wrap:nowrap !important; justify-content:flex-start !important; gap:10px !important; padding:0 !important; margin:0 !important; width:auto !important; max-width:none !important; flex:0 0 auto !important; overflow:visible !important; }
-
-      /* Pill groups */
-      .pageAdvisorDash .techRow.dashTechRow .pillGroup{ display:flex !important; align-items:center !important; gap:10px !important; padding:6px 8px !important; border:1px solid rgba(190,190,190,.35) !important; border-radius:14px !important; overflow:visible !important; }
-      .pageAdvisorDash .techRow.dashTechRow .pillGroup.focusGroup .pill{ transform:scale(1.1) !important; transform-origin:center !important; }
-
-      /* Individual pill appearance (column layout, square-ish) */
-      .pageAdvisorDash .techRow .pill{ position:relative !important; overflow:hidden !important; display:inline-flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; min-width:85px !important; padding:9px 9px !important; border-radius:14px !important; gap:5px !important; background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.68)) !important; border:1px solid rgba(255,255,255,.16) !important; box-shadow:0 10px 26px rgba(0,0,0,.60) inset !important; }
-      .pageAdvisorDash .techRow .pill .k{ font-size:12px !important; font-weight:1000 !important; letter-spacing:.22px !important; text-transform:uppercase !important; line-height:1 !important; color:#fff !important; opacity:.85 !important; text-align:center !important; width:100% !important; }
-      .pageAdvisorDash .techRow .pill .v{ font-size:23px !important; font-weight:1000 !important; line-height:1 !important; color:#fff !important; text-align:center !important; width:100% !important; }
-
-      /* Pill color overlays */
-      .pageAdvisorDash .techRow .pill::before{ content:"" !important; position:absolute !important; inset:0 !important; pointer-events:none !important; opacity:0 !important; background:transparent !important; }
-      .pageAdvisorDash .techRow .pill::after{ content:"" !important; position:absolute !important; inset:0 !important; border-radius:inherit !important; pointer-events:none !important; opacity:0 !important; }
-      .pageAdvisorDash .techRow .pill > *{ position:relative !important; z-index:2 !important; }
-      .pageAdvisorDash .techRow .pill.compR::before{ opacity:.42 !important; background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.30) 0 42%,rgba(255,55,55,.40) 70%,rgba(255,55,55,.65) 100%),linear-gradient(180deg,rgba(255,55,55,.25),rgba(255,55,55,.10)) !important; }
-      .pageAdvisorDash .techRow .pill.compR::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(255,90,90,.55),inset 0 0 16px rgba(255,70,70,.35) !important; }
-      .pageAdvisorDash .techRow .pill.compY::before{ opacity:.40 !important; background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.28) 0 42%,rgba(255,245,120,.35) 70%,rgba(255,245,120,.60) 100%),linear-gradient(180deg,rgba(255,245,120,.22),rgba(255,245,120,.10)) !important; }
-      .pageAdvisorDash .techRow .pill.compY::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(255,255,160,.50),inset 0 0 16px rgba(255,235,90,.30) !important; }
-      .pageAdvisorDash .techRow .pill.compG::before{ opacity:.38 !important; background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.30) 0 42%,rgba(60,255,140,.30) 70%,rgba(60,255,140,.55) 100%),linear-gradient(180deg,rgba(60,255,140,.18),rgba(60,255,140,.08)) !important; }
-      .pageAdvisorDash .techRow .pill.compG::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(120,255,180,.45),inset 0 0 16px rgba(60,255,140,.28) !important; }
-
-      /* Header panel */
-      .pageAdvisorDash .techHeaderPanel{ margin-bottom:14px !important; position:relative !important; z-index:2 !important; }
-    `;
+    .pageAdvisorDash .techRow.dashTechRow{ position:relative !important; display:flex !important; align-items:center !important; gap:18px !important; padding:12px 14px !important; min-height:auto !important; overflow:visible !important; }
+    .pageAdvisorDash .techRow.dashTechRow .dashLeft{ flex:1 1 260px !important; max-width:260px !important; min-width:0 !important; display:flex !important; flex-direction:column !important; gap:8px !important; }
+    .pageAdvisorDash .techRow.dashTechRow .dashLeft *{ min-width:0 !important; }
+    .pageAdvisorDash .techRow.dashTechRow .val.name{ position:static !important; max-width:100% !important; font-size:24px !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
+    .pageAdvisorDash .techRow.dashTechRow .techNameStats{ position:static !important; max-width:100% !important; overflow:hidden !important; }
+    .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnRow{ display:flex !important; flex-wrap:nowrap !important; gap:12px !important; }
+    .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnLbl{ font-size:11px !important; line-height:1.05 !important; text-transform:none !important; letter-spacing:.2px !important; }
+    .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnVal{ font-size:15px !important; line-height:1.05 !important; }
+    .pageAdvisorDash .techRow.dashTechRow .dashRight{ flex:0 0 auto !important; display:flex !important; align-items:center !important; gap:12px !important; min-width:0 !important; }
+    .pageAdvisorDash .techRow.dashTechRow .techMetaRight{ position:static !important; transform:none !important; margin:0 !important; }
+    .pageAdvisorDash .techRow.dashTechRow .pills{ position:static !important; transform:none !important; left:auto !important; right:auto !important; top:auto !important; display:flex !important; flex-wrap:nowrap !important; gap:10px !important; padding:0 !important; margin:0 !important; width:auto !important; max-width:none !important; flex:0 0 auto !important; overflow:visible !important; }
+    .pageAdvisorDash .techRow .pillGroup{ overflow:visible !important; }
+    .pageAdvisorDash .techRow .pill{ position:relative !important; overflow:hidden !important; box-shadow:inset 0 10px 26px rgba(0,0,0,.60) !important; }
+    .pageAdvisorDash .techRow .pill::before{ content:"" !important; position:absolute !important; inset:0 !important; pointer-events:none !important; opacity:0 !important; background:transparent !important; z-index:0 !important; }
+    .pageAdvisorDash .techRow .pill::after{ content:"" !important; position:absolute !important; inset:0 !important; border-radius:inherit !important; pointer-events:none !important; opacity:0 !important; z-index:0 !important; }
+    .pageAdvisorDash .techRow .pill > *{ position:relative !important; z-index:3 !important; }
+    .pageAdvisorDash .techRow .pill .v{ color:#fff !important; }
+    .pageAdvisorDash .techRow .pill .k{ color:#fff !important; }
+    .pageAdvisorDash .techRow .pill.compR::before{ opacity:.78 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(255,55,55,.40) 70%, rgba(255,55,55,.65) 100%), linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10)) !important; }
+    .pageAdvisorDash .techRow .pill.compR::after{ opacity:1 !important; box-shadow:inset 0 0 0 1px rgba(255,90,90,.55), inset 0 0 16px rgba(255,70,70,.35) !important; }
+    .pageAdvisorDash .techRow .pill.compY::before{ opacity:.72 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(255,245,120,.35) 70%, rgba(255,245,120,.60) 100%), linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10)) !important; }
+    .pageAdvisorDash .techRow .pill.compY::after{ opacity:1 !important; box-shadow:inset 0 0 0 1px rgba(255,255,160,.50), inset 0 0 16px rgba(255,235,90,.30) !important; }
+    .pageAdvisorDash .techRow .pill.compG::before{ opacity:.68 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(60,255,140,.30) 70%, rgba(60,255,140,.55) 100%), linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08)) !important; }
+    .pageAdvisorDash .techRow .pill.compG::after{ opacity:1 !important; box-shadow:inset 0 0 0 1px rgba(120,255,180,.45), inset 0 0 16px rgba(60,255,140,.28) !important; }
+    .pageAdvisorDash .techHeaderPanel{ margin-bottom:14px !important; position:relative !important; z-index:2 !important; }
+  `;
   })();
 
 
