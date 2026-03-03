@@ -1,138 +1,59 @@
-// v2: uses Technician Dashboard styling; no panel wrapper; relies on index.html loading this file.
+// ═══════════════════════════════════════════════════════════════════════════════
+// Advisor Dashboard – fully self-contained (no pageTechDash dependency)
+// ═══════════════════════════════════════════════════════════════════════════════
+
 function renderAdvisorMain(){
 
-  // Ensure the exact Technician Dashboard style overrides are present (same as renderMain).
-  (function ensureTechDashOverrides(){
-    const id = "techDashOverrides";
-    let el = document.getElementById(id);
-    if(!el){
-      el = document.createElement("style");
-      el.id = id;
-      document.head.appendChild(el);
+  // ── Inject scoped CSS (only once) ──────────────────────────────────────────
+  (function injectAdvisorCSS(){
+    if(document.getElementById("advisorDashCSS")) return;
+    const s = document.createElement("style");
+    s.id = "advisorDashCSS";
+    s.textContent = `
+
+    /* ═══ PAGE WRAPPER ═══ */
+    .pageAdvisorDash{
+      display:grid;
+      gap:14px;
+      font-family:inherit;
     }
-    el.textContent = `
-    .pageAdvisorDash .techRow.dashTechRow{ position:relative !important; display:flex !important; align-items:center !important; gap:18px !important; padding:12px 14px !important; min-height:auto !important; overflow:visible !important; }
-    .pageAdvisorDash .techRow.dashTechRow .dashLeft{ flex:1 1 260px !important; max-width:260px !important; min-width:0 !important; display:flex !important; flex-direction:column !important; gap:8px !important; }
-    .pageAdvisorDash .techRow.dashTechRow .dashLeft *{ min-width:0 !important; }
-    .pageAdvisorDash .techRow.dashTechRow .val.name{ position:static !important; max-width:100% !important; font-size:24px !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
-    .pageAdvisorDash .techRow.dashTechRow .techNameStats{ position:static !important; max-width:100% !important; overflow:hidden !important; }
-    .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnRow{ display:flex !important; flex-wrap:nowrap !important; gap:12px !important; }
-    .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnLbl{ font-size:11px !important; line-height:1.05 !important; text-transform:none !important; letter-spacing:.2px !important; }
-    .pageAdvisorDash .techRow.dashTechRow .techNameStats .tnVal{ font-size:15px !important; line-height:1.05 !important; }
-    .pageAdvisorDash .techRow.dashTechRow .dashRight{ flex:0 0 auto !important; display:flex !important; align-items:center !important; gap:12px !important; min-width:0 !important; }
-    .pageAdvisorDash .techRow.dashTechRow .techMetaRight{ position:static !important; transform:none !important; margin:0 !important; }
-    .pageAdvisorDash .techRow.dashTechRow .pills{ position:static !important; transform:none !important; left:auto !important; right:auto !important; top:auto !important; display:flex !important; flex-wrap:nowrap !important; gap:10px !important; padding:0 !important; margin:0 !important; width:auto !important; max-width:none !important; flex:0 0 auto !important; overflow:visible !important; }
-    .pageAdvisorDash .techRow .pillGroup{ overflow:visible !important; }
-    .pageAdvisorDash .techRow .pill{ position:relative !important; overflow:hidden !important; box-shadow:inset 0 10px 26px rgba(0,0,0,.60) !important; }
-    .pageAdvisorDash .techRow .pill::before{ content:"" !important; position:absolute !important; inset:0 !important; pointer-events:none !important; opacity:0 !important; background:transparent !important; z-index:0 !important; }
-    .pageAdvisorDash .techRow .pill::after{ content:"" !important; position:absolute !important; inset:0 !important; border-radius:inherit !important; pointer-events:none !important; opacity:0 !important; z-index:0 !important; }
-    .pageAdvisorDash .techRow .pill > *{ position:relative !important; z-index:3 !important; }
-    .pageAdvisorDash .techRow .pill .v{ color:#fff !important; }
-    .pageAdvisorDash .techRow .pill .k{ color:#fff !important; }
-    .pageAdvisorDash .techRow .pill.compR::before{ opacity:.78 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(255,55,55,.40) 70%, rgba(255,55,55,.65) 100%), linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10)) !important; }
-    .pageAdvisorDash .techRow .pill.compR::after{ opacity:1 !important; box-shadow:inset 0 0 0 1px rgba(255,90,90,.55), inset 0 0 16px rgba(255,70,70,.35) !important; }
-    .pageAdvisorDash .techRow .pill.compY::before{ opacity:.72 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(255,245,120,.35) 70%, rgba(255,245,120,.60) 100%), linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10)) !important; }
-    .pageAdvisorDash .techRow .pill.compY::after{ opacity:1 !important; box-shadow:inset 0 0 0 1px rgba(255,255,160,.50), inset 0 0 16px rgba(255,235,90,.30) !important; }
-    .pageAdvisorDash .techRow .pill.compG::before{ opacity:.68 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(60,255,140,.30) 70%, rgba(60,255,140,.55) 100%), linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08)) !important; }
-    .pageAdvisorDash .techRow .pill.compG::after{ opacity:1 !important; box-shadow:inset 0 0 0 1px rgba(120,255,180,.45), inset 0 0 16px rgba(60,255,140,.28) !important; }
-    .pageAdvisorDash .techHeaderPanel{ margin-bottom:14px !important; position:relative !important; z-index:2 !important; }
-  `;
-  })();
 
-
-  const app = document.getElementById('app');
-  if(!app) return;
-
-  const advisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors))
-    ? DATA.advisors.filter(a => a && String(a.id||"").toLowerCase() !== "total")
-    : [];
-
-  // Local, independent state
-  if(typeof window.advisorDashState === 'undefined'){
-    window.advisorDashState = { filterKey:"total", compare:"advisors" };
-  }
-  const st = window.advisorDashState;
-
-  // Advisors always focus on Sold
-  const focusIsGoal = false;
-  const focusIsSold = true;
-  const goalMetric = "sold";
-  const compareMode = (String(st.compare||"advisors")==="goal") ? "goal" : "advisors";
-
-  function _ss(a){
-    return (a && a.summary && a.summary[st.filterKey]) ? a.summary[st.filterKey] : {};
-  }
-  function advisorAsrPerRo(a){
-    const v = Number(_ss(a)?.asr_per_ro);
-    return Number.isFinite(v) ? v : null;
-  }
-  function advisorSoldPct(a){
-    const v = Number(_ss(a)?.sold_pct);
-    return Number.isFinite(v) ? v : null;
-  }
-  function avgDerived(listIn, fn){
-    let sum=0, n=0;
-    for(const x of (listIn||[])){
-      const v = fn(x);
-      if(Number.isFinite(v)){ sum += v; n += 1; }
+    /* ═══ HEADER PANEL ═══ */
+    .advHeader{
+      position:relative;
+      z-index:2;
     }
-    return n ? (sum/n) : null;
-  }
-  function advisorSoldPerRo(a){
-    const ss = _ss(a);
-    const ro = Number(a?.ros);
-    const sold = Number(ss?.sold);
-    return (Number.isFinite(ro) && ro>0 && Number.isFinite(sold)) ? (sold/ro) : null;
-  }
-  function advisorSoldPerAsr(a){
-    const ss = _ss(a);
-    const asr = Number(ss?.asr);
-    const sold = Number(ss?.sold);
-    return (Number.isFinite(asr) && asr>0 && Number.isFinite(sold)) ? (sold/asr) : null;
-  }
+    .advHeaderInner{
+      background:var(--panel-bg, linear-gradient(135deg,#1e2235 0%,#141722 100%));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:18px 22px 16px;
+      color:#fff;
+    }
 
-  function listTotals(){
-    const totalRos = advisors.reduce((s,a)=>s+(Number(a.ros)||0),0);
-    const avgOdo = totalRos
-      ? advisors.reduce((s,a)=>s+(Number(a.odo)||0)*(Number(a.ros)||0),0)/totalRos
-      : 0;
-    const totalAsr = advisors.reduce((s,a)=>s+(Number(a.summary?.total?.asr)||0),0);
-    const totalSold = advisors.reduce((s,a)=>s+(Number(a.summary?.total?.sold)||0),0);
-
-    const asrPerRo = totalRos ? (totalAsr/totalRos) : null;
-    const soldPerRo = totalRos ? (totalSold/totalRos) : null;
-    const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-
-    return { totalRos, avgOdo, totalAsr, totalSold, asrPerRo, soldPerRo, soldPerAsr };
-  }
-
-  const T = listTotals();
-
-  // Top-right status block shows the Focus stat on top (bigger/white), non-focus below (smaller/grey)
-  const topStatVal = focusIsSold ? T.soldPerRo : T.asrPerRo;
-  const topStatLbl = focusIsSold ? "Sold/RO" : "ASRs/RO";
-  const subStatVal = focusIsSold ? T.asrPerRo : T.soldPerRo;
-  const subStatLbl = focusIsSold ? "ASRs/RO" : "Sold/RO";
-
-  const header = `
-<!-- Notched header panel: fixed-height notch that only wraps the menu button -->
-<div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
-  <!-- Notch extension (matches Goals page configuration) -->
-  <div class="panel techMenuNotch" style="
-    position:absolute;
-    left:-68px;
-    top:0px;
-    width:68px;
-    height:56px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-top-right-radius:0px;
-    border-bottom-right-radius:0px;
-    border-right:none;
-    z-index:2;
-  ">
-    <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+    /* ── Notch (hamburger menu) ── */
+    .advNotchStage{
+      position:relative;
+      width:100%;
+      overflow:visible;
+    }
+    .advMenuNotch{
+      position:absolute;
+      left:-68px;
+      top:0;
+      width:68px;
+      height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--panel-bg, linear-gradient(135deg,#1e2235 0%,#141722 100%));
+      border:1px solid rgba(255,255,255,.08);
+      border-top-left-radius:14px;
+      border-bottom-left-radius:14px;
+      border-right:none;
+      z-index:2;
+    }
+    .advHamburger{
       font-size:1.5em;
       line-height:1;
       display:flex;
@@ -142,291 +63,594 @@ function renderAdvisorMain(){
       cursor:pointer;
       color:inherit;
       user-select:none;
-    ">☰</label>
-  </div>
+    }
 
-  <div class="panel techHeaderPanel" style="
-    width:100%;
-    min-width:0;
-    border-top-left-radius:0px;
-    border-left:none;
-  ">
-      <div class="phead">
-        <style>
-          /* Keep pills in the top row and prevent overlap with the title */
-          .pageAdvisorDash .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
-          .pageAdvisorDash .techHeaderPanel .techH2Big{flex:0 0 auto !important;}
-          .pageAdvisorDash .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
+    /* ── Title row ── */
+    .advTitleRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .advTitle{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.3px;
+      white-space:nowrap;
+    }
 
-          /* Header stat pills sizing - scoped to header panel only */
-          .pageAdvisorDash .techHeaderPanel .pills .pill .v{font-size:22px !important;line-height:1.05 !important;}
-          .pageAdvisorDash .techHeaderPanel .pills .pill .k{font-size:18px !important;line-height:1.05 !important;color:rgba(255,255,255,.55) !important;text-transform:none !important;}
+    /* ── Header stats row ── */
+    .advHeaderStats{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .advStatChip{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:1px;
+      padding:6px 14px;
+      border-radius:10px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      min-width:64px;
+    }
+    .advStatChip .advStatVal{
+      font-size:20px;
+      font-weight:900;
+      line-height:1.1;
+      color:#fff;
+    }
+    .advStatChip .advStatLbl{
+      font-size:11px;
+      font-weight:600;
+      line-height:1.1;
+      color:rgba(255,255,255,.50);
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
 
-          /* Make the header filters wider */
-          .pageAdvisorDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen select{
-            min-width:152px !important;
-            max-width:237px !important;
-          }
+    /* ── Big right-side stat ── */
+    .advOverallBlock{
+      text-align:right;
+      flex:0 0 auto;
+    }
+    .advBigNum{
+      font-size:38px;
+      font-weight:1000;
+      line-height:1.05;
+      color:#fff;
+    }
+    .advBigTag{
+      font-size:12px;
+      font-weight:700;
+      color:rgba(255,255,255,.50);
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+    .advSubNum{
+      font-size:24px;
+      font-weight:1000;
+      line-height:1.1;
+      color:rgba(255,255,255,.80);
+      margin-top:4px;
+    }
+    .advSubTag{
+      font-size:11px;
+      font-weight:600;
+      color:rgba(255,255,255,.40);
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
 
-          /* Dropdown text colors: selected value white, dropdown list options black */
-          .pageAdvisorDash .techHeaderPanel .mainFiltersBar select{color:#fff !important;}
-          .pageAdvisorDash .techHeaderPanel .mainFiltersBar select option{color:#000 !important;}
-        </style>
+    /* ── Filters bar ── */
+    .advFiltersBar{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-top:12px;
+      flex-wrap:wrap;
+    }
+    .advFilterGroup{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .advFilterGroup label{
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      color:rgba(255,255,255,.45);
+    }
+    .advFilterGroup select{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:6px;
+      color:#fff;
+      font-size:13px;
+      font-weight:600;
+      padding:5px 28px 5px 10px;
+      min-width:152px;
+      cursor:pointer;
+      appearance:auto;
+    }
+    .advFilterGroup select option{
+      color:#000;
+      background:#fff;
+    }
 
-        <div class="titleRow techTitleRow">
-          <div class="techNameWrap">
-            <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
-              <div class="h2 techH2Big">Advisor Dashboard</div>
+    /* ═══ ADVISOR LIST ═══ */
+    .advList{
+      display:grid;
+      gap:10px;
+    }
 
-              <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
-                <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(T.avgOdo)}</div></div>
-                <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(T.totalRos)}</div></div>
-                <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(T.totalAsr)}</div></div>
-                <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(T.totalSold)}</div></div>
-                <div class="pill"><div class="k">Sold/ASRs</div><div class="v">${T.soldPerAsr===null ? "—" : fmtPct(T.soldPerAsr)}</div></div>
-              </div>
-            </div>
-          </div>
+    /* ── Advisor Row ── */
+    .advRow{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      padding:14px 16px;
+      background:var(--panel-bg, linear-gradient(135deg,#1e2235 0%,#141722 100%));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      color:#fff;
+      transition:border-color .15s;
+    }
+    .advRow:hover{
+      border-color:rgba(255,255,255,.18);
+    }
 
-          <div class="overallBlock">
-            <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topStatVal===null ? "—" : (focusIsSold ? fmt1(topStatVal,2) : fmt1(topStatVal,1))}
-            </div>
-            <div class="tag">${topStatLbl}</div>
+    /* ── Left side: name + mini stats ── */
+    .advRowLeft{
+      flex:1 1 240px;
+      max-width:260px;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+    .advRowName{
+      font-size:22px;
+      font-weight:900;
+      line-height:1.15;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .advMiniStats{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .advMiniRow{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .advMini{
+      display:flex;
+      flex-direction:column;
+      gap:0;
+    }
+    .advMiniLbl{
+      font-size:10px;
+      font-weight:600;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      color:rgba(255,255,255,.40);
+      line-height:1.05;
+    }
+    .advMiniVal{
+      font-size:15px;
+      font-weight:800;
+      line-height:1.1;
+      color:rgba(255,255,255,.88);
+    }
+    .advMiniDot{
+      font-size:8px;
+      color:rgba(255,255,255,.22);
+      user-select:none;
+    }
 
-            <div class="overallMetric" style="font-size:26px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subStatVal===null ? "—" : (focusIsSold ? fmt1(subStatVal,1) : fmt1(subStatVal,2))}
-            </div>
-            <div class="tag">${subStatLbl}</div>
-          </div>
-        </div>
+    /* ── Right side: pills + rank badge ── */
+    .advRowRight{
+      flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
 
-        <div class="mainFiltersBar">
-          <div class="controls mainAlwaysOpen">
-            <div>
-              <label>Filter</label>
-              <select data-scope="advisor" data-ctl="filter">
-                <option value="total" ${st.filterKey==="total"?"selected":""}>With Fluids (Total)</option>
-                <option value="without_fluids" ${st.filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
-                <option value="fluids_only" ${st.filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
-              </select>
-            </div>
-            <div>
-              <label>Comparison</label>
-              <select data-scope="advisor" data-ctl="compare">
-                <option value="advisors" ${compareMode==="advisors"?"selected":""}>Advisors</option>
-                <option value="goal" ${compareMode==="goal"?"selected":""}>Goal</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-`;
+    /* ── Pill groups ── */
+    .advPills{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:nowrap;
+    }
+    .advPillGroup{
+      display:flex;
+      gap:8px;
+      flex-wrap:nowrap;
+    }
 
-  if(!advisors.length){
-    // Keep pageTechDash on the wrapper so advisor rows + pills inherit the exact
-    // same typography + layout rules as the Technician Dashboard.
-    app.innerHTML = `<div class="pageAdvisorDash pageTechDash" style="display:grid;gap:12px">${header}<div class="notice">No advisor data found (expected <b>DATA.advisors</b>).</div></div>`;
-    return;
+    /* ── Individual Pill ── */
+    .advPill{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:1px;
+      padding:7px 13px 6px;
+      border-radius:10px;
+      min-width:56px;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+      background:rgba(0,0,0,.35);
+      box-shadow:inset 0 8px 22px rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .advPill .advPillVal{
+      font-size:16px;
+      font-weight:900;
+      line-height:1.1;
+      color:#fff;
+      position:relative;
+      z-index:2;
+    }
+    .advPill .advPillLbl{
+      font-size:10px;
+      font-weight:700;
+      line-height:1.1;
+      color:rgba(255,255,255,.55);
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      position:relative;
+      z-index:2;
+    }
+
+    /* ── Pill color states ── */
+    .advPill.cG{
+      background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(60,255,140,.28) 70%, rgba(60,255,140,.50) 100%);
+      box-shadow:inset 0 8px 22px rgba(0,0,0,.50), inset 0 0 0 1px rgba(120,255,180,.40), inset 0 0 14px rgba(60,255,140,.22);
+    }
+    .advPill.cY{
+      background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.26) 0 42%, rgba(255,245,120,.32) 70%, rgba(255,245,120,.55) 100%);
+      box-shadow:inset 0 8px 22px rgba(0,0,0,.50), inset 0 0 0 1px rgba(255,255,160,.45), inset 0 0 14px rgba(255,235,90,.25);
+    }
+    .advPill.cR{
+      background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(255,55,55,.35) 70%, rgba(255,55,55,.60) 100%);
+      box-shadow:inset 0 8px 22px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,90,90,.50), inset 0 0 14px rgba(255,70,70,.30);
+    }
+
+    /* ── Focus group highlight ── */
+    .advPillGroup.focusGrp .advPill{
+      padding:8px 15px 7px;
+    }
+
+    /* ── Rank badge ── */
+    .advRankBadge{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      width:62px;
+      height:62px;
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      flex:0 0 auto;
+    }
+    .advRankFocus{
+      font-size:8px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      color:rgba(255,255,255,.50);
+      line-height:1;
+    }
+    .advRankNum{
+      font-size:24px;
+      font-weight:1000;
+      line-height:1.1;
+      color:#fff;
+    }
+    .advRankOf{
+      font-size:10px;
+      font-weight:700;
+      color:rgba(255,255,255,.35);
+      line-height:1;
+    }
+    .advRankOf span{
+      font-weight:900;
+    }
+
+    /* ── Notice (empty state) ── */
+    .advNotice{
+      padding:24px;
+      text-align:center;
+      color:rgba(255,255,255,.50);
+      font-size:14px;
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media(max-width:900px){
+      .advRow{
+        flex-direction:column;
+        align-items:stretch;
+        gap:12px;
+      }
+      .advRowLeft{
+        max-width:none;
+      }
+      .advRowRight{
+        flex-wrap:wrap;
+      }
+      .advPills{
+        flex-wrap:wrap;
+      }
+      .advTitleRow{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+    }
+
+    `;
+    document.head.appendChild(s);
+  })();
+
+
+  // ── Data & State ───────────────────────────────────────────────────────────
+  const app = document.getElementById("app");
+  if(!app) return;
+
+  const advisors = (typeof DATA !== "undefined" && Array.isArray(DATA.advisors))
+    ? DATA.advisors.filter(a => a && String(a.id||"").toLowerCase() !== "total")
+    : [];
+
+  // Independent state (persists across re-renders within session)
+  if(typeof window._advState === "undefined"){
+    window._advState = { filterKey:"total", compare:"advisors" };
+  }
+  const st = window._advState;
+
+  const compareMode = (String(st.compare||"advisors")==="goal") ? "goal" : "advisors";
+
+  // ── Helper: get summary object for current filter ──
+  function ss(a){ return (a && a.summary && a.summary[st.filterKey]) ? a.summary[st.filterKey] : {}; }
+
+  // ── Derived metrics ──
+  function asrPerRo(a){  const v = Number(ss(a)?.asr_per_ro); return Number.isFinite(v) ? v : null; }
+  function soldPct(a){   const v = Number(ss(a)?.sold_pct);   return Number.isFinite(v) ? v : null; }
+  function soldPerRo(a){
+    const s2 = ss(a);
+    const ro = Number(a?.ros);
+    const sold = Number(s2?.sold);
+    return (Number.isFinite(ro) && ro>0 && Number.isFinite(sold)) ? (sold/ro) : null;
+  }
+  function soldPerAsr(a){
+    const s2 = ss(a);
+    const asr = Number(s2?.asr);
+    const sold = Number(s2?.sold);
+    return (Number.isFinite(asr) && asr>0 && Number.isFinite(sold)) ? (sold/asr) : null;
   }
 
-  // Averages for baseline comparisons (Advisors)
+  function avgOf(list, fn){
+    let sum=0, n=0;
+    for(const x of (list||[])){ const v = fn(x); if(Number.isFinite(v)){ sum+=v; n++; } }
+    return n ? (sum/n) : null;
+  }
+
+  // ── Totals for the header ──
+  const totalRos  = advisors.reduce((s,a) => s + (Number(a.ros)||0), 0);
+  const avgOdo    = totalRos ? advisors.reduce((s,a) => s + (Number(a.odo)||0)*(Number(a.ros)||0), 0)/totalRos : 0;
+  const totalAsr  = advisors.reduce((s,a) => s + (Number(a.summary?.total?.asr)||0), 0);
+  const totalSold = advisors.reduce((s,a) => s + (Number(a.summary?.total?.sold)||0), 0);
+  const overallAsrPerRo  = totalRos ? (totalAsr/totalRos) : null;
+  const overallSoldPerRo = totalRos ? (totalSold/totalRos) : null;
+  const overallSoldPerAsr= totalAsr ? (totalSold/totalAsr) : null;
+
+  // ── Averages for comparison ──
   const av = {
-    asr_per_ro_avg: avgDerived(advisors, advisorAsrPerRo),
-    sold_pct_avg: avgDerived(advisors, advisorSoldPct),
-    sold_ro_avg: avgDerived(advisors, advisorSoldPerRo),
-    sold_asr_avg: avgDerived(advisors, advisorSoldPerAsr),
+    asr_per_ro: avgOf(advisors, asrPerRo),
+    sold_pct:   avgOf(advisors, soldPct),
+    sold_ro:    avgOf(advisors, soldPerRo),
+    sold_asr:   avgOf(advisors, soldPerAsr),
   };
 
-  // Goals (same as tech dashboard)
-  const asrGoalStored = getGoalRaw('__META_GLOBAL','req');
-  const soldGoalStored = getGoalRaw('__META_GLOBAL','close');
+  // ── Goals ──
+  const goalReq   = (typeof getGoalRaw === "function") ? getGoalRaw("__META_GLOBAL","req")   : null;
+  const goalClose = (typeof getGoalRaw === "function") ? getGoalRaw("__META_GLOBAL","close") : null;
+  const asrGoalTarget  = (Number.isFinite(goalReq)  && goalReq>0)  ? goalReq  : av.asr_per_ro;
+  const soldGoalTarget = (Number.isFinite(goalClose) && goalClose>0)? goalClose: av.sold_pct;
+  const soldRoGoalTarget = (Number.isFinite(goalReq) && goalReq>0 && Number.isFinite(goalClose) && goalClose>0) ? (goalReq*goalClose) : null;
 
-  const asrGoalTarget = (Number.isFinite(asrGoalStored) && asrGoalStored>0) ? asrGoalStored : av.asr_per_ro_avg;
-  const soldGoalTarget = (Number.isFinite(soldGoalStored) && soldGoalStored>0) ? soldGoalStored : av.sold_pct_avg;
+  const baseAsrGoalRatio  = (Number.isFinite(asrGoalTarget)  && asrGoalTarget>0  && Number.isFinite(av.asr_per_ro)) ? (av.asr_per_ro/asrGoalTarget)  : null;
+  const baseSoldGoalRatio = (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 && Number.isFinite(av.sold_pct))   ? (av.sold_pct/soldGoalTarget)   : null;
 
-  const baseAsrGoalRatio = (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 && Number.isFinite(av.asr_per_ro_avg)) ? (av.asr_per_ro_avg/asrGoalTarget) : null;
-  const baseSoldGoalRatio = (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 && Number.isFinite(av.sold_pct_avg)) ? (av.sold_pct_avg/soldGoalTarget) : null;
+  const inGoalMode = (compareMode === "goal");
 
-  const goalReq = getGoalRaw('__META_GLOBAL','req');
-  const goalClose = getGoalRaw('__META_GLOBAL','close');
-  const soldRoGoalTarget = (Number.isFinite(goalReq) && goalReq>0 && Number.isFinite(goalClose) && goalClose>0) ? (goalReq * goalClose) : null;
-
-  function compClass(actual, baseline){
+  // ── Color class for pill ──
+  function cClass(actual, baseline){
     if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
     const r = actual / baseline;
-    if(r >= 0.80) return " compG";
-    if(r >= 0.60) return " compY";
-    return " compR";
+    if(r >= 0.80) return " cG";
+    if(r >= 0.60) return " cY";
+    return " cR";
   }
 
-  // ranking follows the selected Focus (ASR/RO, Sold%, or Goal)
-  const list = advisors.slice();
+  // ── Ranking (by Sold%) ──
+  const scored = advisors.map(a => ({ a, v: soldPct(a) }));
+  scored.sort((x,y) => (Number.isFinite(y.v)?y.v:-999) - (Number.isFinite(x.v)?x.v:-999));
+  const rankMap = new Map();
+  scored.forEach((item,i) => rankMap.set(item.a.id, { rank:i+1, total:scored.length }));
 
-  const score = (a)=>{
-    const asrpr = advisorAsrPerRo(a);
-    const soldpct = advisorSoldPct(a);
+  // sorted list for display
+  const sorted = scored.map(x => x.a);
 
-    if(!focusIsGoal){
-      return focusIsSold ? soldpct : asrpr;
-    }
-    if(goalMetric==="sold"){
-      return (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
-    }
-    return (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
-  };
 
-  list.sort((a,b)=> (Number.isFinite(score(b))?score(b):-999) - (Number.isFinite(score(a))?score(a):-999));
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BUILD HTML
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  const ranked = list.slice().sort((a,b)=> (Number.isFinite(score(b))?score(b):-999) - (Number.isFinite(score(a))?score(a):-999));
-  const rankIndex = new Map();
-  ranked.forEach((a,i)=>rankIndex.set(a.id, {rank:i+1,total:ranked.length}));
-
-  const rows = list.map(a=>{
-    const s = _ss(a);
-    const rk = rankIndex.get(a.id) || {rank:null,total:null};
-
-    const asrpr = advisorAsrPerRo(a);
-    const soldpct = advisorSoldPct(a);
-
-    const asrGoalRatio = (Number.isFinite(asrpr) && Number.isFinite(asrGoalTarget) && asrGoalTarget>0) ? (asrpr/asrGoalTarget) : null;
-    const soldGoalRatio = (Number.isFinite(soldpct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (soldpct/soldGoalTarget) : null;
-
-    const asrGoalTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
-    const soldGoalTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
-
-    const soldRoVal = advisorSoldPerRo(a);
-    const soldAsrRatio = advisorSoldPerAsr(a);
-
-    const inGoalMode = compareMode === 'goal';
-
-    const compAsrBase = inGoalMode
-      ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : (Number.isFinite(goalReq)&&goalReq>0 ? goalReq : av.asr_per_ro_avg))
-      : av.asr_per_ro_avg;
-
-    const compSoldAsrBase = inGoalMode
-      ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : (Number.isFinite(goalClose)&&goalClose>0 ? goalClose : av.sold_asr_avg))
-      : av.sold_asr_avg;
-
-    const clsAsrpr   = compClass(asrpr, compAsrBase);
-    const clsAsrGoal = compClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio);
-
-    const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-    const soldRoBase = inGoalMode ? (Number.isFinite(soldRoGoalTarget) && soldRoGoalTarget>0 ? soldRoGoalTarget : av.sold_ro_avg) : av.sold_ro_avg;
-    const clsSoldRo  = compClass(soldRoVal, soldRoBase);
-    const clsSoldGoal= compClass(soldGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio);
-
-    return `
-      <div class="techRow dashTechRow">
-        <div class="dashLeft">
-          <div class="val name">${safe(a.name||a.id)}</div>
-
-          <div class="techNameStats">
-            <div class="tnRow tnRow1">
-              <span class="tnMini"><span class="tnLbl">Avg ODO</span><span class="tnVal">${fmtInt(a.odo)}</span></span>
-              <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(a.ros)}</span></span>
-            </div>
-            <div class="tnRow tnRow2">
-              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
-              <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="dashRight">
-          <div class="pills">
-            ${focusIsGoal ? `
-              <div class="pillGroup pillGroupNonGoal">
-                <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                <div class="pill"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                <div class="pill"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0) ? fmt1(Number(s.sold)/Number(a.ros),2) : "—"}</div></div>
-              </div>
-              <div class="pillGroup pillGroupGoal">
-                ${goalMetric==='asr'
-                  ? `
-                    <div class="pill${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                    <div class="pill${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                  `
-                  : `
-                    <div class="pill${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                    <div class="pill${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
-                  `
-                }
-              </div>
-            ` : (focusIsSold ? `
-              <div class="pillGroup pillGroupA">
-                <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                <div class="pill${clsAsrGoal}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
-              </div>
-              <div class="pillGroup pillGroupB focusGroup">
-                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0) ? fmt1(Number(s.sold)/Number(a.ros),2) : "—"}</div></div>
-                <div class="pill${clsSoldGoal}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
-              </div>
-            ` : `
-              <div class="pillGroup pillGroupB">
-                <div class="pill"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
-                <div class="pill"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0) ? fmt1(Number(s.sold)/Number(a.ros),2) : "—"}</div></div>
-                <div class="pill"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
-              </div>
-              <div class="pillGroup pillGroupA focusGroup">
-                <div class="pill"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                <div class="pill"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
-              </div>
-            `)}
-          </div>
-
-          <div class="techMetaRight">
-            ${rankBadgeHtmlDash(
-              rk.rank??"—",
-              rk.total??"—",
-              (focusIsGoal ? (goalMetric==="sold" ? "goal_sold" : "goal_asr") : (focusIsSold ? "sold" : "asr")),
-              "sm"
-            )}
-          </div>
-        </div>
+  // ── Header ──
+  const headerHtml = `
+  <div class="advHeader">
+    <div class="advNotchStage">
+      <div class="advMenuNotch">
+        <label for="menuToggle" class="advHamburger" aria-label="Menu">☰</label>
       </div>
-    `;
-  }).join("");
 
-  // Remove the extra panel behind the advisor list (per request) and reuse
-  // the exact Technician Dashboard row + pill styling by sharing pageTechDash.
-  app.innerHTML = `<div class="pageAdvisorDash pageTechDash" style="display:grid;gap:12px">${header}<div class="list">${rows || `<div class="notice">No advisors found.</div>`}</div></div>`;
+      <div class="advHeaderInner" style="border-top-left-radius:0;border-bottom-left-radius:0;border-left:none;">
+        <!-- Title row -->
+        <div class="advTitleRow">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="advTitle">Advisor Dashboard</div>
+            <div class="advHeaderStats">
+              <div class="advStatChip"><span class="advStatVal">${fmtInt(avgOdo)}</span><span class="advStatLbl">Avg ODO</span></div>
+              <div class="advStatChip"><span class="advStatVal">${fmtInt(totalRos)}</span><span class="advStatLbl">ROs</span></div>
+              <div class="advStatChip"><span class="advStatVal">${fmtInt(totalAsr)}</span><span class="advStatLbl">ASRs</span></div>
+              <div class="advStatChip"><span class="advStatVal">${fmtInt(totalSold)}</span><span class="advStatLbl">Sold</span></div>
+              <div class="advStatChip"><span class="advStatVal">${overallSoldPerAsr===null ? "—" : fmtPct(overallSoldPerAsr)}</span><span class="advStatLbl">Sold/ASRs</span></div>
+            </div>
+          </div>
 
-  // Force the notch to match the header panel background exactly (prevents any shade mismatch)
-  (function syncNotchBg(){
-    const notch = document.querySelector('.pageAdvisorDash .techMenuNotch');
-    const panel = document.querySelector('.pageAdvisorDash .techHeaderPanel');
-    if(!notch || !panel) return;
+          <div class="advOverallBlock">
+            <div class="advBigNum">${overallSoldPerRo===null ? "—" : fmt1(overallSoldPerRo,2)}</div>
+            <div class="advBigTag">Sold/RO</div>
+            <div class="advSubNum">${overallAsrPerRo===null ? "—" : fmt1(overallAsrPerRo,1)}</div>
+            <div class="advSubTag">ASRs/RO</div>
+          </div>
+        </div>
 
-    const apply = ()=>{
+        <!-- Filters -->
+        <div class="advFiltersBar">
+          <div class="advFilterGroup">
+            <label>Filter</label>
+            <select data-adv-ctl="filter">
+              <option value="total"${st.filterKey==="total"?" selected":""}>With Fluids (Total)</option>
+              <option value="without_fluids"${st.filterKey==="without_fluids"?" selected":""}>Without Fluids</option>
+              <option value="fluids_only"${st.filterKey==="fluids_only"?" selected":""}>Fluids Only</option>
+            </select>
+          </div>
+          <div class="advFilterGroup">
+            <label>Comparison</label>
+            <select data-adv-ctl="compare">
+              <option value="advisors"${compareMode==="advisors"?" selected":""}>Advisors</option>
+              <option value="goal"${compareMode==="goal"?" selected":""}>Goal</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>`;
+
+  // ── Advisor rows ──
+  let rowsHtml = "";
+  if(!sorted.length){
+    rowsHtml = `<div class="advNotice">No advisor data found (expected <b>DATA.advisors</b>).</div>`;
+  } else {
+    rowsHtml = sorted.map(a => {
+      const s2 = ss(a);
+      const rk = rankMap.get(a.id) || { rank:"—", total:"—" };
+
+      const myAsrRo   = asrPerRo(a);
+      const mySoldPct = soldPct(a);
+      const mySoldRo  = soldPerRo(a);
+      const mySoldAsr = soldPerAsr(a);
+
+      // goal ratios
+      const asrGoalRatio  = (Number.isFinite(myAsrRo)  && Number.isFinite(asrGoalTarget)  && asrGoalTarget>0)  ? (myAsrRo/asrGoalTarget)   : null;
+      const soldGoalRatio = (Number.isFinite(mySoldPct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (mySoldPct/soldGoalTarget) : null;
+      const asrGoalTxt  = asrGoalRatio==null  ? "—" : fmtPct(asrGoalRatio);
+      const soldGoalTxt = soldGoalRatio==null ? "—" : fmtPct(soldGoalRatio);
+
+      // comparison bases
+      const compAsrBase    = inGoalMode ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : av.asr_per_ro)  : av.asr_per_ro;
+      const compSoldAsr    = inGoalMode ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : av.sold_asr) : av.sold_asr;
+      const soldRoBase     = inGoalMode ? (Number.isFinite(soldRoGoalTarget) && soldRoGoalTarget>0 ? soldRoGoalTarget : av.sold_ro) : av.sold_ro;
+
+      const clsAsrRo   = cClass(myAsrRo,   compAsrBase);
+      const clsAsrGoal = cClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio);
+      const clsSoldAsr = cClass(mySoldAsr,  compSoldAsr);
+      const clsSoldRo  = cClass(mySoldRo,   soldRoBase);
+      const clsSoldGoal= cClass(soldGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio);
+
+      const soldAsrDisplay = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(s2.asr)) && Number(s2.asr)>0)
+        ? fmtPct(Number(s2.sold)/Number(s2.asr)) : "—";
+      const soldRoDisplay  = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0)
+        ? fmt1(Number(s2.sold)/Number(a.ros),2) : "—";
+
+      return `
+      <div class="advRow">
+        <div class="advRowLeft">
+          <div class="advRowName">${safe(a.name||a.id)}</div>
+          <div class="advMiniStats">
+            <div class="advMiniRow">
+              <span class="advMini"><span class="advMiniLbl">Avg ODO</span><span class="advMiniVal">${fmtInt(a.odo)}</span></span>
+              <span class="advMiniDot">•</span>
+              <span class="advMini"><span class="advMiniLbl">ROs</span><span class="advMiniVal">${fmtInt(a.ros)}</span></span>
+            </div>
+            <div class="advMiniRow">
+              <span class="advMini"><span class="advMiniLbl">ASRs</span><span class="advMiniVal">${fmtInt(s2.asr)}</span></span>
+              <span class="advMiniDot">•</span>
+              <span class="advMini"><span class="advMiniLbl">Sold</span><span class="advMiniVal">${fmtInt(s2.sold)}</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="advRowRight">
+          <div class="advPills">
+            <div class="advPillGroup">
+              <div class="advPill${clsAsrRo}"><span class="advPillVal">${fmt1(myAsrRo,1)}</span><span class="advPillLbl">ASRs/RO</span></div>
+              <div class="advPill${clsAsrGoal}"><span class="advPillVal">${safe(asrGoalTxt)}</span><span class="advPillLbl">ASR Goal</span></div>
+            </div>
+            <div class="advPillGroup focusGrp">
+              <div class="advPill${clsSoldAsr}"><span class="advPillVal">${soldAsrDisplay}</span><span class="advPillLbl">Sold/ASRs</span></div>
+              <div class="advPill${clsSoldRo}"><span class="advPillVal">${soldRoDisplay}</span><span class="advPillLbl">Sold/RO</span></div>
+              <div class="advPill${clsSoldGoal}"><span class="advPillVal">${safe(soldGoalTxt)}</span><span class="advPillLbl">Sold Goal</span></div>
+            </div>
+          </div>
+
+          <div class="advRankBadge">
+            <span class="advRankFocus">Sold%</span>
+            <span class="advRankNum">${rk.rank ?? "—"}</span>
+            <span class="advRankOf">of <span>${rk.total ?? "—"}</span></span>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // ── Render ──
+  app.innerHTML = `<div class="pageAdvisorDash">${headerHtml}<div class="advList">${rowsHtml}</div></div>`;
+
+  // ── Sync notch background with header panel ──
+  requestAnimationFrame(() => {
+    const notch = document.querySelector(".advMenuNotch");
+    const panel = document.querySelector(".advHeaderInner");
+    if(notch && panel){
       const cs = getComputedStyle(panel);
       notch.style.backgroundColor = cs.backgroundColor;
       notch.style.backgroundImage = cs.backgroundImage;
-      notch.style.backgroundRepeat = cs.backgroundRepeat;
-      notch.style.backgroundPosition = cs.backgroundPosition;
-      notch.style.backgroundSize = cs.backgroundSize;
-      notch.style.backgroundAttachment = cs.backgroundAttachment;
-      notch.style.borderColor = cs.borderTopColor;
-    };
-    requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
-  })();
+    }
+  });
 
-  // Wire header controls
-  document.querySelectorAll('.pageAdvisorDash [data-scope="advisor"][data-ctl]').forEach(el=>{
-    const ctl = el.getAttribute('data-ctl');
-    const apply = ()=>{
-      if(ctl==="filter") st.filterKey = el.value;
-      if(ctl==="compare") st.compare = el.value;
+  // ── Wire up filters ──
+  document.querySelectorAll("[data-adv-ctl]").forEach(el => {
+    const ctl = el.getAttribute("data-adv-ctl");
+    const handler = () => {
+      if(ctl==="filter")  st.filterKey = el.value;
+      if(ctl==="compare") st.compare   = el.value;
       renderAdvisorMain();
     };
-    el.addEventListener('change', apply);
-    el.addEventListener('input', apply);
+    el.addEventListener("change", handler);
   });
 }
 
