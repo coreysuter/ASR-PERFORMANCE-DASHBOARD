@@ -1,5 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // Advisor Dashboard – fully self-contained (no pageTechDash dependency)
+// Pill / badge / row styling matches renderTech dashboard exactly.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function renderAdvisorMain(){
@@ -24,7 +25,7 @@ function renderAdvisorMain(){
       z-index:2;
     }
     .advHeaderInner{
-      background:var(--panel-bg, linear-gradient(135deg,#1e2235 0%,#141722 100%));
+      background:linear-gradient(135deg,#1e2235 0%,#141722 100%);
       border:1px solid rgba(255,255,255,.08);
       border-radius:14px;
       padding:18px 22px 16px;
@@ -46,7 +47,7 @@ function renderAdvisorMain(){
       display:flex;
       align-items:center;
       justify-content:center;
-      background:var(--panel-bg, linear-gradient(135deg,#1e2235 0%,#141722 100%));
+      background:linear-gradient(135deg,#1e2235 0%,#141722 100%);
       border:1px solid rgba(255,255,255,.08);
       border-top-left-radius:14px;
       border-bottom-left-radius:14px;
@@ -81,70 +82,81 @@ function renderAdvisorMain(){
       white-space:nowrap;
     }
 
-    /* ── Header stats row ── */
+    /* ── Header stat chips (pillMini style) ── */
     .advHeaderStats{
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:8px;
       flex-wrap:wrap;
+      margin-top:8px;
     }
-    .advStatChip{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:1px;
-      padding:6px 14px;
-      border-radius:10px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      min-width:64px;
+    .pageAdvisorDash .advStatChip{
+      display:inline-flex;
+      gap:6px;
+      align-items:baseline;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.18);
     }
-    .advStatChip .advStatVal{
-      font-size:20px;
+    .pageAdvisorDash .advStatChip .advStatLbl{
+      font-size:16px;
+      color:var(--muted);
       font-weight:900;
-      line-height:1.1;
+      letter-spacing:.2px;
+      text-transform:none;
+    }
+    .pageAdvisorDash .advStatChip .advStatVal{
+      font-size:20px;
+      font-weight:1000;
+      line-height:1;
+    }
+    .pageAdvisorDash .advStatChip.sold{
+      border-color:rgba(190,255,210,.22);
+    }
+    .pageAdvisorDash .advStatChip.sold .advStatVal{
       color:#fff;
     }
-    .advStatChip .advStatLbl{
-      font-size:11px;
-      font-weight:600;
-      line-height:1.1;
-      color:rgba(255,255,255,.50);
-      text-transform:uppercase;
-      letter-spacing:.4px;
-    }
 
-    /* ── Big right-side stat ── */
+    /* ── Big right-side stats (matches techFocusStatsPinned) ── */
     .advOverallBlock{
       text-align:right;
-      flex:0 0 auto;
+      line-height:1;
+      align-self:center;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:10px;
+      margin-right:4px;
     }
+    .advFocusTop, .advFocusBot{ text-align:right; }
     .advBigNum{
       font-size:38px;
       font-weight:1000;
-      line-height:1.05;
+      letter-spacing:.2px;
       color:#fff;
     }
     .advBigTag{
-      font-size:12px;
-      font-weight:700;
-      color:rgba(255,255,255,.50);
-      text-transform:uppercase;
-      letter-spacing:.5px;
+      margin-top:4px;
+      font-size:14px;
+      font-weight:1000;
+      letter-spacing:.3px;
+      color:rgba(255,255,255,.70);
+      text-transform:none;
     }
     .advSubNum{
-      font-size:24px;
+      font-size:28px;
       font-weight:1000;
-      line-height:1.1;
-      color:rgba(255,255,255,.80);
-      margin-top:4px;
+      letter-spacing:.2px;
+      color:#fff;
     }
     .advSubTag{
-      font-size:11px;
-      font-weight:600;
-      color:rgba(255,255,255,.40);
-      text-transform:uppercase;
-      letter-spacing:.4px;
+      margin-top:4px;
+      font-size:14px;
+      font-weight:1000;
+      letter-spacing:.3px;
+      color:rgba(255,255,255,.70);
+      text-transform:none;
     }
 
     /* ── Filters bar ── */
@@ -190,187 +202,272 @@ function renderAdvisorMain(){
       gap:10px;
     }
 
-    /* ── Advisor Row ── */
-    .advRow{
+    /* ═══ ADVISOR ROW (matches dashTechRow flex layout from base.js) ═══ */
+    .pageAdvisorDash .advRow{
+      position:relative;
       display:flex;
       align-items:center;
       gap:18px;
-      padding:14px 16px;
-      background:var(--panel-bg, linear-gradient(135deg,#1e2235 0%,#141722 100%));
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:12px;
+      padding:12px 14px;
+      padding-right:18px;
+      min-height:auto;
+      overflow:visible;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--border);
+      border-radius:14px;
+      margin-bottom:0;
       color:#fff;
       transition:border-color .15s;
     }
-    .advRow:hover{
+    .pageAdvisorDash .advRow:hover{
       border-color:rgba(255,255,255,.18);
     }
 
-    /* ── Left side: name + mini stats ── */
-    .advRowLeft{
-      flex:1 1 240px;
+    /* ── Left side: name + mini stats (matches dashLeft) ── */
+    .pageAdvisorDash .advRow .dashLeft{
+      flex:1 1 260px;
       max-width:260px;
       min-width:0;
       display:flex;
       flex-direction:column;
-      gap:7px;
+      gap:8px;
     }
-    .advRowName{
-      font-size:22px;
-      font-weight:900;
-      line-height:1.15;
+    .pageAdvisorDash .advRow .dashLeft *{ min-width:0; }
+
+    .pageAdvisorDash .advRow .val.name{
       overflow:hidden;
       text-overflow:ellipsis;
       white-space:nowrap;
+      font-size:22px;
+      font-weight:1000;
     }
-    .advMiniStats{
+    .pageAdvisorDash .advRow .val.name a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    /* Mini stats under name (matches techNameStats) */
+    .pageAdvisorDash .advRow .techNameStats{
       display:flex;
       flex-direction:column;
-      gap:4px;
+      gap:6px;
+      align-items:flex-start;
     }
-    .advMiniRow{
+    .pageAdvisorDash .advRow .techNameStats .tnRow{
       display:flex;
-      align-items:center;
-      gap:12px;
+      flex-wrap:nowrap;
+      align-items:baseline;
+      gap:10px;
     }
-    .advMini{
-      display:flex;
-      flex-direction:column;
-      gap:0;
+    .pageAdvisorDash .advRow .techNameStats .tnRow2{ gap:14px; }
+    .pageAdvisorDash .advRow .techNameStats .tnMini{
+      display:inline-flex;
+      align-items:baseline;
+      gap:8px;
     }
-    .advMiniLbl{
-      font-size:10px;
-      font-weight:600;
+    .pageAdvisorDash .advRow .techNameStats .tnLbl{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:900;
+      letter-spacing:.2px;
       text-transform:uppercase;
-      letter-spacing:.3px;
-      color:rgba(255,255,255,.40);
-      line-height:1.05;
     }
-    .advMiniVal{
+    .pageAdvisorDash .advRow .techNameStats .tnVal{
       font-size:15px;
-      font-weight:800;
-      line-height:1.1;
-      color:rgba(255,255,255,.88);
+      font-weight:1000;
+      line-height:1;
     }
-    .advMiniDot{
+    .pageAdvisorDash .advRow .techNameStats .miniDot{
       font-size:8px;
       color:rgba(255,255,255,.22);
       user-select:none;
     }
 
-    /* ── Right side: pills + rank badge ── */
-    .advRowRight{
+    /* ── Right side: pills + rank badge (matches dashRight) ── */
+    .pageAdvisorDash .advRow .dashRight{
       flex:0 0 auto;
       display:flex;
       align-items:center;
-      gap:14px;
+      justify-content:flex-start;
+      gap:12px;
+      min-width:0;
     }
 
-    /* ── Pill groups ── */
-    .advPills{
+    /* ═══ PILLS (exact match of base.js .techRow .pill styles) ═══ */
+    .pageAdvisorDash .advRow .pills{
+      display:flex;
+      flex-wrap:nowrap;
+      justify-content:flex-start;
+      gap:10px;
+      padding:0;
+      margin:0;
+      transform:scale(0.9);
+      transform-origin:left center;
+      overflow:visible;
+    }
+
+    /* Pill grouping: thin grey outline around groups */
+    .pageAdvisorDash .advRow .pillGroup{
       display:flex;
       align-items:center;
       gap:10px;
-      flex-wrap:nowrap;
-    }
-    .advPillGroup{
-      display:flex;
-      gap:8px;
-      flex-wrap:nowrap;
+      padding:6px 8px;
+      border:1px solid rgba(190,190,190,.35);
+      border-radius:14px;
+      overflow:visible;
     }
 
-    /* ── Individual Pill ── */
-    .advPill{
+    /* Focus group: pills 10% larger */
+    .pageAdvisorDash .advRow .pillGroup.focusGroup .pill{
+      transform:scale(1.1);
+      transform-origin:center;
+    }
+
+    /* Goal focus: selected goal pill 10% larger */
+    .pageAdvisorDash .advRow .pill.goalFocusSel{
+      transform:scale(1.1);
+      transform-origin:center;
+    }
+
+    /* Square pills (dark, high contrast) */
+    .pageAdvisorDash .advRow .pill{
+      width:76px;
+      height:76px;
+      min-width:76px;
+      padding:8px 8px;
       display:flex;
       flex-direction:column;
+      justify-content:center;
       align-items:center;
-      gap:1px;
-      padding:7px 13px 6px;
-      border-radius:10px;
-      min-width:56px;
-      text-align:center;
+      border-radius:14px;
+      gap:5px;
       position:relative;
       overflow:hidden;
-      background:rgba(0,0,0,.35);
-      box-shadow:inset 0 8px 22px rgba(0,0,0,.55);
-      border:1px solid rgba(255,255,255,.06);
-    }
-    .advPill .advPillVal{
-      font-size:16px;
-      font-weight:900;
-      line-height:1.1;
-      color:#fff;
-      position:relative;
-      z-index:2;
-    }
-    .advPill .advPillLbl{
-      font-size:10px;
-      font-weight:700;
-      line-height:1.1;
-      color:rgba(255,255,255,.55);
-      text-transform:uppercase;
-      letter-spacing:.3px;
-      position:relative;
-      z-index:2;
+
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.72));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 12px 30px rgba(0,0,0,.58) inset, 0 10px 24px rgba(0,0,0,.22);
     }
 
-    /* ── Pill color states ── */
-    .advPill.cG{
-      background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(60,255,140,.28) 70%, rgba(60,255,140,.50) 100%);
-      box-shadow:inset 0 8px 22px rgba(0,0,0,.50), inset 0 0 0 1px rgba(120,255,180,.40), inset 0 0 14px rgba(60,255,140,.22);
-    }
-    .advPill.cY{
-      background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.26) 0 42%, rgba(255,245,120,.32) 70%, rgba(255,245,120,.55) 100%);
-      box-shadow:inset 0 8px 22px rgba(0,0,0,.50), inset 0 0 0 1px rgba(255,255,160,.45), inset 0 0 14px rgba(255,235,90,.25);
-    }
-    .advPill.cR{
-      background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(255,55,55,.35) 70%, rgba(255,55,55,.60) 100%);
-      box-shadow:inset 0 8px 22px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,90,90,.50), inset 0 0 14px rgba(255,70,70,.30);
-    }
-
-    /* ── Focus group highlight ── */
-    .advPillGroup.focusGrp .advPill{
-      padding:8px 15px 7px;
-    }
-
-    /* ── Rank badge ── */
-    .advRankBadge{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      width:62px;
-      height:62px;
-      border-radius:14px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-      flex:0 0 auto;
-    }
-    .advRankFocus{
-      font-size:8px;
-      font-weight:900;
-      text-transform:uppercase;
-      letter-spacing:.4px;
-      color:rgba(255,255,255,.50);
-      line-height:1;
-    }
-    .advRankNum{
-      font-size:24px;
+    /* Label on top */
+    .pageAdvisorDash .advRow .pill .k{
+      width:100%;
+      text-align:center;
+      margin:0;
+      padding:0;
       font-weight:1000;
-      line-height:1.1;
-      color:#fff;
-    }
-    .advRankOf{
+      letter-spacing:.22px;
+      line-height:1.0;
       font-size:10px;
-      font-weight:700;
-      color:rgba(255,255,255,.35);
-      line-height:1;
-    }
-    .advRankOf span{
-      font-weight:900;
+      opacity:.92;
+      color:#fff;
+      position:relative;
+      z-index:2;
     }
 
-    /* ── Notice (empty state) ── */
+    /* Value below */
+    .pageAdvisorDash .advRow .pill .v{
+      width:100%;
+      text-align:center;
+      margin:0;
+      font-weight:1000;
+      line-height:1;
+      font-size:16px;
+      color:#fff;
+      position:relative;
+      z-index:2;
+    }
+
+    .pageAdvisorDash .advRow .pillGroup.focusGroup .pill .v{
+      font-size:17px;
+    }
+
+    /* ── Pill color overlays (::before = radial gradient, ::after = inner ring) ── */
+    .pageAdvisorDash .advRow .pill::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:0;
+      background:transparent;
+    }
+    .pageAdvisorDash .advRow .pill::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      pointer-events:none;
+      opacity:0;
+    }
+
+    /* RED (bright) */
+    .pageAdvisorDash .advRow .pill.compR::before{
+      opacity:.78;
+      background:
+        radial-gradient(circle at 50% 55%,
+          rgba(0,0,0,.30) 0 42%,
+          rgba(255, 55, 55, .40) 70%,
+          rgba(255, 55, 55, .65) 100%
+        ),
+        linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10));
+    }
+    .pageAdvisorDash .advRow .pill.compR::after{
+      opacity:1;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 90, 90, .55),
+        inset 0 0 16px rgba(255, 70, 70, .35);
+    }
+
+    /* YELLOW (bright lemon) */
+    .pageAdvisorDash .advRow .pill.compY::before{
+      opacity:.72;
+      background:
+        radial-gradient(circle at 50% 55%,
+          rgba(0,0,0,.28) 0 42%,
+          rgba(255, 245, 120, .35) 70%,
+          rgba(255, 245, 120, .60) 100%
+        ),
+        linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10));
+    }
+    .pageAdvisorDash .advRow .pill.compY::after{
+      opacity:1;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 160, .50),
+        inset 0 0 16px rgba(255, 235, 90, .30);
+    }
+
+    /* GREEN (bright) */
+    .pageAdvisorDash .advRow .pill.compG::before{
+      opacity:.68;
+      background:
+        radial-gradient(circle at 50% 55%,
+          rgba(0,0,0,.30) 0 42%,
+          rgba(60, 255, 140, .30) 70%,
+          rgba(60, 255, 140, .55) 100%
+        ),
+        linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08));
+    }
+    .pageAdvisorDash .advRow .pill.compG::after{
+      opacity:1;
+      box-shadow:
+        inset 0 0 0 1px rgba(120, 255, 180, .45),
+        inset 0 0 16px rgba(60, 255, 140, .28);
+    }
+
+    /* Force all pill text white */
+    .pageAdvisorDash .advRow .pill,
+    .pageAdvisorDash .advRow .pill *{
+      color:#fff !important;
+    }
+
+    /* ── Rank badge: scale +15% in rows (matches pageTechDash .techRow) ── */
+    /* rankFocusBadge base CSS lives in app.css (always loaded) */
+    .pageAdvisorDash .advRow .techMetaRight .rankFocusBadge{
+      transform:scale(1.15);
+      transform-origin:center center;
+    }
+
+    /* ── Empty state ── */
     .advNotice{
       padding:24px;
       text-align:center;
@@ -380,23 +477,28 @@ function renderAdvisorMain(){
 
     /* ═══ RESPONSIVE ═══ */
     @media(max-width:900px){
-      .advRow{
+      .pageAdvisorDash .advRow{
         flex-direction:column;
         align-items:stretch;
         gap:12px;
       }
-      .advRowLeft{
+      .pageAdvisorDash .advRow .dashLeft{
         max-width:none;
       }
-      .advRowRight{
+      .pageAdvisorDash .advRow .dashRight{
         flex-wrap:wrap;
       }
-      .advPills{
+      .pageAdvisorDash .advRow .pills{
         flex-wrap:wrap;
       }
       .advTitleRow{
         flex-direction:column;
         align-items:flex-start;
+      }
+      .advMenuNotch{ display:none; }
+      .advHeaderInner{
+        border-radius:14px !important;
+        border-left:1px solid rgba(255,255,255,.08) !important;
       }
     }
 
@@ -475,13 +577,13 @@ function renderAdvisorMain(){
 
   const inGoalMode = (compareMode === "goal");
 
-  // ── Color class for pill ──
-  function cClass(actual, baseline){
+  // ── Pill color class (matches compClass from base.js) ──
+  function compClass(actual, baseline){
     if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
     const r = actual / baseline;
-    if(r >= 0.80) return " cG";
-    if(r >= 0.60) return " cY";
-    return " cR";
+    if(r >= 0.80) return " compG";
+    if(r >= 0.60) return " compY";
+    return " compR";
   }
 
   // ── Ranking (by Sold%) ──
@@ -492,6 +594,11 @@ function renderAdvisorMain(){
 
   // sorted list for display
   const sorted = scored.map(x => x.a);
+
+  // ── Sold/ASRs header text ──
+  const soldAsrHeaderTxt = (totalSold>0 && totalAsr>0)
+    ? fmtInt(totalSold) + " " + fmtPct(totalSold/totalAsr)
+    : fmtInt(totalSold);
 
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -512,19 +619,22 @@ function renderAdvisorMain(){
           <div style="display:flex;flex-direction:column;gap:8px;">
             <div class="advTitle">Advisor Dashboard</div>
             <div class="advHeaderStats">
-              <div class="advStatChip"><span class="advStatVal">${fmtInt(avgOdo)}</span><span class="advStatLbl">Avg ODO</span></div>
-              <div class="advStatChip"><span class="advStatVal">${fmtInt(totalRos)}</span><span class="advStatLbl">ROs</span></div>
-              <div class="advStatChip"><span class="advStatVal">${fmtInt(totalAsr)}</span><span class="advStatLbl">ASRs</span></div>
-              <div class="advStatChip"><span class="advStatVal">${fmtInt(totalSold)}</span><span class="advStatLbl">Sold</span></div>
-              <div class="advStatChip"><span class="advStatVal">${overallSoldPerAsr===null ? "—" : fmtPct(overallSoldPerAsr)}</span><span class="advStatLbl">Sold/ASRs</span></div>
+              <div class="advStatChip"><span class="advStatLbl">Avg Odo</span><span class="advStatVal">${fmtInt(avgOdo)}</span></div>
+              <div class="advStatChip"><span class="advStatLbl">ROs</span><span class="advStatVal">${fmtInt(totalRos)}</span></div>
+              <div class="advStatChip"><span class="advStatLbl">ASRs</span><span class="advStatVal">${fmtInt(totalAsr)}</span></div>
+              <div class="advStatChip sold"><span class="advStatLbl">Sold/ASRs</span><span class="advStatVal">${soldAsrHeaderTxt}</span></div>
             </div>
           </div>
 
           <div class="advOverallBlock">
-            <div class="advBigNum">${overallSoldPerRo===null ? "—" : fmt1(overallSoldPerRo,2)}</div>
-            <div class="advBigTag">Sold/RO</div>
-            <div class="advSubNum">${overallAsrPerRo===null ? "—" : fmt1(overallAsrPerRo,1)}</div>
-            <div class="advSubTag">ASRs/RO</div>
+            <div class="advFocusTop">
+              <div class="advBigNum">${overallSoldPerRo===null ? "—" : fmt1(overallSoldPerRo,2)}</div>
+              <div class="advBigTag">Sold/RO</div>
+            </div>
+            <div class="advFocusBot">
+              <div class="advSubNum">${overallAsrPerRo===null ? "—" : fmt1(overallAsrPerRo,1)}</div>
+              <div class="advSubTag">ASRs/RO</div>
+            </div>
           </div>
         </div>
 
@@ -565,63 +675,82 @@ function renderAdvisorMain(){
       const mySoldRo  = soldPerRo(a);
       const mySoldAsr = soldPerAsr(a);
 
-      // goal ratios
+      // Goal ratios
       const asrGoalRatio  = (Number.isFinite(myAsrRo)  && Number.isFinite(asrGoalTarget)  && asrGoalTarget>0)  ? (myAsrRo/asrGoalTarget)   : null;
       const soldGoalRatio = (Number.isFinite(mySoldPct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (mySoldPct/soldGoalTarget) : null;
       const asrGoalTxt  = asrGoalRatio==null  ? "—" : fmtPct(asrGoalRatio);
       const soldGoalTxt = soldGoalRatio==null ? "—" : fmtPct(soldGoalRatio);
 
-      // comparison bases
-      const compAsrBase    = inGoalMode ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : av.asr_per_ro)  : av.asr_per_ro;
-      const compSoldAsr    = inGoalMode ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : av.sold_asr) : av.sold_asr;
-      const soldRoBase     = inGoalMode ? (Number.isFinite(soldRoGoalTarget) && soldRoGoalTarget>0 ? soldRoGoalTarget : av.sold_ro) : av.sold_ro;
+      // Sold/RO and Sold/ASRs computed values
+      const soldRoVal = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0)
+        ? (Number(s2.sold)/Number(a.ros)) : null;
+      const soldAsrRatio = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(s2.asr)) && Number(s2.asr)>0)
+        ? (Number(s2.sold)/Number(s2.asr)) : null;
 
-      const clsAsrRo   = cClass(myAsrRo,   compAsrBase);
-      const clsAsrGoal = cClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio);
-      const clsSoldAsr = cClass(mySoldAsr,  compSoldAsr);
-      const clsSoldRo  = cClass(mySoldRo,   soldRoBase);
-      const clsSoldGoal= cClass(soldGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio);
+      // Comparison bases
+      const compAsrBase    = inGoalMode
+        ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : av.asr_per_ro)
+        : av.asr_per_ro;
+      const compSoldAsrBase = inGoalMode
+        ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : av.sold_asr)
+        : av.sold_asr;
+      const soldRoBase     = inGoalMode
+        ? (Number.isFinite(soldRoGoalTarget) && soldRoGoalTarget>0 ? soldRoGoalTarget : av.sold_ro)
+        : av.sold_ro;
 
-      const soldAsrDisplay = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(s2.asr)) && Number(s2.asr)>0)
-        ? fmtPct(Number(s2.sold)/Number(s2.asr)) : "—";
-      const soldRoDisplay  = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0)
-        ? fmt1(Number(s2.sold)/Number(a.ros),2) : "—";
+      // Pill color classes
+      const clsAsrpr   = compClass(myAsrRo,     compAsrBase);
+      const clsAsrGoal = compClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio);
+      const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
+      const clsSoldRo  = compClass(soldRoVal,    soldRoBase);
+      const clsSoldGoal= compClass(soldGoalRatio,inGoalMode ? 1 : baseSoldGoalRatio);
+
+      // Display values
+      const soldAsrDisplay = soldAsrRatio !== null ? fmtPct(soldAsrRatio) : "—";
+      const soldRoDisplay  = soldRoVal !== null ? fmt1(soldRoVal, 2) : "—";
+
+      // Rank badge (uses global rankBadgeHtmlDash from base.js)
+      const badgeHtml = (typeof rankBadgeHtmlDash === "function")
+        ? rankBadgeHtmlDash(rk.rank ?? "—", rk.total ?? "—", "sold", "sm")
+        : `<div class="rankFocusBadge sm">
+             <div class="rfbFocus" style="font-weight:1000">SOLD%</div>
+             <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
+             <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
+           </div>`;
 
       return `
       <div class="advRow">
-        <div class="advRowLeft">
-          <div class="advRowName">${safe(a.name||a.id)}</div>
-          <div class="advMiniStats">
-            <div class="advMiniRow">
-              <span class="advMini"><span class="advMiniLbl">Avg ODO</span><span class="advMiniVal">${fmtInt(a.odo)}</span></span>
-              <span class="advMiniDot">•</span>
-              <span class="advMini"><span class="advMiniLbl">ROs</span><span class="advMiniVal">${fmtInt(a.ros)}</span></span>
+        <div class="dashLeft">
+          <div class="val name">${safe(a.name||a.id)}</div>
+          <div class="techNameStats">
+            <div class="tnRow tnRow1">
+              <span class="tnMini"><span class="tnLbl">Avg ODO</span><span class="tnVal">${fmtInt(a.odo)}</span></span>
+              <span class="miniDot">•</span>
+              <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(a.ros)}</span></span>
             </div>
-            <div class="advMiniRow">
-              <span class="advMini"><span class="advMiniLbl">ASRs</span><span class="advMiniVal">${fmtInt(s2.asr)}</span></span>
-              <span class="advMiniDot">•</span>
-              <span class="advMini"><span class="advMiniLbl">Sold</span><span class="advMiniVal">${fmtInt(s2.sold)}</span></span>
+            <div class="tnRow tnRow2">
+              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s2.asr)}</span></span>
+              <span class="miniDot">•</span>
+              <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(s2.sold)}</span></span>
             </div>
           </div>
         </div>
 
-        <div class="advRowRight">
-          <div class="advPills">
-            <div class="advPillGroup">
-              <div class="advPill${clsAsrRo}"><span class="advPillVal">${fmt1(myAsrRo,1)}</span><span class="advPillLbl">ASRs/RO</span></div>
-              <div class="advPill${clsAsrGoal}"><span class="advPillVal">${safe(asrGoalTxt)}</span><span class="advPillLbl">ASR Goal</span></div>
+        <div class="dashRight">
+          <div class="pills">
+            <div class="pillGroup">
+              <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(myAsrRo,1)}</div></div>
+              <div class="pill${clsAsrGoal}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
             </div>
-            <div class="advPillGroup focusGrp">
-              <div class="advPill${clsSoldAsr}"><span class="advPillVal">${soldAsrDisplay}</span><span class="advPillLbl">Sold/ASRs</span></div>
-              <div class="advPill${clsSoldRo}"><span class="advPillVal">${soldRoDisplay}</span><span class="advPillLbl">Sold/RO</span></div>
-              <div class="advPill${clsSoldGoal}"><span class="advPillVal">${safe(soldGoalTxt)}</span><span class="advPillLbl">Sold Goal</span></div>
+            <div class="pillGroup focusGroup">
+              <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${soldAsrDisplay}</div></div>
+              <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${soldRoDisplay}</div></div>
+              <div class="pill${clsSoldGoal}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
             </div>
           </div>
 
-          <div class="advRankBadge">
-            <span class="advRankFocus">Sold%</span>
-            <span class="advRankNum">${rk.rank ?? "—"}</span>
-            <span class="advRankOf">of <span>${rk.total ?? "—"}</span></span>
+          <div class="techMetaRight">
+            ${badgeHtml}
           </div>
         </div>
       </div>`;
