@@ -1,3 +1,4 @@
+// v2: uses Technician Dashboard styling; no panel wrapper; relies on index.html loading this file.
 function renderAdvisorMain(){
 
   const app = document.getElementById('app');
