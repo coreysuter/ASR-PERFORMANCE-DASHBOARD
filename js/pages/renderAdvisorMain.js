@@ -600,8 +600,18 @@ function renderAdvisorMain(){
     return " compR";
   }
 
-  // ── Ranking (by Sold%) ──
-  const scored = advisors.map(a => ({ a, v: soldPct(a) }));
+  // ── Ranking ──
+  // In goal mode, rank by (soldPct / soldGoalTarget) ratio; otherwise rank by soldPct
+  const scored = advisors.map(a => {
+    const sp = soldPct(a);
+    let v;
+    if(inGoalMode){
+      v = (Number.isFinite(sp) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (sp/soldGoalTarget) : null;
+    } else {
+      v = sp;
+    }
+    return { a, v };
+  });
   scored.sort((x,y) => (Number.isFinite(y.v)?y.v:-999) - (Number.isFinite(x.v)?x.v:-999));
   const rankMap = new Map();
   scored.forEach((item,i) => rankMap.set(item.a.id, { rank:i+1, total:scored.length }));
@@ -726,10 +736,11 @@ function renderAdvisorMain(){
       const soldRoDisplay  = soldRoVal !== null ? fmt1(soldRoVal, 2) : "—";
 
       // Rank badge (uses global rankBadgeHtmlDash from base.js)
+      const badgeFocus = inGoalMode ? "goal_sold" : "sold";
       const badgeHtml = (typeof rankBadgeHtmlDash === "function")
-        ? rankBadgeHtmlDash(rk.rank ?? "—", rk.total ?? "—", "sold", "sm")
+        ? rankBadgeHtmlDash(rk.rank ?? "—", rk.total ?? "—", badgeFocus, "sm")
         : `<div class="rankFocusBadge sm">
-             <div class="rfbFocus" style="font-weight:1000">SOLD%</div>
+             <div class="rfbFocus" style="font-weight:1000">${inGoalMode ? "Sold Goal" : "SOLD%"}</div>
              <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
              <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
            </div>`;
