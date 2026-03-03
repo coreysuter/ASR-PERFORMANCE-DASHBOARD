@@ -124,7 +124,8 @@ function _miniGoalsBoxHtml(asrro, soldro, asrId, soldId, asrLab="ASRs/RO", soldL
   const soldVal = safe(_fmtGoalNum(soldro));
   const asrSpan = asrId ? `<div id="${safe(asrId)}" style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>` :
                           `<div style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>`;
-  const soldSpan = soldId ? `<div id="${safe(soldId)}" style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>` :
+  const soldAsrId = soldId ? soldId.replace(/_soldro$/, '_soldasr') : null;
+  const soldSpan = soldId ? `<div style="font-size:18px; font-weight:800; line-height:1;"><span id="${safe(soldId)}">${soldVal}</span> <span id="${safe(soldAsrId)}" style="font-size:13px; font-weight:600; opacity:.75;"></span></div>` :
                             `<div style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>`;
   return `
     <div class="miniGoalsBox" style="border:1px solid rgba(255,255,255,0.22); border-radius:10px; padding:8px 10px; display:flex; align-items:stretch; gap:10px; background:rgba(0,0,0,0.06);">
@@ -133,7 +134,7 @@ function _miniGoalsBoxHtml(asrro, soldro, asrId, soldId, asrLab="ASRs/RO", soldL
         <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(asrLab)}</div>
       </div>
       <div style="width:1px; background:rgba(255,255,255,0.22);"></div>
-      <div style="min-width:78px; text-align:center; padding-left:10px;">
+      <div style="min-width:88px; text-align:center; padding-left:10px;">
         ${soldSpan}
         <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(soldLab)}</div>
       </div>
@@ -509,7 +510,7 @@ app.innerHTML = `
                 </div>
                 <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
                 <div style="text-align:center;">
-                  <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
+                  <div style="font-size:24px; font-weight:800; line-height:1;"><span id="gh_mid_soldro">0.00</span> <span id="gh_mid_soldasr" style="font-size:14px; font-weight:600; opacity:.75;"></span></div>
                   <div style="font-size:13px; opacity:.75; margin-top:2px;">Sold/RO</div>
                 </div>
               </div>
@@ -598,6 +599,19 @@ app.innerHTML = `
     if(el) el.textContent = Number(val||0).toFixed(2);
   }
 
+  function _setSoldAsrPct(asrVal, soldVal, soldAsrId){
+    const el = document.getElementById(soldAsrId);
+    if(!el) return;
+    const asr = Number(asrVal||0);
+    const sold = Number(soldVal||0);
+    if(asr > 0){
+      const pct = ((sold / asr) * 100).toFixed(0);
+      el.textContent = `(${pct}%)`;
+    } else {
+      el.textContent = '';
+    }
+  }
+
   function recomputeGoals(){
     const maint = _sumGenericQuad('maintenance');
     const fluids = _sumGenericQuad('fluids');
@@ -606,17 +620,22 @@ app.innerHTML = `
 
     _setHdr('gh_maintenance_asrro', maint.asr);
     _setHdr('gh_maintenance_soldro', maint.sold);
+    _setSoldAsrPct(maint.asr, maint.sold, 'gh_maintenance_soldasr');
     _setHdr('gh_fluids_asrro', fluids.asr);
     _setHdr('gh_fluids_soldro', fluids.sold);
+    _setSoldAsrPct(fluids.asr, fluids.sold, 'gh_fluids_soldasr');
     _setHdr('gh_brakes_asrro', brakes.asr);
     _setHdr('gh_brakes_soldro', brakes.sold);
+    _setSoldAsrPct(brakes.asr, brakes.sold, 'gh_brakes_soldasr');
     _setHdr('gh_tires_asrro', tires.asr);
     _setHdr('gh_tires_soldro', tires.sold);
+    _setSoldAsrPct(tires.asr, tires.sold, 'gh_tires_soldasr');
 
     const totalAsr = maint.asr + fluids.asr + brakes.asr + tires.asr;
     const totalSold = maint.sold + fluids.sold + brakes.sold + tires.sold;
 _setHdr('gh_mid_asrro', totalAsr);
     _setHdr('gh_mid_soldro', totalSold);
+    _setSoldAsrPct(totalAsr, totalSold, 'gh_mid_soldasr');
   }
 
   let _rgRAF = 0;
