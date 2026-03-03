@@ -1,35 +1,5 @@
 function renderAdvisorMain(){
 
-  // Dashboard-only style overrides (scoped)
-  (function ensureAdvisorDashOverrides(){
-    const id = "advisorDashOverrides";
-    let el = document.getElementById(id);
-    if(!el){
-      el = document.createElement("style");
-      el.id = id;
-      document.head.appendChild(el);
-    }
-    el.textContent = `
-      /* Scope EVERYTHING to advisor dashboard only */
-      .pageAdvisorDash .techHeaderPanel{
-        margin-bottom:14px !important;
-        position:relative !important;
-        z-index:2 !important;
-      }
-
-      .pageAdvisorDash .techRow .techNameStats .tnLbl{
-        font-size:11px !important;
-        line-height:1.05 !important;
-        text-transform:none !important;
-        letter-spacing:.2px !important;
-      }
-      .pageAdvisorDash .techRow .techNameStats .tnVal{
-        font-size:15px !important;
-        line-height:1.05 !important;
-      }
-    `;
-  })();
-
   const app = document.getElementById('app');
   if(!app) return;
 
@@ -242,7 +212,9 @@ function renderAdvisorMain(){
 `;
 
   if(!advisors.length){
-    app.innerHTML = `<div class="pageAdvisorDash">${header}<div class="panel"><div class="phead"><div class="h2">No advisor data found</div><div class="sub">Expected <b>DATA.advisors</b>.</div></div></div></div>`;
+    // Keep pageTechDash on the wrapper so advisor rows + pills inherit the exact
+    // same typography + layout rules as the Technician Dashboard.
+    app.innerHTML = `<div class="pageAdvisorDash pageTechDash" style="display:grid;gap:12px">${header}<div class="notice">No advisor data found (expected <b>DATA.advisors</b>).</div></div>`;
     return;
   }
 
@@ -407,7 +379,9 @@ function renderAdvisorMain(){
     `;
   }).join("");
 
-  app.innerHTML = `<div class="pageAdvisorDash">${header}<div class="panel"><div class="list">${rows || `<div class="notice">No advisors found.</div>`}</div></div></div>`;
+  // Remove the extra panel behind the advisor list (per request) and reuse
+  // the exact Technician Dashboard row + pill styling by sharing pageTechDash.
+  app.innerHTML = `<div class="pageAdvisorDash pageTechDash" style="display:grid;gap:12px">${header}<div class="list">${rows || `<div class="notice">No advisors found.</div>`}</div></div>`;
 
   // Force the notch to match the header panel background exactly (prevents any shade mismatch)
   (function syncNotchBg(){
