@@ -28,7 +28,7 @@ function renderAdvisorMain(){
       background:linear-gradient(135deg,#1e2235 0%,#141722 100%);
       border:1px solid rgba(255,255,255,.08);
       border-radius:14px;
-      padding:18px 22px 16px;
+      padding:14px 14px 10px;
       color:#fff;
     }
 
@@ -69,26 +69,37 @@ function renderAdvisorMain(){
     /* ── Title row ── */
     .advTitleRow{
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:space-between;
-      flex-wrap:wrap;
+      flex-wrap:nowrap;
       gap:12px;
-      margin-bottom:10px;
+    }
+    .advNameWrap{
+      flex:1 1 auto;
+      min-width:0;
+    }
+    .advDashTopRow{
+      flex-wrap:nowrap !important;
     }
     .advTitle{
-      font-size:22px;
+      flex:0 0 auto;
+    }
+    .advTitle{
+      font-size:33px;
       font-weight:900;
       letter-spacing:.3px;
       white-space:nowrap;
     }
 
-    /* ── Header stat chips (pillMini style) ── */
+    /* ── Header stat chips (pillMini style, inline with title) ── */
     .advHeaderStats{
       display:flex;
       align-items:center;
       gap:8px;
-      flex-wrap:wrap;
-      margin-top:8px;
+      flex-wrap:nowrap;
+      white-space:nowrap;
+      flex:0 0 auto;
+      margin-left:34px;
     }
     .pageAdvisorDash .advStatChip{
       display:inline-flex;
@@ -597,8 +608,8 @@ function renderAdvisorMain(){
 
   // ── Sold/ASRs header text ──
   const soldAsrHeaderTxt = (totalSold>0 && totalAsr>0)
-    ? fmtInt(totalSold) + " " + fmtPct(totalSold/totalAsr)
-    : fmtInt(totalSold);
+    ? fmtPct(totalSold/totalAsr)
+    : "—";
 
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -616,13 +627,15 @@ function renderAdvisorMain(){
       <div class="advHeaderInner" style="border-top-left-radius:0;border-bottom-left-radius:0;border-left:none;">
         <!-- Title row -->
         <div class="advTitleRow">
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div class="advTitle">Advisor Dashboard</div>
-            <div class="advHeaderStats">
-              <div class="advStatChip"><span class="advStatLbl">Avg Odo</span><span class="advStatVal">${fmtInt(avgOdo)}</span></div>
-              <div class="advStatChip"><span class="advStatLbl">ROs</span><span class="advStatVal">${fmtInt(totalRos)}</span></div>
-              <div class="advStatChip"><span class="advStatLbl">ASRs</span><span class="advStatVal">${fmtInt(totalAsr)}</span></div>
-              <div class="advStatChip sold"><span class="advStatLbl">Sold/ASRs</span><span class="advStatVal">${soldAsrHeaderTxt}</span></div>
+          <div class="advNameWrap">
+            <div class="advDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
+              <div class="advTitle">Advisor Dashboard</div>
+              <div class="advHeaderStats">
+                <div class="advStatChip"><span class="advStatLbl">Avg Odo</span><span class="advStatVal">${fmtInt(avgOdo)}</span></div>
+                <div class="advStatChip"><span class="advStatLbl">ROs</span><span class="advStatVal">${fmtInt(totalRos)}</span></div>
+                <div class="advStatChip"><span class="advStatLbl">ASRs</span><span class="advStatVal">${fmtInt(totalAsr)}</span></div>
+                <div class="advStatChip sold"><span class="advStatLbl">Sold/ASRs</span><span class="advStatVal">${soldAsrHeaderTxt}</span></div>
+              </div>
             </div>
           </div>
 
