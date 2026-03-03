@@ -62,14 +62,43 @@ function renderServiceSettingsPage(){
   }).join("");
 
   app.innerHTML = `
-    <div class="panel svcSetPanel" style="--svcSetNameW:${nameW}">
-      <div class="phead">
-        <div class="titleRow">
-          <div>
-            <div class="h2">SERVICE SETTINGS</div>
-            <div class="sub"><a href="#/settings" style="text-decoration:none">← Back to settings</a></div>
+    <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
+    <div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
+      <div class="panel techMenuNotch" style="
+        position:absolute;
+        left:-68px;
+        top:0px;
+        width:68px;
+        height:56px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-top-right-radius:0px;
+        border-bottom-right-radius:0px;
+        border-right:none;
+        z-index:3;
+      ">
+        <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+          font-size:1.5em;
+          line-height:1;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:8px 10px;
+          cursor:pointer;
+          color:inherit;
+          user-select:none;
+        ">☰</label>
+      </div>
+
+      <div class="panel svcSetPanel" style="--svcSetNameW:${nameW};border-top-left-radius:0px;border-left:none;min-width:0;">
+        <div class="phead">
+          <div class="titleRow">
+            <div>
+              <div class="h2" style="font-size:33px;letter-spacing:.2px">SERVICE SETTINGS</div>
+              <div class="sub"><a href="#/settings" style="text-decoration:none">← Back to settings</a></div>
+            </div>
           </div>
-        </div>
 
         <div class="notice" style="padding:8px 0 0 0">
           Set the minimum vehicle mileage required for each service to be included in reporting.
@@ -87,6 +116,7 @@ function renderServiceSettingsPage(){
           <button id="svcSetClear" class="menuClose" style="width:auto;padding:8px 12px">Clear</button>
           <div id="svcSetSaved" class="sub" style="margin:0;opacity:.8;display:none">Saved</div>
         </div>
+        </div>
       </div>
     </div>
   `;
@@ -101,7 +131,7 @@ function renderServiceSettingsPage(){
   }
 
   // Save on input
-  app.querySelectorAll(".svcSetInput").forEach(inp=>{
+  app.querySelectorAll(".svcSetMiles").forEach(inp=>{
     inp.addEventListener("input", ()=>{
       const id = inp.id || "";
       const k = decodeURIComponent(id.replace(/^minMiles_/, ""));
@@ -122,7 +152,7 @@ function renderServiceSettingsPage(){
     btn.addEventListener("click", ()=>{
       try{ localStorage.removeItem(LS_KEY); }catch(e){}
       // reset UI
-      app.querySelectorAll(".svcSetInput").forEach(inp=>inp.value="");
+      app.querySelectorAll(".svcSetMiles").forEach(inp=>inp.value="");
       for(const k of Object.keys(map)) delete map[k];
       flashSaved();
     });
