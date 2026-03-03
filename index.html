@@ -99,7 +99,7 @@
   <!-- ✅ Scripts (ORDER MATTERS) — cache-busted automatically on every load -->
   <script>
     const _v = Date.now();
-    [
+    const _scripts = [
       './js/core/base.js',
       './js/pages/renderMain.js',
       './js/pages/renderTech.js',
@@ -109,13 +109,21 @@
       './js/pages/renderServiceSettingsPage.js',
       './js/pages/renderSettingsHome.js',
       './js/pages/renderAdvisorMain.js',
-    ].forEach(src => {
+    ];
+    function loadNext(i) {
+      if (i >= _scripts.length) {
+        const m = document.createElement('script');
+        m.type = 'module';
+        m.src = './js/app.js?v=' + _v;
+        document.head.appendChild(m);
+        return;
+      }
       const s = document.createElement('script');
-      s.src = src + '?v=' + _v;
-      document.currentScript.parentNode.appendChild(s);
-    });
+      s.src = _scripts[i] + '?v=' + _v;
+      s.onload = () => loadNext(i + 1);
+      document.head.appendChild(s);
+    }
+    loadNext(0);
   </script>
-
-  <script type="module" src="./js/app.js?v=6"></script>
 </body>
 </html>
