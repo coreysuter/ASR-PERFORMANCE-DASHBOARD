@@ -192,7 +192,7 @@ function renderAdvisorMain(){
       color:rgba(255,255,255,.45);
     }
     .advFilterGroup select{
-      background:rgba(255,255,255,.08);
+      background:rgba(0,0,0,.85);
       border:1px solid rgba(255,255,255,.12);
       border-radius:6px;
       color:#fff;
@@ -212,6 +212,7 @@ function renderAdvisorMain(){
     .advList{
       display:grid;
       gap:10px;
+      width:max-content;
     }
 
     /* ═══ ADVISOR ROW (matches dashTechRow flex layout from base.js) ═══ */
