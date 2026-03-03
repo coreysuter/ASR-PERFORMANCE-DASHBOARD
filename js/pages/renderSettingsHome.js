@@ -82,6 +82,10 @@ function router(){
     window.renderTech?.(id);
     return;
   }
+  if(h==="#/advisors" || h.startsWith("#/advisors?")){
+    window.renderAdvisorMain?.();
+    return;
+  }
   window.renderMain?.();
 }
 
