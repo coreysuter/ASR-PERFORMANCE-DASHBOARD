@@ -124,19 +124,26 @@ function _miniGoalsBoxHtml(asrro, soldro, asrId, soldId, asrLab="ASRs/RO", soldL
   const soldVal = safe(_fmtGoalNum(soldro));
   const asrSpan = asrId ? `<div id="${safe(asrId)}" style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>` :
                           `<div style="font-size:18px; font-weight:800; line-height:1;">${asrVal}</div>`;
-  const soldAsrId = soldId ? soldId.replace(/_soldro$/, '_soldasr') : null;
-  const soldSpan = soldId ? `<div style="font-size:18px; font-weight:800; line-height:1;"><span id="${safe(soldId)}">${soldVal}</span> <span id="${safe(soldAsrId)}" style="font-size:13px; font-weight:600; opacity:.75;"></span></div>` :
+  const soldSpan = soldId ? `<div id="${safe(soldId)}" style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>` :
                             `<div style="font-size:18px; font-weight:800; line-height:1;">${soldVal}</div>`;
+  const soldAsrId = soldId ? soldId.replace(/_soldro$/, '_soldasr') : null;
+  const soldAsrSpan = soldAsrId ? `<div id="${safe(soldAsrId)}" style="font-size:18px; font-weight:800; line-height:1;">0%</div>` :
+                                  `<div style="font-size:18px; font-weight:800; line-height:1;">0%</div>`;
   return `
     <div class="miniGoalsBox" style="border:1px solid rgba(255,255,255,0.22); border-radius:10px; padding:8px 10px; display:flex; align-items:stretch; gap:10px; background:rgba(0,0,0,0.06);">
-      <div style="min-width:88px; text-align:center; padding-right:10px;">
+      <div style="min-width:78px; text-align:center;">
         ${asrSpan}
         <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(asrLab)}</div>
       </div>
       <div style="width:1px; background:rgba(255,255,255,0.22);"></div>
-      <div style="min-width:88px; text-align:center; padding-left:10px;">
+      <div style="min-width:78px; text-align:center;">
         ${soldSpan}
         <div style="font-size:12px; opacity:0.9; margin-top:4px;">${safe(soldLab)}</div>
+      </div>
+      <div style="width:1px; background:rgba(255,255,255,0.22);"></div>
+      <div style="min-width:78px; text-align:center;">
+        ${soldAsrSpan}
+        <div style="font-size:12px; opacity:0.9; margin-top:4px;">Sold/ASRs</div>
       </div>
     </div>
   `;
@@ -510,8 +517,13 @@ app.innerHTML = `
                 </div>
                 <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
                 <div style="text-align:center;">
-                  <div style="font-size:24px; font-weight:800; line-height:1;"><span id="gh_mid_soldro">0.00</span> <span id="gh_mid_soldasr" style="font-size:14px; font-weight:600; opacity:.75;"></span></div>
+                  <div id="gh_mid_soldro" style="font-size:24px; font-weight:800; line-height:1;">0.00</div>
                   <div style="font-size:13px; opacity:.75; margin-top:2px;">Sold/RO</div>
+                </div>
+                <div class="goalsMidDivider" style="width:1px; background:rgba(180,180,180,.55); margin:0 6px; align-self:stretch;"></div>
+                <div style="text-align:center;">
+                  <div id="gh_mid_soldasr" style="font-size:24px; font-weight:800; line-height:1;">0%</div>
+                  <div style="font-size:13px; opacity:.75; margin-top:2px;">Sold/ASRs</div>
                 </div>
               </div>
             </div>
@@ -606,9 +618,9 @@ app.innerHTML = `
     const sold = Number(soldVal||0);
     if(asr > 0){
       const pct = ((sold / asr) * 100).toFixed(0);
-      el.textContent = `(${pct}%)`;
+      el.textContent = pct + '%';
     } else {
-      el.textContent = '';
+      el.textContent = '0%';
     }
   }
 
