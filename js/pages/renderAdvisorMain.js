@@ -11,29 +11,35 @@ function renderAdvisorMain(){
       document.head.appendChild(el);
     }
     el.textContent = `
-      /* ADVISOR DASHBOARD pill system - base.js clears compG/Y/R on non-#/ routes */
-      .pageAdvisorDash .techRow .pill{ position:relative !important; overflow:hidden !important; }
-      .pageAdvisorDash .techRow .pill::before{
-        content:"" !important; position:absolute !important; inset:0 !important;
-        pointer-events:none !important; opacity:0 !important; background:transparent !important;
-      }
-      .pageAdvisorDash .techRow .pill::after{
-        content:"" !important; position:absolute !important; inset:0 !important;
-        border-radius:inherit !important; pointer-events:none !important; opacity:0 !important;
-      }
-      .pageAdvisorDash .techRow .pill > *{ position:relative !important; z-index:2 !important; }
-      .pageAdvisorDash .techRow .pill.compR::before{ opacity:.42 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(255,55,55,.40) 70%, rgba(255,55,55,.65) 100%), linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10)) !important; }
-      .pageAdvisorDash .techRow .pill.compR::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(255,90,90,.55), inset 0 0 16px rgba(255,70,70,.35) !important; }
-      .pageAdvisorDash .techRow .pill.compY::before{ opacity:.40 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(255,245,120,.35) 70%, rgba(255,245,120,.60) 100%), linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10)) !important; }
-      .pageAdvisorDash .techRow .pill.compY::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(255,255,160,.50), inset 0 0 16px rgba(255,235,90,.30) !important; }
-      .pageAdvisorDash .techRow .pill.compG::before{ opacity:.38 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(60,255,140,.30) 70%, rgba(60,255,140,.55) 100%), linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08)) !important; }
-      .pageAdvisorDash .techRow .pill.compG::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(120,255,180,.45), inset 0 0 16px rgba(60,255,140,.28) !important; }
-      .pageAdvisorDash .techRow .pill .v,
-      .pageAdvisorDash .techRow .pill .k { color:#fff !important; }
-      .pageAdvisorDash .techRow .techNameStats .tnLbl{ font-size:11px !important; line-height:1.05 !important; color:var(--muted) !important; font-weight:900 !important; text-transform:uppercase !important; letter-spacing:.2px !important; }
-      .pageAdvisorDash .techRow .techNameStats .tnVal{ font-size:15px !important; font-weight:1000 !important; line-height:1 !important; }
-      .pageTechDash .techHeaderPanel{ margin-bottom:14px !important; position:relative !important; z-index:2 !important; }
-      .pageTechDash .teamsGrid{ position:relative !important; z-index:1 !important; }
+      /* ADVISOR ROW standalone */
+      .pageAdvisorDash .aRow{position:relative !important;display:flex !important;align-items:center !important;gap:18px !important;padding:12px 14px !important;overflow:visible !important;}
+      .pageAdvisorDash .aRowLeft{flex:1 1 260px !important;max-width:260px !important;min-width:0 !important;display:flex !important;flex-direction:column !important;gap:8px !important;}
+      .pageAdvisorDash .aRowLeft *{min-width:0 !important;}
+      .pageAdvisorDash .aRow .val.name{font-size:24px !important;font-weight:1000 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;position:static !important;}
+      .pageAdvisorDash .aRowStats{position:static !important;display:flex !important;flex-direction:column !important;gap:6px !important;}
+      .pageAdvisorDash .aStatRow{display:flex !important;flex-wrap:nowrap !important;align-items:baseline !important;gap:10px !important;}
+      .pageAdvisorDash .aStatRow2{gap:14px !important;}
+      .pageAdvisorDash .aStatMini{display:inline-flex !important;align-items:baseline !important;gap:8px !important;}
+      .pageAdvisorDash .aStatLbl{font-size:11px !important;line-height:1.05 !important;color:var(--muted) !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;}
+      .pageAdvisorDash .aStatVal{font-size:15px !important;font-weight:1000 !important;line-height:1 !important;}
+      .pageAdvisorDash .aRowRight{flex:0 0 auto !important;display:flex !important;align-items:center !important;gap:12px !important;min-width:0 !important;}
+      .pageAdvisorDash .aRowBadge{flex:0 0 auto !important;}
+      .pageAdvisorDash .aRow .pills{display:flex !important;flex-wrap:nowrap !important;gap:10px !important;margin:0 !important;}
+      .pageAdvisorDash .aRow .pill{position:relative !important;overflow:hidden !important;display:inline-flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;min-width:85px !important;padding:9px 9px !important;border-radius:14px !important;gap:5px !important;background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.68)) !important;border:1px solid rgba(255,255,255,.16) !important;box-shadow:0 10px 26px rgba(0,0,0,.60) inset !important;}
+      .pageAdvisorDash .aRow .pill .k{font-size:12px !important;font-weight:1000 !important;letter-spacing:.22px !important;text-transform:uppercase !important;line-height:1 !important;color:#fff !important;opacity:.85 !important;text-align:center !important;width:100% !important;}
+      .pageAdvisorDash .aRow .pill .v{font-size:23px !important;font-weight:1000 !important;line-height:1 !important;color:#fff !important;text-align:center !important;width:100% !important;}
+      .pageAdvisorDash .aRow .pill::before{content:"" !important;position:absolute !important;inset:0 !important;pointer-events:none !important;opacity:0 !important;background:transparent !important;}
+      .pageAdvisorDash .aRow .pill::after{content:"" !important;position:absolute !important;inset:0 !important;border-radius:inherit !important;pointer-events:none !important;opacity:0 !important;}
+      .pageAdvisorDash .aRow .pill > *{position:relative !important;z-index:2 !important;}
+      .pageAdvisorDash .aRow .pill.compR::before{opacity:.42 !important;background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.30) 0 42%,rgba(255,55,55,.40) 70%,rgba(255,55,55,.65) 100%),linear-gradient(180deg,rgba(255,55,55,.25),rgba(255,55,55,.10)) !important;}
+      .pageAdvisorDash .aRow .pill.compR::after{opacity:.55 !important;box-shadow:inset 0 0 0 1px rgba(255,90,90,.55),inset 0 0 16px rgba(255,70,70,.35) !important;}
+      .pageAdvisorDash .aRow .pill.compY::before{opacity:.40 !important;background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.28) 0 42%,rgba(255,245,120,.35) 70%,rgba(255,245,120,.60) 100%),linear-gradient(180deg,rgba(255,245,120,.22),rgba(255,245,120,.10)) !important;}
+      .pageAdvisorDash .aRow .pill.compY::after{opacity:.55 !important;box-shadow:inset 0 0 0 1px rgba(255,255,160,.50),inset 0 0 16px rgba(255,235,90,.30) !important;}
+      .pageAdvisorDash .aRow .pill.compG::before{opacity:.38 !important;background:radial-gradient(circle at 50% 55%,rgba(0,0,0,.30) 0 42%,rgba(60,255,140,.30) 70%,rgba(60,255,140,.55) 100%),linear-gradient(180deg,rgba(60,255,140,.18),rgba(60,255,140,.08)) !important;}
+      .pageAdvisorDash .aRow .pill.compG::after{opacity:.55 !important;box-shadow:inset 0 0 0 1px rgba(120,255,180,.45),inset 0 0 16px rgba(60,255,140,.28) !important;}
+      .pageAdvisorDash .aRow .pillGroup{display:flex !important;align-items:center !important;gap:10px !important;padding:6px 8px !important;border:1px solid rgba(190,190,190,.35) !important;border-radius:14px !important;}
+      .pageAdvisorDash .aRow .pillGroup.focusGroup .pill{transform:scale(1.1) !important;transform-origin:center !important;}
+      .pageAdvisorDash .techHeaderPanel{margin-bottom:14px !important;position:relative !important;z-index:2 !important;}
     `;
   })();
 
@@ -318,25 +324,25 @@ function renderAdvisorMain(){
     const clsSoldGoal= compClass(soldGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio);
 
     return `
-      <div class="techRow dashTechRow">
-        <div class="dashLeft">
+      <div class="aRow">
+        <div class="aRowLeft">
           <div class="val name">${safe(a.name||a.id)}</div>
 
-          <div class="techNameStats">
-            <div class="tnRow tnRow1">
-              <span class="tnMini"><span class="tnLbl">Avg ODO</span><span class="tnVal">${fmtInt(a.odo)}</span></span>
+          <div class="aRowStats">
+            <div class="aStatRow aStatRow1">
+              <span class="aStatMini"><span class="aStatLbl">Avg ODO</span><span class="aStatVal">${fmtInt(a.odo)}</span></span>
               <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(a.ros)}</span></span>
+              <span class="aStatMini"><span class="aStatLbl">ROs</span><span class="aStatVal">${fmtInt(a.ros)}</span></span>
             </div>
-            <div class="tnRow tnRow2">
-              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s.asr)}</span></span>
+            <div class="aStatRow aStatRow2">
+              <span class="aStatMini"><span class="aStatLbl">ASRs</span><span class="aStatVal">${fmtInt(s.asr)}</span></span>
               <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(s.sold)}</span></span>
+              <span class="aStatMini"><span class="aStatLbl">Sold</span><span class="aStatVal">${fmtInt(s.sold)}</span></span>
             </div>
           </div>
         </div>
 
-        <div class="dashRight">
+        <div class="aRowRight">
           <div class="pills">
             ${focusIsGoal ? `
               <div class="pillGroup pillGroupNonGoal">
@@ -379,7 +385,7 @@ function renderAdvisorMain(){
             `)}
           </div>
 
-          <div class="techMetaRight">
+          <div class="aRowBadge">
             ${rankBadgeHtmlDash(
               rk.rank??"—",
               rk.total??"—",
