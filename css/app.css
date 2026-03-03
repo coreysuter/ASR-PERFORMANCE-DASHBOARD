@@ -2562,29 +2562,30 @@ body.route-tech .pills .k *{
   max-width:100%;
 }
 .svcSetSectionHdr{
-  padding:10px 22px;
+  padding:10px 12px;
   border-bottom:1px solid rgba(255,255,255,.08);
-  display:grid;
-  grid-template-columns: var(--svcSetNameW, 22ch) 130px;
-  column-gap:20px;
+  display:flex;
   align-items:end;
+  justify-content:space-between;
   font-size:23px;
   font-weight:1200;
   letter-spacing:.2px;
 }
 .svcSetSectionHdrName{
+  flex:1;
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
 .svcSetSectionHdrMiles{
-  justify-self:end;
   font-size:15px;
   font-weight:1000;
   color:rgba(234,240,255,.80);
   letter-spacing:.2px;
-  text-align:right;
+  text-align:center;
+  width:130px;
+  flex-shrink:0;
 }
 .svcSetRows{
   padding:10px 12px;
@@ -2595,10 +2596,9 @@ body.route-tech .pills .k *{
 }
 
 .svcSetRow{
-  display:grid;
-  grid-template-columns: var(--svcSetNameW, 22ch) 130px;
-  column-gap:20px;
+  display:flex;
   align-items:center;
+  gap:20px;
   padding:8px 10px;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.10);
@@ -2612,11 +2612,13 @@ body.route-tech .pills .k *{
 .svcSetName{
   font-weight:900;
   min-width:0;
+  width:var(--svcSetNameW, 22ch);
+  flex-shrink:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.svcSetRight{justify-self:end}
+.svcSetRight{flex-shrink:0;width:130px;display:flex;justify-content:center;}
 .svcSetMiles{
   width:110px;
   padding:8px 10px;
@@ -2625,7 +2627,5 @@ body.route-tech .pills .k *{
   background:rgba(0,0,0,.18);
   color:var(--text);
   outline:none;
-  margin-left:0;
-  justify-self:end;
 }
 .svcSetMiles:focus{border-color:rgba(120,190,255,.55)}
