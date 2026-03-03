@@ -1,3 +1,4 @@
+window.renderAdvisorMain = renderAdvisorMain; // hoisted - safe to assign before function body
 // v2: uses Technician Dashboard styling; no panel wrapper; relies on index.html loading this file.
 function renderAdvisorMain(){
 
@@ -439,4 +440,3 @@ function renderAdvisorMain(){
   });
 }
 
-window.renderAdvisorMain = renderAdvisorMain;
