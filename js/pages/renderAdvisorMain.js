@@ -1,4 +1,3 @@
-window.renderAdvisorMain = renderAdvisorMain; // hoisted - safe to assign before function body
 // v2: uses Technician Dashboard styling; no panel wrapper; relies on index.html loading this file.
 function renderAdvisorMain(){
 
@@ -12,42 +11,31 @@ function renderAdvisorMain(){
       document.head.appendChild(el);
     }
     el.textContent = `
-      /* Scope EVERYTHING to main technician dashboard only */
-      /* Add breathing room so the header panel never visually overlaps the two team panels */
-      .pageTechDash .techHeaderPanel{
-        margin-bottom:14px !important;
-        position:relative !important;
-        z-index:2 !important;
+      /* ADVISOR DASHBOARD pill system - base.js clears compG/Y/R on non-#/ routes */
+      .pageAdvisorDash .techRow .pill{ position:relative !important; overflow:hidden !important; }
+      .pageAdvisorDash .techRow .pill::before{
+        content:"" !important; position:absolute !important; inset:0 !important;
+        pointer-events:none !important; opacity:0 !important; background:transparent !important;
       }
-      .pageTechDash .teamsGrid{position:relative !important; z-index:1 !important;}
-  
-      /* Advisor rows: subtle tint only, text stays white */
-      .pageAdvisorDash .techRow .pill.compG::before,
-      .pageAdvisorDash .techRow .pill.compY::before,
-      .pageAdvisorDash .techRow .pill.compR::before { opacity: 0.55 !important; }
-      .pageAdvisorDash .techRow .pill.compG::after,
-      .pageAdvisorDash .techRow .pill.compY::after,
-      .pageAdvisorDash .techRow .pill.compR::after { opacity: 0.55 !important; }
+      .pageAdvisorDash .techRow .pill::after{
+        content:"" !important; position:absolute !important; inset:0 !important;
+        border-radius:inherit !important; pointer-events:none !important; opacity:0 !important;
+      }
+      .pageAdvisorDash .techRow .pill > *{ position:relative !important; z-index:2 !important; }
+      .pageAdvisorDash .techRow .pill.compR::before{ opacity:.42 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(255,55,55,.40) 70%, rgba(255,55,55,.65) 100%), linear-gradient(180deg, rgba(255,55,55,.25), rgba(255,55,55,.10)) !important; }
+      .pageAdvisorDash .techRow .pill.compR::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(255,90,90,.55), inset 0 0 16px rgba(255,70,70,.35) !important; }
+      .pageAdvisorDash .techRow .pill.compY::before{ opacity:.40 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.28) 0 42%, rgba(255,245,120,.35) 70%, rgba(255,245,120,.60) 100%), linear-gradient(180deg, rgba(255,245,120,.22), rgba(255,245,120,.10)) !important; }
+      .pageAdvisorDash .techRow .pill.compY::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(255,255,160,.50), inset 0 0 16px rgba(255,235,90,.30) !important; }
+      .pageAdvisorDash .techRow .pill.compG::before{ opacity:.38 !important; background:radial-gradient(circle at 50% 55%, rgba(0,0,0,.30) 0 42%, rgba(60,255,140,.30) 70%, rgba(60,255,140,.55) 100%), linear-gradient(180deg, rgba(60,255,140,.18), rgba(60,255,140,.08)) !important; }
+      .pageAdvisorDash .techRow .pill.compG::after{ opacity:.55 !important; box-shadow:inset 0 0 0 1px rgba(120,255,180,.45), inset 0 0 16px rgba(60,255,140,.28) !important; }
       .pageAdvisorDash .techRow .pill .v,
-      .pageAdvisorDash .techRow .pill .v { color: #fff !important; }
-      .pageAdvisorDash .techRow .pill .k { color: #fff !important; }
-
-      .pageTechDash .techRow .techNameStats .tnLbl{
-        font-size:11px !important;
-        line-height:1.05 !important;
-        color:var(--muted) !important;
-        font-weight:900 !important;
-        text-transform:uppercase !important;
-        letter-spacing:.2px !important;
-      }
-      .pageTechDash .techRow .techNameStats .tnVal{
-        font-size:15px !important;
-        font-weight:1000 !important;
-        line-height:1 !important;
-      }
+      .pageAdvisorDash .techRow .pill .k { color:#fff !important; }
+      .pageAdvisorDash .techRow .techNameStats .tnLbl{ font-size:11px !important; line-height:1.05 !important; color:var(--muted) !important; font-weight:900 !important; text-transform:uppercase !important; letter-spacing:.2px !important; }
+      .pageAdvisorDash .techRow .techNameStats .tnVal{ font-size:15px !important; font-weight:1000 !important; line-height:1 !important; }
+      .pageTechDash .techHeaderPanel{ margin-bottom:14px !important; position:relative !important; z-index:2 !important; }
+      .pageTechDash .teamsGrid{ position:relative !important; z-index:1 !important; }
     `;
   })();
-  
 
 
   const app = document.getElementById('app');
@@ -440,3 +428,4 @@ function renderAdvisorMain(){
   });
 }
 
+window.renderAdvisorMain = renderAdvisorMain;
