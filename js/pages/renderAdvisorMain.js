@@ -25,11 +25,12 @@ function renderAdvisorMain(){
       z-index:2;
     }
     .advHeaderInner{
-      background:linear-gradient(135deg,#1e2235 0%,#141722 100%);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--border);
+      border-radius:18px;
       padding:14px 14px 10px;
       color:#fff;
+      overflow:hidden;
     }
 
     /* ── Notch (hamburger menu) ── */
@@ -47,10 +48,10 @@ function renderAdvisorMain(){
       display:flex;
       align-items:center;
       justify-content:center;
-      background:linear-gradient(135deg,#1e2235 0%,#141722 100%);
-      border:1px solid rgba(255,255,255,.08);
-      border-top-left-radius:14px;
-      border-bottom-left-radius:14px;
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--border);
+      border-top-left-radius:18px;
+      border-bottom-left-radius:18px;
       border-right:none;
       z-index:2;
     }
@@ -115,7 +116,7 @@ function renderAdvisorMain(){
       color:var(--muted);
       font-weight:900;
       letter-spacing:.2px;
-      text-transform:none;
+      text-transform:none !important;
     }
     .pageAdvisorDash .advStatChip .advStatVal{
       font-size:20px;
@@ -223,7 +224,7 @@ function renderAdvisorMain(){
       padding-right:18px;
       min-height:auto;
       overflow:visible;
-      background:rgba(255,255,255,.06);
+      background:linear-gradient(180deg,var(--card),var(--card2));
       border:1px solid var(--border);
       border-radius:14px;
       margin-bottom:0;
@@ -281,7 +282,7 @@ function renderAdvisorMain(){
       color:var(--muted);
       font-weight:900;
       letter-spacing:.2px;
-      text-transform:uppercase;
+      text-transform:none !important;
     }
     .pageAdvisorDash .advRow .techNameStats .tnVal{
       font-size:15px;
@@ -289,8 +290,8 @@ function renderAdvisorMain(){
       line-height:1;
     }
     .pageAdvisorDash .advRow .techNameStats .miniDot{
-      font-size:8px;
-      color:rgba(255,255,255,.22);
+      margin:0 6px;
+      color:var(--muted);
       user-select:none;
     }
 
@@ -374,6 +375,7 @@ function renderAdvisorMain(){
       color:#fff;
       position:relative;
       z-index:2;
+      text-transform:none !important;
     }
 
     /* Value below */
@@ -508,8 +510,8 @@ function renderAdvisorMain(){
       }
       .advMenuNotch{ display:none; }
       .advHeaderInner{
-        border-radius:14px !important;
-        border-left:1px solid rgba(255,255,255,.08) !important;
+        border-radius:18px !important;
+        border-left:1px solid var(--border) !important;
       }
     }
 
