@@ -131,14 +131,16 @@ function renderAdvisorDetail(advisorId){
   function buildBench(scopeAdvisors){
     const bench={};
     for(const cat of CAT_LIST){
-      const reqs=[], closes=[];
+      const reqs=[], closes=[], asrCounts=[];
       let topReq=-1, topName="—", topClose=null;
       for(const x of scopeAdvisors){
         const c=x.categories?.[cat];
         const req=Number(c?.req);
         const close=Number(c?.close);
+        const asrN=Number(c?.asr);
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
+        if(Number.isFinite(asrN)) asrCounts.push(asrN);
         if(Number.isFinite(req) && req>topReq){
           topReq=req; topName=x.name||"—";
           topClose=Number.isFinite(close)?close:null;
@@ -147,6 +149,7 @@ function renderAdvisorDetail(advisorId){
       bench[cat]={
         avgReq: reqs.length? reqs.reduce((a,b)=>a+b,0)/reqs.length : null,
         avgClose: closes.length? closes.reduce((a,b)=>a+b,0)/closes.length : null,
+        avgAsr: asrCounts.length? asrCounts.reduce((a,b)=>a+b,0)/asrCounts.length : null,
         topReq: topReq>=0? topReq : null,
         topClose, topName
       };
@@ -265,6 +268,7 @@ function renderAdvisorDetail(advisorId){
   const __rosTotal = Number(t.ros);
   const __soldAsrPct = (Number.isFinite(__soldTotal) && Number.isFinite(__asrsTotal) && __asrsTotal>0) ? (__soldTotal/__asrsTotal) : NaN;
   const __soldAsrPctTxt = Number.isFinite(__soldAsrPct) ? `(${(__soldAsrPct*100).toFixed(1)}%)` : "";
+  const __soldAsrPctFocus = Number.isFinite(__soldAsrPct) ? `${(__soldAsrPct*100).toFixed(1)}%` : "—";
   const __asrPerRoVal = advAsrPerRo(t, filterKey);
   const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
   const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
@@ -334,6 +338,10 @@ function renderAdvisorDetail(advisorId){
                 <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__topFocusVal}</div>
                 <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__topFocusLbl}</div>
               </div>
+              <div class="techFocusMid" style="text-align:right">
+                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldAsrPctFocus}</div>
+                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/ASRs</div>
+              </div>
               <div class="techFocusBottom" style="text-align:right">
                 <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__botFocusVal}</div>
                 <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__botFocusLbl}</div>
@@ -356,8 +364,8 @@ function renderAdvisorDetail(advisorId){
             <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(s.asr)}</div>
           </div>
           <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
-            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
-            <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(s.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
+            <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
+            <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(s.sold)}</div>
           </div>
         </div>
       </div>
@@ -411,6 +419,9 @@ function renderAdvisorDetail(advisorId){
     const rk = rankFor(cat);
     const compareLabel = "Advisor Avg";
 
+    const avgAsrCount = Number(basis.avgAsr);
+    const avgAsrTxt = Number.isFinite(avgAsrCount) ? fmt1(avgAsrCount, 1) : "—";
+
     const asrBlock = `
       <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
@@ -422,6 +433,7 @@ function renderAdvisorDetail(advisorId){
             <div class="mbItem">
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpReq)}</div>
+              <div class="mbSub" style="margin-top:2px;font-size:11px;color:rgba(255,255,255,.50)">${avgAsrTxt} avg ASRs</div>
             </div>
             <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq,"", _popupAsr(cmpReq, req, pctCmpReq)):""}</div>
           </div>
