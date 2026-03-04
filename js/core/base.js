@@ -271,7 +271,6 @@ function _ensureGaugePopupStyles(){
     .gaugePopup .gpLabel{
       font-size:11px;
       font-weight:800;
-      text-transform:uppercase;
       letter-spacing:.4px;
       color:rgba(234,240,255,.6);
       white-space:nowrap;
