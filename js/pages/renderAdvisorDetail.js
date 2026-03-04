@@ -325,15 +325,15 @@ function renderAdvisorDetail(advisorId){
     <div class="phead">
       <div class="techHdrTop" style="display:flex;flex-direction:column;min-height:0">
         <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
-          <div class="techTitlePinnedLeft" style="display:flex;flex-direction:column;min-width:0;flex:1 1 auto;">
-            <div style="display:flex;align-items:flex-start;gap:18px;">
-              <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
+          <div style="display:flex;flex-direction:column;min-width:0;flex:0 1 auto;">
+            <div style="display:flex;align-items:center;gap:14px;">
+              <div style="min-width:0;">
                 <div class="h2 techH2Big">${__nameHtml}</div>
                 <div class="techTeamLine">ADVISOR</div>
               </div>
               ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
             </div>
-            <div class="pillsMini" style="margin-top:8px; display:flex; flex-direction:column; gap:8px;">
+            <div style="margin-top:8px; display:flex !important; flex-direction:column !important; flex-wrap:nowrap !important; gap:6px;">
               <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
                 <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
                   <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg ODO</div>
