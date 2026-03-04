@@ -326,14 +326,11 @@ function renderAdvisorDetail(advisorId){
       <div class="techHdrTop" style="display:flex;flex-direction:column;min-height:0">
         <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
           <div style="display:flex;flex-direction:column;min-width:0;flex:0 1 auto;">
-            <div style="display:flex;align-items:center;gap:14px;">
-              <div style="min-width:0;">
-                <div class="h2 techH2Big">${__nameHtml}</div>
-                <div class="techTeamLine">ADVISOR</div>
-              </div>
-              ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+            <div style="min-width:0;">
+              <div class="h2 techH2Big">${__nameHtml}</div>
+              <div class="techTeamLine">ADVISOR</div>
             </div>
-            <div style="margin-top:8px; display:flex !important; flex-direction:column !important; flex-wrap:nowrap !important; gap:6px;">
+            <div style="margin-top:14px; display:flex !important; flex-direction:column !important; flex-wrap:nowrap !important; gap:6px;">
               <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
                 <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
                   <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Avg ODO</div>
@@ -342,6 +339,10 @@ function renderAdvisorDetail(advisorId){
                 <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
                   <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ROs</div>
                   <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(t.ros)}</div>
+                </div>
+                <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
+                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs/RO</div>
+                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${__asrPerRoTxt}</div>
                 </div>
               </div>
               <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
@@ -356,21 +357,17 @@ function renderAdvisorDetail(advisorId){
               </div>
             </div>
           </div>
-          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:column;align-items:flex-end;gap:10px;margin-right:4px;">
-            <div style="display:flex;flex-direction:row;align-items:center;gap:0;">
-              <div class="techFocusTop" style="text-align:right;padding-right:16px;">
-                <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__topFocusVal}</div>
-                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__topFocusLbl}</div>
+          <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;margin-right:4px;">
+            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+            <div style="text-align:right;line-height:1;align-self:center;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+              <div style="text-align:right">
+                <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
+                <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/RO</div>
               </div>
-              <div style="width:1px;align-self:stretch;background:rgba(255,255,255,.22);"></div>
-              <div class="techFocusMid" style="text-align:left;padding-left:16px;">
-                <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldAsrPctFocus}</div>
+              <div style="text-align:right">
+                <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldAsrPctFocus}</div>
                 <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">Sold/ASRs</div>
               </div>
-            </div>
-            <div class="techFocusBottom" style="text-align:right">
-              <div style="font-size:28px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__botFocusVal}</div>
-              <div style="margin-top:4px;font-size:14px;font-weight:1000;letter-spacing:.3px;color:rgba(255,255,255,.70);text-transform:none;">${__botFocusLbl}</div>
             </div>
           </div>
         </div>
@@ -637,14 +634,14 @@ function renderAdvisorDetail(advisorId){
         <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(t.odo)}</div></div>
         <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
         <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
+        <div class="pill"><div class="k">ASRs/RO</div><div class="v">${Number.isFinite(secStats.sumReq) ? fmt1(secStats.sumReq,1) : "—"}</div></div>
         <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
-        <div class="pill"><div class="k">Sold/RO</div><div class="v">${__soldPerRoTxt}</div></div>
       </div>
     `;
 
     let topStatVal, topStatTitle, botStatVal, botStatTitle;
     topStatVal = fmtPct(secStats.avgClose); topStatTitle = "Sold";
-    botStatVal = fmt1(secStats.sumReq,1); botStatTitle = "ASRs/RO";
+    botStatVal = __soldPerRoTxt; botStatTitle = "Sold/RO";
 
     const rows = __cats.map(cat=>renderCategoryCard(cat)).join("");
 
