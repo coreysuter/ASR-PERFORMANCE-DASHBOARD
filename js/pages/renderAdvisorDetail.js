@@ -3,6 +3,175 @@
 // Route: #/advisor/{advisorId}?filter=...&compare=...&focus=...&goal=...
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// === Global advisor pie-slice click handler (intercepts before renderTech handler) ===
+(function(){
+  function escHtml(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  }
+  function fmtPctLocal(v){
+    const n = Number(v);
+    if(!Number.isFinite(n)) return "—";
+    return (n*100).toFixed(1) + "%";
+  }
+  function safeSvcIdLocal(cat){
+    return "svc-" + String(cat||"").toLowerCase()
+      .replace(/&/g,"and")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"");
+  }
+  function catList(){
+    const set = new Set();
+    (DATA.sections||[]).forEach(s=>(s.categories||[]).forEach(c=>c && set.add(c)));
+    return Array.from(set);
+  }
+  function buildAdvBench(scopeAdvisors, cats){
+    const bench = {};
+    for(const cat of cats){
+      const reqs=[], closes=[];
+      for(const x of scopeAdvisors){
+        const c = x.categories?.[cat];
+        const req = Number(c?.req);
+        const close = Number(c?.close);
+        if(Number.isFinite(req)) reqs.push(req);
+        if(Number.isFinite(close)) closes.push(close);
+      }
+      const avgReq = reqs.length ? (reqs.reduce((a,b)=>a+b,0)/reqs.length) : NaN;
+      const avgClose = closes.length ? (closes.reduce((a,b)=>a+b,0)/closes.length) : NaN;
+      bench[cat] = {avgReq, avgClose};
+    }
+    return bench;
+  }
+  function bandOfPct(pct){
+    if(!Number.isFinite(pct)) return null;
+    if(pct < 0.60) return "red";
+    if(pct < 0.80) return "yellow";
+    return "green";
+  }
+
+  document.addEventListener("click", (e)=>{
+    const slice = e.target && e.target.closest ? e.target.closest(".diagPieSlice") : null;
+    if(!slice) return;
+    const compare = slice.getAttribute("data-compare") || "";
+    if(compare !== "advisors") return; // let renderTech handler deal with non-advisor slices
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const advId = slice.getAttribute("data-tech");
+    const mode = slice.getAttribute("data-mode");
+    const band = slice.getAttribute("data-band");
+
+    const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total");
+    const t = advisors.find(x=>String(x.id)===String(advId));
+    if(!t) return;
+
+    const cats = catList();
+    const bench = buildAdvBench(advisors, cats);
+
+    const items = [];
+    for(const cat of cats){
+      const mine = t.categories?.[cat];
+      if(!mine) continue;
+      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
+      if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
+      const pct = val/base;
+      const b = bandOfPct(pct);
+      if(b !== band) continue;
+      items.push({cat, val, pct});
+    }
+    items.sort((a,b)=>a.pct-b.pct);
+
+    const title = (mode==="sold") ? "SOLD" : "ASR";
+    const isRed = (band==="red");
+    const isYellow = (band==="yellow");
+    const isGreen = (band==="green");
+    const popFill = isRed ? "#ff4b4b" : (isYellow ? "#ffbf2f" : "#1fcb6a");
+    const popFillHi = isRed ? "#ff8b8b" : (isYellow ? "#ffd978" : "#7CFFB0");
+    const lbl = (mode==="sold") ? "SOLD" : "ASR";
+    const uid = `${mode}-${band}-adv-${advId}`;
+
+    const iconSvg = isGreen
+      ? `<svg viewBox="0 0 64 64" aria-hidden="true" style="width:34px;height:34px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
+          <defs>
+            <radialGradient id="popChkHi-${uid}" cx="35%" cy="25%" r="70%"><stop offset="0%" stop-color="rgba(255,255,255,.55)"/><stop offset="60%" stop-color="rgba(255,255,255,.10)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+            <linearGradient id="popChkGrad-${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${popFillHi}"/><stop offset="100%" stop-color="${popFill}"/></linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="28" fill="url(#popChkGrad-${uid})"/><circle cx="32" cy="32" r="28" fill="url(#popChkHi-${uid})"/>
+          <path d="M19 33.5l7.2 7.2L46 21.9" fill="none" stroke="#fff" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`
+      : `<svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
+          <defs>
+            <linearGradient id="popTriGrad-${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${popFillHi}"/><stop offset="100%" stop-color="${popFill}"/></linearGradient>
+            <radialGradient id="popTriHi-${uid}" cx="35%" cy="20%" r="75%"><stop offset="0%" stop-color="rgba(255,255,255,.55)"/><stop offset="55%" stop-color="rgba(255,255,255,.10)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+          </defs>
+          <path d="M50 0 C53 0 55 2 56.5 4.5 L99 85 C101 88 99 91 95 91 L5 91 C1 91 -1 88 1 85 L43.5 4.5 C45 2 47 0 50 0Z" fill="url(#popTriGrad-${uid})"/>
+          <path d="M50 6 C52 6 54 7.2 55.2 9.6 L92 80 C94 83 92.2 86 88.4 86 L11.6 86 C7.8 86 6 83 8 80 L44.8 9.6 C46 7.2 48 6 50 6Z" fill="url(#popTriHi-${uid})"/>
+          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"/>
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"/>
+        </svg>`;
+
+    const rows = items.length ? items.map((it, i)=>{
+      const id = safeSvcIdLocal(it.cat);
+      const nm = (typeof window.catLabel==="function") ? window.catLabel(it.cat) : it.cat;
+      return `
+        <button class="diagPopRowBtn" type="button" data-target="${id}" style="width:100%;text-align:left;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:8px 10px;color:inherit;display:flex;align-items:center;gap:6px;cursor:pointer">
+          <span class="rankNum">${i+1}.</span>
+          <span class="tbName" style="flex:0 1 340px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(nm)}</span>
+          <span class="tbVal" style="margin-left:6px;color:rgba(255,255,255,.75);font-weight:900;white-space:nowrap">${lbl} ${fmtPctLocal(it.val)}</span>
+        </button>
+      `;
+    }).join("") : `<div class="notice" style="padding:8px 2px">No services</div>`;
+
+    // Remove any existing popup
+    if(window.closeDiagPopup) window.closeDiagPopup();
+
+    const pop = document.createElement("div");
+    pop.id = "diagBandPopup";
+    pop.className = "diagPopup";
+    pop.style.cssText = "position:fixed;z-index:9999;width:520px;max-width:calc(100vw - 24px);background:linear-gradient(180deg, rgba(22,28,44,.98), rgba(10,14,24,.98));border:1px solid rgba(255,255,255,.10);border-radius:16px;box-shadow:0 22px 60px rgba(0,0,0,.55);overflow:hidden";
+
+    pop.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title}${iconSvg}</div>
+        <button onclick="window.closeDiagPopup&&window.closeDiagPopup()" aria-label="Close"
+          style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
+      </div>
+      <div style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
+        ${rows}
+      </div>
+    `;
+    document.body.appendChild(pop);
+
+    pop.addEventListener("click", (ev)=>{
+      const btn = ev.target && ev.target.closest ? ev.target.closest(".diagPopRowBtn") : null;
+      if(!btn) return;
+      const targetId = btn.getAttribute("data-target");
+      if(targetId){ const el = document.getElementById(targetId); if(el) el.scrollIntoView({behavior:"smooth", block:"start"}); }
+      window.closeDiagPopup && window.closeDiagPopup();
+    }, true);
+
+    const r = slice.getBoundingClientRect();
+    const pr = pop.getBoundingClientRect();
+    let left = r.right + 10, top = r.top - 6;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if(left + pr.width > vw - 8) left = r.left - pr.width - 10;
+    if(top + pr.height > vh - 8) top = Math.max(8, vh - pr.height - 8);
+    if(top < 8) top = 8;
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+
+    setTimeout(()=>{
+      const onDoc = (ev2)=>{
+        if(!pop.contains(ev2.target)){ document.removeEventListener("mousedown", onDoc, true); window.closeDiagPopup && window.closeDiagPopup(); }
+      };
+      document.addEventListener("mousedown", onDoc, true);
+    }, 0);
+    const onEsc = (ev2)=>{ if(ev2.key==="Escape"){ document.removeEventListener("keydown", onEsc, true); window.closeDiagPopup && window.closeDiagPopup(); } };
+    document.addEventListener("keydown", onEsc, true);
+  }, true);
+})();
+
 function renderAdvisorDetail(advisorId){
 
   // --- Inject scoped CSS (only once) ---
@@ -723,62 +892,88 @@ function renderAdvisorDetail(advisorId){
 
   const bandCounts_sold = countBandsFor('sold');
 
-  // --- Pie chart (reuse same logic as renderTech) ---
+  // --- Pie chart (copied from renderTech) ---
   function diagPieChart(counts, mode){
     const red = Math.max(0, Number(counts?.red)||0);
     const yellow = Math.max(0, Number(counts?.yellow)||0);
     const green = Math.max(0, Number(counts?.green)||0);
     const total = red + yellow + green;
 
-    const cx2 = 80, cy2 = 80, rad = 70;
+    const cx = 80, cy = 80, rad = 70;
     const toRad = (deg)=> (deg*Math.PI/180);
-    const at = (angDeg, r)=>({ x: cx2 + r * Math.cos(toRad(angDeg)), y: cy2 + r * Math.sin(toRad(angDeg)) });
+    const at = (angDeg, r)=>({
+      x: cx + r * Math.cos(toRad(angDeg)),
+      y: cy + r * Math.sin(toRad(angDeg))
+    });
     const arcPath = (a0, a1)=>{
-      const p0 = at(a0, rad); const p1 = at(a1, rad);
+      const p0 = at(a0, rad);
+      const p1 = at(a1, rad);
       const large = (Math.abs(a1-a0) > 180) ? 1 : 0;
-      return `M ${cx2} ${cy2} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
+      return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
     };
 
-    const partsList = [
+    const parts = [
       {band:"red", n:red, fill:"#ff4b4b"},
       {band:"yellow", n:yellow, fill:"#ffbf2f"},
       {band:"green", n:green, fill:"#1fcb6a"},
     ].filter(p=>p.n>0);
 
-    if(total<=0 || !partsList.length){
-      return `<div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
-        <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-          <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
-          <text class="diagPieTxt" x="80" y="80" text-anchor="middle" dominant-baseline="middle">0</text>
-        </svg>
-      </div>`;
+    if(total<=0 || !parts.length){
+      return `
+        <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution (no data)">
+          <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
+            <circle cx="80" cy="80" r="70" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
+            <text class="diagPieTxt" x="80" y="80" text-anchor="middle" dominant-baseline="middle">0</text>
+          </svg>
+        </div>
+      `;
     }
 
     let ang = -90;
     const slices = [];
-    for(const p of partsList){
+    for(const p of parts){
       const span = (p.n/total) * 360;
-      const a0 = ang; const a1 = ang + span; ang = a1;
-      const mid2 = (a0 + a1) / 2;
+      const a0 = ang;
+      const a1 = ang + span;
+      ang = a1;
+      const mid = (a0 + a1) / 2;
       const tooSmall = span < 26;
-      const inside = at(mid2, rad * 0.58);
-      const outside = at(mid2, rad * 1.14);
-      slices.push({ ...p, span, mid:mid2, path: arcPath(a0, a1), tooSmall,
-        lx: (tooSmall ? outside.x : inside.x), ly: (tooSmall ? outside.y : inside.y),
-        l0x: at(mid2, rad*0.88).x, l0y: at(mid2, rad*0.88).y,
-        l1x: at(mid2, rad*1.04).x, l1y: at(mid2, rad*1.04).y });
+      const inside = at(mid, rad * 0.58);
+      const outside = at(mid, rad * 1.14);
+      const leader0 = at(mid, rad * 0.88);
+      const leader1 = at(mid, rad * 1.04);
+      slices.push({
+        ...p, span, mid,
+        path: arcPath(a0, a1),
+        tooSmall,
+        lx: (tooSmall ? outside.x : inside.x),
+        ly: (tooSmall ? outside.y : inside.y),
+        l0x: leader0.x, l0y: leader0.y,
+        l1x: leader1.x, l1y: leader1.y
+      });
     }
 
     return `
       <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
         <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
-          <defs><filter id="advDiagPieShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="rgba(0,0,0,.45)" /></filter></defs>
+          <defs>
+            <filter id="advDiagPieShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="rgba(0,0,0,.45)" />
+            </filter>
+          </defs>
           <g filter="url(#advDiagPieShadow)">
-            ${slices.map(s2=>`<path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s2.band}" data-compare="advisors"
-              d="${s2.path}" fill="${s2.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />`).join('')}
+            ${slices.map(s=>`
+              <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="advisors"
+                d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
+            `).join('')}
           </g>
-          ${slices.map(s2=> s2.tooSmall ? `<line x1="${s2.l0x.toFixed(2)}" y1="${s2.l0y.toFixed(2)}" x2="${s2.l1x.toFixed(2)}" y2="${s2.l1y.toFixed(2)}" stroke="rgba(255,255,255,.95)" stroke-width="1.2" />` : '').join('')}
-          ${slices.map(s2=>`<text class="diagPieTxt" x="${s2.lx.toFixed(2)}" y="${s2.ly.toFixed(2)}" text-anchor="middle" dominant-baseline="middle">${s2.n}</text>`).join('')}
+          ${slices.map(s=> s.tooSmall ? `
+            <line x1="${s.l0x.toFixed(2)}" y1="${s.l0y.toFixed(2)}" x2="${s.l1x.toFixed(2)}" y2="${s.l1y.toFixed(2)}"
+              stroke="rgba(255,255,255,.95)" stroke-width="1.2" />
+          ` : '').join('')}
+          ${slices.map(s=>`
+            <text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${s.ly.toFixed(2)}" text-anchor="middle" dominant-baseline="middle">${s.n}</text>
+          `).join('')}
           <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
         </svg>
       </div>
