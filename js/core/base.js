@@ -15,6 +15,17 @@ function renderMenuTechLists(){
     mk("express", ex);
     mk("kia", ki);
   }catch(e){}
+
+  // Advisor menu list
+  try{
+    const advEl = document.getElementById('menuAdvisorList');
+    if(advEl && Array.isArray(DATA.advisors)){
+      const advList = DATA.advisors
+        .filter(a => a && String(a.id||"").toLowerCase()!=="total")
+        .slice().sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+      advEl.innerHTML = advList.map(a=>`<a class="menuLink menuTechLink" href="#/advisor/${encodeURIComponent(a.id)}" onclick="return goAdvisor(${JSON.stringify(a.id)})">${safe(a.name||a.id)}</a>`).join("");
+    }
+  }catch(e){}
 }
 
 function fmtInt(v){ if(v===null||v===undefined||!Number.isFinite(Number(v))) return "—"; return Math.round(Number(v)).toLocaleString(); }

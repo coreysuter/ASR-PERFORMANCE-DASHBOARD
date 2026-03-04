@@ -124,6 +124,13 @@ function goTech(id){
   return false;
 }
 
+function goAdvisor(id){
+  const target = `#/advisor/${encodeURIComponent(String(id))}`;
+  if(location.hash !== target) location.hash = target;
+  safeRouter();
+  return false;
+}
+
 
 
 

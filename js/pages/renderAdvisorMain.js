@@ -736,7 +736,7 @@ function renderAdvisorMain(){
       return `
       <div class="advRow">
         <div class="dashLeft">
-          <div class="val name">${safe(a.name||a.id)}</div>
+          <div class="val name"><a href="#/advisor/${encodeURIComponent(a.id)}" style="text-decoration:none;color:inherit" onclick="return typeof goAdvisor==='function' && goAdvisor(${JSON.stringify(a.id).replace(/"/g,'&quot;')})">${safe(a.name||a.id)}</a></div>
           <div class="techNameStats">
             <div class="tnRow tnRow1">
               <span class="tnMini"><span class="tnLbl">Avg ODO</span><span class="tnVal">${fmtInt(a.odo)}</span></span>
