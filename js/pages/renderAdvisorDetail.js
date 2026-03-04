@@ -192,6 +192,17 @@ function renderAdvisorDetail(advisorId){
       .advPickPanel.diagSection .diagBandLegend .legendYellow{color:#ffbf2f}
       .advPickPanel.diagSection .diagBandLegend .legendGreen{color:#1fcb6a}
 
+      /* Pie chart styles (mirrors .techPickPanel rules in app.css) */
+      body.route-advisor .advPickPanel.diagSection .diagPieWrap{display:flex;align-items:center;justify-content:center;margin-top:10px}
+      body.route-advisor .advPickPanel.diagSection .diagPieSvg{width:142px;height:142px;display:block;overflow:visible}
+      body.route-advisor .advPickPanel.diagSection .diagPieTxt{fill:#fff;font-weight:700;font-size:20px}
+      body.route-advisor .advPickPanel.diagSection .diagPieLeader{stroke:rgba(255,255,255,.9);stroke-width:1}
+      body.route-advisor .advPickPanel.diagSection .diagPieRing{stroke:rgba(255,255,255,.85);stroke-width:1.2}
+      body.route-advisor .advPickPanel.diagSection .diagPieWrap,
+      body.route-advisor .advPickPanel.diagSection .diagPieSvg{cursor:pointer}
+      body.route-advisor .advPickPanel.diagSection .diagPieSlice{cursor:pointer;transition:filter 140ms ease, opacity 140ms ease, transform 140ms ease;transform-origin:center center}
+      body.route-advisor .advPickPanel.diagSection .diagPieSlice:hover{opacity:1;filter:brightness(1.35) drop-shadow(0 6px 10px rgba(0,0,0,.35))}
+
       .advDetailControls select{color:#fff}
       .advDetailControls select option{color:#000}
 
@@ -981,7 +992,7 @@ function renderAdvisorDetail(advisorId){
   }
 
   const top3Panel = `
-    <div class="panel advPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
+    <div class="panel advPickPanel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
