@@ -922,9 +922,12 @@ function serviceGoalDial(pct, sz){
     const metaVal = Number(getGoal(key, metric));
     if(Number.isFinite(metaVal) && metaVal>0) return metaVal;
 
-    // 2) Fall back to "__META_GLOBAL" if you later add it.
-    const globalVal = Number(getGoal("__META_GLOBAL", metric));
-    if(Number.isFinite(globalVal) && globalVal>0) return globalVal;
+    // 2) Fall back to overall computed goals if available.
+    if(typeof calcOverallGoals === "function"){
+      const og = calcOverallGoals();
+      if(metric === "req" && Number.isFinite(og.asrPerRo) && og.asrPerRo > 0) return og.asrPerRo;
+      if(metric === "close" && Number.isFinite(og.soldPct) && og.soldPct > 0) return og.soldPct;
+    }
 
     // 3) Final fallback: average of service goals in this section.
     return _avgGoalForCats(sec?.categories, metric);

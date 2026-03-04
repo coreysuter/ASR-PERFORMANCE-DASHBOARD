@@ -580,11 +580,10 @@ function renderAdvisorMain(){
   };
 
   // ── Goals ──
-  const goalReq   = (typeof getGoalRaw === "function") ? getGoalRaw("__META_GLOBAL","req")   : null;
-  const goalClose = (typeof getGoalRaw === "function") ? getGoalRaw("__META_GLOBAL","close") : null;
-  const asrGoalTarget  = (Number.isFinite(goalReq)  && goalReq>0)  ? goalReq  : av.asr_per_ro;
-  const soldGoalTarget = (Number.isFinite(goalClose) && goalClose>0)? goalClose: av.sold_pct;
-  const soldRoGoalTarget = (Number.isFinite(goalReq) && goalReq>0 && Number.isFinite(goalClose) && goalClose>0) ? (goalReq*goalClose) : null;
+  const _overallGoals = (typeof calcOverallGoals === "function") ? calcOverallGoals() : { asrPerRo:null, soldPerRo:null, soldPct:null };
+  const asrGoalTarget  = (Number.isFinite(_overallGoals.asrPerRo) && _overallGoals.asrPerRo>0)  ? _overallGoals.asrPerRo  : av.asr_per_ro;
+  const soldGoalTarget = (Number.isFinite(_overallGoals.soldPct) && _overallGoals.soldPct>0) ? _overallGoals.soldPct : av.sold_pct;
+  const soldRoGoalTarget = (Number.isFinite(_overallGoals.soldPerRo) && _overallGoals.soldPerRo>0) ? _overallGoals.soldPerRo : null;
 
   const baseAsrGoalRatio  = (Number.isFinite(asrGoalTarget)  && asrGoalTarget>0  && Number.isFinite(av.asr_per_ro)) ? (av.asr_per_ro/asrGoalTarget)  : null;
   const baseSoldGoalRatio = (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 && Number.isFinite(av.sold_pct))   ? (av.sold_pct/soldGoalTarget)   : null;
@@ -600,18 +599,8 @@ function renderAdvisorMain(){
     return " compR";
   }
 
-  // ── Ranking ──
-  // In goal mode, rank by (soldPct / soldGoalTarget) ratio; otherwise rank by soldPct
-  const scored = advisors.map(a => {
-    const sp = soldPct(a);
-    let v;
-    if(inGoalMode){
-      v = (Number.isFinite(sp) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (sp/soldGoalTarget) : null;
-    } else {
-      v = sp;
-    }
-    return { a, v };
-  });
+  // ── Ranking (by Sold%) ──
+  const scored = advisors.map(a => ({ a, v: soldPct(a) }));
   scored.sort((x,y) => (Number.isFinite(y.v)?y.v:-999) - (Number.isFinite(x.v)?x.v:-999));
   const rankMap = new Map();
   scored.forEach((item,i) => rankMap.set(item.a.id, { rank:i+1, total:scored.length }));
@@ -736,11 +725,10 @@ function renderAdvisorMain(){
       const soldRoDisplay  = soldRoVal !== null ? fmt1(soldRoVal, 2) : "—";
 
       // Rank badge (uses global rankBadgeHtmlDash from base.js)
-      const badgeFocus = inGoalMode ? "goal_sold" : "sold";
       const badgeHtml = (typeof rankBadgeHtmlDash === "function")
-        ? rankBadgeHtmlDash(rk.rank ?? "—", rk.total ?? "—", badgeFocus, "sm")
+        ? rankBadgeHtmlDash(rk.rank ?? "—", rk.total ?? "—", "sold", "sm")
         : `<div class="rankFocusBadge sm">
-             <div class="rfbFocus" style="font-weight:1000">${inGoalMode ? "Sold Goal" : "SOLD%"}</div>
+             <div class="rfbFocus" style="font-weight:1000">SOLD%</div>
              <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
              <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
            </div>`;

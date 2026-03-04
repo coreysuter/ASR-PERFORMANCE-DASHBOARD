@@ -507,6 +507,46 @@ function fmtGoal(v){
   return (v===null||v===undefined||!isFinite(Number(v))) ? "—" : fmtPct(Number(v));
 }
 
+/**
+ * Compute overall ASRs/RO and Sold/RO goals by summing per-category goals.
+ * This mirrors the calculation on the Goals settings page.
+ *
+ * @param {string} [filterKey] - "total" (default), "without_fluids", or "fluids_only"
+ * @returns {{ asrPerRo: number|null, soldPerRo: number|null, soldPct: number|null }}
+ */
+function calcOverallGoals(filterKey){
+  const allSet = (typeof getAllCategoriesSet==="function") ? getAllCategoriesSet() : new Set();
+  let cats = Array.from(allSet).map(String).filter(Boolean);
+
+  // Apply fluid filter
+  if(filterKey === "without_fluids"){
+    cats = cats.filter(c => !isFluidCategory(c));
+  } else if(filterKey === "fluids_only"){
+    cats = cats.filter(c => isFluidCategory(c));
+  }
+
+  let asrPerRo = 0;
+  let soldPerRo = 0;
+  let hasAny = false;
+
+  for(const cat of cats){
+    const reqVal = Number(getGoal(cat, "req"));
+    const closeVal = Number(getGoal(cat, "close"));
+    if(Number.isFinite(reqVal) && reqVal > 0){
+      asrPerRo += reqVal;
+      hasAny = true;
+      if(Number.isFinite(closeVal)){
+        soldPerRo += reqVal * closeVal;
+      }
+    }
+  }
+
+  if(!hasAny) return { asrPerRo: null, soldPerRo: null, soldPct: null };
+
+  const soldPct = asrPerRo > 0 ? (soldPerRo / asrPerRo) : null;
+  return { asrPerRo, soldPerRo, soldPct };
+}
+
 function mean(arr){ const xs=(arr||[]).map(Number).filter(n=>Number.isFinite(n)); if(!xs.length) return null; return xs.reduce((a,b)=>a+b,0)/xs.length; }
 function byTeam(team){ return (DATA.techs||[]).filter(t=>t.team===team); }
 function safe(s){
@@ -1278,18 +1318,14 @@ function renderTeam(team, st){
   const goalMetric = (st && st.goalMetric) ? String(st.goalMetric) : 'asr';
   const focusIsGoal = (st && st.sortBy) ? String(st.sortBy) === "goal" : false;
 
-  // Two goal targets for row pills:
-  // - ASR Goal uses __META_GLOBAL:req (fallback team avg ASRs/RO)
-  // - Sold Goal uses __META_GLOBAL:close (fallback team avg Sold%)
-  const asrGoalStored = getGoalRaw('__META_GLOBAL','req');
-  const soldGoalStored = getGoalRaw('__META_GLOBAL','close');
-
-  const asrGoalTarget = (Number.isFinite(asrGoalStored) && asrGoalStored>0)
-    ? asrGoalStored
+  // Two goal targets for row pills computed from per-category goals (matches Goals page):
+  const _overallGoals = calcOverallGoals(st.filterKey);
+  const asrGoalTarget = (Number.isFinite(_overallGoals.asrPerRo) && _overallGoals.asrPerRo > 0)
+    ? _overallGoals.asrPerRo
     : (Number.isFinite(av.asr_per_ro_avg) ? av.asr_per_ro_avg : null);
 
-  const soldGoalTarget = (Number.isFinite(soldGoalStored) && soldGoalStored>0)
-    ? soldGoalStored
+  const soldGoalTarget = (Number.isFinite(_overallGoals.soldPct) && _overallGoals.soldPct > 0)
+    ? _overallGoals.soldPct
     : (Number.isFinite(av.sold_pct_avg) ? av.sold_pct_avg : null);
 
   // Comparison mode for pill shading (TEAM | STORE | GOAL)
@@ -1330,12 +1366,9 @@ function renderTeam(team, st){
     return (Number.isFinite(asr) && asr>0 && Number.isFinite(sold)) ? (sold/asr) : null; // ratio (0-1)
   });
 
-  // Global goal baselines (if compareMode === "goal")
-  const goalReq = getGoalRaw('__META_GLOBAL','req');
-  const goalClose = getGoalRaw('__META_GLOBAL','close');
-
-  const soldRoGoalTarget = (Number.isFinite(goalReq) && goalReq>0 && Number.isFinite(goalClose) && goalClose>0)
-    ? (goalReq * goalClose)
+  // Global goal baselines for Sold/RO shading (if compareMode === "goal")
+  const soldRoGoalTarget = (Number.isFinite(_overallGoals.soldPerRo) && _overallGoals.soldPerRo > 0)
+    ? _overallGoals.soldPerRo
     : null;
 
   function compClass(actual, baseline){
@@ -1414,11 +1447,11 @@ function renderTeam(team, st){
     const inGoalMode = compareMode==='goal';
 
     const compAsrBase = (compareMode==='goal')
-      ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : (Number.isFinite(goalReq)&&goalReq>0 ? goalReq : baseAsrpr))
+      ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : baseAsrpr)
       : baseAsrpr;
 
     const compSoldAsrBase = (compareMode==='goal')
-      ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : (Number.isFinite(goalClose)&&goalClose>0 ? goalClose : baseSoldAsr))
+      ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : baseSoldAsr)
       : baseSoldAsr;
 
     const clsAsrpr   = compClass(asrpr, compAsrBase);
