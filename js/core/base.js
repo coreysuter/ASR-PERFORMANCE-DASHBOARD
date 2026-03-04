@@ -165,12 +165,11 @@ function _showGaugePopup(el){
   _closeGaugePopup();
   let data;
   try{ data = JSON.parse(el.getAttribute("data-gauge-popup")); }catch(e){ return; }
-  if(!data) return;
+  if(!data || !data.rows) return;
 
-  const goalLabel = data.goalLabel || "Goal";
-  const goalValue = data.goalValue || "—";
-  const pctAttained = data.pctAttained || "—";
+  const rows = data.rows || [];
   const grade = data.grade || "—";
+  const pctAttained = data.pctAttained || "—";
 
   // Color the grade
   let gradeColor = "#ff4b4b"; // F
@@ -179,23 +178,25 @@ function _showGaugePopup(el){
   else if(grade === "C") gradeColor = "#ffbf2f";
   else if(grade === "D") gradeColor = "#ff8844";
 
+  let rowsHtml = rows.map(r => `
+    <div class="gpRow">
+      <span class="gpLabel">${_safePopup(r.label)}</span>
+      <span class="gpVal">${_safePopup(r.value)}</span>
+    </div>
+  `).join("");
+
+  // Grade line: letter grade + (% attained) — no label
+  const gradeHtml = `
+    <div class="gpRow gpGradeRow">
+      <span class="gpGrade" style="color:${gradeColor}">${_safePopup(grade)}</span>
+      <span class="gpAttained">(${_safePopup(pctAttained)})</span>
+    </div>
+  `;
+
   const pop = document.createElement("div");
   pop.id = "gaugePopup";
   pop.className = "gaugePopup";
-  pop.innerHTML = `
-    <div class="gpRow">
-      <span class="gpLabel">${_safePopup(goalLabel)}</span>
-      <span class="gpVal">${_safePopup(goalValue)}</span>
-    </div>
-    <div class="gpRow">
-      <span class="gpLabel">Attained</span>
-      <span class="gpVal">${_safePopup(pctAttained)}</span>
-    </div>
-    <div class="gpRow">
-      <span class="gpLabel">Grade</span>
-      <span class="gpGrade" style="color:${gradeColor}">${_safePopup(grade)}</span>
-    </div>
-  `;
+  pop.innerHTML = rowsHtml + gradeHtml;
 
   document.body.appendChild(pop);
 
@@ -285,7 +286,17 @@ function _ensureGaugePopupStyles(){
       font-size:20px;
       font-weight:1000;
       letter-spacing:.5px;
-      text-align:right;
+    }
+    .gaugePopup .gpGradeRow{
+      justify-content:center;
+      gap:6px;
+      padding-top:6px;
+    }
+    .gaugePopup .gpAttained{
+      font-size:13px;
+      font-weight:900;
+      color:rgba(234,240,255,.55);
+      align-self:center;
     }
   `;
   document.head.appendChild(st);
