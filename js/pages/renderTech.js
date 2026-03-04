@@ -308,6 +308,14 @@ const hash = location.hash || "";
 
   function filterLabel(k){ return k==="without_fluids"?"Without Fluids":(k==="fluids_only"?"Fluids Only":"With Fluids (Total)"); }
 
+  // --- Popup data builder for clickable gauge dials ---
+  function _gPopup(goalLabel, goalRaw, pctOfGoal){
+    const gv = Number.isFinite(goalRaw) ? fmtPct(goalRaw) : "—";
+    const pa = Number.isFinite(pctOfGoal) ? Math.round(pctOfGoal * 100) + "%" : "—";
+    const gr = Number.isFinite(pctOfGoal) ? _gradeFromPct100(Math.round(pctOfGoal * 100)) : "—";
+    return { goalLabel: goalLabel, goalValue: gv, pctAttained: pa, grade: gr };
+  }
+
   
 
   function safeSvcId(cat){
@@ -784,7 +792,13 @@ const tb = getTeamBenchmarks(cat, team) || {};
       if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
       hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
     }
-    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:74px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%")))}</div>
+    // Popup data for header gauge
+    const _hdrPopup = (focus==="sold")
+      ? _gPopup("Sold/ASR %", goalClose, pctGoalClose)
+      : (focus==="goal")
+        ? ((goalMetric==="sold") ? _gPopup("Sold/ASR %", goalClose, pctGoalSold) : _gPopup("ASR Goal", goalReq, pctGoalReq))
+        : _gPopup("ASR Goal", goalReq, pctGoalReq);
+    const gaugeHtml = Number.isFinite(hdrPct) ? `<div class="svcGaugeWrap" style="--sz:74px">${svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%")), _hdrPopup)}</div>
 ` : `<div class="svcGaugeWrap" style="--sz:74px"></div>`;
 
     const rk = rankFor(cat);
@@ -806,14 +820,14 @@ const tb = getTeamBenchmarks(cat, team) || {};
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq,"", _gPopup("ASR Goal", goalReq, pctGoalReq)):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq,"", _gPopup("ASR Goal", goalReq, pctGoalReq)):""}</div>
           </div>
           ` : `
           <div class="mbRow">
@@ -821,14 +835,14 @@ const tb = getTeamBenchmarks(cat, team) || {};
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpReq)? svcGauge(pctCmpReq,"", _gPopup("ASR Goal", goalReq, pctGoalReq)):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalReq)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalReq)? svcGauge(pctGoalReq,"", _gPopup("ASR Goal", goalReq, pctGoalReq)):""}</div>
           </div>
           `}
           <div class="mbRow">
@@ -855,14 +869,14 @@ const soldBlock = `
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose,"", _gPopup("Sold/ASR %", goalClose, pctGoalClose)):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose,"", _gPopup("Sold/ASR %", goalClose, pctGoalClose)):""}</div>
           </div>
           ` : `
           <div class="mbRow">
@@ -870,14 +884,14 @@ const soldBlock = `
               <div class="mbLbl">${compareLabel}</div>
               <div class="mbNum">${fmtPct(cmpClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctCmpClose)? svcGauge(pctCmpClose,"", _gPopup("Sold/ASR %", goalClose, pctGoalClose)):""}</div>
           </div>
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
               <div class="mbNum">${fmtPct(goalClose)}</div>
             </div>
-            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose):""}</div>
+            <div class="mbGauge" style="--sz:56px">${Number.isFinite(pctGoalClose)? svcGauge(pctGoalClose,"", _gPopup("Sold/ASR %", goalClose, pctGoalClose)):""}</div>
           </div>
           `}
           <div class="mbRow">
@@ -894,7 +908,7 @@ const soldBlock = `
 return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:74px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%"))) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:74px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="sold"?"Sold%":(focus==="goal"?"Goal":"ASR%")), _hdrPopup) : ""}</div>
 <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
@@ -1011,20 +1025,26 @@ const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? goalFocusPct : p
 const focusLbl = (focus==="sold") ? "Sold%" : (focus==="goal" ? goalFocusLbl : "ASRs/RO");
 
 const dialASR = Number.isFinite(pctAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASRs/RO")}</div>`
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASRs/RO", _gPopup("ASR Goal", goalReq, pctGoalAsr))}</div>`
   : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialSold = Number.isFinite(pctSold)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold%")}</div>`
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold%", _gPopup("Sold/ASR %", goalClose, pctGoalSold))}</div>`
   : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialGoalAsr = Number.isFinite(pctGoalAsr)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalAsr,"ASR Goal")}</div>`
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalAsr,"ASR Goal", _gPopup("ASR Goal", goalReq, pctGoalAsr))}</div>`
   : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialGoalSold = Number.isFinite(pctGoalSold)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal")}</div>`
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal", _gPopup("Sold/ASR %", goalClose, pctGoalSold))}</div>`
   : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 
+// Focus dial popup
+const _focusPopup = (focus==="sold")
+  ? _gPopup("Sold/ASR %", goalClose, pctGoalSold)
+  : (focus==="goal")
+    ? ((goalMetric==="sold") ? _gPopup("Sold/ASR %", goalClose, pctGoalSold) : _gPopup("ASR Goal", goalReq, pctGoalAsr))
+    : _gPopup("ASR Goal", goalReq, pctGoalAsr);
 const dialFocus = Number.isFinite(focusPct)
-  ? `<div class="svcGaugeWrap" style="--sz:140px">${svcGauge(focusPct,focusLbl)}</div>`
+  ? `<div class="svcGaugeWrap" style="--sz:140px">${svcGauge(focusPct,focusLbl, _focusPopup)}</div>`
   : `<div class="svcGaugeWrap" style="--sz:140px"></div>`;
 
 // --- Section header mini-dials: always show exactly 3 (exclude the current focus dial).

@@ -91,12 +91,23 @@ function ensureSvcGaugeHoldStyles(){
 
 function initSvcGaugeHold(){
   ensureSvcGaugeHoldStyles();
+  _ensureGaugePopupStyles();
   const HOLD_MS = 250; // press-and-hold threshold
   const els = document.querySelectorAll('.svcGauge[data-p]');
   els.forEach(el=>{
     if(el.getAttribute("data-hold") === "1") return;
     el.setAttribute("data-hold","1");
     el.style.touchAction = "none";
+
+    // If this gauge has popup data, use click-to-popup instead of hold-to-toggle
+    if(el.hasAttribute("data-gauge-popup")){
+      el.addEventListener("click", (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        _showGaugePopup(el);
+      });
+      return; // skip old hold behavior
+    }
 
     let t = null;
     let isDown = false;
@@ -132,7 +143,155 @@ function initSvcGaugeHold(){
   });
 }
 
-function svcGauge(pct, label=""){
+/* --- Gauge Popup System --- */
+function _closeGaugePopup(){
+  const el = document.getElementById("gaugePopup");
+  if(el) el.remove();
+  document.removeEventListener("click", _gaugePopupOutsideClick, true);
+  document.removeEventListener("keydown", _gaugePopupEsc, true);
+  document.removeEventListener("scroll", _gaugePopupScroll, true);
+}
+function _gaugePopupEsc(e){ if(e.key==="Escape") _closeGaugePopup(); }
+function _gaugePopupScroll(){ _closeGaugePopup(); }
+function _gaugePopupOutsideClick(e){
+  const pop = document.getElementById("gaugePopup");
+  if(!pop) return;
+  if(!pop.contains(e.target) && !e.target.closest('.svcGauge[data-gauge-popup]')){
+    _closeGaugePopup();
+  }
+}
+
+function _showGaugePopup(el){
+  _closeGaugePopup();
+  let data;
+  try{ data = JSON.parse(el.getAttribute("data-gauge-popup")); }catch(e){ return; }
+  if(!data) return;
+
+  const goalLabel = data.goalLabel || "Goal";
+  const goalValue = data.goalValue || "—";
+  const pctAttained = data.pctAttained || "—";
+  const grade = data.grade || "—";
+
+  // Color the grade
+  let gradeColor = "#ff4b4b"; // F
+  if(grade === "A") gradeColor = "#1fcb6a";
+  else if(grade === "B") gradeColor = "#2ecc71";
+  else if(grade === "C") gradeColor = "#ffbf2f";
+  else if(grade === "D") gradeColor = "#ff8844";
+
+  const pop = document.createElement("div");
+  pop.id = "gaugePopup";
+  pop.className = "gaugePopup";
+  pop.innerHTML = `
+    <div class="gpRow">
+      <span class="gpLabel">${_safePopup(goalLabel)}</span>
+      <span class="gpVal">${_safePopup(goalValue)}</span>
+    </div>
+    <div class="gpRow">
+      <span class="gpLabel">Attained</span>
+      <span class="gpVal">${_safePopup(pctAttained)}</span>
+    </div>
+    <div class="gpRow">
+      <span class="gpLabel">Grade</span>
+      <span class="gpGrade" style="color:${gradeColor}">${_safePopup(grade)}</span>
+    </div>
+  `;
+
+  document.body.appendChild(pop);
+
+  // Position the popup near the gauge
+  const rect = el.getBoundingClientRect();
+  const popRect = pop.getBoundingClientRect();
+  
+  // Try to place above the dial first, fall back to below
+  let top = rect.top - popRect.height - 8;
+  let left = rect.left + (rect.width/2) - (popRect.width/2);
+  
+  // If above goes off screen, place below
+  if(top < 4){
+    top = rect.bottom + 8;
+    pop.classList.add("gpBelow");
+  } else {
+    pop.classList.add("gpAbove");
+  }
+  
+  // Keep within viewport horizontally
+  if(left < 4) left = 4;
+  if(left + popRect.width > window.innerWidth - 4) left = window.innerWidth - popRect.width - 4;
+
+  pop.style.top = top + "px";
+  pop.style.left = left + "px";
+
+  // Close handlers
+  setTimeout(()=>{
+    document.addEventListener("click", _gaugePopupOutsideClick, true);
+    document.addEventListener("keydown", _gaugePopupEsc, true);
+    document.addEventListener("scroll", _gaugePopupScroll, true);
+  }, 10);
+}
+
+function _safePopup(s){ return String(s==null?"":s).replace(/[<>"'&]/g, m=>({"<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","&":"&amp;"}[m])); }
+
+function _ensureGaugePopupStyles(){
+  if(document.getElementById("gaugePopupStyles")) return;
+  const st = document.createElement("style");
+  st.id = "gaugePopupStyles";
+  st.textContent = `
+    .gaugePopup{
+      position:fixed;
+      z-index:99999;
+      min-width:150px;
+      max-width:220px;
+      background:linear-gradient(135deg, #1a1e2e 0%, #232940 100%);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:12px;
+      padding:10px 14px;
+      box-shadow:0 8px 32px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06);
+      backdrop-filter:blur(12px);
+      animation:gpFadeIn .15s ease-out;
+      pointer-events:auto;
+    }
+    @keyframes gpFadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+    .gaugePopup.gpAbove{animation-name:gpFadeInUp}
+    @keyframes gpFadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .gaugePopup.gpBelow{animation-name:gpFadeInDown}
+    @keyframes gpFadeInDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+    .gaugePopup .gpRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:4px 0;
+      gap:12px;
+    }
+    .gaugePopup .gpRow + .gpRow{
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+    .gaugePopup .gpLabel{
+      font-size:11px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+      color:rgba(234,240,255,.6);
+      white-space:nowrap;
+    }
+    .gaugePopup .gpVal{
+      font-size:15px;
+      font-weight:1000;
+      color:#fff;
+      text-align:right;
+    }
+    .gaugePopup .gpGrade{
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:.5px;
+      text-align:right;
+    }
+  `;
+  document.head.appendChild(st);
+}
+
+function svcGauge(pct, label="", popupData){
   // pct is a ratio vs comparison (e.g., 0.8 = 80% of benchmark). We show a ring gauge.
   const p = Number.isFinite(pct) ? Math.max(0, pct) : 0;
   const disp = Math.round(p*100);                 // text can exceed 100
@@ -158,8 +317,11 @@ function svcGauge(pct, label=""){
   const defaultHtml = `<span class="pctText pctDefault"><span class="pctGrade">${safe(grade)}</span>${titleHtml}</span>`;
   const altHtml = `<span class="pctText pctAlt"><span class="pctMain">${absDelta}%</span><span class="pctArrow" style="color:${arrowColor}">${arrow}</span><span class="pctSub">${basis}</span></span>`;
 
+  // Popup data attribute (for tech details page click-popup)
+  const popupAttr = popupData ? ` data-gauge-popup="${safe(JSON.stringify(popupData)).replace(/'/g,"&#39;")}"` : '';
+
   // SVG circle with r=15.915494... => circumference ≈ 100 (so we can use percent-based dash)
-  return `<span class="svcGauge ${cls}" data-p="${ring}">
+  return `<span class="svcGauge ${cls}" data-p="${ring}"${popupAttr}>
     <svg viewBox="0 0 36 36" aria-hidden="true">
       <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
       <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
