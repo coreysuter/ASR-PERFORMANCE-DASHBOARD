@@ -26,11 +26,12 @@ function renderAdvisorMain(){
     }
     .advHeaderInner{
       background:linear-gradient(180deg,var(--card),var(--card2));
-      border:1px solid var(--border);
+      border:1px solid rgba(200,45,45,.45);
       border-radius:18px;
       padding:14px 14px 10px;
       color:#fff;
       overflow:hidden;
+      box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14);
     }
 
     /* ── Notch (hamburger menu) ── */
@@ -226,14 +227,14 @@ function renderAdvisorMain(){
       min-height:auto;
       overflow:visible;
       background:linear-gradient(180deg,var(--card),var(--card2));
-      border:1px solid var(--border);
+      border:1px solid rgba(200,45,45,.45);
       border-radius:14px;
       margin-bottom:0;
       color:#fff;
-      transition:border-color .15s;
+      box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14);
     }
     .pageAdvisorDash .advRow:hover{
-      border-color:rgba(255,255,255,.18);
+      border-color:rgba(200,45,45,.65);
     }
 
     /* ── Left side: name + mini stats (matches dashLeft) ── */
