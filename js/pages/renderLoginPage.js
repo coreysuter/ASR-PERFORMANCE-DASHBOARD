@@ -74,7 +74,7 @@ function renderLoginPage(opts){
     <div id="loginCard" style="
       width: min(420px, 96vw);
       background: linear-gradient(160deg, #131e3a 0%, #0d1526 100%);
-      border: 1px solid rgba(234,240,255,.13);
+      border: 1px solid rgba(200,45,45,.45);
       border-radius: 24px;
       padding: 40px 36px 36px;
       box-shadow:
