@@ -128,46 +128,19 @@
   <script src="./js/pages/renderSettingsHome.js?v=10011"></script>
   <script src="./js/pages/renderDealerSettingsPage.js?v=1"></script>
 
-  <!-- ✅ Login gate — runs before app.js router kicks in -->
+  <!-- Sign-out button wiring (login gate is handled by app.js route()) -->
   <script>
-    (function(){
-      // If no valid session exists, show login and block the router
-      const SESSION_KEY = "dashSession_v1";
-      function hasSession(){
-        try{ return !!JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
-        catch(e){ return false; }
+    document.addEventListener("DOMContentLoaded", function(){
+      var btn = document.getElementById("signOutBtn");
+      if(btn){
+        btn.addEventListener("click", function(){
+          window.clearSession?.();
+          var t = document.getElementById("menuToggle");
+          if(t) t.checked = false;
+          window.renderLoginPage?.({ redirect: "#/" });
+        });
       }
-
-      // Intercept every hash-change: redirect to login if not authenticated
-      function loginGate(){
-        if(!hasSession()){
-          window.renderLoginPage({ redirect: location.hash || "#/" });
-          return true;
-        }
-        return false;
-      }
-
-      // Patch hashchange so the gate runs before the main router
-      window.addEventListener("hashchange", function(){
-        loginGate();
-      }, true); // capture phase — fires before app.js listener
-
-      // On first load, show login if needed (DOMContentLoaded fires after scripts)
-      document.addEventListener("DOMContentLoaded", function(){
-        loginGate();
-
-        // Sign Out button in side menu
-        var btn = document.getElementById("signOutBtn");
-        if(btn){
-          btn.addEventListener("click", function(){
-            window.clearSession?.();
-            var t = document.getElementById("menuToggle");
-            if(t) t.checked = false;
-            window.renderLoginPage({ redirect: "#/" });
-          });
-        }
-      });
-    })();
+    });
   </script>
 
   <script type="module" src="./js/app.js?v=5"></script>

@@ -58,7 +58,6 @@ function setRouteBodyClass(parts){
     const root = (parts && parts.length) ? parts[0] : "";
     if(!root){ b.classList.add("route-main"); return; }
     if(root==="tech") b.classList.add("route-tech");
-    else if(root==="advisor") b.classList.add("route-advisor","route-tech");
     else if(root==="services") b.classList.add("route-services");
     else if(root==="settings") b.classList.add("route-settings");
     else if(root==="servicesHome") b.classList.add("route-servicesHome");
@@ -67,6 +66,9 @@ function setRouteBodyClass(parts){
 }
 
 function route(){
+  // ── Login gate: if no valid session, show login and stop ──
+  if(typeof window.requireLogin === "function" && window.requireLogin()) return;
+
   const { parts, query } = parseHash();
   setRouteBodyClass(parts);
   try{
@@ -78,7 +80,6 @@ function route(){
     if(parts[0]==="settings"){ window.renderSettingsHome?.(); return; }
     if(parts[0]==="servicesHome"){ window.renderServicesHome?.(); return; }
     if(parts[0]==="advisors"){ window.renderAdvisorMain?.(); window.animateSvcGauges?.(); return; }
-    if(parts[0]==="advisor" && parts[1]){ window.renderAdvisorDetail?.(parts[1]); window.animateSvcGauges?.(); return; }
     window.renderMain?.(); window.animateSvcGauges?.();
   }catch(e){
     const app = document.getElementById("app");
