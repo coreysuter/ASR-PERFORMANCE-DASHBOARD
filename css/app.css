@@ -14,8 +14,8 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .techRow,.catCard{border-color:rgba(200,45,45,.45) !important;box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14) !important;}
 /* techRows inside pageTechDash are inside a panel — restore original border */
 .pageTechDash .techRow{border-color:var(--border) !important;box-shadow:none !important;}
-/* catCards and techRows inside route-tech panels are inside panels — restore original border */
-.route-tech .catCard,.route-tech .techRow,.techPickPanel .techRow{border-color:var(--border) !important;box-shadow:none !important;}
+/* catCards and techRows inside route-tech/advisor panels — restore original border */
+.route-tech .catCard,.route-tech .techRow,.techPickPanel .techRow,.route-advisor .catCard{border-color:var(--border) !important;box-shadow:none !important;}
 .phead{padding:14px 14px 10px;border-bottom:1px solid var(--border)}
 .titleRow{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .h2{font-size:16px;font-weight:1000;letter-spacing:.4px}
