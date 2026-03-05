@@ -73,6 +73,71 @@ window.getTeamLabel = function(rawTeam){
 window.getHideZeroRoTechs = function(){
   return _loadDealerSettings().hideZeroRoTechs === true;
 };
+window.getColorSettings = function(){
+  const s = _loadDealerSettings();
+  const cs = s.colorSettings || {};
+  const mode = cs.mode || "3";
+  if(mode === "4"){
+    return {
+      mode: "4",
+      green:  typeof cs.green  === "number" ? cs.green  : 85,
+      yellow: typeof cs.yellow === "number" ? cs.yellow : 70,
+      orange: typeof cs.orange === "number" ? cs.orange : 50,
+    };
+  }
+  return {
+    mode: "3",
+    green:  typeof cs.green  === "number" ? cs.green  : 80,
+    yellow: typeof cs.yellow === "number" ? cs.yellow : 50,
+  };
+};
+window.getColorBand = function(ratio){
+  const cs = window.getColorSettings();
+  const v  = (parseFloat(ratio) || 0) * 100;
+  if(cs.mode === "4"){
+    if(v >= cs.green)  return "green";
+    if(v >= cs.yellow) return "yellow";
+    if(v >= cs.orange) return "orange";
+    return "red";
+  }
+  if(v >= cs.green)  return "green";
+  if(v >= cs.yellow) return "yellow";
+  return "red";
+};
+window.getCompClass = function(ratio){
+  if(!Number.isFinite(ratio)) return "";
+  const band = window.getColorBand(ratio);
+  if(band === "green")  return " compG";
+  if(band === "yellow") return " compY";
+  if(band === "orange") return " compO";
+  return " compR";
+};
+window.getDialClass = function(ratio){
+  const band = window.getColorBand(ratio);
+  if(band === "green")  return "gGreen";
+  if(band === "yellow") return "gYellow";
+  if(band === "orange") return "gOrange";
+  return "gRed";
+};
+window.getPieFill = function(band){
+  if(band === "green")  return "#1fcb6a";
+  if(band === "yellow") return "#ffbf2f";
+  if(band === "orange") return "#f97316";
+  return "#ff4b4b";
+};
+window.getPerformanceColor = function(pct){
+  const cs = window.getColorSettings();
+  const v  = parseFloat(pct) || 0;
+  if(cs.mode === "4"){
+    if(v >= cs.green)  return "#22c55e";
+    if(v >= cs.yellow) return "#eab308";
+    if(v >= cs.orange) return "#f97316";
+    return "#ef4444";
+  }
+  if(v >= cs.green)  return "#22c55e";
+  if(v >= cs.yellow) return "#eab308";
+  return "#ef4444";
+};
 window.getUsers = function(){ return _loadUsers(); };
 window.getUsersByRole = function(role){
   return _loadUsers().filter(u => u.role === String(role||"").toLowerCase());
@@ -719,6 +784,89 @@ function renderDealerSettingsPage(){
             </div>
           </div>
 
+          <!-- Color Settings -->
+          <div class="svcSetSection" style="margin-top:20px">
+            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Color Settings</div></div>
+            <div style="padding:12px 14px">
+              <div class="notice" style="padding:0 0 12px 0;margin:0">
+                Configure color thresholds for Performance Dials and Pills.
+              </div>
+              <div style="display:flex;gap:10px;margin-bottom:18px">
+                ${(()=>{
+                  const cs = s.colorSettings||{};
+                  const mode = cs.mode||"3";
+                  return ["3","4"].map(m=>`
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;
+                      padding:9px 16px;border-radius:12px;flex:1;
+                      border:1px solid ${mode===m?"rgba(79,142,247,.5)":"rgba(255,255,255,.1)"};
+                      background:${mode===m?"rgba(79,142,247,.1)":"rgba(255,255,255,.03)"};
+                      transition:all .15s">
+                      <input type="radio" name="colorMode" value="${m}"
+                        ${mode===m?"checked":""}
+                        style="accent-color:var(--accent,#4f8ef7);width:14px;height:14px;flex-shrink:0">
+                      <div>
+                        <div style="font-weight:800;font-size:13px">${m}-Color Mode</div>
+                        <div class="sub" style="font-size:11px;margin:0">
+                          ${m==="3"
+                            ? '<span style="color:#22c55e">●</span> Green &nbsp;<span style="color:#eab308">●</span> Yellow &nbsp;<span style="color:#ef4444">●</span> Red'
+                            : '<span style="color:#22c55e">●</span> Green &nbsp;<span style="color:#eab308">●</span> Yellow &nbsp;<span style="color:#f97316">●</span> Orange &nbsp;<span style="color:#ef4444">●</span> Red'}
+                        </div>
+                      </div>
+                    </label>`).join("");
+                })()}
+              </div>
+              <div id="colorThresholdInputs">
+                ${(()=>{
+                  const cs = s.colorSettings||{};
+                  const mode = cs.mode||"3";
+                  const green  = typeof cs.green==="number"  ? cs.green  : (mode==="4"?85:80);
+                  const yellow = typeof cs.yellow==="number" ? cs.yellow : (mode==="4"?70:50);
+                  const orange = typeof cs.orange==="number" ? cs.orange : 50;
+                  const fieldHtml = (id,label,color,val,hint)=>`
+                    <div>
+                      <div class="sub" style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:6px">
+                        <span style="color:${color};font-size:14px">●</span>
+                        <span>${label}</span>
+                        <span style="opacity:.45">— ${hint}</span>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:6px">
+                        <input id="${id}" class="svcSetMiles colorThreshInp" type="number"
+                          min="1" max="100" value="${val}"
+                          style="width:72px;box-sizing:border-box;text-align:center">
+                        <span class="sub" style="margin:0;font-size:12px">%</span>
+                      </div>
+                    </div>`;
+                  const autoField = (label,color,hint)=>`
+                    <div style="flex:1;min-width:120px">
+                      <div class="sub" style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:6px">
+                        <span style="color:${color};font-size:14px">●</span>
+                        <span>${label}</span>
+                        <span style="opacity:.45">— ${hint}</span>
+                      </div>
+                      <div style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.08);
+                        background:rgba(0,0,0,.2);font-size:12px;color:rgba(234,240,255,.35);
+                        width:72px;text-align:center">auto</div>
+                    </div>`;
+                  if(mode==="4") return `<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end">
+                    ${fieldHtml("clr_green","Green","#22c55e",green,"at or above = green")}
+                    ${fieldHtml("clr_yellow","Yellow","#eab308",yellow,"at or above = yellow")}
+                    ${fieldHtml("clr_orange","Orange","#f97316",orange,"at or above = orange")}
+                    ${autoField("Red","#ef4444","below orange threshold")}
+                  </div>`;
+                  return `<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end">
+                    ${fieldHtml("clr_green","Green","#22c55e",green,"at or above = green")}
+                    ${fieldHtml("clr_yellow","Yellow","#eab308",yellow,"at or above = yellow")}
+                    ${autoField("Red","#ef4444","below yellow threshold")}
+                  </div>`;
+                })()}
+              </div>
+              <div style="margin-top:16px">
+                <div class="sub" style="font-size:11px;margin-bottom:6px;opacity:.55">Preview</div>
+                <div id="colorPreviewBar" style="display:flex;border-radius:10px;overflow:hidden;height:22px;gap:1px"></div>
+              </div>
+            </div>
+          </div>
+
           <!-- Users (admin) + Roster side by side -->
           <div style="display:flex;gap:16px;align-items:flex-start;margin-top:20px">
             <div id="usersSectionContainer" style="flex:1.4;min-width:0">
@@ -793,17 +941,123 @@ function renderDealerSettingsPage(){
     });
     cur.teamLabels = tMap;
     const tog = document.getElementById("hideZeroRoToggle"); if(tog) cur.hideZeroRoTechs=tog.checked;
+
+    // Color settings
+    const modeEl = app.querySelector('input[name="colorMode"]:checked');
+    const mode   = modeEl ? modeEl.value : "3";
+    const cs     = { mode };
+    const gEl = document.getElementById("clr_green"),  yEl = document.getElementById("clr_yellow"),
+          oEl = document.getElementById("clr_orange");
+    if(gEl) cs.green  = Math.min(100, Math.max(1, parseInt(gEl.value)||80));
+    if(yEl) cs.yellow = Math.min(100, Math.max(1, parseInt(yEl.value)||50));
+    if(oEl) cs.orange = Math.min(100, Math.max(1, parseInt(oEl.value)||50));
+    cur.colorSettings = cs;
+
     _saveDealerSettings(cur);
     flashSaved();
+    _updateColorPreview();
   }
 
   app.querySelectorAll("#dealerNameInput, .dealerTeamInput")
     .forEach(inp=>inp.addEventListener("input", persist));
   _wireToggle("hideZeroRoToggle", ()=>persist());
 
+  // ── Color mode radio buttons ──────────────────────────
+  app.querySelectorAll('input[name="colorMode"]').forEach(radio=>{
+    radio.addEventListener("change", ()=>{
+      const mode = radio.value;
+      const cur  = _loadDealerSettings();
+      const cs   = cur.colorSettings||{};
+      const green  = typeof cs.green==="number"  ? cs.green  : (mode==="4"?85:80);
+      const yellow = typeof cs.yellow==="number" ? cs.yellow : (mode==="4"?70:50);
+      const orange = typeof cs.orange==="number" ? cs.orange : 50;
+      const fieldHtml = (id,label,color,val,hint)=>`
+        <div>
+          <div class="sub" style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:6px">
+            <span style="color:${color};font-size:14px">●</span>
+            <span>${label}</span>
+            <span style="opacity:.45">— ${hint}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input id="${id}" class="svcSetMiles colorThreshInp" type="number"
+              min="1" max="100" value="${val}"
+              style="width:72px;box-sizing:border-box;text-align:center">
+            <span class="sub" style="margin:0;font-size:12px">%</span>
+          </div>
+        </div>`;
+      const autoField = (label,color,hint)=>`
+        <div style="flex:1;min-width:120px">
+          <div class="sub" style="font-size:11px;margin-bottom:5px;display:flex;align-items:center;gap:6px">
+            <span style="color:${color};font-size:14px">●</span>
+            <span>${label}</span>
+            <span style="opacity:.45">— ${hint}</span>
+          </div>
+          <div style="padding:6px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.08);
+            background:rgba(0,0,0,.2);font-size:12px;color:rgba(234,240,255,.35);
+            width:72px;text-align:center">auto</div>
+        </div>`;
+      const wrap = document.getElementById("colorThresholdInputs");
+      if(!wrap) return;
+      if(mode==="4"){
+        wrap.innerHTML = `<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end">
+          ${fieldHtml("clr_green","Green","#22c55e",green,"at or above = green")}
+          ${fieldHtml("clr_yellow","Yellow","#eab308",yellow,"at or above = yellow")}
+          ${fieldHtml("clr_orange","Orange","#f97316",orange,"at or above = orange")}
+          ${autoField("Red","#ef4444","below orange threshold")}
+        </div>`;
+      } else {
+        wrap.innerHTML = `<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-end">
+          ${fieldHtml("clr_green","Green","#22c55e",green,"at or above = green")}
+          ${fieldHtml("clr_yellow","Yellow","#eab308",yellow,"at or above = yellow")}
+          ${autoField("Red","#ef4444","below yellow threshold")}
+        </div>`;
+      }
+      wrap.querySelectorAll(".colorThreshInp").forEach(inp=>inp.addEventListener("input", persist));
+      app.querySelectorAll('input[name="colorMode"]').forEach(r=>{
+        const card = r.closest("label");
+        if(!card) return;
+        const active = r.value===mode;
+        card.style.border     = active?"1px solid rgba(79,142,247,.5)":"1px solid rgba(255,255,255,.1)";
+        card.style.background = active?"rgba(79,142,247,.1)":"rgba(255,255,255,.03)";
+      });
+      persist();
+    });
+  });
+
+  // Wire threshold inputs
+  app.querySelectorAll(".colorThreshInp").forEach(inp=>inp.addEventListener("input", persist));
+
+  // ── Color preview bar ─────────────────────────────────
+  function _updateColorPreview(){
+    const bar = document.getElementById("colorPreviewBar"); if(!bar) return;
+    const cs  = window.getColorSettings();
+    let segs;
+    if(cs.mode==="4"){
+      segs = [
+        {color:"#22c55e", width:100-cs.green,              label:`≥${cs.green}%`},
+        {color:"#eab308", width:cs.green-cs.yellow,        label:`${cs.yellow}–${cs.green-1}%`},
+        {color:"#f97316", width:cs.yellow-cs.orange,       label:`${cs.orange}–${cs.yellow-1}%`},
+        {color:"#ef4444", width:cs.orange,                 label:`<${cs.orange}%`},
+      ];
+    } else {
+      segs = [
+        {color:"#22c55e", width:100-cs.green,              label:`≥${cs.green}%`},
+        {color:"#eab308", width:cs.green-cs.yellow,        label:`${cs.yellow}–${cs.green-1}%`},
+        {color:"#ef4444", width:cs.yellow,                 label:`<${cs.yellow}%`},
+      ];
+    }
+    bar.innerHTML = segs.filter(s=>s.width>0).map(s=>`
+      <div style="flex:${s.width};background:${s.color};display:flex;align-items:center;
+        justify-content:center;font-size:10px;font-weight:700;color:#fff;
+        text-shadow:0 1px 2px rgba(0,0,0,.5);white-space:nowrap;min-width:0;overflow:hidden">
+        ${s.width>=8?s.label:""}
+      </div>`).join("");
+  }
+  _updateColorPreview();
+
   // ── Clear settings ───────────────────────────────────────
   document.getElementById("dealerClearBtn")?.addEventListener("click", ()=>{
-    if(!confirm("Clear dealer identity, team labels, and display options?\n\nUser accounts will NOT be affected.")) return;
+    if(!confirm("Clear dealer identity, team labels, display options, and color settings?\n\nUser accounts will NOT be affected.")) return;
     try{ localStorage.removeItem(DEALER_LS_KEY); }catch(e){}
     const n = document.getElementById("dealerNameInput"); if(n) n.value="";
     app.querySelectorAll(".dealerTeamInput").forEach(i=>i.value="");
