@@ -540,8 +540,6 @@ function _renderUsersSection(container, allTeams){
     _saveUsers(users);
     closeForm();
     _renderUsersSection(container, allTeams);
-    const rc = document.getElementById("staffRosterContainer");
-    if(rc) _renderStaffRoster(rc);
   });
 
   container.querySelectorAll(".editUserBtn").forEach(btn=>{
@@ -559,8 +557,6 @@ function _renderUsersSection(container, allTeams){
       if(!confirm(`Delete "${user.name}" (${user.email})?\nThis cannot be undone.`)) return;
       _saveUsers(_loadUsers().filter(u=>u.id!==uid));
       _renderUsersSection(container, allTeams);
-      const rc = document.getElementById("staffRosterContainer");
-      if(rc) _renderStaffRoster(rc);
     });
   });
 
@@ -576,76 +572,6 @@ function _renderUsersSection(container, allTeams){
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-//  Staff Roster — read-only, advisors + technicians
-// ─────────────────────────────────────────────────────────────
-function _renderStaffRoster(container){
-  const users       = _loadUsers();
-  const advisors    = users.filter(u=>u.role==="advisor");
-  const technicians = users.filter(u=>u.role==="technician");
-  const byTeamName  = (a,b)=>(a.team||"").localeCompare(b.team||"")||(a.name||"").localeCompare(b.name||"");
-  advisors.sort(byTeamName); technicians.sort(byTeamName);
-
-  if(!advisors.length && !technicians.length){
-    container.innerHTML = `
-      <div class="svcSetSection" style="margin-top:0">
-        <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Staff Roster</div></div>
-        <div class="sub" style="padding:16px 14px;opacity:.45;text-align:center">No advisors or technicians added yet.</div>
-      </div>`;
-    return;
-  }
-
-  function buildCol(title, color, list){
-    if(!list.length) return `
-      <div style="flex:1;min-width:200px">
-        <div style="font-size:13px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
-          color:${color};margin-bottom:8px">${_esc(title)}</div>
-        <div class="sub" style="opacity:.4;font-size:12px">None added.</div>
-      </div>`;
-    const groups = {};
-    list.forEach(u=>{ const k=u.team||"—"; if(!groups[k]) groups[k]=[]; groups[k].push(u); });
-    const groupHtml = Object.entries(groups).map(([team,members])=>`
-      <div style="margin-bottom:12px">
-        <div style="font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;
-          color:rgba(234,240,255,.4);margin-bottom:6px;padding-left:2px">${_esc(team)}</div>
-        ${members.map(u=>`
-          <div style="padding:8px 10px;border-radius:10px;margin-bottom:4px;
-            border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.15)">
-            <div style="font-weight:800;font-size:13px">${_esc(u.name||"—")}</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:3px">
-              <span class="sub" style="font-size:11px;margin:0">
-                <span style="opacity:.5">Email</span>&ensp;<span style="color:#eaf0ff">${_esc(u.email||"—")}</span>
-              </span>
-              ${u.empNum?`<span class="sub" style="font-size:11px;margin:0">
-                <span style="opacity:.5">Emp #</span>&ensp;<span style="color:#eaf0ff">${_esc(u.empNum)}</span>
-              </span>`:""}
-            </div>
-          </div>`).join("")}
-      </div>`).join("");
-    return `
-      <div style="flex:1;min-width:200px">
-        <div style="font-size:13px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;
-          color:${color};margin-bottom:10px">${_esc(title)}
-          <span style="font-size:11px;opacity:.55;font-weight:700">(${list.length})</span></div>
-        ${groupHtml}
-      </div>`;
-  }
-
-  container.innerHTML = `
-    <div class="svcSetSection" style="margin-top:0">
-      <div class="svcSetSectionHdr">
-        <div class="svcSetSectionHdrName">Staff Roster</div>
-        <div class="sub" style="font-size:11px;margin:0">
-          ${advisors.length+technicians.length} staff member${advisors.length+technicians.length!==1?"s":""}
-        </div>
-      </div>
-      <div style="padding:14px;display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
-        ${buildCol("Advisors","#10b981",advisors)}
-        <div style="width:1px;background:rgba(255,255,255,.08);align-self:stretch;flex-shrink:0"></div>
-        ${buildCol("Technicians","#3b82f6",technicians)}
-      </div>
-    </div>`;
-}
 
 // ─────────────────────────────────────────────────────────────
 //  Main page renderer
@@ -731,7 +657,6 @@ function renderDealerSettingsPage(){
           <div class="titleRow" style="align-items:center">
             <div>
               <div class="h2" style="font-size:33px;letter-spacing:.2px">DEALER SETTINGS</div>
-              <div class="sub"><a href="#/settings" style="text-decoration:none">← Back to settings</a></div>
             </div>
             ${sessionBadge}
           </div>
@@ -868,11 +793,10 @@ function renderDealerSettingsPage(){
           </div>
 
           <!-- Users (admin) + Roster side by side -->
-          <div style="display:flex;gap:16px;align-items:flex-start;margin-top:20px">
-            <div id="usersSectionContainer" style="flex:1.4;min-width:0">
+          <div style="margin-top:20px">
+            <div id="usersSectionContainer" style="min-width:0">
               ${canManageUsers ? "" : accessDenied("Users")}
             </div>
-            <div id="staffRosterContainer" style="flex:1;min-width:0"></div>
           </div>
 
           <!-- Bottom controls -->
@@ -917,8 +841,6 @@ function renderDealerSettingsPage(){
     const uc = app.querySelector("#usersSectionContainer");
     if(uc) _renderUsersSection(uc, teams.length?teams:["EXPRESS","KIA"]);
   }
-  const rc = app.querySelector("#staffRosterContainer");
-  if(rc) _renderStaffRoster(rc);
 
   if(!canManageSettings) return;
 
