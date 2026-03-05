@@ -191,8 +191,8 @@
       var btn = document.getElementById("signOutBtn");
       if(btn){
         btn.addEventListener("click", function(){
-          window.clearSession && window.clearSession();
-          location.reload();
+          try{ sessionStorage.removeItem("dashSession_v1"); }catch(e){}
+          window.location.replace(location.pathname);
         });
       }
     });
