@@ -211,6 +211,66 @@ function renderAdvisorDetail(advisorId){
         font-size:12px !important;
         letter-spacing:.25px !important;
       }
+
+      /* === Section header right cluster: keep dials + rank badge + stats on one row === */
+      body.route-advisor .secHdrRight{
+        display:flex !important;
+        flex-direction:row !important;
+        align-items:center !important;
+        justify-content:flex-end !important;
+        flex-wrap:nowrap !important;
+        gap:22px !important;
+      }
+      body.route-advisor .secMiniDials{
+        display:flex !important;
+        flex-direction:row !important;
+        align-items:center !important;
+        flex-wrap:nowrap !important;
+        gap:26px !important;
+      }
+      body.route-advisor .secMiniDials .svcGaugeWrap{
+        width:74px !important; height:74px !important; flex:0 0 74px !important;
+      }
+      body.route-advisor .secMiniDials .svcGauge{
+        --sz:74px !important; width:74px !important; height:74px !important;
+      }
+      body.route-advisor .secFocusDial{
+        flex:0 0 auto;
+      }
+      body.route-advisor .secFocusDial .svcGaugeWrap{
+        width:90px !important; height:90px !important; flex:0 0 90px !important;
+      }
+      body.route-advisor .secFocusDial .svcGauge{
+        --sz:90px !important; width:90px !important; height:90px !important;
+      }
+      body.route-advisor .secHdrRank{
+        flex:0 0 auto;
+      }
+      body.route-advisor .secHdrStats{
+        flex:0 0 auto;
+        text-align:right;
+        display:flex;
+        flex-direction:column;
+        align-items:flex-end;
+      }
+      body.route-advisor .secNamePills{
+        display:flex !important;
+        flex-wrap:nowrap !important;
+        gap:8px !important;
+        align-items:center !important;
+        margin-left:6px !important;
+        margin-top:2px !important;
+      }
+      body.route-advisor .secNamePills .pill .v{
+        font-size:20px !important; font-weight:1000 !important; line-height:1 !important;
+      }
+      body.route-advisor .secNamePills .pill .k{
+        font-size:12px !important; font-weight:900 !important;
+        color:rgba(255,255,255,.55) !important; text-transform:none !important;
+      }
+      body.route-advisor .svcGauge .pctTitle{
+        white-space:normal;
+      }
     `;
     document.head.appendChild(st);
   })();
