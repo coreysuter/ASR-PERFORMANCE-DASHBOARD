@@ -29,7 +29,7 @@ function router(){
 
   // ── Login gate ──────────────────────────────────────────
   try{
-    const _sess = JSON.parse(sessionStorage.getItem("dashSession_v1")||"null");
+    const _sess = window.getSession ? window.getSession() : null;
     if(!_sess){
       window.renderLoginPage && window.renderLoginPage({ redirect: h });
       return;

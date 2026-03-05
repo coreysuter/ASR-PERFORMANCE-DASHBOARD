@@ -5,13 +5,13 @@
 const SESSION_KEY = "dashSession_v1";
 
 window.getSession = function(){
-  try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY)||"null"); }
+  try{ return JSON.parse(localStorage.getItem(SESSION_KEY)||"null"); }
   catch(e){ return null; }
 };
 
 window.setSession = function(user){
   try{
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
       userId:    user.id    || "",
       name:      user.name  || "",
       email:     user.email || "",
@@ -23,7 +23,7 @@ window.setSession = function(user){
 };
 
 window.clearSession = function(){
-  try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){}
+  try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
 };
 
 window.requireLogin = function(){
