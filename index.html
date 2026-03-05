@@ -195,9 +195,8 @@
           e.preventDefault();
           e.stopPropagation();
           window.clearSession && window.clearSession();
-          var t = document.getElementById("menuToggle");
-          if(t) t.checked = false;
-          window.renderLoginPage && window.renderLoginPage({ redirect: "#/" });
+          // Reload for a fully clean state — no stale DOM, no layout artifacts
+          location.href = location.pathname;
         });
       }
     });
