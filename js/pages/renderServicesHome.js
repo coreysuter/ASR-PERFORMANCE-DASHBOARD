@@ -1240,8 +1240,8 @@ function serviceGoalDial(pct, sz){
     const isDown = kind==='down';
     // Simple thumb icon path (generic)
     const path = isDown
-      ? "M10 14H6c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h4v8zm1 0V6l2-4c.3-.7 1.1-1 1.8-.7.5.2.8.7.7 1.2L15 6h3.5c.8 0 1.5.7 1.5 1.5 0 .1 0 .2-.1.3l-1.3 4.6c-.2.6-.8 1.1-1.5 1.1H11z"
-      : "M10 6H6c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h4V6zm1 0v8l2 4c.3.7 1.1 1 1.8.7.5-.2.8-.7.7-1.2L15 14h3.5c.8 0 1.5-.7 1.5-1.5 0-.1 0-.2-.1-.3l-1.3-4.6c-.2-.6-.8-1.1-1.5-1.1H11z";
+      ? "M10 6H6c-.6 0-1 .4-1 1v6c0 .6.4 1 1 1h4V6zm1 0v8l2 4c.3.7 1.1 1 1.8.7.5-.2.8-.7.7-1.2L15 14h3.5c.8 0 1.5-.7 1.5-1.5 0-.1 0-.2-.1-.3l-1.3-4.6c-.2-.6-.8-1.1-1.5-1.1H11z"
+      : "M10 14H6c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h4v8zm1 0V6l2-4c.3-.7 1.1-1 1.8-.7.5.2.8.7.7 1.2L15 6h3.5c.8 0 1.5.7 1.5 1.5 0 .1 0 .2-.1.3l-1.3 4.6c-.2.6-.8 1.1-1.5 1.1H11z";
     return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:28px;height:28px;display:block"><path d="${path}" fill="currentColor"/></svg>`;
   }
 function tbMiniBoxSvc(title, rows, mode, kind){
@@ -1312,19 +1312,11 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       });
     }
 
-    // When only one slice exists, it spans 360° — SVG arcs with identical start/end points
-    // don't render. In that case, use a filled circle instead.
-    const singleSlice = slices.length === 1;
-
     return `
       <div class="diagPieWrap" aria-label="${mode.toUpperCase()} service distribution">
         <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
           <g>
-            ${singleSlice
-              ? `<circle class="diagPieSlice" data-mode="${mode}" data-band="${slices[0].band}"
-                   cx="80" cy="80" r="70" fill="${slices[0].fill}"
-                   stroke="rgba(255,255,255,.95)" stroke-width="1.6" />`
-              : slices.map(s=>`
+            ${slices.map(s=>`
               <path class="diagPieSlice" data-mode="${mode}" data-band="${s.band}" d="${s.path}"
                 fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
             `).join('')}
