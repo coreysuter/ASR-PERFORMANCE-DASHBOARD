@@ -27,6 +27,21 @@ function router(){
   const h = location.hash || "#/";
   document.body.classList.toggle("route-tech", h.startsWith("#/tech/"));
 
+  // ── Login gate ──────────────────────────────────────────
+  try{
+    const _sess = JSON.parse(sessionStorage.getItem("dashSession_v1")||"null");
+    if(!_sess){
+      window.renderLoginPage && window.renderLoginPage({ redirect: h });
+      return;
+    }
+  }catch(e){}
+
+  // ── Dealer settings route ───────────────────────────────
+  if(h === "#/settings/dealer" || h.startsWith("#/settings/dealer?")){
+    window.renderDealerSettingsPage && window.renderDealerSettingsPage();
+    return;
+  }
+
   if(h.startsWith("#/ros/")){
     const rest = h.slice("#/ros/".length);
     const techId = decodeURIComponent(rest.split("?")[0] || "");
@@ -119,13 +134,6 @@ renderMenuTechLists(); normalizeRouteHrefs();
 function goTech(id){
   // Navigate to a technician page reliably even if the hash doesn't change.
   const target = `#/tech/${encodeURIComponent(String(id))}`;
-  if(location.hash !== target) location.hash = target;
-  safeRouter();
-  return false;
-}
-
-function goAdvisor(id){
-  const target = `#/advisor/${encodeURIComponent(String(id))}`;
   if(location.hash !== target) location.hash = target;
   safeRouter();
   return false;
