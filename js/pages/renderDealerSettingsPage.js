@@ -1,4 +1,35 @@
 // ─────────────────────────────────────────────────────────────
+//  One-time seed: pre-populate dealer + admin account
+// ─────────────────────────────────────────────────────────────
+(function _seed(){
+  try{
+    const DKEY = "dealerSettings_v1";
+    const UKEY = "dealerUsers_v1";
+
+    // Only seed dealer name if not already set
+    const ds = JSON.parse(localStorage.getItem(DKEY)||"{}") || {};
+    if(!ds.dealerName){
+      ds.dealerName = "Kalidy Kia";
+      localStorage.setItem(DKEY, JSON.stringify(ds));
+    }
+
+    // Only seed users if none exist yet
+    const users = JSON.parse(localStorage.getItem(UKEY)||"[]") || [];
+    if(!users.length){
+      users.push({
+        id:       "u_seed_admin",
+        name:     "Corey Suter",
+        email:    "corey.suter@kalidykia.com",
+        password: "Kalidy2026!",
+        role:     "administrator",
+        team:     ""
+      });
+      localStorage.setItem(UKEY, JSON.stringify(users));
+    }
+  }catch(e){}
+})();
+
+// ─────────────────────────────────────────────────────────────
 //  Storage keys
 // ─────────────────────────────────────────────────────────────
 const DEALER_LS_KEY = "dealerSettings_v1";
