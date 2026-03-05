@@ -212,20 +212,6 @@ function renderAdvisorDetail(advisorId){
         letter-spacing:.25px !important;
       }
 
-      /* Force catHeader dial to 74px (matching tech page) — needed because .svcGauge
-         declares its own --sz:64px which wins over the inherited inline --sz:74px on the wrap */
-      body.route-advisor .catCard .catHeader .svcGaugeWrap{
-        --sz:74px !important;
-        width:var(--sz) !important;
-        height:var(--sz) !important;
-        flex:0 0 var(--sz) !important;
-      }
-      body.route-advisor .catCard .catHeader .svcGauge{
-        --sz:74px !important;
-        width:var(--sz) !important;
-        height:var(--sz) !important;
-      }
-
       /* === Section header right cluster: keep dials + rank badge + stats on one row === */
       body.route-advisor .secHdrRight{
         display:flex !important;
@@ -252,7 +238,7 @@ function renderAdvisorDetail(advisorId){
         flex:0 0 auto;
       }
       body.route-advisor .secFocusDial .svcGaugeWrap{
-        width:90px !important; height:90px !important; flex:0 0 148px !important;
+        width:90px !important; height:90px !important; flex:0 0 90px !important;
       }
       body.route-advisor .secFocusDial .svcGauge{
         --sz:90px !important; width:90px !important; height:90px !important;
@@ -1038,6 +1024,8 @@ function renderAdvisorDetail(advisorId){
       });
     }
 
+    const singleSlice = slices.length === 1;
+
     return `
       <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
         <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
@@ -1047,7 +1035,10 @@ function renderAdvisorDetail(advisorId){
             </filter>
           </defs>
           <g filter="url(#advDiagPieShadow)">
-            ${slices.map(s=>`
+            ${singleSlice
+              ? `<circle class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${slices[0].band}" data-compare="advisors"
+                   cx="80" cy="80" r="70" fill="${slices[0].fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />`
+              : slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="advisors"
                 d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
             `).join('')}

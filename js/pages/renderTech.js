@@ -1365,6 +1365,8 @@ return `
       });
     }
 
+    const singleSlice = slices.length === 1;
+
     return `
       <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
         <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
@@ -1375,7 +1377,10 @@ return `
           </defs>
 
           <g filter="url(#diagPieShadow)">
-            ${slices.map(s=>`
+            ${singleSlice
+              ? `<circle class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${slices[0].band}" data-compare="${compareBasis}"
+                   cx="80" cy="80" r="70" fill="${slices[0].fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />`
+              : slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
                 d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
             `).join('')}
