@@ -5,6 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ServicePulse · Performance Dashboard</title>
   <link rel="stylesheet" href="./css/app.css?v=5" />
+  <style>
+    .sideMenuLink {
+      display:flex;align-items:center;gap:14px;
+      margin-top:10px;padding:14px 18px;
+      border-radius:14px;border:1px solid rgba(255,255,255,.12);
+      text-decoration:none;color:#eaf0ff;
+      background:rgba(0,0,0,.22);font-weight:800;font-size:17px;
+    }
+    .sideMenuLink:hover{background:rgba(0,0,0,.38);}
+    .sideMenuIcon{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:52px;height:52px;}
+    .sideMenuStacked{display:flex;flex-direction:column;line-height:1.2;font-size:17px;}
+    .sideMenuGroup{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;padding:14px 18px;
+      background:rgba(0,0,0,.22);margin-top:10px;
+    }
+    .sideMenuGroup summary{
+      display:flex;align-items:center;gap:14px;
+      cursor:pointer;font-weight:800;list-style:none;font-size:17px;color:#eaf0ff;
+    }
+    .sideMenuGroup summary::-webkit-details-marker{display:none;}
+    .sideMenuGroup .sideMenuLink{margin:8px 0 0 0;font-size:15px;padding:10px 14px;}
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -33,30 +56,6 @@
         </div>
         <label for="menuToggle" class="menuClose" aria-label="Close menu" title="Close">✕</label>
       </div>
-
-      <style>
-        .sideMenuLink {
-          display:flex;align-items:center;gap:14px;
-          margin-top:10px;padding:14px 18px;
-          border-radius:14px;border:1px solid rgba(255,255,255,.12);
-          text-decoration:none;color:#eaf0ff;
-          background:rgba(0,0,0,.22);font-weight:800;font-size:17px;
-        }
-        .sideMenuLink:hover{background:rgba(0,0,0,.38);}
-        .sideMenuIcon {display:flex;align-items:center;justify-content:center;flex-shrink:0;width:52px;height:52px;}
-        .sideMenuStacked {display:flex;flex-direction:column;line-height:1.2;font-size:17px;}
-        .sideMenuGroup {
-          border:1px solid rgba(255,255,255,.12);
-          border-radius:14px;padding:14px 18px;
-          background:rgba(0,0,0,.22);margin-top:10px;
-        }
-        .sideMenuGroup summary {
-          display:flex;align-items:center;gap:14px;
-          cursor:pointer;font-weight:800;list-style:none;font-size:17px;color:#eaf0ff;
-        }
-        .sideMenuGroup summary::-webkit-details-marker{display:none}
-        .sideMenuGroup .sideMenuLink{margin:8px 0 0 0;font-size:15px;padding:10px 14px;}
-      </style>
 
       <!-- Services Dashboard -->
       <a class="sideMenuLink" href="#/servicesHome">
@@ -191,12 +190,9 @@
     document.addEventListener("DOMContentLoaded", function(){
       var btn = document.getElementById("signOutBtn");
       if(btn){
-        btn.addEventListener("click", function(e){
-          e.preventDefault();
-          e.stopPropagation();
+        btn.addEventListener("click", function(){
           window.clearSession && window.clearSession();
-          // Reload for a fully clean state — no stale DOM, no layout artifacts
-          location.href = location.pathname;
+          location.reload();
         });
       }
     });
