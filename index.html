@@ -105,7 +105,7 @@
 
       <!-- Sign Out -->
       <div style="margin-top:10px;">
-        <button id="signOutBtn" type="button" class="sideMenuLink" style="width:100%;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);color:#ef4444;cursor:pointer;font-family:inherit;font-size:17px;font-weight:800;text-align:left;">
+        <button id="signOutBtn" type="button" class="sideMenuLink" onclick="window.doSignOut()" style="width:100%;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);color:#ef4444;cursor:pointer;font-family:inherit;font-size:17px;font-weight:800;text-align:left;">
           <span class="sideMenuIcon">
             <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="#ef4444" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
               <path d="M8 3h9a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8"/>
@@ -190,16 +190,12 @@
     // inline safeRouter() call) have fully executed — so we can safely overwrite
     window.addEventListener("load", function(){ handleRoute(null); });
 
-    // Sign out button
-    document.addEventListener("DOMContentLoaded", function(){
-      var btn = document.getElementById("signOutBtn");
-      if(btn){
-        btn.addEventListener("click", function(){
-          try{ localStorage.removeItem("dashSession_v1"); }catch(e){}
-          window.location.replace(location.pathname);
-        });
-      }
-    });
+    // Sign out — defined as a global so the button can call it directly via onclick,
+    // avoiding any DOMContentLoaded timing dependency.
+    window.doSignOut = function(){
+      try{ window.clearSession ? window.clearSession() : localStorage.removeItem("dashSession_v1"); }catch(e){}
+      window.location.replace(location.pathname);
+    };
 </script>
 
   <script type="module" src="./js/app.js?v=5"></script>
