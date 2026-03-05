@@ -16,7 +16,7 @@ function renderServicesHome(){
 
       /* Header + diag wrapper (match Tech Details layout) */
       .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
-      .pageServicesDash .svcDashSections{display:grid;gap:12px;}
+      .pageServicesDash .svcDashSections{display:grid;gap:20px;}
       .pageServicesDash details.svcDashSec{border:1px solid rgba(200,45,45,.45);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14);}
       .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
       .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
@@ -671,37 +671,33 @@ function serviceGoalDial(pct, sz){
   // Header panel (copied structure from Technician Dashboard)
   const header = `
 
-    <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
+    <!-- Floating menu button sits to the left of the header -->
 <div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
-  <!-- Notch extension (matches Goals notch configuration) -->
-  <div class="panel techMenuNotch" style="
+  <div class="panel techMenuFloat" style="
     position:absolute;
-    left:-68px;
-    top:0px;
-    width:68px;
-    height:56px;
+    left:-80px;
+    top:4px;
+    width:72px;
+    height:72px;
     display:flex;
     align-items:center;
     justify-content:center;
-    border-top-right-radius:0px;
-    border-bottom-right-radius:0px;
-    border-right:none;
-    z-index:3;
+    border-radius:14px;
+    z-index:2;
   ">
     <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
-      font-size:1.5em;
+      font-size:2.2em;
       line-height:1;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:8px 10px;
       cursor:pointer;
       color:inherit;
       user-select:none;
     ">☰</label>
   </div>
 
-  <div class="panel techHeaderPanel" style="height:100%;min-width:0;border-top-left-radius:0px;border-left:none;">
+  <div class="panel techHeaderPanel" style="height:100%;min-width:0;">
       <div class="phead">
         <div class="titleRow techTitleRow">
 <div class="techNameWrap">

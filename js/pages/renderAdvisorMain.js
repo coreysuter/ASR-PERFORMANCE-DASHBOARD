@@ -39,6 +39,7 @@ function renderAdvisorMain(){
       position:relative;
       width:100%;
       overflow:visible;
+      margin-bottom:10px;
     }
     .advMenuNotch{
       position:absolute;
@@ -622,12 +623,32 @@ function renderAdvisorMain(){
   // ── Header ──
   const headerHtml = `
   <div class="advHeader">
-    <div class="advNotchStage">
-      <div class="advMenuNotch">
-        <label for="menuToggle" class="advHamburger" aria-label="Menu">☰</label>
+    <div class="advNotchStage" style="position:relative;width:100%;overflow:visible;">
+      <div class="panel techMenuFloat" style="
+        position:absolute;
+        left:-80px;
+        top:4px;
+        width:72px;
+        height:72px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius:14px;
+        z-index:2;
+      ">
+        <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+          font-size:2.2em;
+          line-height:1;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          cursor:pointer;
+          color:inherit;
+          user-select:none;
+        ">☰</label>
       </div>
 
-      <div class="advHeaderInner" style="border-top-left-radius:0;border-bottom-left-radius:0;border-left:none;">
+      <div class="advHeaderInner">
         <!-- Title row -->
         <div class="advTitleRow">
           <div class="advNameWrap">
@@ -674,6 +695,26 @@ function renderAdvisorMain(){
         </div>
 
       </div>
+
+      <!-- Heartbeat accent on advHeaderInner -->
+      <svg viewBox="0 0 120 48" width="113" height="45" style="position:absolute;bottom:-18.25px;right:18px;overflow:visible;pointer-events:none;z-index:5;" aria-hidden="true">
+        <line x1="26"    y1="28" x2="35.33" y2="28" stroke="#0b1020" stroke-width="3"/>
+        <line x1="35.33" y1="28" x2="42"    y2="28" stroke="#0f1730" stroke-width="3"/>
+        <line x1="42"    y1="28" x2="50"    y2="28" stroke="#0b1020" stroke-width="3"/>
+        <line x1="76"    y1="28" x2="85.33" y2="28" stroke="#0b1020" stroke-width="3"/>
+        <line x1="85.33" y1="28" x2="92"    y2="28" stroke="#0f1730" stroke-width="3"/>
+        <line x1="92"    y1="28" x2="100"   y2="28" stroke="#0b1020" stroke-width="3"/>
+        <polygon points="26,28 32,8 35.33,28"  fill="#0b1020"/>
+        <polygon points="35.33,28 38,44 42,28" fill="#0f1730"/>
+        <polygon points="42,28 44,20 50,28"    fill="#0b1020"/>
+        <polygon points="76,28 82,8 85.33,28"  fill="#0b1020"/>
+        <polygon points="85.33,28 88,44 92,28" fill="#0f1730"/>
+        <polygon points="92,28 94,20 100,28"   fill="#0b1020"/>
+        <path d="M26,28 L32,8 L38,44 L44,20 L50,28 M76,28 L82,8 L88,44 L94,20 L100,28"
+          fill="none" stroke="rgba(200,45,45,.45)" stroke-width="1.062"
+          stroke-linejoin="round" stroke-linecap="butt"
+          style="filter:drop-shadow(0 0 14px rgba(200,40,40,.22)) drop-shadow(0 0 4px rgba(200,40,40,.14));"/>
+      </svg>
     </div>
   </div>`;
 
@@ -776,16 +817,7 @@ function renderAdvisorMain(){
   // ── Render ──
   app.innerHTML = `<div class="pageAdvisorDash">${headerHtml}<div class="advList">${rowsHtml}</div></div>`;
 
-  // ── Sync notch background with header panel ──
-  requestAnimationFrame(() => {
-    const notch = document.querySelector(".advMenuNotch");
-    const panel = document.querySelector(".advHeaderInner");
-    if(notch && panel){
-      const cs = getComputedStyle(panel);
-      notch.style.backgroundColor = cs.backgroundColor;
-      notch.style.backgroundImage = cs.backgroundImage;
-    }
-  });
+
 
   // ── Wire up filters ──
   document.querySelectorAll("[data-adv-ctl]").forEach(el => {

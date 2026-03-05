@@ -177,14 +177,34 @@ function renderGroupPage(groupKey){
   `;
 
   const header = `
+  <div class="techNotchStage" style="position:relative;width:100%;overflow:visible;">
+  <div class="panel techMenuFloat" style="
+    position:absolute;
+    left:-80px;
+    top:4px;
+    width:72px;
+    height:72px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:14px;
+    z-index:2;
+  ">
+    <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
+      font-size:2.2em;
+      line-height:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      color:inherit;
+      user-select:none;
+    ">☰</label>
+  </div>
   <div class="panel techHeaderPanel">
     <div class="phead">
 
       <div class="titleRow techTitleRow">
-        <div class="techTitleLeft">
-          <label for="menuToggle" class="hamburgerMini" aria-label="Menu">☰</label>
-        </div>
-
         <div class="techNameWrap">
           <div class="h2 techH2Big">${safe(title)}</div>
           <div class="techTeamLine">${safe(teamKey.toUpperCase())} • ${focus==="sold" ? "SOLD%" : "ASR/RO"}</div>
@@ -209,6 +229,7 @@ function renderGroupPage(groupKey){
 
       ${filters}
     </div>
+  </div>
   </div>
 `;
 

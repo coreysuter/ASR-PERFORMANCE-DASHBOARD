@@ -82,12 +82,12 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
   const header = `
 
 <!-- Header stage: padding-left carves out room for the floating box -->
-<div class="techNotchStage" style="position:relative; width:100%; padding-left:80px; overflow:visible;">
+<div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
 
-  <!-- Floating menu box — sits in the padding-left zone, fully disconnected -->
+  <!-- Floating menu box — sits outside the header to the left -->
   <div class="panel techMenuFloat" style="
     position:absolute;
-    left:0px;
+    left:-80px;
     top:4px;
     width:72px;
     height:72px;
