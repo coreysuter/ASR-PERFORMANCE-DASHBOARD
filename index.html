@@ -130,47 +130,53 @@
 
   <!-- ✅ Login gate + dealer settings route -->
   <script>
-    (function(){
-      const SESSION_KEY = "dashSession_v1";
-      function hasSession(){
-        try{ return !!JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
-        catch(e){ return false; }
+    var SESSION_KEY = "dashSession_v1";
+
+    function hasSession(){
+      try{ return !!JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
+      catch(e){ return false; }
+    }
+
+    // Called on hashchange (capture phase) and on window load
+    function handleRoute(e){
+      var h = location.hash || "#/";
+
+      // Not logged in — show login and block all other handlers
+      if(!hasSession()){
+        if(e && e.stopImmediatePropagation) e.stopImmediatePropagation();
+        window.renderLoginPage && window.renderLoginPage({ redirect: h });
+        return;
       }
 
-      function loginGate(){
-        if(!hasSession()){
-          window.renderLoginPage({ redirect: location.hash || "#/" });
-          return true;
-        }
-        return false;
+      // Dealer settings — app.js has no route for this so we handle it
+      if(h === "#/settings/dealer" || h.indexOf("#/settings/dealer?") === 0){
+        if(e && e.stopImmediatePropagation) e.stopImmediatePropagation();
+        window.renderDealerSettingsPage && window.renderDealerSettingsPage();
+        return;
       }
 
-      function handleRoute(){
-        if(loginGate()) return;
-        var h = location.hash || "#/";
-        if(h === "#/settings/dealer" || h.indexOf("#/settings/dealer?") === 0){
-          window.renderDealerSettingsPage && window.renderDealerSettingsPage();
-        }
-        // All other routes handled by app.js
+      // Everything else: let app.js handle it normally
+    }
+
+    // Capture phase fires before app.js bubble-phase listeners
+    window.addEventListener("hashchange", handleRoute, true);
+
+    // window load fires AFTER all scripts (including renderSettingsHome.js's
+    // inline safeRouter() call) have fully executed — so we can safely overwrite
+    window.addEventListener("load", function(){ handleRoute(null); });
+
+    // Sign out button
+    document.addEventListener("DOMContentLoaded", function(){
+      var btn = document.getElementById("signOutBtn");
+      if(btn){
+        btn.addEventListener("click", function(){
+          window.clearSession && window.clearSession();
+          var t = document.getElementById("menuToggle");
+          if(t) t.checked = false;
+          window.renderLoginPage && window.renderLoginPage({ redirect: "#/" });
+        });
       }
-
-      // Capture phase — fires before app.js listener
-      window.addEventListener("hashchange", handleRoute, true);
-
-      document.addEventListener("DOMContentLoaded", function(){
-        handleRoute();
-
-        var btn = document.getElementById("signOutBtn");
-        if(btn){
-          btn.addEventListener("click", function(){
-            window.clearSession?.();
-            var t = document.getElementById("menuToggle");
-            if(t) t.checked = false;
-            window.renderLoginPage?.({ redirect: "#/" });
-          });
-        }
-      });
-    })();
+    });
   </script>
 
   <script type="module" src="./js/app.js?v=5"></script>
