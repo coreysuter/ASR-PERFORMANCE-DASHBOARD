@@ -182,6 +182,9 @@
     // Capture phase fires before app.js bubble-phase listeners
     window.addEventListener("hashchange", handleRoute, true);
 
+    // ALSO block DOMContentLoaded render if not logged in (capture fires before app.js)
+    window.addEventListener("DOMContentLoaded", handleRoute, true);
+
     // window load fires AFTER all scripts (including renderSettingsHome.js's
     // inline safeRouter() call) have fully executed — so we can safely overwrite
     window.addEventListener("load", function(){ handleRoute(null); });
