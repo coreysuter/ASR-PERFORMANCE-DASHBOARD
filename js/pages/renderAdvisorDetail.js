@@ -212,6 +212,20 @@ function renderAdvisorDetail(advisorId){
         letter-spacing:.25px !important;
       }
 
+      /* Force catHeader dial to 74px (matching tech page) — needed because .svcGauge
+         declares its own --sz:64px which wins over the inherited inline --sz:74px on the wrap */
+      body.route-advisor .catCard .catHeader .svcGaugeWrap{
+        --sz:74px !important;
+        width:var(--sz) !important;
+        height:var(--sz) !important;
+        flex:0 0 var(--sz) !important;
+      }
+      body.route-advisor .catCard .catHeader .svcGauge{
+        --sz:74px !important;
+        width:var(--sz) !important;
+        height:var(--sz) !important;
+      }
+
       /* === Section header right cluster: keep dials + rank badge + stats on one row === */
       body.route-advisor .secHdrRight{
         display:flex !important;
@@ -238,7 +252,7 @@ function renderAdvisorDetail(advisorId){
         flex:0 0 auto;
       }
       body.route-advisor .secFocusDial .svcGaugeWrap{
-        width:90px !important; height:90px !important; flex:0 0 90px !important;
+        width:90px !important; height:90px !important; flex:0 0 148px !important;
       }
       body.route-advisor .secFocusDial .svcGauge{
         --sz:90px !important; width:90px !important; height:90px !important;
