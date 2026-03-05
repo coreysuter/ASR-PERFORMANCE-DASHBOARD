@@ -66,9 +66,6 @@ function setRouteBodyClass(parts){
 }
 
 function route(){
-  // ── Login gate: if no valid session, show login and stop ──
-  if(typeof window.requireLogin === "function" && window.requireLogin()) return;
-
   const { parts, query } = parseHash();
   setRouteBodyClass(parts);
   try{
@@ -79,6 +76,7 @@ function route(){
     if(parts[0]==="settings" && parts[1]==="goals"){ window.renderGoalsPage?.(); return; }
     if(parts[0]==="settings"){ window.renderSettingsHome?.(); return; }
     if(parts[0]==="servicesHome"){ window.renderServicesHome?.(); return; }
+    if(parts[0]==="advisor" && parts[1]){ window.renderAdvisorDetail?.(parts[1]); return; }
     if(parts[0]==="advisors"){ window.renderAdvisorMain?.(); window.animateSvcGauges?.(); return; }
     window.renderMain?.(); window.animateSvcGauges?.();
   }catch(e){
