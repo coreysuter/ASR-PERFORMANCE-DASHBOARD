@@ -552,16 +552,16 @@ function renderAdvisorDetail(advisorId){
   // --- Header HTML ---
   const header = `
 <div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
-  <div class="panel techMenuNotch" style="
-    position:absolute; left:-68px; top:0px; width:68px; height:56px;
+  <div class="panel techMenuFloat" style="
+    position:absolute; left:-80px; top:4px; width:72px; height:72px;
     display:flex; align-items:center; justify-content:center;
-    border-top-right-radius:0px; border-bottom-right-radius:0px; border-right:none; z-index:3;">
+    border-radius:14px; z-index:2;">
     <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
-      font-size:1.5em; line-height:1; display:flex; align-items:center; justify-content:center;
-      padding:8px 10px; cursor:pointer; color:inherit; user-select:none;">☰</label>
+      font-size:2.2em; line-height:1; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; color:inherit; user-select:none;">☰</label>
   </div>
 
-  <div class="panel techHeaderPanel" style="height:100%;min-width:0;border-top-left-radius:0px;border-left:none;">
+  <div class="panel techHeaderPanel" style="height:100%;min-width:0;">
     <div class="phead">
       <div class="techHdrTop" style="display:flex;flex-direction:column;min-height:0">
         <div class="titleRow techTitleRow" style="position:relative;align-items:flex-start;">
@@ -1078,7 +1078,7 @@ function renderAdvisorDetail(advisorId){
 
   // Sync notch background
   (function syncNotchBg(){
-    const notch = document.querySelector('.techNotchStage .techMenuNotch');
+    const notch = document.querySelector('.techNotchStage .techMenuFloat');
     const panel = document.querySelector('.techNotchStage .techHeaderPanel');
     if(!notch || !panel) return;
     const apply = ()=>{

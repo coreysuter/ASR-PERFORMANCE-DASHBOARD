@@ -11,8 +11,7 @@ h1{margin:0;font-size:20px;letter-spacing:.2px}
 .panel{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid rgba(200,45,45,.45);border-radius:18px;overflow:hidden;box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14)}
 
 /* Red border + glow on all row/card/tile elements site-wide */
-.techRow,.catCard,.statTile{border-color:rgba(200,45,45,.45) !important;box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14) !important;}
-.goalRow{border-bottom-style:solid !important;border-color:rgba(200,45,45,.45) !important;}
+.techRow,.catCard{border-color:rgba(200,45,45,.45) !important;box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14) !important;}
 /* techRows inside pageTechDash are inside a panel — restore original border */
 .pageTechDash .techRow{border-color:var(--border) !important;box-shadow:none !important;}
 /* catCards and techRows inside route-tech panels are inside panels — restore original border */

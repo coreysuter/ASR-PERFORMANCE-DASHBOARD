@@ -650,18 +650,17 @@ function renderDealerSettingsPage(){
   app.innerHTML = `
     <div class="techNotchStage" style="position:relative;width:100%;overflow:visible;">
 
-      <div class="panel techMenuNotch" style="
-        position:absolute;left:-68px;top:0;width:68px;height:56px;
+      <div class="panel techMenuFloat" style="
+        position:absolute;left:-80px;top:4px;width:72px;height:72px;
         display:flex;align-items:center;justify-content:center;
-        border-top-right-radius:0;border-bottom-right-radius:0;
-        border-right:none;z-index:3;">
+        border-radius:14px;z-index:2;">
         <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
-          font-size:1.5em;line-height:1;display:flex;align-items:center;
-          justify-content:center;padding:8px 10px;cursor:pointer;
+          font-size:2.2em;line-height:1;display:flex;align-items:center;
+          justify-content:center;cursor:pointer;
           color:inherit;user-select:none;">☰</label>
       </div>
 
-      <div class="panel svcSetPanel" style="border-top-left-radius:0;border-left:none;min-width:0;">
+      <div class="panel svcSetPanel" style="min-width:0;">
         <div class="phead">
 
           <div class="titleRow" style="align-items:center">

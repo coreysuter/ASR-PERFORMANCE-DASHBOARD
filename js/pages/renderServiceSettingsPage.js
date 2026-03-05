@@ -67,34 +67,31 @@ function renderServiceSettingsPage(){
   app.innerHTML = `
     <!-- Notched header panel: fixed-height notch that only wraps the menu button -->
     <div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
-      <div class="panel techMenuNotch" style="
+      <div class="panel techMenuFloat" style="
         position:absolute;
-        left:-68px;
-        top:0px;
-        width:68px;
-        height:56px;
+        left:-80px;
+        top:4px;
+        width:72px;
+        height:72px;
         display:flex;
         align-items:center;
         justify-content:center;
-        border-top-right-radius:0px;
-        border-bottom-right-radius:0px;
-        border-right:none;
-        z-index:3;
+        border-radius:14px;
+        z-index:2;
       ">
         <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
-          font-size:1.5em;
+          font-size:2.2em;
           line-height:1;
           display:flex;
           align-items:center;
           justify-content:center;
-          padding:8px 10px;
           cursor:pointer;
           color:inherit;
           user-select:none;
         ">☰</label>
       </div>
 
-      <div class="panel svcSetPanel" style="--svcSetNameW:${nameW};border-top-left-radius:0px;border-left:none;min-width:0;">
+      <div class="panel svcSetPanel" style="--svcSetNameW:${nameW};min-width:0;">
         <div class="phead">
           <div class="titleRow">
             <div>
