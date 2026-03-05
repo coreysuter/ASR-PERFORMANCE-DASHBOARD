@@ -1430,6 +1430,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   const botTechSold = techSoldPos.slice(-3).reverse();
 
   const diagPanel = `
+        <div style="position:relative;overflow:visible;height:100%;">
         <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <div class="pickToggleRow">
@@ -1468,9 +1469,11 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         </div>
       </div>
     </div>
+    <svg viewBox="0 0 120 48" width="113" height="45" style="position:absolute;bottom:-19px;right:18px;overflow:visible;pointer-events:none;z-index:5;" aria-hidden="true"><rect x="0" y="27" width="120" height="3" fill="#0f1730"/><polyline points="0,28 18,28 26,28 32,8 38,44 44,20 50,28 68,28 76,28 82,8 88,44 94,20 100,28 120,28" fill="none" stroke="rgba(200,45,45,.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 3px rgba(200,40,40,.22));"/></svg>
+    </div>
   `;
 
-  const headerWrap = `<div class="svcdashHeaderWrap" style="margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch">${header}${diagPanel}</div>`;
+  const headerWrap = `<div class="svcdashHeaderWrap" style="margin-bottom:32px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch">${header}${diagPanel}</div>`;
 
   const app = document.getElementById('app');
   app.innerHTML = `<div class="pageServicesDash">${headerWrap}<div class="svcDashSections">${sectionsHtml}</div></div>`;

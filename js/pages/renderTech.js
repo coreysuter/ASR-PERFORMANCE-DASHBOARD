@@ -701,29 +701,6 @@ function countBandsFor(mode){
     ? `<span style="display:block;line-height:1.02">${safe(__first)}</span><span style="display:block;line-height:1.02">${safe(__rest)}</span>`
     : `${safe(__first)}`;
 
-  // Tech list dropdown items — all techs sorted by team then name
-  const __allTechsSorted = (DATA.techs||[]).slice().sort((a,b)=>{
-    const ta = a.team||"", tb2 = b.team||"";
-    return ta.localeCompare(tb2) || (a.name||"").localeCompare(b.name||"");
-  });
-  // Group by team for section headers
-  let __techListItemsHtml = "";
-  let __lastTeam = null;
-  for(const x of __allTechsSorted){
-    const xTeam = x.team || "";
-    if(xTeam !== __lastTeam){
-      if(__lastTeam !== null) __techListItemsHtml += `<div style="height:1px;background:rgba(255,255,255,.08);margin:4px 8px"></div>`;
-      __techListItemsHtml += `<div style="padding:5px 12px 3px;font-size:10px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.38)">${safe(xTeam||"—")}</div>`;
-      __lastTeam = xTeam;
-    }
-    const isCurrent = String(x.id) === String(t.id);
-    const bgCurrent = isCurrent ? "rgba(31,203,106,.10)" : "transparent";
-    const clrCurrent = isCurrent ? "#1fcb6a" : "rgba(255,255,255,.85)";
-    __techListItemsHtml += `<a href="#/tech/${encodeURIComponent(x.id)}" class="techListDropItem" data-tid="${safe(String(x.id))}"
-      style="display:block;padding:7px 14px;color:${clrCurrent};font-size:13px;font-weight:${isCurrent?'900':'600'};white-space:nowrap;text-decoration:none;border-radius:8px;margin:1px 6px;background:${bgCurrent};transition:background .12s;"
-      >${safe(x.name||"—")}</a>`;
-  }
-
 
 
   
@@ -767,21 +744,6 @@ const header = `
 <div class="techNameWrap techNamePinned" style="min-width:0;max-width:320px;">
               <div class="h2 techH2Big">${__nameHtml}</div>
               <div class="techTeamLine">${safe(team)}</div>
-            </div>
-            <!-- Magnifier / Tech List button -->
-            <div style="position:relative;align-self:flex-start;margin-top:4px;">
-              <button id="techListToggleBtn" aria-label="Browse technicians" title="Browse technicians"
-                style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:5px 10px;cursor:pointer;color:rgba(255,255,255,.70);transition:background .15s;">
-                <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="8.5" cy="8.5" r="5.5"/>
-                  <line x1="13" y1="13" x2="18" y2="18"/>
-                </svg>
-                <em style="font-size:11px;font-weight:700;letter-spacing:.2px;font-style:italic;">Techs</em>
-              </button>
-              <div id="techListDropdown"
-                style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:9990;min-width:190px;max-height:320px;overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,rgba(22,28,44,.98),rgba(10,14,24,.98));border:1px solid rgba(255,255,255,.10);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.55);padding:6px 0;">
-                ${__techListItemsHtml}
-              </div>
             </div>
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;">
@@ -1439,6 +1401,7 @@ return `
   }
 
   const top3Panel = `
+    <div style="position:relative;overflow:visible;height:100%;">
     <div class="panel techPickPanel diagSection" style="height:100%;min-width:0;overflow:hidden">
       <div class="phead" style="border-bottom:none;padding:12px;display:grid;gap:14px">
         <!-- ASR row -->
@@ -1467,55 +1430,13 @@ return `
         </div>
       </div>
     </div>
+    <svg viewBox="0 0 120 48" width="113" height="45" style="position:absolute;bottom:-19px;right:18px;overflow:visible;pointer-events:none;z-index:5;" aria-hidden="true"><rect x="0" y="27" width="120" height="3" fill="#0f1730"/><polyline points="0,28 18,28 26,28 32,8 38,44 44,20 50,28 68,28 76,28 82,8 88,44 94,20 100,28 120,28" fill="none" stroke="rgba(200,45,45,.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 3px rgba(200,40,40,.22));"/></svg>
+    </div>
   `;
 
-  // Widen the right "diag section" by shrinking the left header column (~15%) and
-  // allow both columns to shrink without clipping (minmax(0, …)).
-  const headerWrap = `<div class="techHeaderWrap" style="display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;">${header}${top3Panel}</div>`;
+  const headerWrap = `<div class="techHeaderWrap" style="display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;margin-bottom:32px;">${header}${top3Panel}</div>`;
 
   document.getElementById('app').innerHTML = `${headerWrap}${sectionsHtml}`;
-
-  // --- Tech list dropdown toggle ---
-  (function initTechListDropdown(){
-    const btn = document.getElementById('techListToggleBtn');
-    const drop = document.getElementById('techListDropdown');
-    if(!btn || !drop) return;
-
-    function openDrop(){
-      drop.style.display = 'block';
-      // Scroll current tech into view inside the dropdown
-      const cur = drop.querySelector('.techListDropItem[data-tid="${t.id}"]');
-      if(cur) cur.scrollIntoView({block:'nearest'});
-    }
-    function closeDrop(){ drop.style.display = 'none'; }
-
-    btn.addEventListener('click', (e)=>{
-      e.stopPropagation();
-      drop.style.display === 'none' ? openDrop() : closeDrop();
-    });
-
-    // Highlight on hover
-    drop.addEventListener('mouseover', (e)=>{
-      const a = e.target && e.target.closest ? e.target.closest('.techListDropItem') : null;
-      if(a) a.style.background = 'rgba(255,255,255,.10)';
-    });
-    drop.addEventListener('mouseout', (e)=>{
-      const a = e.target && e.target.closest ? e.target.closest('.techListDropItem') : null;
-      if(a) a.style.background = (a.getAttribute('data-tid') === '${t.id}') ? 'rgba(31,203,106,.10)' : 'transparent';
-    });
-
-    // Close on outside click
-    document.addEventListener('mousedown', function onOutside(e){
-      if(!btn.contains(e.target) && !drop.contains(e.target)){
-        closeDrop();
-      }
-    }, true);
-
-    // Close on Escape
-    document.addEventListener('keydown', function onEscDrop(e){
-      if(e.key === 'Escape') closeDrop();
-    }, true);
-  })();
 
 // Force the notch to match the header panel background exactly (prevents any shade mismatch)
 (function syncNotchBg(){

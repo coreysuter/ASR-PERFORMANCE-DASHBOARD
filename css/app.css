@@ -8,7 +8,7 @@ body{margin:0;background:linear-gradient(180deg,var(--bg),#070a14);color:var(--t
 .top{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
 h1{margin:0;font-size:20px;letter-spacing:.2px}
 .sub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
-.panel{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.panel{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid rgba(200,45,45,.45);border-radius:18px;overflow:hidden;box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14)}
 .phead{padding:14px 14px 10px;border-bottom:1px solid var(--border)}
 .titleRow{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .h2{font-size:16px;font-weight:1000;letter-spacing:.4px}

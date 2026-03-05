@@ -17,7 +17,7 @@ function renderMain(){
       position:relative !important;
       z-index:2 !important;
     }
-    .pageTechDash .teamsGrid{position:relative !important; z-index:1 !important;}
+    .pageTechDash .teamsGrid{position:relative !important; z-index:1 !important; margin-top:22px;}
 
     .pageTechDash .techRow .techNameStats .tnLbl{
       font-size:11px !important;
@@ -81,31 +81,28 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
 
   const header = `
 
-    
-<!-- Notched header panel: fixed-height notch that only wraps the menu button -->
-<div class="techNotchStage" style="position:relative; width:100%; overflow:visible;">
-  <!-- Notch extension (matches Goals page configuration) -->
-  <div class="panel techMenuNotch" style="
+<!-- Header stage: padding-left carves out room for the floating box -->
+<div class="techNotchStage" style="position:relative; width:100%; padding-left:80px; overflow:visible;">
+
+  <!-- Floating menu box — sits in the padding-left zone, fully disconnected -->
+  <div class="panel techMenuFloat" style="
     position:absolute;
-    left:-68px;
-    top:0px;
-    width:68px;
-    height:56px;
+    left:0px;
+    top:4px;
+    width:72px;
+    height:72px;
     display:flex;
     align-items:center;
     justify-content:center;
-    border-top-right-radius:0px;
-    border-bottom-right-radius:0px;
-    border-right:none;
+    border-radius:14px;
     z-index:2;
   ">
     <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
-      font-size:1.5em;
+      font-size:2.2em;
       line-height:1;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:8px 10px;
       cursor:pointer;
       color:inherit;
       user-select:none;
@@ -115,14 +112,15 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
   <div class="panel techHeaderPanel" style="
     width:100%;
     min-width:0;
-    border-top-left-radius:0px;
-    border-left:none;
   ">
       <div class="phead">
         <style>
+          /* Align title row to top, not bottom */
+          .techHeaderPanel .techTitleRow{align-items:flex-start !important;}
+
           /* Keep pills in the top row and prevent overlap with the title */
-          .techHeaderPanel .techDashTopRow{flex-wrap:nowrap !important;}
-          .techHeaderPanel .techH2Big{flex:0 0 auto !important;}
+          .techHeaderPanel .techDashTopRow{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;}
+          .techHeaderPanel .techH2Big{flex:0 0 auto !important;white-space:nowrap !important;font-size:32px !important;font-weight:1000 !important;line-height:1.05 !important;}
           .techHeaderPanel .pills{flex-wrap:nowrap !important;white-space:nowrap !important;flex:0 0 auto !important;}
 
           /* Tech header stat pills sizing (requested) */
@@ -134,10 +132,8 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             min-width:152px !important;
             max-width:237px !important;
           }
-        
-          /* Dropdown text colors:
-             - selected value (collapsed field): white
-             - dropdown list options: black */
+
+          /* Dropdown text colors */
           .techHeaderPanel .mainFiltersBar select{color:#fff !important;}
           .techHeaderPanel .mainFiltersBar select option{color:#000 !important;}
 
@@ -145,7 +141,7 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
         <div class="titleRow techTitleRow">
 <div class="techNameWrap">
             <div class="techDashTopRow" style="display:flex;align-items:center;gap:12px;flex-wrap:nowrap;justify-content:flex-start">
-              <div class="h2 techH2Big">Technician Dashboard</div>
+              <div class="techH2Big">Technician Dashboard</div>
             <div class="pills" style="margin-left:34px;display:flex;gap:12px;flex-wrap:nowrap;white-space:nowrap;flex:0 0 auto">
               <div class="pill"><div class="k">Avg ODO</div><div class="v">${fmtInt(avgOdo)}</div></div>
               <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
@@ -215,38 +211,17 @@ const st = state?.EXPRESS || {filterKey:"total", sortBy:"asr_per_ro", goalMetric
             </div>
             `}
           </div>
-          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
+          <button class="iconBtn pushRight" onclick="openTechSearch()" aria-label="Search" title="Search" style="display:none">${typeof ICON_SEARCH!=='undefined' ? ICON_SEARCH : '🔎'}</button>
         </div>
       </div>
     </div>
-  </div>
+
+  <!-- Heartbeat accent on techHeaderPanel -->
+  <svg viewBox="0 0 120 48" width="113" height="45" style="position:absolute;bottom:-19px;right:18px;overflow:visible;pointer-events:none;z-index:5;" aria-hidden="true"><rect x="0" y="27" width="120" height="3" fill="#0f1730"/><polyline points="0,28 18,28 26,28 32,8 38,44 44,20 50,28 68,28 76,28 82,8 88,44 94,20 100,28 120,28" fill="none" stroke="rgba(200,45,45,.45)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 0 3px rgba(200,40,40,.22));"/></svg>
+
+</div>
   `;
 app.innerHTML = `<div class="pageTechDash">${header}<div class="teamsGrid">${renderTeam("EXPRESS", state.EXPRESS)}${renderTeam("KIA", state.KIA)}</div></div>`;
-
-  // Force the notch to match the header panel background exactly (prevents any shade mismatch)
-  (function syncNotchBg(){
-    const stage = document.querySelector('.pageTechDash .techNotchStage');
-    const notch = document.querySelector('.pageTechDash .techMenuNotch');
-    const panel = document.querySelector('.pageTechDash .techHeaderPanel');
-    if(!notch || !panel) return;
-
-    const apply = ()=>{
-      const cs = getComputedStyle(panel);
-      // Match any solid/gradient background + repeat/position/size in case the theme uses more than a color
-      notch.style.backgroundColor = cs.backgroundColor;
-      notch.style.backgroundImage = cs.backgroundImage;
-      notch.style.backgroundRepeat = cs.backgroundRepeat;
-      notch.style.backgroundPosition = cs.backgroundPosition;
-      notch.style.backgroundSize = cs.backgroundSize;
-      notch.style.backgroundAttachment = cs.backgroundAttachment;
-      // Also match border color so the top line is identical
-      notch.style.borderColor = cs.borderTopColor;
-    };
-
-    // Two-pass to ensure we capture final computed styles after layout
-    requestAnimationFrame(()=>{ apply(); requestAnimationFrame(apply); });
-  })();
-
 
   document.querySelectorAll('[data-ctl]').forEach(el=>{
     const ctl=el.getAttribute('data-ctl');

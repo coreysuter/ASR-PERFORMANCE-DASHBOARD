@@ -76,7 +76,6 @@ function route(){
     if(parts[0]==="settings" && parts[1]==="goals"){ window.renderGoalsPage?.(); return; }
     if(parts[0]==="settings"){ window.renderSettingsHome?.(); return; }
     if(parts[0]==="servicesHome"){ window.renderServicesHome?.(); return; }
-    if(parts[0]==="advisor" && parts[1]){ window.renderAdvisorDetail?.(parts[1]); return; }
     if(parts[0]==="advisors"){ window.renderAdvisorMain?.(); window.animateSvcGauges?.(); return; }
     window.renderMain?.(); window.animateSvcGauges?.();
   }catch(e){
