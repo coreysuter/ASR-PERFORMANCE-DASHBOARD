@@ -592,10 +592,11 @@ function renderAdvisorMain(){
 
   const inGoalMode = (compareMode === "goal");
 
-  // ── Pill color class (matches compClass from base.js) ──
+  // ── Pill color class (delegates to global getCompClass when available) ──
   function compClass(actual, baseline){
     if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
     const r = actual / baseline;
+    if(window.getCompClass) return window.getCompClass(r);
     if(r >= 0.80) return " compG";
     if(r >= 0.60) return " compY";
     return " compR";

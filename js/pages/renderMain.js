@@ -284,6 +284,13 @@ function buildTeamCategoryStats(team){
 function bandClass(val, base){
     if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) return "";
     const pct = val/base;
+    if(window.getColorBand){
+      const band = window.getColorBand(pct);
+      if(band==="green")  return "bGreen";
+      if(band==="yellow") return "bYellow";
+      if(band==="orange") return "bOrange";
+      return "bRed";
+    }
     if(pct>=0.80) return "bGreen";
     if(pct>=0.60) return "bYellow";
     return "bRed";

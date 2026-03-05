@@ -319,8 +319,12 @@ function svcGauge(pct, label="", popupData){
   const ring = Math.round(Math.min(p, 1) * 100);  // ring fills to 100 max
 
   let cls = "gRed";
-  if(p >= 0.80) cls = "gGreen";
-  else if(p >= 0.60) cls = "gYellow";
+  if(window.getDialClass){
+    cls = window.getDialClass(p);
+  } else {
+    if(p >= 0.80) cls = "gGreen";
+    else if(p >= 0.60) cls = "gYellow";
+  }
 
   const lbl = String(label||"").trim();
 

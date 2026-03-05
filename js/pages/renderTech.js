@@ -48,6 +48,7 @@
 
   function bandOfPct(pct){
     if(!Number.isFinite(pct)) return null;
+    if(window.getColorBand) return window.getColorBand(pct);
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
     return "green";
@@ -551,6 +552,13 @@ function countBandsFor(mode){
   function bandClass(val, base){
     if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) return "";
     const pct = val/base;
+    if(window.getColorBand){
+      const band = window.getColorBand(pct);
+      if(band==="green")  return "bGreen";
+      if(band==="yellow") return "bYellow";
+      if(band==="orange") return "bOrange";
+      return "bRed";
+    }
     if(pct>=0.80) return "bGreen";
     if(pct>=0.60) return "bYellow";
     return "bRed";
@@ -1317,9 +1325,9 @@ return `
     };
 
     const parts = [
-      {band:"red", n:red, fill:"#ff4b4b"},
-      {band:"yellow", n:yellow, fill:"#ffbf2f"},
-      {band:"green", n:green, fill:"#1fcb6a"},
+      {band:"red",    n:red,    fill:(window.getPieFill||function(b){return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":"#ff4b4b";})("red")},
+      {band:"yellow", n:yellow, fill:(window.getPieFill||function(b){return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":"#ff4b4b";})("yellow")},
+      {band:"green",  n:green,  fill:(window.getPieFill||function(b){return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":"#ff4b4b";})("green")},
     ].filter(p=>p.n>0);
 
     // If no data, show a neutral circle with 0

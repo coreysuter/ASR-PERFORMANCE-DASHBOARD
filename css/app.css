@@ -765,6 +765,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 }
 .svcGauge.gGreen{--gCol:rgba(90,220,120,.95)}
 .svcGauge.gYellow{--gCol:rgba(255,210,60,.95)}
+.svcGauge.gOrange{--gCol:rgba(249,115,22,.95)}
 .svcGauge.gRed{--gCol:rgba(255,80,80,.95)}
 
 /* Technician service tile: two stacked metric blocks */
@@ -2636,3 +2637,32 @@ body.route-tech .pills .k *{
   outline:none;
 }
 .svcSetMiles:focus{border-color:rgba(120,190,255,.55)}
+
+/* ── Orange pill (compO) — 4-color mode ─────────────────────────────────── */
+.techRow .pill.compO::before,
+.pageAdvisorDash .advRow .pill.compO::before{
+  opacity:.75;
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.28) 0 42%,
+      rgba(249,115,22,.38) 70%,
+      rgba(249,115,22,.62) 100%
+    ),
+    linear-gradient(180deg, rgba(249,115,22,.24), rgba(249,115,22,.10));
+}
+.techRow .pill.compO::after,
+.pageAdvisorDash .advRow .pill.compO::after{
+  opacity:1;
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 0 1px rgba(251,146,60,.55),
+    inset 0 0 16px rgba(249,115,22,.32);
+}
