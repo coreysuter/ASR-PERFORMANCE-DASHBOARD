@@ -128,19 +128,49 @@
   <script src="./js/pages/renderSettingsHome.js?v=10011"></script>
   <script src="./js/pages/renderDealerSettingsPage.js?v=1"></script>
 
-  <!-- Sign-out button wiring (login gate is handled by app.js route()) -->
+  <!-- ✅ Login gate + dealer settings route -->
   <script>
-    document.addEventListener("DOMContentLoaded", function(){
-      var btn = document.getElementById("signOutBtn");
-      if(btn){
-        btn.addEventListener("click", function(){
-          window.clearSession?.();
-          var t = document.getElementById("menuToggle");
-          if(t) t.checked = false;
-          window.renderLoginPage?.({ redirect: "#/" });
-        });
+    (function(){
+      const SESSION_KEY = "dashSession_v1";
+      function hasSession(){
+        try{ return !!JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
+        catch(e){ return false; }
       }
-    });
+
+      function loginGate(){
+        if(!hasSession()){
+          window.renderLoginPage({ redirect: location.hash || "#/" });
+          return true;
+        }
+        return false;
+      }
+
+      function handleRoute(){
+        if(loginGate()) return;
+        var h = location.hash || "#/";
+        if(h === "#/settings/dealer" || h.indexOf("#/settings/dealer?") === 0){
+          window.renderDealerSettingsPage && window.renderDealerSettingsPage();
+        }
+        // All other routes handled by app.js
+      }
+
+      // Capture phase — fires before app.js listener
+      window.addEventListener("hashchange", handleRoute, true);
+
+      document.addEventListener("DOMContentLoaded", function(){
+        handleRoute();
+
+        var btn = document.getElementById("signOutBtn");
+        if(btn){
+          btn.addEventListener("click", function(){
+            window.clearSession?.();
+            var t = document.getElementById("menuToggle");
+            if(t) t.checked = false;
+            window.renderLoginPage?.({ redirect: "#/" });
+          });
+        }
+      });
+    })();
   </script>
 
   <script type="module" src="./js/app.js?v=5"></script>
