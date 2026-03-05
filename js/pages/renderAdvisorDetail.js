@@ -30,8 +30,8 @@
       const reqs=[], closes=[];
       for(const x of scopeAdvisors){
         const c = x.categories?.[cat];
-        const req = Number(c?.req);
-        const close = Number(c?.close);
+        const req   = (c && c.req   != null) ? Number(c.req)   : NaN;
+        const close = (c && c.close != null) ? Number(c.close) : NaN;
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
       }
@@ -375,9 +375,9 @@ function renderAdvisorDetail(advisorId){
       let topReq=-1, topName="—", topClose=null;
       for(const x of scopeAdvisors){
         const c=x.categories?.[cat];
-        const req=Number(c?.req);
-        const close=Number(c?.close);
-        const asrN=Number(c?.asr);
+        const req  = (c && c.req  != null) ? Number(c.req)  : NaN;
+        const close= (c && c.close!= null) ? Number(c.close): NaN;
+        const asrN = (c && c.asr  != null) ? Number(c.asr)  : NaN;
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
         if(Number.isFinite(asrN)) asrCounts.push(asrN);
