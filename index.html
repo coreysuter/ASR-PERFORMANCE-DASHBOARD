@@ -151,10 +151,11 @@
 
   <!-- ✅ Login gate + dealer settings route -->
   <script>
-    var SESSION_KEY = "dashSession_v1";
-
+    // NOTE: SESSION_KEY is declared as `const` in renderLoginPage.js — do NOT redeclare it
+    // here or the entire script block will throw a SyntaxError and all guards below will
+    // silently fail.  Use window.getSession() (defined by renderLoginPage.js) instead.
     function hasSession(){
-      try{ return !!JSON.parse(localStorage.getItem(SESSION_KEY)); }
+      try{ return !!(window.getSession && window.getSession()); }
       catch(e){ return false; }
     }
 
