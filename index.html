@@ -154,7 +154,7 @@
     var SESSION_KEY = "dashSession_v1";
 
     function hasSession(){
-      try{ return !!JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
+      try{ return !!JSON.parse(localStorage.getItem(SESSION_KEY)); }
       catch(e){ return false; }
     }
 
@@ -194,7 +194,7 @@
       var btn = document.getElementById("signOutBtn");
       if(btn){
         btn.addEventListener("click", function(){
-          try{ sessionStorage.removeItem("dashSession_v1"); }catch(e){}
+          try{ localStorage.removeItem("dashSession_v1"); }catch(e){}
           window.location.replace(location.pathname);
         });
       }
