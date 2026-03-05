@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ASR Performance Dashboard</title>
+  <title>ServicePulse · Performance Dashboard</title>
   <link rel="stylesheet" href="./css/app.css?v=5" />
 </head>
 <body>
@@ -45,18 +45,11 @@
         Technician Dashboard
       </a>
 
-
       <!-- Advisor Dashboard -->
       <a class="menuLink topLink" href="#/advisors" style="font-weight:800;">
         <span class="mIcon" aria-hidden="true" style="font-weight:800;">👤</span>
         Advisor Dashboard
       </a>
-
-      <!-- Individual Advisors -->
-      <details class="menuGroup menuSubTop">
-        <summary class="menuSubHdr">Advisors</summary>
-        <div id="menuAdvisorList" class="menuTechList"></div>
-      </details>
 
       <!-- Express Techs -->
       <details class="menuGroup menuSubTop" open>
@@ -81,11 +74,21 @@
         <a class="menuLink" href="#/settings/dealer">Dealer Settings</a>
       </details>
 
+      <!-- Sign Out -->
+      <div style="margin-top:10px;padding:0 10px">
+        <button id="signOutBtn" class="menuLink" style="
+          width:100%;text-align:left;background:none;
+          border:1px solid rgba(248,113,113,.25);color:#fca5a5;
+          border-radius:12px;padding:10px 14px;cursor:pointer;
+          font-family:inherit;font-size:14px;font-weight:800;
+        ">
+          <span class="mIcon" aria-hidden="true">🚪</span> Sign Out
+        </button>
+      </div>
     </div>
 
     <label for="menuToggle" id="menuScrim" class="menuScrim" aria-hidden="true"></label>
 
-    <!-- ✅ This is what renderMain/renderTech need -->
     <div id="app" style="display:grid;gap:12px;margin-top:12px"></div>
 
     <!-- Technician search modal -->
@@ -100,11 +103,12 @@
       </div>
     </div>
 
-    <div class="footer">GitHub Pages build</div>
+    <div class="footer">ServicePulse</div>
   </div>
 
   <!-- ✅ Scripts (ORDER MATTERS) -->
   <script src="./js/core/base.js?v=10000"></script>
+  <script src="./js/pages/renderLoginPage.js?v=1"></script>
   <script src="./js/pages/renderMain.js?v=5"></script>
   <script src="./js/pages/renderTech.js?v=1000"></script>
   <script src="./js/pages/renderGroupPage.js?v=4"></script>
@@ -112,10 +116,50 @@
   <script src="./js/pages/renderServicesHome.js?v=4"></script>
   <script src="./js/pages/renderServiceSettingsPage.js?v=1"></script>
   <script src="./js/pages/renderAdvisorMain.js?v=8"></script>
-  <script src="./js/pages/renderAdvisorDetail.js?v=1"></script>
   <script src="./js/pages/renderSettingsHome.js?v=10011"></script>
+  <script src="./js/pages/renderDealerSettingsPage.js?v=1"></script>
 
+  <!-- ✅ Login gate — runs before app.js router kicks in -->
+  <script>
+    (function(){
+      // If no valid session exists, show login and block the router
+      const SESSION_KEY = "dashSession_v1";
+      function hasSession(){
+        try{ return !!JSON.parse(sessionStorage.getItem(SESSION_KEY)); }
+        catch(e){ return false; }
+      }
 
+      // Intercept every hash-change: redirect to login if not authenticated
+      function loginGate(){
+        if(!hasSession()){
+          window.renderLoginPage({ redirect: location.hash || "#/" });
+          return true;
+        }
+        return false;
+      }
+
+      // Patch hashchange so the gate runs before the main router
+      window.addEventListener("hashchange", function(){
+        loginGate();
+      }, true); // capture phase — fires before app.js listener
+
+      // On first load, show login if needed (DOMContentLoaded fires after scripts)
+      document.addEventListener("DOMContentLoaded", function(){
+        loginGate();
+
+        // Sign Out button in side menu
+        var btn = document.getElementById("signOutBtn");
+        if(btn){
+          btn.addEventListener("click", function(){
+            window.clearSession?.();
+            var t = document.getElementById("menuToggle");
+            if(t) t.checked = false;
+            window.renderLoginPage({ redirect: "#/" });
+          });
+        }
+      });
+    })();
+  </script>
 
   <script type="module" src="./js/app.js?v=5"></script>
 </body>
