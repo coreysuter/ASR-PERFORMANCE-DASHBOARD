@@ -2527,9 +2527,20 @@ body.route-tech .pills .k *{
   max-width:100%;
 }
 .svcSetPanel .phead{width:fit-content}
+.svcSetMinMilesHeading{
+  font-size:22px;
+  font-weight:1000;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  color:rgba(234,240,255,.90);
+  margin-top:18px;
+  margin-bottom:4px;
+  padding-left:2px;
+}
 .svcSetGrid{
-  margin-top:12px;
+  margin-top:8px;
   display:grid;
+  grid-template-columns:repeat(2, auto);
   gap:10px;
   width:fit-content;
   max-width:100%;

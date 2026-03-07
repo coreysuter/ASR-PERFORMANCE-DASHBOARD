@@ -140,6 +140,8 @@ function renderServiceSettingsPage(){
           Set the minimum vehicle mileage required for each service to be included in reporting.
         </div>
 
+        <div class="svcSetMinMilesHeading">Minimum Miles</div>
+
         <div class="svcSetGrid">
           ${sectionsHtml || `<div class="notice">No services found in DATA.sections.</div>`}
         </div>
