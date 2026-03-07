@@ -166,10 +166,7 @@ function renderServiceSettingsPage(){
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px">
-      <button id="svcSetClear" class="menuClose" style="width:auto;padding:8px 12px">Clear</button>
-      <div id="svcSetSaved" class="sub" style="margin:0;opacity:.8;display:none">Saved</div>
-    </div>
+    <div id="svcSetSaved" class="sub" style="margin:8px 0 0 0;opacity:.8;display:none;text-align:right">Saved</div>
   `;
 
   function flashSaved(){
@@ -196,18 +193,6 @@ function renderServiceSettingsPage(){
       flashSaved();
     });
   });
-
-  // Clear all
-  const btn = document.getElementById("svcSetClear");
-  if(btn){
-    btn.addEventListener("click", ()=>{
-      try{ localStorage.removeItem(LS_KEY); }catch(e){}
-      // reset UI
-      app.querySelectorAll(".svcSetMiles").forEach(inp=>inp.value="");
-      for(const k of Object.keys(map)) delete map[k];
-      flashSaved();
-    });
-  }
 
   // ── Op-Codes table ────────────────────────────────────
   let opcRows = _loadOpc();
