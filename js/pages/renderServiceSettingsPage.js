@@ -146,24 +146,29 @@ function renderServiceSettingsPage(){
           ${sectionsHtml || `<div class="notice">No services found in DATA.sections.</div>`}
         </div>
 
-        <!-- Op-Codes Section -->
-        <div class="svcSetMinMilesHeading" style="margin-top:24px">Services, Op-Codes &amp; Descriptions</div>
-        <div class="svcSetSection" style="margin-top:8px">
-          <div id="opcTableWrap" style="padding:0 14px 14px"></div>
-          <div style="padding:0 14px 14px;display:flex;justify-content:flex-end">
-            <button id="opcAddBtn" style="
-              background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);
-              color:#93c5fd;border-radius:10px;padding:8px 16px;cursor:pointer;
-              font-family:inherit;font-size:13px;font-weight:800">+ Add Service</button>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px">
-          <button id="svcSetClear" class="menuClose" style="width:auto;padding:8px 12px">Clear</button>
-          <div id="svcSetSaved" class="sub" style="margin:0;opacity:.8;display:none">Saved</div>
-        </div>
         </div>
       </div>
+    </div>
+
+    <!-- Op-Codes Panel (separate) -->
+    <div class="techNotchStage" style="position:relative;width:100%;overflow:visible;margin-top:18px;">
+      <div class="panel svcSetPanel" style="min-width:0;width:100%;">
+        <div class="phead">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+            <div class="svcSetMinMilesHeading" style="margin:0;">Services, Op-Codes &amp; Descriptions</div>
+            <button id="opcAddBtn" style="
+              background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.4);
+              color:#93c5fd;border-radius:10px;padding:8px 18px;cursor:pointer;
+              font-family:inherit;font-size:13px;font-weight:800;flex-shrink:0;white-space:nowrap">+ Add Service</button>
+          </div>
+          <div id="opcTableWrap" style="margin-top:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px">
+      <button id="svcSetClear" class="menuClose" style="width:auto;padding:8px 12px">Clear</button>
+      <div id="svcSetSaved" class="sub" style="margin:0;opacity:.8;display:none">Saved</div>
     </div>
   `;
 
