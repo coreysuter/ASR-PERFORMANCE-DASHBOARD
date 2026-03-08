@@ -272,13 +272,13 @@ function renderAdvisorMain(){
       display:flex;
       flex-wrap:nowrap;
       align-items:baseline;
-      gap:10px;
+      gap:4px;
     }
-    .pageAdvisorDash .advRow .techNameStats .tnRow2{ gap:14px; }
+    .pageAdvisorDash .advRow .techNameStats .tnRow2{ gap:4px; }
     .pageAdvisorDash .advRow .techNameStats .tnMini{
       display:inline-flex;
       align-items:baseline;
-      gap:8px;
+      gap:4px;
     }
     .pageAdvisorDash .advRow .techNameStats .tnLbl{
       font-size:11px;
@@ -293,7 +293,7 @@ function renderAdvisorMain(){
       line-height:1;
     }
     .pageAdvisorDash .advRow .techNameStats .miniDot{
-      margin:0 6px;
+      margin:0 2px;
       color:var(--muted);
       user-select:none;
     }
