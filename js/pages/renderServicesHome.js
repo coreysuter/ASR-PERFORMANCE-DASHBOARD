@@ -369,12 +369,9 @@ function renderServicesHome(){
 
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:flex !important;flex-direction:column !important;gap:8px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{display:grid !important;gap:8px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row1{grid-template-columns:repeat(3, minmax(130px,1fr)) !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row2{grid-template-columns:repeat(2, minmax(130px,1fr)) !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{display:grid !important;grid-template-columns:repeat(3, minmax(130px,1fr)) !important;gap:8px !important;}
       @media(max-width:920px){
-        .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row1{grid-template-columns:repeat(2,1fr) !important;}
-        .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row2{grid-template-columns:repeat(2,1fr) !important;}
+        .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{grid-template-columns:repeat(2,1fr) !important;}
       }
       @media(max-width:560px){
         .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{grid-template-columns:1fr !important;}
@@ -699,8 +696,10 @@ function serviceGoalDial(pct, sz){
   // Top-right block
   let topVal = asrPerRo;
   let topLbl = 'ASRs/RO';
-  let subVal = soldPerRo;
-  let subLbl = 'Sold/RO';
+  let subVal = (soldFocus === 'asrs') ? soldPerAsr : soldPerRo;
+  let subLbl = (soldFocus === 'asrs') ? 'Sold/ASR' : 'Sold/RO';
+  // When ASR Goal + Sold/ASR focus: top=ASRs/RO, sub=Sold/ASR, Sold/RO becomes a pill
+  // When ASR Goal + Sold/RO focus: top=ASRs/RO, sub=Sold/RO
   if(focus === 'sold'){
     if(soldFocus === 'ro'){
       topVal = soldPerRo; topLbl = 'Sold/RO';
@@ -710,6 +709,8 @@ function serviceGoalDial(pct, sz){
       subVal = asrPerRo;   subLbl = 'ASRs/RO';
     }
   }
+  // Show Sold/RO as extra pill only when ASR goal + Sold/ASR focus (since sub is Sold/ASR, Sold/RO is demoted)
+  const showSoldRoPill = (focus === 'asr' && soldFocus === 'asrs');
 
   // Header panel (copied structure from Technician Dashboard)
   const header = `
@@ -757,6 +758,7 @@ function serviceGoalDial(pct, sz){
                   <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
                   <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(totalPreMpiSold)}</div></div>
                   <div class="pillMini sold"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+                  ${showSoldRoPill ? `<div class="pillMini"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div></div>` : ''}
                 </div>
 
                 <div class="svcHdrGoalDials">
@@ -781,7 +783,7 @@ function serviceGoalDial(pct, sz){
             <div class="tag">${safe(topLbl)}</div>
 
             <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subVal===null || subVal===undefined ? "—" : fmt1(subVal,2)}
+              ${subVal===null || subVal===undefined ? "—" : (subLbl==='Sold/ASR' ? fmtPct(subVal) : fmt1(subVal,2))}
             </div>
             <div class="tag">${safe(subLbl)}</div>
           </div>
@@ -830,6 +832,7 @@ function serviceGoalDial(pct, sz){
                   <option value="ro" ${soldFocus==='ro'?'selected':''}>Sold/RO</option>
                 </select>
               </div>
+              <div></div>
             </div>
           </div>
         
@@ -1557,6 +1560,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
               ${diagPieChartServices('asr')}
+              <div style="font-size:11px;font-style:italic;opacity:.75;margin-top:4px;text-align:center">(Services)</div>
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services ASR', topSvcAsr, 'asr', 'up') : tbMiniBox('Top 3 Technicians ASR', topTechAsr, 'asr', 'up')}</div>
             <div>${pickView==='services' ? tbMiniBoxSvc('Bottom 3 Services ASR', botSvcAsr, 'asr', 'down') : tbMiniBox('Bottom 3 Technicians ASR', botTechAsr, 'asr', 'down')}</div>
@@ -1571,6 +1575,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
               <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
+              <div style="font-size:11px;font-style:italic;opacity:.75;margin-top:4px;text-align:center">(Services)</div>
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc(`Top 3 Services ${soldFocusLabel}`, topSvcSold, soldFocus, 'up') : tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
             <div>${pickView==='services' ? tbMiniBoxSvc(`Bottom 3 Services ${soldFocusLabel}`, botSvcSold, soldFocus, 'down') : tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
@@ -1612,7 +1617,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   app.querySelectorAll('select[data-svcdash="1"]').forEach(sel=>{
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
-      if(ctl==='focus') st.focus = sel.value;
+      if(ctl==='focus'){ st.focus = sel.value; st.goalMetric = sel.value; }
 if(ctl==='team') st.team = sel.value;
       if(ctl==='fluids') st.fluids = sel.value;
       if(ctl==='soldFocus') st.soldFocus = sel.value;
@@ -1669,6 +1674,9 @@ try{
 }catch(e){}
 
   // ---- Diag interactions (pie -> list of services, tech rows -> tech page) ----
+  // Use a module-level token so stale listeners from previous renders self-cancel.
+  if(!window._svcDiagPopToken) window._svcDiagPopToken = 0;
+
   function closeSvcDiagPopup(){
     const el = document.getElementById('svcDiagPopup');
     if(el) el.remove();
@@ -1730,20 +1738,30 @@ try{
       closeSvcDiagPopup();
     }, true);
 
-    const r = (anchorEl && anchorEl.getBoundingClientRect) ? anchorEl.getBoundingClientRect() : {left:20,top:20,right:20};
-    const pr = pop.getBoundingClientRect();
-    const pad = 10;
-    let left = r.right + pad;
-    let top = r.top - 6;
+    // Position using mouse event coords (reliable across all browsers/SVG scenarios)
+    const clientX = (ev && ev.clientX) ? ev.clientX : (window.innerWidth / 2);
+    const clientY = (ev && ev.clientY) ? ev.clientY : (window.innerHeight / 2);
     const vw = window.innerWidth, vh = window.innerHeight;
-    if(left + pr.width > vw - 8) left = r.left - pr.width - pad;
-    if(top + pr.height > vh - 8) top = Math.max(8, vh - pr.height - 8);
+    const popW = 520, popH = 400; // estimated height before layout
+    let left = clientX + 14;
+    let top  = clientY - 20;
+    if(left + popW > vw - 8) left = clientX - popW - 14;
+    if(left < 8) left = 8;
+    if(top + popH > vh - 8) top = Math.max(8, vh - popH - 8);
     if(top < 8) top = 8;
     pop.style.left = `${left}px`;
-    pop.style.top = `${top}px`;
+    pop.style.top  = `${top}px`;
 
+    // Issue token so stale mousedown listeners from previous renders self-cancel
+    const myToken = ++window._svcDiagPopToken;
     setTimeout(()=>{
-      const onDoc = (e)=>{ if(!pop.contains(e.target)){ document.removeEventListener('mousedown', onDoc, true); closeSvcDiagPopup(); } };
+      const onDoc = (e)=>{
+        // Stale listener (from a previous render) — self-remove without closing current popup
+        if(window._svcDiagPopToken !== myToken){ document.removeEventListener('mousedown', onDoc, true); return; }
+        // Also self-clean if our pop was removed externally (re-render)
+        if(!pop.isConnected){ document.removeEventListener('mousedown', onDoc, true); return; }
+        if(!pop.contains(e.target)){ document.removeEventListener('mousedown', onDoc, true); closeSvcDiagPopup(); }
+      };
       document.addEventListener('mousedown', onDoc, true);
     }, 0);
     document.addEventListener('keydown', onSvcEsc, true);
