@@ -586,8 +586,15 @@ function renderAdvisorMain(){
   const avgOdo    = totalRos ? advisors.reduce((s,a) => s + (Number(a.odo)||0)*(Number(a.ros)||0), 0)/totalRos : 0;
   const totalAsr  = advisors.reduce((s,a) => s + (Number(a.summary?.total?.asr)||0), 0);
   const totalSold = advisors.reduce((s,a) => s + (Number(a.summary?.total?.sold)||0), 0);
+  const totalPreMpi = advisors.reduce((s,a) => s + preMpiSold(a), 0);
+  // Effective sold for Sold/RO header stat — respects Pre MPI filter
+  const totalEffectiveSold = (() => {
+    if(st.preMpi === "excluded")     return advisors.reduce((s,a) => s + Math.max(0,(Number(ss(a)?.sold)||0) - preMpiSold(a)), 0);
+    if(st.preMpi === "presold_only") return totalPreMpi;
+    return advisors.reduce((s,a) => s + (Number(ss(a)?.sold)||0), 0);
+  })();
   const overallAsrPerRo  = totalRos ? (totalAsr/totalRos) : null;
-  const overallSoldPerRo = totalRos ? (totalSold/totalRos) : null;
+  const overallSoldPerRo = totalRos ? (totalEffectiveSold/totalRos) : null;
   const overallSoldPerAsr= totalAsr ? (totalSold/totalAsr) : null;
 
   // ── Averages for comparison ──
@@ -826,6 +833,12 @@ function renderAdvisorMain(){
           <div class="pill${clsAsrGoal}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
         </div>`;
 
+      const soldCountGroup = `
+        <div class="pillGroup">
+          <div class="pill"><div class="k">ASRs Sold</div><div class="v">${fmtInt(s2.sold)}</div></div>
+          <div class="pill"><div class="k">Sold Pre-MPI</div><div class="v">${preMpiDisplay}</div></div>
+        </div>`;
+
       const soldAsrGroup = `
         <div class="pillGroup${focusMode==="sold_asr" ? " focusGroup" : ""}">
           <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${soldAsrDisplay}</div></div>
@@ -840,8 +853,8 @@ function renderAdvisorMain(){
 
       // Focus group goes closest to the rank badge
       const pillsHtml = focusMode === "sold_ro"
-        ? `${asrGroup}${soldAsrGroup}${soldRoGroup}`
-        : `${asrGroup}${soldRoGroup}${soldAsrGroup}`;
+        ? `${asrGroup}${soldCountGroup}${soldAsrGroup}${soldRoGroup}`
+        : `${asrGroup}${soldCountGroup}${soldRoGroup}${soldAsrGroup}`;
 
       // ── Rank badge ──
       const badgeLabel = focusMode === "sold_ro" ? "Sold/RO" : "Sold/ASRs";
