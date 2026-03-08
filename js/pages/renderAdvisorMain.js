@@ -690,6 +690,8 @@ function renderAdvisorMain(){
                 <div class="advStatChip"><span class="advStatLbl">Avg Odo</span><span class="advStatVal">${fmtInt(avgOdo)}</span></div>
                 <div class="advStatChip"><span class="advStatLbl">ROs</span><span class="advStatVal">${fmtInt(totalRos)}</span></div>
                 <div class="advStatChip"><span class="advStatLbl">ASRs</span><span class="advStatVal">${fmtInt(totalAsr)}</span></div>
+                <div class="advStatChip"><span class="advStatLbl">ASRs Sold</span><span class="advStatVal">${fmtInt(totalSold)}</span></div>
+                <div class="advStatChip"><span class="advStatLbl">Sold Pre-MPI</span><span class="advStatVal">${fmtInt(totalPreMpi)}</span></div>
               </div>
             </div>
           </div>
@@ -853,8 +855,8 @@ function renderAdvisorMain(){
 
       // Focus group goes closest to the rank badge
       const pillsHtml = focusMode === "sold_ro"
-        ? `${asrGroup}${soldCountGroup}${soldAsrGroup}${soldRoGroup}`
-        : `${asrGroup}${soldCountGroup}${soldRoGroup}${soldAsrGroup}`;
+        ? `${asrGroup}${soldAsrGroup}${soldRoGroup}`
+        : `${asrGroup}${soldRoGroup}${soldAsrGroup}`;
 
       // ── Rank badge ──
       const badgeLabel = focusMode === "sold_ro" ? "Sold/RO" : "Sold/ASRs";
