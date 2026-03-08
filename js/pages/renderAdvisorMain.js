@@ -683,15 +683,21 @@ function renderAdvisorMain(){
                 <div class="advStatChip"><span class="advStatLbl">Avg Odo</span><span class="advStatVal">${fmtInt(avgOdo)}</span></div>
                 <div class="advStatChip"><span class="advStatLbl">ROs</span><span class="advStatVal">${fmtInt(totalRos)}</span></div>
                 <div class="advStatChip"><span class="advStatLbl">ASRs</span><span class="advStatVal">${fmtInt(totalAsr)}</span></div>
-                <div class="advStatChip sold"><span class="advStatLbl">Sold/ASRs</span><span class="advStatVal">${soldAsrHeaderTxt}</span></div>
               </div>
             </div>
           </div>
 
           <div class="advOverallBlock">
-            <div class="advFocusTop">
-              <div class="advBigNum">${overallSoldPerRo===null ? "—" : fmt1(overallSoldPerRo,2)}</div>
-              <div class="advBigTag">Sold/RO</div>
+            <div class="advFocusTop" style="display:flex;align-items:center;gap:0;">
+              <div style="text-align:right;">
+                <div class="advBigNum">${overallSoldPerRo===null ? "—" : fmt1(overallSoldPerRo,2)}</div>
+                <div class="advBigTag">Sold/RO</div>
+              </div>
+              <div style="width:1px;background:rgba(255,255,255,.18);align-self:stretch;margin:0 12px;border-radius:1px;"></div>
+              <div style="text-align:left;">
+                <div class="advBigNum">${soldAsrHeaderTxt}</div>
+                <div class="advBigTag">Sold/ASRs</div>
+              </div>
             </div>
             <div class="advFocusBot">
               <div class="advSubNum">${overallAsrPerRo===null ? "—" : fmt1(overallAsrPerRo,1)}</div>
