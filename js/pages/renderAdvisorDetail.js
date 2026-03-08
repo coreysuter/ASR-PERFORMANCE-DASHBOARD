@@ -206,6 +206,17 @@ function renderAdvisorDetail(advisorId){
       .advDetailControls select{color:#fff}
       .advDetailControls select option{color:#000}
 
+      body.route-advisor .catCard .catHeader .svcGaugeWrap{
+        --sz:74px !important;
+        width:var(--sz) !important;
+        height:var(--sz) !important;
+        flex:0 0 var(--sz) !important;
+      }
+      body.route-advisor .catCard .catHeader .svcGauge{
+        --sz:74px !important;
+        width:var(--sz) !important;
+        height:var(--sz) !important;
+      }
       body.route-advisor .catCard .catHeader .svcGauge .pctSub,
       body.route-advisor .catCard .catHeader .svcGauge .pctTitle{
         font-size:12px !important;
