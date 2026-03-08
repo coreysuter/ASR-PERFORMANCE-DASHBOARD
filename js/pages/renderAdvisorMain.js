@@ -533,7 +533,7 @@ function renderAdvisorMain(){
 
   // Independent state (persists across re-renders within session)
   if(typeof window._advState === "undefined"){
-    window._advState = { filterKey:"total", compare:"advisors" };
+    window._advState = { filterKey:"total", compare:"advisors", preMpi:"included" };
   }
   const st = window._advState;
 
@@ -679,11 +679,19 @@ function renderAdvisorMain(){
         <!-- Filters -->
         <div class="advFiltersBar">
           <div class="advFilterGroup">
-            <label>Filter</label>
+            <label>Fluids</label>
             <select data-adv-ctl="filter">
               <option value="total"${st.filterKey==="total"?" selected":""}>With Fluids (Total)</option>
               <option value="without_fluids"${st.filterKey==="without_fluids"?" selected":""}>Without Fluids</option>
               <option value="fluids_only"${st.filterKey==="fluids_only"?" selected":""}>Fluids Only</option>
+            </select>
+          </div>
+          <div class="advFilterGroup">
+            <label>Pre MPI Sales</label>
+            <select data-adv-ctl="preMpi">
+              <option value="included"${st.preMpi==="included"?" selected":""}>Included</option>
+              <option value="excluded"${st.preMpi==="excluded"?" selected":""}>Excluded</option>
+              <option value="presold_only"${st.preMpi==="presold_only"?" selected":""}>Pre-Sold Only</option>
             </select>
           </div>
           <div class="advFilterGroup">
@@ -769,9 +777,13 @@ function renderAdvisorMain(){
 
       // Rank badge (uses global rankBadgeHtmlDash from base.js)
       const badgeHtml = (typeof rankBadgeHtmlDash === "function")
-        ? rankBadgeHtmlDash(rk.rank ?? "—", rk.total ?? "—", "sold", "sm")
+        ? `<div class="rankFocusBadge sm">
+             <div class="rfbFocus" style="font-weight:1000">Sold/ASRs</div>
+             <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
+             <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
+           </div>`
         : `<div class="rankFocusBadge sm">
-             <div class="rfbFocus" style="font-weight:1000">SOLD%</div>
+             <div class="rfbFocus" style="font-weight:1000">Sold/ASRs</div>
              <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
              <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
            </div>`;
@@ -803,7 +815,7 @@ function renderAdvisorMain(){
             <div class="pillGroup focusGroup">
               <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${soldAsrDisplay}</div></div>
               <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${soldRoDisplay}</div></div>
-              <div class="pill${clsSoldGoal}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+              <div class="pill${clsSoldGoal}"><div class="k">Sold/ASRs Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
             </div>
           </div>
 
@@ -825,6 +837,7 @@ function renderAdvisorMain(){
     const ctl = el.getAttribute("data-adv-ctl");
     const handler = () => {
       if(ctl==="filter")  st.filterKey = el.value;
+      if(ctl==="preMpi")  st.preMpi    = el.value;
       if(ctl==="compare") st.compare   = el.value;
       renderAdvisorMain();
     };
