@@ -533,27 +533,44 @@ function renderAdvisorMain(){
 
   // Independent state (persists across re-renders within session)
   if(typeof window._advState === "undefined"){
-    window._advState = { filterKey:"total", compare:"advisors", preMpi:"included" };
+    window._advState = { filterKey:"total", compare:"advisors", preMpi:"included", focus:"sold_asr" };
   }
   const st = window._advState;
 
   const compareMode = (String(st.compare||"advisors")==="goal") ? "goal" : "advisors";
+  const focusMode   = (String(st.focus||"sold_asr")==="sold_ro") ? "sold_ro" : "sold_asr";
 
   // ── Helper: get summary object for current filter ──
   function ss(a){ return (a && a.summary && a.summary[st.filterKey]) ? a.summary[st.filterKey] : {}; }
+
+  // ── Pre-MPI sold helper ──
+  // advisor_sold = sales made by the advisor before the MPI (Pre-MPI sales)
+  function preMpiSold(a){
+    const v = Number(ss(a)?.advisor_sold);
+    return Number.isFinite(v) ? v : 0;
+  }
+
+  // ── Effective sold for Sold/RO (respects preMpi filter) ──
+  function effectiveSoldForRo(a){
+    const s2 = ss(a);
+    const sold = Number(s2?.sold);
+    if(!Number.isFinite(sold)) return null;
+    if(st.preMpi === "excluded") return sold - preMpiSold(a);
+    if(st.preMpi === "presold_only") return preMpiSold(a);
+    return sold; // included (default)
+  }
 
   // ── Derived metrics ──
   function asrPerRo(a){  const v = Number(ss(a)?.asr_per_ro); return Number.isFinite(v) ? v : null; }
   function soldPct(a){   const v = Number(ss(a)?.sold_pct);   return Number.isFinite(v) ? v : null; }
   function soldPerRo(a){
-    const s2 = ss(a);
-    const ro = Number(a?.ros);
-    const sold = Number(s2?.sold);
-    return (Number.isFinite(ro) && ro>0 && Number.isFinite(sold)) ? (sold/ro) : null;
+    const ro   = Number(a?.ros);
+    const sold = effectiveSoldForRo(a);
+    return (Number.isFinite(ro) && ro>0 && sold !== null && Number.isFinite(sold)) ? (sold/ro) : null;
   }
   function soldPerAsr(a){
-    const s2 = ss(a);
-    const asr = Number(s2?.asr);
+    const s2   = ss(a);
+    const asr  = Number(s2?.asr);
     const sold = Number(s2?.sold);
     return (Number.isFinite(asr) && asr>0 && Number.isFinite(sold)) ? (sold/asr) : null;
   }
@@ -583,16 +600,17 @@ function renderAdvisorMain(){
 
   // ── Goals ──
   const _overallGoals = (typeof calcOverallGoals === "function") ? calcOverallGoals() : { asrPerRo:null, soldPerRo:null, soldPct:null };
-  const asrGoalTarget  = (Number.isFinite(_overallGoals.asrPerRo) && _overallGoals.asrPerRo>0)  ? _overallGoals.asrPerRo  : av.asr_per_ro;
-  const soldGoalTarget = (Number.isFinite(_overallGoals.soldPct) && _overallGoals.soldPct>0) ? _overallGoals.soldPct : av.sold_pct;
-  const soldRoGoalTarget = (Number.isFinite(_overallGoals.soldPerRo) && _overallGoals.soldPerRo>0) ? _overallGoals.soldPerRo : null;
+  const asrGoalTarget    = (Number.isFinite(_overallGoals.asrPerRo)  && _overallGoals.asrPerRo>0)  ? _overallGoals.asrPerRo  : av.asr_per_ro;
+  const soldGoalTarget   = (Number.isFinite(_overallGoals.soldPct)   && _overallGoals.soldPct>0)   ? _overallGoals.soldPct   : av.sold_pct;
+  const soldRoGoalTarget = (Number.isFinite(_overallGoals.soldPerRo) && _overallGoals.soldPerRo>0) ? _overallGoals.soldPerRo : av.sold_ro;
 
-  const baseAsrGoalRatio  = (Number.isFinite(asrGoalTarget)  && asrGoalTarget>0  && Number.isFinite(av.asr_per_ro)) ? (av.asr_per_ro/asrGoalTarget)  : null;
-  const baseSoldGoalRatio = (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 && Number.isFinite(av.sold_pct))   ? (av.sold_pct/soldGoalTarget)   : null;
+  const baseAsrGoalRatio  = (Number.isFinite(asrGoalTarget)    && asrGoalTarget>0    && Number.isFinite(av.asr_per_ro)) ? (av.asr_per_ro/asrGoalTarget)  : null;
+  const baseSoldGoalRatio = (Number.isFinite(soldGoalTarget)   && soldGoalTarget>0   && Number.isFinite(av.sold_pct))   ? (av.sold_pct/soldGoalTarget)   : null;
+  const baseSoldRoGoalRatio = (Number.isFinite(soldRoGoalTarget) && soldRoGoalTarget>0 && Number.isFinite(av.sold_ro))  ? (av.sold_ro/soldRoGoalTarget)  : null;
 
   const inGoalMode = (compareMode === "goal");
 
-  // ── Pill color class (delegates to global getCompClass when available) ──
+  // ── Pill color class ──
   function compClass(actual, baseline){
     if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
     const r = actual / baseline;
@@ -602,13 +620,19 @@ function renderAdvisorMain(){
     return " compR";
   }
 
-  // ── Ranking (by Sold%) ──
-  const scored = advisors.map(a => ({ a, v: soldPct(a) }));
-  scored.sort((x,y) => (Number.isFinite(y.v)?y.v:-999) - (Number.isFinite(x.v)?x.v:-999));
-  const rankMap = new Map();
-  scored.forEach((item,i) => rankMap.set(item.a.id, { rank:i+1, total:scored.length }));
+  // ── Dual ranking: by Sold/ASRs and by Sold/RO ──
+  const scoredAsr = advisors.map(a => ({ a, v: soldPct(a) }));
+  scoredAsr.sort((x,y) => (Number.isFinite(y.v)?y.v:-999) - (Number.isFinite(x.v)?x.v:-999));
+  const rankMapAsr = new Map();
+  scoredAsr.forEach((item,i) => rankMapAsr.set(item.a.id, { rank:i+1, total:scoredAsr.length }));
 
-  // sorted list for display
+  const scoredRo = advisors.map(a => ({ a, v: soldPerRo(a) }));
+  scoredRo.sort((x,y) => (Number.isFinite(y.v)?y.v:-999) - (Number.isFinite(x.v)?x.v:-999));
+  const rankMapRo = new Map();
+  scoredRo.forEach((item,i) => rankMapRo.set(item.a.id, { rank:i+1, total:scoredRo.length }));
+
+  // Sort display list by the active focus
+  const scored = (focusMode === "sold_ro") ? scoredRo : scoredAsr;
   const sorted = scored.map(x => x.a);
 
   // ── Sold/ASRs header text ──
@@ -695,6 +719,13 @@ function renderAdvisorMain(){
             </select>
           </div>
           <div class="advFilterGroup">
+            <label>Focus</label>
+            <select data-adv-ctl="focus">
+              <option value="sold_asr"${focusMode==="sold_asr"?" selected":""}>Sold/ASRs</option>
+              <option value="sold_ro"${focusMode==="sold_ro"?" selected":""}>Sold/RO</option>
+            </select>
+          </div>
+          <div class="advFilterGroup">
             <label>Comparison</label>
             <select data-adv-ctl="compare">
               <option value="advisors"${compareMode==="advisors"?" selected":""}>Advisors</option>
@@ -734,59 +765,85 @@ function renderAdvisorMain(){
   } else {
     rowsHtml = sorted.map(a => {
       const s2 = ss(a);
-      const rk = rankMap.get(a.id) || { rank:"—", total:"—" };
+      const rkAsr = rankMapAsr.get(a.id) || { rank:"—", total:"—" };
+      const rkRo  = rankMapRo.get(a.id)  || { rank:"—", total:"—" };
+      const rk    = focusMode === "sold_ro" ? rkRo : rkAsr;
 
       const myAsrRo   = asrPerRo(a);
       const mySoldPct = soldPct(a);
       const mySoldRo  = soldPerRo(a);
       const mySoldAsr = soldPerAsr(a);
+      const myPreMpi  = preMpiSold(a);
 
       // Goal ratios
-      const asrGoalRatio  = (Number.isFinite(myAsrRo)  && Number.isFinite(asrGoalTarget)  && asrGoalTarget>0)  ? (myAsrRo/asrGoalTarget)   : null;
-      const soldGoalRatio = (Number.isFinite(mySoldPct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (mySoldPct/soldGoalTarget) : null;
-      const asrGoalTxt  = asrGoalRatio==null  ? "—" : fmtPct(asrGoalRatio);
-      const soldGoalTxt = soldGoalRatio==null ? "—" : fmtPct(soldGoalRatio);
+      const asrGoalRatio   = (Number.isFinite(myAsrRo)  && Number.isFinite(asrGoalTarget)  && asrGoalTarget>0)  ? (myAsrRo/asrGoalTarget)    : null;
+      const soldAsrGoalRatio = (Number.isFinite(mySoldPct) && Number.isFinite(soldGoalTarget) && soldGoalTarget>0) ? (mySoldPct/soldGoalTarget) : null;
+      const soldRoGoalRatio  = (Number.isFinite(mySoldRo)  && Number.isFinite(soldRoGoalTarget) && soldRoGoalTarget>0) ? (mySoldRo/soldRoGoalTarget) : null;
+
+      const asrGoalTxt    = asrGoalRatio==null    ? "—" : fmtPct(asrGoalRatio);
+      const soldAsrGoalTxt= soldAsrGoalRatio==null? "—" : fmtPct(soldAsrGoalRatio);
+      const soldRoGoalTxt = soldRoGoalRatio==null ? "—" : fmtPct(soldRoGoalRatio);
 
       // Sold/RO and Sold/ASRs computed values
-      const soldRoVal = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(a.ros)) && Number(a.ros)>0)
-        ? (Number(s2.sold)/Number(a.ros)) : null;
+      const soldRoVal    = mySoldRo;
       const soldAsrRatio = (Number.isFinite(Number(s2.sold)) && Number.isFinite(Number(s2.asr)) && Number(s2.asr)>0)
         ? (Number(s2.sold)/Number(s2.asr)) : null;
 
       // Comparison bases
-      const compAsrBase    = inGoalMode
-        ? (Number.isFinite(asrGoalTarget) && asrGoalTarget>0 ? asrGoalTarget : av.asr_per_ro)
+      const compAsrBase     = inGoalMode
+        ? (Number.isFinite(asrGoalTarget)    && asrGoalTarget>0    ? asrGoalTarget    : av.asr_per_ro)
         : av.asr_per_ro;
       const compSoldAsrBase = inGoalMode
-        ? (Number.isFinite(soldGoalTarget) && soldGoalTarget>0 ? soldGoalTarget : av.sold_asr)
+        ? (Number.isFinite(soldGoalTarget)   && soldGoalTarget>0   ? soldGoalTarget   : av.sold_asr)
         : av.sold_asr;
-      const soldRoBase     = inGoalMode
+      const soldRoBase      = inGoalMode
         ? (Number.isFinite(soldRoGoalTarget) && soldRoGoalTarget>0 ? soldRoGoalTarget : av.sold_ro)
         : av.sold_ro;
 
       // Pill color classes
-      const clsAsrpr   = compClass(myAsrRo,     compAsrBase);
-      const clsAsrGoal = compClass(asrGoalRatio, inGoalMode ? 1 : baseAsrGoalRatio);
-      const clsSoldAsr = compClass(soldAsrRatio, compSoldAsrBase);
-      const clsSoldRo  = compClass(soldRoVal,    soldRoBase);
-      const clsSoldGoal= compClass(soldGoalRatio,inGoalMode ? 1 : baseSoldGoalRatio);
+      const clsAsrpr      = compClass(myAsrRo,       compAsrBase);
+      const clsAsrGoal    = compClass(asrGoalRatio,   inGoalMode ? 1 : baseAsrGoalRatio);
+      const clsSoldAsr    = compClass(soldAsrRatio,   compSoldAsrBase);
+      const clsSoldAsrGoal= compClass(soldAsrGoalRatio, inGoalMode ? 1 : baseSoldGoalRatio);
+      const clsSoldRo     = compClass(soldRoVal,      soldRoBase);
+      const clsSoldRoGoal = compClass(soldRoGoalRatio, inGoalMode ? 1 : baseSoldRoGoalRatio);
 
       // Display values
-      const soldAsrDisplay = soldAsrRatio !== null ? fmtPct(soldAsrRatio) : "—";
-      const soldRoDisplay  = soldRoVal !== null ? fmt1(soldRoVal, 2) : "—";
+      const soldAsrDisplay   = soldAsrRatio !== null ? fmtPct(soldAsrRatio) : "—";
+      const soldRoDisplay    = soldRoVal    !== null ? fmt1(soldRoVal, 2)   : "—";
+      const preMpiDisplay    = fmtInt(myPreMpi);
 
-      // Rank badge (uses global rankBadgeHtmlDash from base.js)
-      const badgeHtml = (typeof rankBadgeHtmlDash === "function")
-        ? `<div class="rankFocusBadge sm">
-             <div class="rfbFocus" style="font-weight:1000">Sold/ASRs</div>
-             <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
-             <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
-           </div>`
-        : `<div class="rankFocusBadge sm">
-             <div class="rfbFocus" style="font-weight:1000">Sold/ASRs</div>
-             <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
-             <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
-           </div>`;
+      // ── Pill groups ──
+      const asrGroup = `
+        <div class="pillGroup">
+          <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(myAsrRo,1)}</div></div>
+          <div class="pill${clsAsrGoal}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
+        </div>`;
+
+      const soldAsrGroup = `
+        <div class="pillGroup${focusMode==="sold_asr" ? " focusGroup" : ""}">
+          <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${soldAsrDisplay}</div></div>
+          <div class="pill${clsSoldAsrGoal}"><div class="k">Sold/ASRs Goal</div><div class="v">${safe(soldAsrGoalTxt)}</div></div>
+        </div>`;
+
+      const soldRoGroup = `
+        <div class="pillGroup${focusMode==="sold_ro" ? " focusGroup" : ""}">
+          <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${soldRoDisplay}</div></div>
+          <div class="pill${clsSoldRoGoal}"><div class="k">Sold/RO Goal</div><div class="v">${safe(soldRoGoalTxt)}</div></div>
+        </div>`;
+
+      // Focus group goes closest to the rank badge
+      const pillsHtml = focusMode === "sold_ro"
+        ? `${asrGroup}${soldAsrGroup}${soldRoGroup}`
+        : `${asrGroup}${soldRoGroup}${soldAsrGroup}`;
+
+      // ── Rank badge ──
+      const badgeLabel = focusMode === "sold_ro" ? "Sold/RO" : "Sold/ASRs";
+      const badgeHtml = `<div class="rankFocusBadge sm">
+        <div class="rfbFocus" style="font-weight:1000">${badgeLabel}</div>
+        <div class="rfbMain" style="font-weight:1000">${rk.rank ?? "—"}</div>
+        <div class="rfbOf" style="font-weight:1000"><span class="rfbOfWord" style="font-weight:1000">of</span><span class="rfbOfNum" style="font-weight:1000">${rk.total ?? "—"}</span></div>
+      </div>`;
 
       return `
       <div class="advRow">
@@ -801,22 +858,16 @@ function renderAdvisorMain(){
             <div class="tnRow tnRow2">
               <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s2.asr)}</span></span>
               <span class="miniDot">•</span>
-              <span class="tnMini"><span class="tnLbl">Sold</span><span class="tnVal">${fmtInt(s2.sold)}</span></span>
+              <span class="tnMini"><span class="tnLbl">ASRs Sold</span><span class="tnVal">${fmtInt(s2.sold)}</span></span>
+              <span class="miniDot">•</span>
+              <span class="tnMini"><span class="tnLbl">Sold Pre-MPI</span><span class="tnVal">${preMpiDisplay}</span></span>
             </div>
           </div>
         </div>
 
         <div class="dashRight">
           <div class="pills">
-            <div class="pillGroup">
-              <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(myAsrRo,1)}</div></div>
-              <div class="pill${clsAsrGoal}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
-            </div>
-            <div class="pillGroup focusGroup">
-              <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${soldAsrDisplay}</div></div>
-              <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${soldRoDisplay}</div></div>
-              <div class="pill${clsSoldGoal}"><div class="k">Sold/ASRs Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
-            </div>
+            ${pillsHtml}
           </div>
 
           <div class="techMetaRight">
@@ -838,6 +889,7 @@ function renderAdvisorMain(){
     const handler = () => {
       if(ctl==="filter")  st.filterKey = el.value;
       if(ctl==="preMpi")  st.preMpi    = el.value;
+      if(ctl==="focus")   st.focus     = el.value;
       if(ctl==="compare") st.compare   = el.value;
       renderAdvisorMain();
     };
