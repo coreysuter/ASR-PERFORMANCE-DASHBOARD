@@ -208,7 +208,7 @@ function renderServiceSettingsPage(){
 
   function _esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-  function splitItems(str){ return String(str||"").split(",").map(s=>s.trim()).filter(Boolean); }
+  function splitItems(str){ return String(str||"").split(/,\s+(?=[A-Z])/).map(s=>s.trim()).filter(Boolean); }
 
   function pillsHtml(items, rowId, field){
     return items.map((item,idx)=>`

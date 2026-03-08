@@ -2666,17 +2666,13 @@ body.route-tech .pills .k *{
   outline:none;
   cursor:text;
   min-width:2ch;
-  max-width:280px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  white-space:normal;
+  word-break:break-word;
   line-height:1.4;
 }
 .opcPillText:focus{
   background:rgba(79,142,247,.15);
   color:#fff;
-  white-space:pre;
-  text-overflow:clip;
   cursor:text;
 }
 .opcPillDel{
