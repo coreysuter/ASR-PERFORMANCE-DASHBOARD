@@ -854,10 +854,10 @@ function renderAdvisorMain(){
               <span class="tnMini"><span class="tnLbl">Avg ODO</span><span class="tnVal">${fmtInt(a.odo)}</span></span>
               <span class="miniDot">•</span>
               <span class="tnMini"><span class="tnLbl">ROs</span><span class="tnVal">${fmtInt(a.ros)}</span></span>
+              <span class="miniDot">•</span>
+              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s2.asr)}</span></span>
             </div>
             <div class="tnRow tnRow2">
-              <span class="tnMini"><span class="tnLbl">ASRs</span><span class="tnVal">${fmtInt(s2.asr)}</span></span>
-              <span class="miniDot">•</span>
               <span class="tnMini"><span class="tnLbl">ASRs Sold</span><span class="tnVal">${fmtInt(s2.sold)}</span></span>
               <span class="miniDot">•</span>
               <span class="tnMini"><span class="tnLbl">Sold Pre-MPI</span><span class="tnVal">${preMpiDisplay}</span></span>
