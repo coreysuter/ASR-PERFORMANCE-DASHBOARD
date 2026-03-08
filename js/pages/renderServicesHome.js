@@ -368,9 +368,17 @@ function renderServicesHome(){
 
 
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(4, minmax(140px,1fr)) !important;}
-      @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(2,1fr) !important;} }
-      @media(max-width:560px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:flex !important;flex-direction:column !important;gap:8px !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{display:grid !important;gap:8px !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row1{grid-template-columns:repeat(3, minmax(130px,1fr)) !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row2{grid-template-columns:repeat(2, minmax(130px,1fr)) !important;}
+      @media(max-width:920px){
+        .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row1{grid-template-columns:repeat(2,1fr) !important;}
+        .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow.row2{grid-template-columns:repeat(2,1fr) !important;}
+      }
+      @media(max-width:560px){
+        .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{grid-template-columns:1fr !important;}
+      }
 
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
@@ -698,7 +706,7 @@ function serviceGoalDial(pct, sz){
       topVal = soldPerRo; topLbl = 'Sold/RO';
       subVal = asrPerRo;  subLbl = 'ASRs/RO';
     } else {
-      topVal = soldPerAsr; topLbl = 'Sold/ASR %';
+      topVal = soldPerAsr; topLbl = 'Sold/ASR';
       subVal = asrPerRo;   subLbl = 'ASRs/RO';
     }
   }
@@ -748,7 +756,7 @@ function serviceGoalDial(pct, sz){
                   <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
                   <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
                   <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(totalPreMpiSold)}</div></div>
-                  <div class="pillMini sold"><div class="k">Sold/ASR %</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+                  <div class="pillMini sold"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
                 </div>
 
                 <div class="svcHdrGoalDials">
@@ -758,7 +766,7 @@ function serviceGoalDial(pct, sz){
                   </div>
                   <div class="svcGaugeCol">
                     <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
-                    <div class="svcGaugeLbl">ASRs Sold</div>
+                    <div class="svcGaugeLbl">${soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs'}</div>
                   </div>
                 </div>
               </div>
@@ -768,7 +776,7 @@ function serviceGoalDial(pct, sz){
 
           <div class="overallBlock">
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topVal===null || topVal===undefined ? "—" : (topLbl==='Sold/ASR %' ? fmtPct(topVal) : fmt1(topVal,2))}
+              ${topVal===null || topVal===undefined ? "—" : (topLbl==='Sold/ASR' ? fmtPct(topVal) : fmt1(topVal,2))}
             </div>
             <div class="tag">${safe(topLbl)}</div>
 
@@ -781,50 +789,49 @@ function serviceGoalDial(pct, sz){
 
         <div class="svcHdrDivider"></div>
         <div class="mainFiltersBar">
-                              <div class="controls mainAlwaysOpen">
-                      <div>
-                        <label>Team</label>
-                        <select data-svcdash="1" data-ctl="team">
-                          <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
-                          <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
-                          <option value="store" ${teamSel==='store'?'selected':''}>All Teams</option>
-                        </select>
-                      </div>
-          
-                      <div>
-                        <label>Fluids</label>
-                        <select data-svcdash="1" data-ctl="fluids">
-                          <option value="with" ${fluidsSel==='with'?'selected':''}>With Fluids (Total)</option>
-                          <option value="without" ${fluidsSel==='without'?'selected':''}>Without Fluids</option>
-                          <option value="only" ${fluidsSel==='only'?'selected':''}>Fluids Only</option>
-                        </select>
-                      </div>
-          
-                      <div>
-                        <label>Focus</label>
-                        <select data-svcdash="1" data-ctl="focus">
-                          <option value="asr" ${focus==='asr'?'selected':''}>ASR Goal</option>
-                          <option value="sold" ${focus==='sold'?'selected':''}>Sold Goal</option>
-                        </select>
-                      </div>
-          
-                      <div>
-                        <label>Sold Focus</label>
-                        <select data-svcdash="1" data-ctl="soldFocus">
-                          <option value="asrs" ${soldFocus==='asrs'?'selected':''}>Sold/ASRs</option>
-                          <option value="ro" ${soldFocus==='ro'?'selected':''}>Sold/RO</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label>Pre-MPI Sales</label>
-                        <select data-svcdash="1" data-ctl="preMpi">
-                          <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
-                          <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
-                        </select>
-                      </div>
-          
-                      </div>
+          <div class="controls mainAlwaysOpen">
+            <div class="filterRow row1">
+              <div>
+                <label>Team</label>
+                <select data-svcdash="1" data-ctl="team">
+                  <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
+                  <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
+                  <option value="store" ${teamSel==='store'?'selected':''}>All Teams</option>
+                </select>
+              </div>
+              <div>
+                <label>Fluids</label>
+                <select data-svcdash="1" data-ctl="fluids">
+                  <option value="with" ${fluidsSel==='with'?'selected':''}>With Fluids (Total)</option>
+                  <option value="without" ${fluidsSel==='without'?'selected':''}>Without Fluids</option>
+                  <option value="only" ${fluidsSel==='only'?'selected':''}>Fluids Only</option>
+                </select>
+              </div>
+              <div>
+                <label>Pre-MPI Sales</label>
+                <select data-svcdash="1" data-ctl="preMpi">
+                  <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
+                  <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
+                </select>
+              </div>
+            </div>
+            <div class="filterRow row2">
+              <div>
+                <label>Focus</label>
+                <select data-svcdash="1" data-ctl="focus">
+                  <option value="asr" ${focus==='asr'?'selected':''}>ASR Goal</option>
+                  <option value="sold" ${focus==='sold'?'selected':''}>Sold Goal</option>
+                </select>
+              </div>
+              <div>
+                <label>Sold Focus</label>
+                <select data-svcdash="1" data-ctl="soldFocus">
+                  <option value="asrs" ${soldFocus==='asrs'?'selected':''}>Sold/ASRs</option>
+                  <option value="ro" ${soldFocus==='ro'?'selected':''}>Sold/RO</option>
+                </select>
+              </div>
+            </div>
+          </div>
         
         <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
       </div>
@@ -1062,9 +1069,9 @@ function serviceGoalDial(pct, sz){
 
     // Focus stats: determined by Goal filter + Sold Focus sub-filter
     const secTopIsSold = (goalMetric==='sold');
-    // Sold/ASR % vs Sold/RO depending on soldFocus
+    // Sold/ASR vs Sold/RO depending on soldFocus
     const secSoldFocusVal = (soldFocus==='ro') ? secSoldPerRo : secSoldPct;
-    const secSoldFocusLbl = (soldFocus==='ro') ? 'Sold/RO' : 'Sold/ASR %';
+    const secSoldFocusLbl = (soldFocus==='ro') ? 'Sold/RO' : 'Sold/ASR';
     const secTopVal = secTopIsSold ? secSoldFocusVal : secAsrPerRo;
     const secTopLbl = secTopIsSold ? secSoldFocusLbl : 'ASRs/RO';
     const secBotVal = secTopIsSold ? secAsrPerRo : secSoldFocusVal;
@@ -1216,11 +1223,11 @@ function serviceGoalDial(pct, sz){
               ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), secRankTop, false)}
               <div class="svcSecFocusStats">
                 <div>
-                  <div class="statValTop">${secTopVal===null || !Number.isFinite(secTopVal) ? "—" : (secTopLbl==="Sold/ASR %" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
+                  <div class="statValTop">${secTopVal===null || !Number.isFinite(secTopVal) ? "—" : (secTopLbl==="Sold/ASR" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
                   <div class="statLbl">${safe(secTopLbl)}</div>
                 </div>
                 <div>
-                  <div class="statValBot">${secBotVal===null || !Number.isFinite(secBotVal) ? "—" : (secBotLbl==="Sold/ASR %" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
+                  <div class="statValBot">${secBotVal===null || !Number.isFinite(secBotVal) ? "—" : (secBotLbl==="Sold/ASR" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
                   <div class="statLbl">${safe(secBotLbl)}</div>
                 </div>
               </div>
@@ -1304,20 +1311,23 @@ function serviceGoalDial(pct, sz){
 
   function tbRowSvc(item, idx, mode){
     const targetId = 'sd-' + safeSvcIdLocal(item.name).replace(/^svc-/, '');
-    // Get agg for this service
     const agg = svcAggsAll.find(s=>s.serviceName===item.name);
     const asrPerRoVal = (agg && agg.totalRos) ? (agg.asr / agg.totalRos) : null;
     const soldPctVal = (agg && agg.asr) ? (agg.sold / agg.asr) : null;
     const soldPerRoVal = (agg && agg.totalRos) ? (agg.sold / agg.totalRos) : null;
 
-    // Determine focus stat and secondary based on soldFocus
-    const focusStatVal = (soldFocus==='ro') ? soldPerRoVal : soldPctVal;
-    const focusStatLbl = (soldFocus==='ro') ? 'Sold/RO' : 'Sold/ASRs';
-    const focusStatFmt = (soldFocus==='ro')
-      ? (focusStatVal!==null && Number.isFinite(focusStatVal) ? focusStatVal.toFixed(2) : '—')
-      : (focusStatVal!==null && Number.isFinite(focusStatVal) ? fmtPct(focusStatVal) : '—');
-
-    const asrRoFmt = (asrPerRoVal!==null && Number.isFinite(asrPerRoVal)) ? asrPerRoVal.toFixed(2) : '—';
+    let statStr;
+    if(mode === 'asr'){
+      const v = (asrPerRoVal!==null && Number.isFinite(asrPerRoVal)) ? asrPerRoVal.toFixed(2) : '—';
+      statStr = `ASRs/RO: ${v}`;
+    } else {
+      const focusVal = (soldFocus==='ro') ? soldPerRoVal : soldPctVal;
+      const focusLbl = (soldFocus==='ro') ? 'Sold/RO' : 'Sold/ASR';
+      const focusFmt = (focusVal!==null && Number.isFinite(focusVal))
+        ? (soldFocus==='ro' ? focusVal.toFixed(2) : fmtPct(focusVal))
+        : '—';
+      statStr = `${focusLbl}: ${focusFmt}`;
+    }
 
     return `
       <div class="techRow">
@@ -1325,10 +1335,7 @@ function serviceGoalDial(pct, sz){
           <span class="rankNum">${idx}.</span>
           <a class="tbJump" href="#${targetId}" onclick="event.preventDefault();(document.getElementById(${JSON.stringify(targetId)})||{}).scrollIntoView&&document.getElementById(${JSON.stringify(targetId)}).scrollIntoView({behavior:'smooth',block:'start'});return false;">${safe(item.name)}</a>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
-          <div class="mini">${focusStatLbl}: ${focusStatFmt}</div>
-          <div class="mini" style="opacity:.7">ASRs/RO: ${asrRoFmt}</div>
-        </div>
+        <div class="mini">${statStr}</div>
       </div>`;
   }
 
@@ -1562,7 +1569,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">${soldFocusLabel.toUpperCase()}</div>
+              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
               ${diagPieChartServices('sold')}
             </div>
             <div>${pickView==='services' ? tbMiniBoxSvc(`Top 3 Services ${soldFocusLabel}`, topSvcSold, soldFocus, 'up') : tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
