@@ -368,8 +368,9 @@ function renderServicesHome(){
 
 
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(2, minmax(160px,1fr)) !important;}
-      @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:grid !important;grid-template-columns:repeat(4, minmax(140px,1fr)) !important;}
+      @media(max-width:920px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:repeat(2,1fr) !important;} }
+      @media(max-width:560px){ .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{grid-template-columns:1fr !important;} }
 
       /* Dropdown text colors: selected value white, dropdown list black */
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
@@ -414,7 +415,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'store', fluids: 'with', open: {} };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'store', fluids: 'with', open: {}, soldFocus: 'asrs', preMpi: 'included' };
 
   const st = UI.servicesDash;
 
@@ -427,13 +428,18 @@ function renderServicesHome(){
       if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
       if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
       if(k==="team") st.team = decodeURIComponent(v||"store") || "store";
-      if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";    }
+      if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";
+      if(k==="soldFocus") st.soldFocus = decodeURIComponent(v||"asrs") || "asrs";
+      if(k==="preMpi") st.preMpi = (decodeURIComponent(v||"included")==="excluded") ? "excluded" : "included";
+    }
   }
 
   const focus = (st.focus === 'sold') ? 'sold' : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
   const teamSel = (st.team === 'express' || st.team === 'kia' || st.team === 'store') ? st.team : 'store';
   const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
+  const soldFocus = (st.soldFocus === 'ro') ? 'ro' : 'asrs'; // 'asrs' = Sold/ASRs, 'ro' = Sold/RO
+  const preMpi = (st.preMpi === 'excluded') ? 'excluded' : 'included';
   const comparison = 'goal';
 
   const pickView = (st.pickView === 'services') ? 'services' : 'tech';
@@ -461,6 +467,28 @@ function renderServicesHome(){
   const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
   const asrPerRo  = totalRos ? (totalAsr/totalRos) : null;
   const soldPerRo = totalRos ? (totalSold/totalRos) : null;
+
+  // --- Pre-MPI sold helpers (from DATA.advisors) ---
+  function preMpiSoldForService(serviceName){
+    const advisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors : [];
+    let total = 0;
+    for(const a of advisors){
+      const cat = (a.categories||{})[serviceName];
+      total += Number(cat?.advisor_sold)||0;
+    }
+    return total;
+  }
+  // Total pre-MPI sold across all services in this dataset
+  const totalPreMpiSold = (()=>{
+    const advisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors : [];
+    let total = 0;
+    for(const a of advisors){
+      for(const cat of Object.values(a.categories||{})){
+        total += Number(cat?.advisor_sold)||0;
+      }
+    }
+    return total;
+  })();
 
   // For GOAL focus, compute store/team-level goal ratios (rough: total metric / total goal)
   function _storeGoalRatios(){
@@ -652,7 +680,9 @@ function serviceGoalDial(pct, sz){
 
   function goalRankBadge(serviceName){
     const rk = _svcRankMap.get(serviceName) || '—';
-    const top = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
+    const top = (rankMetric==='sold')
+      ? (soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs')
+      : 'ASR';
     const total = fmtInt(_svcRankDen);
     return rankBadgeHtmlSvc(rk, total, top, true);
   }
@@ -664,8 +694,13 @@ function serviceGoalDial(pct, sz){
   let subVal = soldPerRo;
   let subLbl = 'Sold/RO';
   if(focus === 'sold'){
-    topVal = soldPerRo; topLbl = 'Sold/RO';
-    subVal = asrPerRo;  subLbl = 'ASRs/RO';
+    if(soldFocus === 'ro'){
+      topVal = soldPerRo; topLbl = 'Sold/RO';
+      subVal = asrPerRo;  subLbl = 'ASRs/RO';
+    } else {
+      topVal = soldPerAsr; topLbl = 'Sold/ASR %';
+      subVal = asrPerRo;   subLbl = 'ASRs/RO';
+    }
   }
 
   // Header panel (copied structure from Technician Dashboard)
@@ -711,8 +746,9 @@ function serviceGoalDial(pct, sz){
                 <div class="pillsMini">
                   <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                   <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
-                  <div class="pillMini sold"><div class="k">Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
-                  <div class="pillMini sold"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
+                  <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
+                  <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(totalPreMpiSold)}</div></div>
+                  <div class="pillMini sold"><div class="k">Sold/ASR %</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
                 </div>
 
                 <div class="svcHdrGoalDials">
@@ -722,7 +758,7 @@ function serviceGoalDial(pct, sz){
                   </div>
                   <div class="svcGaugeCol">
                     <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
-                    <div class="svcGaugeLbl">SOLD</div>
+                    <div class="svcGaugeLbl">ASRs Sold</div>
                   </div>
                 </div>
               </div>
@@ -732,12 +768,12 @@ function serviceGoalDial(pct, sz){
 
           <div class="overallBlock">
             <div class="bigMain" style="font-size:38px;line-height:1.05;color:#fff;font-weight:1000">
-              ${topVal===null ? "—" : (focus==='goal' ? fmt1(topVal,2) : (focus==='sold' ? fmt1(topVal,2) : fmt1(topVal,1)))}
+              ${topVal===null || topVal===undefined ? "—" : (topLbl==='Sold/ASR %' ? fmtPct(topVal) : fmt1(topVal,2))}
             </div>
             <div class="tag">${safe(topLbl)}</div>
 
             <div class="overallMetric" style="font-size:28px;line-height:1.05;color:#fff;font-weight:1000">
-              ${subVal===null ? "—" : (focus==='sold' ? fmt1(subVal,1) : fmt1(subVal,2))}
+              ${subVal===null || subVal===undefined ? "—" : fmt1(subVal,2)}
             </div>
             <div class="tag">${safe(subLbl)}</div>
           </div>
@@ -769,6 +805,22 @@ function serviceGoalDial(pct, sz){
                         <select data-svcdash="1" data-ctl="focus">
                           <option value="asr" ${focus==='asr'?'selected':''}>ASR Goal</option>
                           <option value="sold" ${focus==='sold'?'selected':''}>Sold Goal</option>
+                        </select>
+                      </div>
+          
+                      <div>
+                        <label>Sold Focus</label>
+                        <select data-svcdash="1" data-ctl="soldFocus">
+                          <option value="asrs" ${soldFocus==='asrs'?'selected':''}>Sold/ASRs</option>
+                          <option value="ro" ${soldFocus==='ro'?'selected':''}>Sold/RO</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label>Pre-MPI Sales</label>
+                        <select data-svcdash="1" data-ctl="preMpi">
+                          <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
+                          <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
                         </select>
                       </div>
           
@@ -1008,12 +1060,15 @@ function serviceGoalDial(pct, sz){
     const secAsrPerRo = secRos ? (secAsr/secRos) : null;
     const secSoldPct = secAsr ? (secSold/secAsr) : null;
 
-    // Focus stats: determined by Goal filter
+    // Focus stats: determined by Goal filter + Sold Focus sub-filter
     const secTopIsSold = (goalMetric==='sold');
-    const secTopVal = secTopIsSold ? secSoldPct : secAsrPerRo;
-    const secTopLbl = secTopIsSold ? 'Sold%' : 'ASRs/RO';
-    const secBotVal = secTopIsSold ? secAsrPerRo : secSoldPct;
-    const secBotLbl = secTopIsSold ? 'ASRs/RO' : 'Sold%';
+    // Sold/ASR % vs Sold/RO depending on soldFocus
+    const secSoldFocusVal = (soldFocus==='ro') ? secSoldPerRo : secSoldPct;
+    const secSoldFocusLbl = (soldFocus==='ro') ? 'Sold/RO' : 'Sold/ASR %';
+    const secTopVal = secTopIsSold ? secSoldFocusVal : secAsrPerRo;
+    const secTopLbl = secTopIsSold ? secSoldFocusLbl : 'ASRs/RO';
+    const secBotVal = secTopIsSold ? secAsrPerRo : secSoldFocusVal;
+    const secBotLbl = secTopIsSold ? 'ASRs/RO' : secSoldFocusLbl;
 
     // Goal dials: compare section focus stats to THIS SECTION's goals (with safe fallbacks)
     const gReqSec = _getSectionGoal(sec,'req');
@@ -1022,7 +1077,9 @@ function serviceGoalDial(pct, sz){
     const secPctGoalSold = (Number.isFinite(secSoldPct) && Number.isFinite(gCloseSec) && gCloseSec>0) ? (secSoldPct/gCloseSec) : NaN;
 
     const secRank = _secRankInfo.map.get(secName) || '—';
-    const secRankTop = (goalMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
+    const secRankTop = (goalMetric==='sold')
+      ? (soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs')
+      : 'ASR';
 
     // Section averages (used for dials when not GOAL focus)
     const avgReq = aggs.length ? aggs.reduce((s,x)=>s+x.reqTot,0)/aggs.length : 0;
@@ -1043,7 +1100,9 @@ function serviceGoalDial(pct, sz){
       const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
       const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
 
-      const sdDialTitle = (rankMetric==='sold') ? 'Sold' : 'ASR';
+      const sdDialTitle = (rankMetric==='sold')
+        ? (soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs')
+        : 'ASR';
 
             const sdDialSz = 80; // increased by 25% from 64px
 
@@ -1086,7 +1145,8 @@ function serviceGoalDial(pct, sz){
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
                 <div>${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs</div>
-                <div>${fmtInt(s.sold)} Sold</div>
+                <div>${fmtInt(s.sold)} ASRs Sold</div>
+                <div>Pre-MPI Sold: ${fmtInt(preMpiSoldForService(s.serviceName))}</div>
               </div>
             </div>
 
@@ -1107,6 +1167,8 @@ function serviceGoalDial(pct, sz){
       `;
     }).join('');
 
+    const secPreMpiSold = services.reduce((s,svcName)=>s+preMpiSoldForService(svcName), 0);
+
     return `
       <details class="svcDashSec" ${isOpen?'open':''} data-sec="${safe(openKey)}">
         <summary>
@@ -1120,7 +1182,8 @@ function serviceGoalDial(pct, sz){
                 <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
                 <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>
                 <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
-                <div class="pillMini sold"><div class="k">Sold</div><div class="v">${fmtInt(secSold)}</div></div>
+                <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(secSold)}</div></div>
+                <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(secPreMpiSold)}</div></div>
                 <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'}</div></div>
               </div>
             </div>
@@ -1135,13 +1198,13 @@ function serviceGoalDial(pct, sz){
                     </div>
                     <div class="svcGaugeCol">
                       <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
-                      <div class="svcGaugeLbl">Sold</div>
+                      <div class="svcGaugeLbl">${soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs'}</div>
                     </div>
                   `
                   : `
                     <div class="svcGaugeCol">
                       <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
-                      <div class="svcGaugeLbl">Sold</div>
+                      <div class="svcGaugeLbl">${soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs'}</div>
                     </div>
                     <div class="svcGaugeCol">
                       <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
@@ -1150,14 +1213,14 @@ function serviceGoalDial(pct, sz){
                   `
                 }
               </div>
-              ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), (goalMetric==='sold'?'Sold Goal':'ASR Goal'), false)}
+              ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), secRankTop, false)}
               <div class="svcSecFocusStats">
                 <div>
-                  <div class="statValTop">${secTopVal===null ? "—" : (secTopLbl==="Sold%" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
+                  <div class="statValTop">${secTopVal===null || !Number.isFinite(secTopVal) ? "—" : (secTopLbl==="Sold/ASR %" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
                   <div class="statLbl">${safe(secTopLbl)}</div>
                 </div>
                 <div>
-                  <div class="statValBot">${secBotVal===null ? "—" : (secBotLbl==="Sold%" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
+                  <div class="statValBot">${secBotVal===null || !Number.isFinite(secBotVal) ? "—" : (secBotLbl==="Sold/ASR %" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
                   <div class="statLbl">${safe(secBotLbl)}</div>
                 </div>
               </div>
@@ -1215,22 +1278,57 @@ function serviceGoalDial(pct, sz){
   const svcRankAsr = buildSvcRank('asr');
   const svcRankSold = buildSvcRank('sold');
 
+  // For Sold/RO focus: rank by absolute soldPerRo
+  function buildSvcRankRo(){
+    const rows = svcAggsAll.map(s=>{
+      const val = (s.totalRos>0) ? (s.sold/s.totalRos) : NaN;
+      return {name:s.serviceName, pct:val};
+    }).filter(r=>Number.isFinite(r.pct));
+    rows.sort((a,b)=> (b.pct-a.pct) || a.name.localeCompare(b.name));
+    const rankMap = new Map();
+    rows.forEach((r,i)=> rankMap.set(r.name, i+1));
+    return {rows, rankMap};
+  }
+  const svcRankRo = buildSvcRankRo();
+
+  // Active sold ranking based on soldFocus
+  const activeSoldRank = (soldFocus==='ro') ? svcRankRo : svcRankSold;
+
   const topSvcAsr = svcRankAsr.rows.slice(0,3);
   const botSvcAsr = svcRankAsr.rows.slice(-3).reverse();
 
-  const topSvcSold = svcRankSold.rows.slice(0,3);
-  const botSvcSold = svcRankSold.rows.slice(-3).reverse();
+  const topSvcSold = activeSoldRank.rows.slice(0,3);
+  const botSvcSold = activeSoldRank.rows.slice(-3).reverse();
+
+  const soldFocusLabel = (soldFocus==='ro') ? 'Sold/RO' : 'Sold/ASRs';
 
   function tbRowSvc(item, idx, mode){
-    const rk = (mode==='sold' ? svcRankSold.rankMap.get(item.name) : svcRankAsr.rankMap.get(item.name)) || '—';
     const targetId = 'sd-' + safeSvcIdLocal(item.name).replace(/^svc-/, '');
+    // Get agg for this service
+    const agg = svcAggsAll.find(s=>s.serviceName===item.name);
+    const asrPerRoVal = (agg && agg.totalRos) ? (agg.asr / agg.totalRos) : null;
+    const soldPctVal = (agg && agg.asr) ? (agg.sold / agg.asr) : null;
+    const soldPerRoVal = (agg && agg.totalRos) ? (agg.sold / agg.totalRos) : null;
+
+    // Determine focus stat and secondary based on soldFocus
+    const focusStatVal = (soldFocus==='ro') ? soldPerRoVal : soldPctVal;
+    const focusStatLbl = (soldFocus==='ro') ? 'Sold/RO' : 'Sold/ASRs';
+    const focusStatFmt = (soldFocus==='ro')
+      ? (focusStatVal!==null && Number.isFinite(focusStatVal) ? focusStatVal.toFixed(2) : '—')
+      : (focusStatVal!==null && Number.isFinite(focusStatVal) ? fmtPct(focusStatVal) : '—');
+
+    const asrRoFmt = (asrPerRoVal!==null && Number.isFinite(asrPerRoVal)) ? asrPerRoVal.toFixed(2) : '—';
+
     return `
       <div class="techRow">
         <div class="techRowLeft">
           <span class="rankNum">${idx}.</span>
           <a class="tbJump" href="#${targetId}" onclick="event.preventDefault();(document.getElementById(${JSON.stringify(targetId)})||{}).scrollIntoView&&document.getElementById(${JSON.stringify(targetId)}).scrollIntoView({behavior:'smooth',block:'start'});return false;">${safe(item.name)}</a>
         </div>
-        <div class="mini">Rank = ${rk}</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">
+          <div class="mini">${focusStatLbl}: ${focusStatFmt}</div>
+          <div class="mini" style="opacity:.7">ASRs/RO: ${asrRoFmt}</div>
+        </div>
       </div>`;
   }
 
@@ -1464,11 +1562,11 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         <div class="diagBandRow" style="padding:12px">
           <div class="pickRow" style="display:grid;grid-template-columns:170px 1fr 1fr;gap:12px;align-items:stretch">
             <div class="diagLabelCol" style="display:flex;flex-direction:column;align-items:center">
-              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">SOLD</div>
+              <div class="pickHdrLabel" style="margin:0;margin-top:-5px;align-self:flex-start;font-size:22px;line-height:1">${soldFocusLabel.toUpperCase()}</div>
               ${diagPieChartServices('sold')}
             </div>
-            <div>${pickView==='services' ? tbMiniBoxSvc('Top 3 Services SOLD', topSvcSold, 'sold', 'up') : tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
-            <div>${pickView==='services' ? tbMiniBoxSvc('Bottom 3 Services SOLD', botSvcSold, 'sold', 'down') : tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
+            <div>${pickView==='services' ? tbMiniBoxSvc(`Top 3 Services ${soldFocusLabel}`, topSvcSold, soldFocus, 'up') : tbMiniBox('Top 3 Technicians SOLD', topTechSold, 'sold', 'up')}</div>
+            <div>${pickView==='services' ? tbMiniBoxSvc(`Bottom 3 Services ${soldFocusLabel}`, botSvcSold, soldFocus, 'down') : tbMiniBox('Bottom 3 Technicians SOLD', botTechSold, 'sold', 'down')}</div>
           </div>
         </div>
       </div>
@@ -1510,6 +1608,8 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       if(ctl==='focus') st.focus = sel.value;
 if(ctl==='team') st.team = sel.value;
       if(ctl==='fluids') st.fluids = sel.value;
+      if(ctl==='soldFocus') st.soldFocus = sel.value;
+      if(ctl==='preMpi') st.preMpi = sel.value;
       renderServicesHome();
     });
   });

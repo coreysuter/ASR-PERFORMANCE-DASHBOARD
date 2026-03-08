@@ -471,6 +471,24 @@ function renderAdvisorMain(){
         inset 0 0 16px rgba(60, 255, 140, .28);
     }
 
+    /* ORANGE (4-band mode) */
+    .pageAdvisorDash .advRow .pill.compO::before{
+      opacity:.72;
+      background:
+        radial-gradient(circle at 50% 55%,
+          rgba(0,0,0,.28) 0 42%,
+          rgba(255, 160, 40, .35) 70%,
+          rgba(255, 160, 40, .60) 100%
+        ),
+        linear-gradient(180deg, rgba(255,160,40,.22), rgba(255,160,40,.10));
+    }
+    .pageAdvisorDash .advRow .pill.compO::after{
+      opacity:1;
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 190, 90, .50),
+        inset 0 0 16px rgba(255, 150, 30, .30);
+    }
+
     /* Force all pill text white */
     .pageAdvisorDash .advRow .pill,
     .pageAdvisorDash .advRow .pill *{
