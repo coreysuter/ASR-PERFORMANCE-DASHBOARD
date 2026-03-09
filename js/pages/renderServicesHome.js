@@ -369,7 +369,7 @@ function renderServicesHome(){
 
 
       .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:flex !important;flex-direction:column !important;gap:8px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{display:grid !important;grid-template-columns:repeat(2, minmax(130px,1fr)) !important;gap:8px !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{display:grid !important;grid-template-columns:repeat(3, minmax(110px,1fr)) !important;gap:8px !important;}
       @media(max-width:560px){
         .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{grid-template-columns:1fr !important;}
       }
@@ -449,41 +449,39 @@ function renderServicesHome(){
       if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
       if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";
       if(k==="soldFocus") st.soldFocus = decodeURIComponent(v||"asrs") || "asrs";
-      if(k==="preMpi") st.preMpi = (decodeURIComponent(v||"included")==="excluded") ? "excluded" : "included";
-      if(k==="viewMode"){ const vm=decodeURIComponent(v||"techs"); st.viewMode=(vm==='advisors'||vm==='both')?vm:'techs'; }
+      if(k==="viewMode"){ const vm=decodeURIComponent(v||"techs"); st.viewMode=(vm==='advisors')?'advisors':'techs'; }
     }
   }
 
   // Apply per-mode defaults when viewMode changes
-  const viewMode = (st.viewMode==='advisors'||st.viewMode==='both') ? st.viewMode : 'techs';
+  const viewMode = (st.viewMode==='advisors') ? 'advisors' : 'techs';
   if(viewMode !== st._lastViewMode){
     st._lastViewMode = viewMode;
     if(viewMode === 'advisors'){
       st.preMpi = 'included'; st.focus = 'sold'; st.goalMetric = 'sold'; st.soldFocus = 'asrs';
-    } else if(viewMode === 'techs'){
+    } else {
       st.preMpi = 'excluded'; st.focus = 'asr'; st.goalMetric = 'asr'; st.soldFocus = 'asrs';
     }
-    // 'both' keeps whatever was set
   }
 
-  const focus = (st.focus === 'sold') ? 'sold' : 'asr';
+  const focus      = (st.focus === 'sold') ? 'sold' : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
-  const fluidsSel = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
-  const soldFocus = (st.soldFocus === 'ro') ? 'ro' : 'asrs';
-  // preMpi is always forced 'excluded' for techs mode
-  const preMpi = (viewMode === 'techs') ? 'excluded' : ((st.preMpi === 'excluded') ? 'excluded' : 'included');
+  const fluidsSel  = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
+  const soldFocus  = (st.soldFocus === 'ro') ? 'ro' : 'asrs';
+  // preMpi is locked per mode: techs=excluded, advisors=included
+  const preMpi     = (viewMode === 'advisors') ? 'included' : 'excluded';
+  const _preMpiApplies = (viewMode !== 'advisors');
   const comparison = 'goal';
 
   const pickView = (st.pickView === 'services') ? 'services' : 'tech';
 
   const focusLine = (focus === 'sold') ? 'Sold Goal' : 'ASR Goal';
 
-  // People set based on viewMode
-  // Techs live in DATA.techs (team EXPRESS/KIA), advisors in DATA.advisors (separate array)
+  // Techs live in DATA.techs (EXPRESS/KIA), advisors in DATA.advisors (separate array)
   const _rawTechs    = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))    ? DATA.techs.filter(t=>t&&(t.team==='EXPRESS'||t.team==='KIA')) : [];
   const _rawAdvisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors.filter(a=>a) : [];
 
-  // Normalize advisor category data: map advisor_sold → sold so downstream code is unified
+  // Normalize advisor categories: map advisor_sold → sold so all downstream logic is unified
   const _normAdvisors = _rawAdvisors.map(a => {
     const normCats = {};
     for(const [k,v] of Object.entries(a.categories||{})){
@@ -492,12 +490,10 @@ function renderServicesHome(){
     return {...a, _isAdvisor: true, categories: normCats};
   });
 
-  const techs = (viewMode === 'advisors') ? _normAdvisors
-              : (viewMode === 'both')     ? [..._rawTechs, ..._normAdvisors]
-              :                             _rawTechs;
+  const techs = (viewMode === 'advisors') ? _normAdvisors : _rawTechs;
 
-  const personLabelSingular = (viewMode==='advisors') ? 'Advisor' : (viewMode==='both') ? 'Person' : 'Technician';
-  const personLabelPlural   = (viewMode==='advisors') ? 'Advisors' : (viewMode==='both') ? 'Advisors & Techs' : 'Technicians';
+  const personLabelSingular = (viewMode==='advisors') ? 'Advisor' : 'Technician';
+  const personLabelPlural   = (viewMode==='advisors') ? 'Advisors' : 'Technicians';
 // Determine the metric used for goal comparisons/ranking
   const rankMetric = (focus==='sold') ? 'sold' : 'asr';
 
@@ -529,8 +525,6 @@ function renderServicesHome(){
 
   // Pre-MPI sold ADDS to Sold/RO when included (sold before MPI by advisors, no ASR attached to techs).
   // In advisor mode, advisor_sold IS already their metric — don't double-count it.
-  // preMpi is only meaningful in techs/both mode.
-  const _preMpiApplies = (viewMode !== 'advisors');
   const totalSoldForRo = (_preMpiApplies && preMpi === 'included') ? (totalSoldAsr + totalPreMpiSold) : totalSoldAsr;
   const totalSold    = totalSoldForRo; // used for display pills (shows what's in Sold/RO)
   const soldPerAsr   = totalAsr ? (totalSoldAsr / totalAsr) : null;  // NEVER changes with filter
@@ -806,7 +800,6 @@ function serviceGoalDial(pct, sz){
                 <div class="svcViewModeBtns">
                   <button class="svcViewModeBtn${viewMode==='advisors'?' active':''}" data-svcdash="1" data-ctl="viewMode" data-val="advisors">Advisors</button>
                   <button class="svcViewModeBtn${viewMode==='techs'?' active':''}" data-svcdash="1" data-ctl="viewMode" data-val="techs">Technicians</button>
-                  <button class="svcViewModeBtn${viewMode==='both'?' active':''}" data-svcdash="1" data-ctl="viewMode" data-val="both">Advisors &amp; Techs</button>
                 </div>
               </div>
               
@@ -860,16 +853,6 @@ function serviceGoalDial(pct, sz){
                   <option value="only" ${fluidsSel==='only'?'selected':''}>Fluids Only</option>
                 </select>
               </div>
-              <div>
-                <label>Pre-MPI Sales</label>
-                <select data-svcdash="1" data-ctl="preMpi" ${viewMode!=='both'?'disabled':''}>
-
-                  <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
-                  <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
-                </select>
-              </div>
-            </div>
-            <div class="filterRow row2">
               <div>
                 <label>Focus</label>
                 <select data-svcdash="1" data-ctl="focus">
@@ -952,6 +935,12 @@ function serviceGoalDial(pct, sz){
     const asrPctBase  = (baseAsr!==null && baseAsr>0) ? (Number(r.asr||0)/baseAsr) : null;
     const soldPctBase = (baseSold!==null && baseSold>0) ? (Number(r.sold||0)/baseSold) : null;
 
+    // Sold metric display: Sold/ASRs = close rate %, Sold/RO = sold÷ros
+    const soldMetricLbl = (soldFocus === 'ro') ? 'Sold/RO' : 'Sold/ASR';
+    const soldMetricVal = (soldFocus === 'ro')
+      ? (r.ros ? fmt1(r.sold / r.ros, 2) : '—')
+      : (r.asr ? fmtPct(r.sold / r.asr) : '—');
+
     return `
       <div class="svcTechRow">
         <div class="svcTechLeft">
@@ -959,7 +948,7 @@ function serviceGoalDial(pct, sz){
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          <div class="svcTechMetaRow">ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)} • Sold <b>${fmtInt(r.sold)}</b>${iconHtml(soldPctBase)}</div>
+          <div class="svcTechMetaRow">ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)} • ${soldMetricLbl} <b>${soldMetricVal}</b>${iconHtml(soldPctBase)}</div>
         </div>
       </div>
     `;
@@ -1700,7 +1689,6 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       if(ctl==='focus'){ st.focus = sel.value; st.goalMetric = sel.value; }
       if(ctl==='fluids') st.fluids = sel.value;
       if(ctl==='soldFocus') st.soldFocus = sel.value;
-      if(ctl==='preMpi') st.preMpi = sel.value;
       renderServicesHome();
     });
   });
@@ -1763,7 +1751,7 @@ try{
   }
   function onSvcEsc(e){ if(e.key==='Escape') closeSvcDiagPopup(); }
 
-  function openSvcDiagPopup(ev, mode, band, anchorEl){
+  window._openSvcDiagPopup = function openSvcDiagPopup(ev, mode, band, anchorEl){
     if(ev){ ev.preventDefault(); ev.stopPropagation(); }
     closeSvcDiagPopup();
     const list = (svcBands[mode] && svcBands[mode][band]) ? svcBands[mode][band].slice() : [];
@@ -1846,16 +1834,19 @@ try{
     document.addEventListener('keydown', onSvcEsc, true);
   }
 
-  // Pie slice clicks -> popup
-  try{
-    app.querySelectorAll('.diagPieSlice').forEach(s=>{
-      s.addEventListener('click', (e)=>{
-        const mode = s.getAttribute('data-mode');
-        const band = s.getAttribute('data-band');
-        openSvcDiagPopup(e, mode, band, s);
-      });
-    });
-  }catch(e){}
+  // Pie slice clicks -> popup (delegated, capture phase, attached once globally)
+  if(!app._svcPieDelegateAttached){
+    app._svcPieDelegateAttached = true;
+    app.addEventListener('click', function _svcPieDelegate(e){
+      const slice = e.target && e.target.closest ? e.target.closest('.diagPieSlice') : null;
+      if(!slice) return;
+      if(slice.getAttribute('data-tech')) return; // renderTech.js owns those
+      e.stopPropagation();
+      const mode = slice.getAttribute('data-mode');
+      const band = slice.getAttribute('data-band');
+      if(window._openSvcDiagPopup) window._openSvcDiagPopup(e, mode, band, slice);
+    }, true);
+  }
 
   // Tech clicks in diag -> tech page
   const diagRoot = app.querySelector('.svcDiagPanel');
