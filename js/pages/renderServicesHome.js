@@ -466,9 +466,9 @@ function renderServicesHome(){
   const rankMetric = (focus==='sold') ? 'sold' : 'asr';
 
   // Overall totals (team-scoped)
-  const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
-  const totalAsr  = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
-  const totalSoldRaw = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
+  const totalRos     = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
+  const totalAsr     = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
+  const totalSoldAsr = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0); // ASR-sold only, never changes
 
   // --- Pre-MPI sold helpers (from DATA.advisors) ---
   function preMpiSoldForService(serviceName){
@@ -491,11 +491,13 @@ function renderServicesHome(){
     return total;
   })();
 
-  // Apply pre-MPI exclusion: when excluded, subtract pre-MPI sold from all sold counts
-  const totalSold = (preMpi === 'excluded') ? Math.max(0, totalSoldRaw - totalPreMpiSold) : totalSoldRaw;
-  const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-  const asrPerRo  = totalRos ? (totalAsr/totalRos) : null;
-  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
+  // Pre-MPI sold ADDS to Sold/RO when included (sold before MPI, no ASR attached).
+  // Sold/ASR is always ASR-sold ÷ ASRs — pre-MPI never affects it.
+  const totalSoldForRo = (preMpi === 'included') ? (totalSoldAsr + totalPreMpiSold) : totalSoldAsr;
+  const totalSold    = totalSoldForRo; // used for display pills (shows what's in Sold/RO)
+  const soldPerAsr   = totalAsr ? (totalSoldAsr / totalAsr) : null;  // NEVER changes with filter
+  const asrPerRo     = totalRos ? (totalAsr / totalRos) : null;
+  const soldPerRo    = totalRos ? (totalSoldForRo / totalRos) : null; // changes with filter
 
   // For GOAL focus, compute store/team-level goal ratios (rough: total metric / total goal)
   function _storeGoalRatios(){
@@ -638,24 +640,35 @@ function serviceGoalDial(pct, sz){
   const _svcRankDen = _uniqServices.length || 1;
   const _svcGoalPct = new Map();
   for(const svcName of _uniqServices){
-    // Build minimal aggregates
-    let ros=0, asr=0, sold=0;
+    let ros=0, asr=0, soldAsr=0;
     for(const t of techs){
       const row = (t.categories||{})[svcName];
       if(!row) continue;
-      ros  += Number(row.ros)||0;
-      asr  += Number(row.asr)||0;
-      sold += Number(row.sold)||0;
+      ros     += Number(row.ros)||0;
+      asr     += Number(row.asr)||0;
+      soldAsr += Number(row.sold)||0;
     }
-    // Apply pre-MPI exclusion
-    if(preMpi === 'excluded') sold = Math.max(0, sold - preMpiSoldForService(svcName));
-    const reqTot = ros ? (asr/ros) : NaN;
-    const closeTot = asr ? (sold/asr) : NaN;
-    const gReq = Number(getGoal(svcName,'req'));
+    // Sold/ASR (closeTot) never changes with pre-MPI filter
+    // Sold/RO uses soldForRo only when rankMetric==='sold' and soldFocus==='ro'
+    const preMpiSvc = preMpiSoldForService(svcName);
+    const soldForRo = (preMpi === 'included') ? (soldAsr + preMpiSvc) : soldAsr;
+    const reqTot   = ros ? (asr / ros) : NaN;
+    const closeTot = asr ? (soldAsr / asr) : NaN;       // Sold/ASR — never changes
+    const soldPerRoSvc = ros ? (soldForRo / ros) : NaN; // Sold/RO — changes with filter
+    const gReq   = Number(getGoal(svcName,'req'));
     const gClose = Number(getGoal(svcName,'close'));
-    const pct = (rankMetric==='sold')
-      ? ((Number.isFinite(closeTot) && Number.isFinite(gClose) && gClose>0) ? (closeTot/gClose) : NaN)
-      : ((Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN);
+    let pct;
+    if(rankMetric === 'sold'){
+      if(soldFocus === 'ro'){
+        // Rank by Sold/RO vs goal (goal close is used as proxy; adapt: soldPerRo vs gReq*gClose)
+        const gSoldRo = (Number.isFinite(gReq) && Number.isFinite(gClose)) ? (gReq * gClose) : NaN;
+        pct = (Number.isFinite(soldPerRoSvc) && Number.isFinite(gSoldRo) && gSoldRo>0) ? (soldPerRoSvc/gSoldRo) : NaN;
+      } else {
+        pct = (Number.isFinite(closeTot) && Number.isFinite(gClose) && gClose>0) ? (closeTot/gClose) : NaN;
+      }
+    } else {
+      pct = (Number.isFinite(reqTot) && Number.isFinite(gReq) && gReq>0) ? (reqTot/gReq) : NaN;
+    }
     _svcGoalPct.set(svcName, pct);
   }
 
@@ -759,7 +772,7 @@ function serviceGoalDial(pct, sz){
                 <div class="pillsMini">
                   <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                   <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
-                  <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(totalSold)}</div></div>
+                  <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(totalSoldAsr)}</div></div>
                   <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(totalPreMpiSold)}</div></div>
                   <div class="pillMini sold"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
                   ${showSoldRoPill ? `<div class="pillMini"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div></div>` : ''}
@@ -920,40 +933,32 @@ function serviceGoalDial(pct, sz){
   }
 
   function buildServiceAgg(serviceName){
-    let asr=0, sold=0, totalRos=0;
+    let asr=0, soldAsr=0, totalRos=0;
     const techRows = [];
 
     for(const t of techs){
       const c = (t.categories||{})[serviceName];
-      const a = Number(c?.asr)||0;
+      const a  = Number(c?.asr)||0;
       const so = Number(c?.sold)||0;
       const rosTech = Number(t.ros)||0;
-      asr += a; sold += so; totalRos += rosTech;
-      const req = rosTech ? (a/rosTech) : 0; // ASR/RO (ratio)
-      const close = a ? (so/a) : 0; // Sold% (ratio)
+      asr += a; soldAsr += so; totalRos += rosTech;
+      const req   = rosTech ? (a/rosTech) : 0;  // ASR/RO
+      const close = a ? (so/a) : 0;             // Sold/ASR — never changes with filter
       techRows.push({id:t.id, name:t.name, team:t.team, ros:rosTech, asr:a, sold:so, req, close, serviceName});
     }
 
-    // Apply pre-MPI exclusion at service level
-    if(preMpi === 'excluded'){
-      const preMpiSvc = preMpiSoldForService(serviceName);
-      sold = Math.max(0, sold - preMpiSvc);
-      // Recompute sold for each tech row proportionally (keep per-tech ratios consistent)
-      const rawTechSold = techRows.reduce((s,r)=>s+r.sold, 0);
-      for(const r of techRows){
-        const adjSold = rawTechSold > 0 ? Math.round(r.sold * (sold / rawTechSold)) : 0;
-        r.sold = adjSold;
-        r.close = r.asr ? (adjSold / r.asr) : 0;
-      }
-    }
+    // Pre-MPI adds to Sold/RO when included; Sold/ASR (close) is always ASR-sold ÷ ASRs
+    const preMpiSvc  = preMpiSoldForService(serviceName);
+    const soldForRo  = (preMpi === 'included') ? (soldAsr + preMpiSvc) : soldAsr;
 
-    const reqTot = totalRos ? (asr/totalRos) : 0;
-    const closeTot = asr ? (sold/asr) : 0;
+    const reqTot   = totalRos ? (asr / totalRos) : 0;
+    const closeTot = asr ? (soldAsr / asr) : 0;        // Sold/ASR — always ASR-sold ÷ ASRs
+    const soldPerRoSvc = totalRos ? (soldForRo / totalRos) : 0;
 
     const nTech = techs.length || 1;
-    const storeAvgRosL = totalRos / nTech;
-    const storeAvgAsrL = asr / nTech;
-    const storeAvgSoldL = sold / nTech;
+    const storeAvgRosL  = totalRos / nTech;
+    const storeAvgAsrL  = asr / nTech;
+    const storeAvgSoldL = soldForRo / nTech;
 
     const teamTotals = {};
     const teamCounts = {};
@@ -962,8 +967,8 @@ function serviceGoalDial(pct, sz){
       if(!teamTotals[tk]) teamTotals[tk] = {ros:0, asr:0, sold:0};
       if(!teamCounts[tk]) teamCounts[tk] = 0;
       teamCounts[tk] += 1;
-      teamTotals[tk].ros += Number(r.ros)||0;
-      teamTotals[tk].asr += Number(r.asr)||0;
+      teamTotals[tk].ros  += Number(r.ros)||0;
+      teamTotals[tk].asr  += Number(r.asr)||0;
       teamTotals[tk].sold += Number(r.sold)||0;
     }
     const teamBaseCountsL = {};
@@ -972,7 +977,10 @@ function serviceGoalDial(pct, sz){
       teamBaseCountsL[k] = {rosAvg: teamTotals[k].ros/cnt, asrAvg: teamTotals[k].asr/cnt, soldAvg: teamTotals[k].sold/cnt};
     }
 
-    return {serviceName, totalRos, asr, sold, reqTot, closeTot, storeAvgRos: storeAvgRosL, storeAvgAsr: storeAvgAsrL, storeAvgSold: storeAvgSoldL, teamBaseCounts: teamBaseCountsL, techRows};
+    // `sold` on the returned object = soldForRo (what goes into Sold/RO pill display)
+    return {serviceName, totalRos, asr, sold: soldForRo, soldAsr, preMpiSvc, reqTot, closeTot, soldPerRoSvc,
+            storeAvgRos: storeAvgRosL, storeAvgAsr: storeAvgAsrL, storeAvgSold: storeAvgSoldL,
+            teamBaseCounts: teamBaseCountsL, techRows};
   }
 
   
@@ -1025,25 +1033,27 @@ function serviceGoalDial(pct, sz){
       const gCloseSec = _getSectionGoal(sec,'close');
 
       // Aggregate across all categories in this section for the filtered tech set
-      let ros=0, asr=0, sold=0;
+      let ros=0, asr=0, soldAsr=0;
       for(const t of techs){
         for(const cat of (sec.categories||[])){
           const row = (t.categories||{})[cat];
           if(!row) continue;
-          ros += Number(row.ros)||0;
-          asr += Number(row.asr)||0;
-          sold += Number(row.sold)||0;
+          ros     += Number(row.ros)||0;
+          asr     += Number(row.asr)||0;
+          soldAsr += Number(row.sold)||0;
         }
       }
-      // Apply pre-MPI exclusion
-      if(preMpi === 'excluded'){
-        for(const cat of (sec.categories||[])) sold = Math.max(0, sold - preMpiSoldForService(String(cat)));
+      // Pre-MPI adds to Sold/RO; Sold/ASR always uses ASR-sold only
+      let soldForRo = soldAsr;
+      for(const cat of (sec.categories||[])){
+        if(preMpi === 'included') soldForRo += preMpiSoldForService(String(cat));
       }
 
-      const asrPerRo = ros ? (asr/ros) : NaN;
-      const soldPct = asr ? (sold/asr) : NaN;
-      const pctGoalAsr = (Number.isFinite(asrPerRo) && Number.isFinite(gReqSec) && gReqSec>0) ? (asrPerRo/gReqSec) : NaN;
-      const pctGoalSold = (Number.isFinite(soldPct) && Number.isFinite(gCloseSec) && gCloseSec>0) ? (soldPct/gCloseSec) : NaN;
+      const asrPerRo  = ros ? (asr/ros) : NaN;
+      const soldPct   = asr ? (soldAsr/asr) : NaN;          // Sold/ASR — never changes
+      const svcSoldPerRo = ros ? (soldForRo/ros) : NaN;     // Sold/RO — changes with filter
+      const pctGoalAsr  = (Number.isFinite(asrPerRo)  && Number.isFinite(gReqSec)   && gReqSec>0)   ? (asrPerRo/gReqSec)   : NaN;
+      const pctGoalSold = (Number.isFinite(soldPct)   && Number.isFinite(gCloseSec) && gCloseSec>0) ? (soldPct/gCloseSec)  : NaN;
       const pct = (goalMetric==='sold') ? pctGoalSold : pctGoalAsr;
       rows.push({name:nm, pct});
     }
@@ -1083,13 +1093,14 @@ function serviceGoalDial(pct, sz){
     const aggs = services.map(buildServiceAgg);
 
     // Section-level totals and focus stats (team + fluids scoped)
-    const secRos  = aggs.reduce((s,x)=>s+(Number(x.totalRos)||0),0);
-    const secAsr  = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
-    const secSold = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0);
-    const secAvgOdo = techs.length ? (techs.reduce((s,t)=>s+(Number(t.odo)||0),0) / techs.length) : 0;
-    const secSoldPerRo = (Number.isFinite(secRos) && secRos>0) ? (secSold/secRos) : NaN;
-    const secAsrPerRo = secRos ? (secAsr/secRos) : null;
-    const secSoldPct = secAsr ? (secSold/secAsr) : null;
+    const secRos     = aggs.reduce((s,x)=>s+(Number(x.totalRos)||0),0);
+    const secAsr     = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
+    const secSoldAsr = aggs.reduce((s,x)=>s+(Number(x.soldAsr)||0),0); // ASR-sold only, never changes
+    const secSoldForRo = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0); // includes pre-MPI when included
+    const secAvgOdo  = techs.length ? (techs.reduce((s,t)=>s+(Number(t.odo)||0),0) / techs.length) : 0;
+    const secSoldPerRo = (secRos>0) ? (secSoldForRo/secRos) : NaN;  // changes with filter
+    const secAsrPerRo  = secRos ? (secAsr/secRos) : null;
+    const secSoldPct   = secAsr ? (secSoldAsr/secAsr) : null;        // Sold/ASR — never changes
 
     // Focus stats: determined by Goal filter + Sold Focus sub-filter
     const secTopIsSold = (goalMetric==='sold');
@@ -1104,8 +1115,13 @@ function serviceGoalDial(pct, sz){
     // Goal dials: compare section focus stats to THIS SECTION's goals (with safe fallbacks)
     const gReqSec = _getSectionGoal(sec,'req');
     const gCloseSec = _getSectionGoal(sec,'close');
-    const secPctGoalAsr = (Number.isFinite(secAsrPerRo) && Number.isFinite(gReqSec) && gReqSec>0) ? (secAsrPerRo/gReqSec) : NaN;
-    const secPctGoalSold = (Number.isFinite(secSoldPct) && Number.isFinite(gCloseSec) && gCloseSec>0) ? (secSoldPct/gCloseSec) : NaN;
+    const secPctGoalAsr  = (Number.isFinite(secAsrPerRo) && Number.isFinite(gReqSec) && gReqSec>0) ? (secAsrPerRo/gReqSec) : NaN;
+    // Sold/ASR dial always uses ASR-sold (closePct) — never changes with preMpi filter
+    const secPctGoalSoldAsr = (Number.isFinite(secSoldPct) && Number.isFinite(gCloseSec) && gCloseSec>0) ? (secSoldPct/gCloseSec) : NaN;
+    // Sold/RO dial uses soldPerRo — changes with preMpi filter
+    const gSoldRoSec = (Number.isFinite(gReqSec) && Number.isFinite(gCloseSec)) ? (gReqSec * gCloseSec) : NaN;
+    const secPctGoalSoldRo = (Number.isFinite(secSoldPerRo) && Number.isFinite(gSoldRoSec) && gSoldRoSec>0) ? (secSoldPerRo/gSoldRoSec) : NaN;
+    const secPctGoalSold = (soldFocus==='ro') ? secPctGoalSoldRo : secPctGoalSoldAsr;
 
     const secRank = _secRankInfo.map.get(secName) || '—';
     const secRankTop = (goalMetric==='sold')
@@ -1122,15 +1138,17 @@ function serviceGoalDial(pct, sz){
       const pctVsAvgReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(avgReq)   && avgReq>0)   ? (s.reqTot/avgReq) : NaN;
       const pctVsAvgClose = (Number.isFinite(s.closeTot) && Number.isFinite(avgClose) && avgClose>0) ? (s.closeTot/avgClose) : NaN;
 
-      const gReq = Number(getGoal(s.serviceName,'req'));
+      const gReq   = Number(getGoal(s.serviceName,'req'));
       const gClose = Number(getGoal(s.serviceName,'close'));
-      const pctOfGoalReq = (Number.isFinite(s.reqTot) && Number.isFinite(gReq) && gReq>0) ? (s.reqTot/gReq) : NaN;
-      const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN;
+      const pctOfGoalReq   = (Number.isFinite(s.reqTot)   && Number.isFinite(gReq)   && gReq>0)   ? (s.reqTot/gReq)     : NaN;
+      const pctOfGoalClose = (Number.isFinite(s.closeTot) && Number.isFinite(gClose) && gClose>0) ? (s.closeTot/gClose) : NaN; // Sold/ASR, never changes
+      const gSoldRo = (Number.isFinite(gReq) && Number.isFinite(gClose)) ? (gReq * gClose) : NaN;
+      const pctOfGoalSoldRo = (Number.isFinite(s.soldPerRoSvc) && Number.isFinite(gSoldRo) && gSoldRo>0) ? (s.soldPerRoSvc/gSoldRo) : NaN;
 
-      // Always use Goal dial for all services (metric depends on Focus)
-      const dialPct = (rankMetric==='sold') ? pctOfGoalClose : pctOfGoalReq;
-      const dialLabel = (rankMetric==='sold') ? 'Sold Goal' : 'ASR Goal';
-
+      // Dial: Sold/RO focus → pctOfGoalSoldRo (changes with filter); Sold/ASR focus → pctOfGoalClose (never changes); ASR focus → pctOfGoalReq
+      const dialPct = (rankMetric==='sold')
+        ? (soldFocus==='ro' ? pctOfGoalSoldRo : pctOfGoalClose)
+        : pctOfGoalReq;
       const sdDialTitle = (rankMetric==='sold')
         ? (soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs')
         : 'ASR';
@@ -1176,8 +1194,8 @@ function serviceGoalDial(pct, sz){
               <div class="catTitle">${safe(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
                 <div>${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs</div>
-                <div>${fmtInt(s.sold)} ASRs Sold</div>
-                <div>Pre-MPI Sold: ${fmtInt(preMpiSoldForService(s.serviceName))}</div>
+                <div>${fmtInt(s.soldAsr)} ASRs Sold</div>
+                <div>Pre-MPI Sold: ${fmtInt(s.preMpiSvc)}</div>
               </div>
             </div>
 
@@ -1213,7 +1231,7 @@ function serviceGoalDial(pct, sz){
                 <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
                 <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>
                 <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
-                <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(secSold)}</div></div>
+                <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(secSoldAsr)}</div></div>
                 <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(secPreMpiSold)}</div></div>
                 <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'}</div></div>
               </div>
@@ -1336,9 +1354,9 @@ function serviceGoalDial(pct, sz){
   function tbRowSvc(item, idx, mode){
     const targetId = 'sd-' + safeSvcIdLocal(item.name).replace(/^svc-/, '');
     const agg = svcAggsAll.find(s=>s.serviceName===item.name);
-    const asrPerRoVal = (agg && agg.totalRos) ? (agg.asr / agg.totalRos) : null;
-    const soldPctVal = (agg && agg.asr) ? (agg.sold / agg.asr) : null;
-    const soldPerRoVal = (agg && agg.totalRos) ? (agg.sold / agg.totalRos) : null;
+    const asrPerRoVal  = (agg && agg.totalRos) ? (agg.asr / agg.totalRos) : null;
+    const soldPctVal   = (agg && agg.asr)      ? (agg.soldAsr / agg.asr)  : null; // Sold/ASR — always ASR-sold
+    const soldPerRoVal = (agg && agg.totalRos) ? (agg.sold / agg.totalRos) : null; // Sold/RO — includes pre-MPI when included
 
     let statStr;
     if(mode === 'asr'){
