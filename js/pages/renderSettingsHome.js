@@ -132,8 +132,12 @@ renderMenuTechLists(); normalizeRouteHrefs();
 }
 
 function goTech(id){
-  // Navigate to a technician page reliably even if the hash doesn't change.
-  const target = `#/tech/${encodeURIComponent(String(id))}`;
+  // If the ID belongs to an advisor, route to the advisor detail page instead.
+  const isAdvisor = typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)
+    && DATA.advisors.some(a => String(a.id) === String(id));
+  const target = isAdvisor
+    ? `#/advisor/${encodeURIComponent(String(id))}`
+    : `#/tech/${encodeURIComponent(String(id))}`;
   if(location.hash !== target) location.hash = target;
   safeRouter();
   return false;
