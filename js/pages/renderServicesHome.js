@@ -468,10 +468,7 @@ function renderServicesHome(){
   // Overall totals (team-scoped)
   const totalRos  = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
   const totalAsr  = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
-  const totalSold = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
-  const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
-  const asrPerRo  = totalRos ? (totalAsr/totalRos) : null;
-  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
+  const totalSoldRaw = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0);
 
   // --- Pre-MPI sold helpers (from DATA.advisors) ---
   function preMpiSoldForService(serviceName){
@@ -483,7 +480,6 @@ function renderServicesHome(){
     }
     return total;
   }
-  // Total pre-MPI sold across all services in this dataset
   const totalPreMpiSold = (()=>{
     const advisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors : [];
     let total = 0;
@@ -494,6 +490,12 @@ function renderServicesHome(){
     }
     return total;
   })();
+
+  // Apply pre-MPI exclusion: when excluded, subtract pre-MPI sold from all sold counts
+  const totalSold = (preMpi === 'excluded') ? Math.max(0, totalSoldRaw - totalPreMpiSold) : totalSoldRaw;
+  const soldPerAsr = totalAsr ? (totalSold/totalAsr) : null;
+  const asrPerRo  = totalRos ? (totalAsr/totalRos) : null;
+  const soldPerRo = totalRos ? (totalSold/totalRos) : null;
 
   // For GOAL focus, compute store/team-level goal ratios (rough: total metric / total goal)
   function _storeGoalRatios(){
@@ -645,6 +647,8 @@ function serviceGoalDial(pct, sz){
       asr  += Number(row.asr)||0;
       sold += Number(row.sold)||0;
     }
+    // Apply pre-MPI exclusion
+    if(preMpi === 'excluded') sold = Math.max(0, sold - preMpiSoldForService(svcName));
     const reqTot = ros ? (asr/ros) : NaN;
     const closeTot = asr ? (sold/asr) : NaN;
     const gReq = Number(getGoal(svcName,'req'));
@@ -930,6 +934,19 @@ function serviceGoalDial(pct, sz){
       techRows.push({id:t.id, name:t.name, team:t.team, ros:rosTech, asr:a, sold:so, req, close, serviceName});
     }
 
+    // Apply pre-MPI exclusion at service level
+    if(preMpi === 'excluded'){
+      const preMpiSvc = preMpiSoldForService(serviceName);
+      sold = Math.max(0, sold - preMpiSvc);
+      // Recompute sold for each tech row proportionally (keep per-tech ratios consistent)
+      const rawTechSold = techRows.reduce((s,r)=>s+r.sold, 0);
+      for(const r of techRows){
+        const adjSold = rawTechSold > 0 ? Math.round(r.sold * (sold / rawTechSold)) : 0;
+        r.sold = adjSold;
+        r.close = r.asr ? (adjSold / r.asr) : 0;
+      }
+    }
+
     const reqTot = totalRos ? (asr/totalRos) : 0;
     const closeTot = asr ? (sold/asr) : 0;
 
@@ -1017,6 +1034,10 @@ function serviceGoalDial(pct, sz){
           asr += Number(row.asr)||0;
           sold += Number(row.sold)||0;
         }
+      }
+      // Apply pre-MPI exclusion
+      if(preMpi === 'excluded'){
+        for(const cat of (sec.categories||[])) sold = Math.max(0, sold - preMpiSoldForService(String(cat)));
       }
 
       const asrPerRo = ros ? (asr/ros) : NaN;
