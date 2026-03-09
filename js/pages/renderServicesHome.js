@@ -435,7 +435,7 @@ function renderServicesHome(){
 
   // ---- Local state (kept independent of main dashboard state) ----
   if(typeof UI === 'undefined') window.UI = {};
-  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', fluids: 'with', open: {}, soldFocus: 'asrs', preMpi: 'excluded', viewMode: 'techs', _lastViewMode: '' };
+  if(!UI.servicesDash) UI.servicesDash = { focus: 'asr', goalMetric: 'asr', team: 'store', fluids: 'with', open: {}, soldFocus: 'asrs', preMpi: 'excluded', viewMode: 'techs', _lastViewMode: '' };
 
   const st = UI.servicesDash;
 
@@ -447,13 +447,15 @@ function renderServicesHome(){
       const [k,v]=part.split("=");
       if(k==="focus") st.focus = decodeURIComponent(v||"asr") || "asr";
       if(k==="goal") st.goalMetric = (decodeURIComponent(v||"asr")==="sold") ? "sold" : "asr";
+      if(k==="team") st.team = decodeURIComponent(v||"store") || "store";
       if(k==="fluids") st.fluids = decodeURIComponent(v||"with") || "with";
       if(k==="soldFocus") st.soldFocus = decodeURIComponent(v||"asrs") || "asrs";
+      if(k==="preMpi") st.preMpi = (decodeURIComponent(v||"included")==="excluded") ? "excluded" : "included";
       if(k==="viewMode"){ const vm=decodeURIComponent(v||"techs"); st.viewMode=(vm==='advisors')?'advisors':'techs'; }
     }
   }
 
-  // Apply per-mode defaults when viewMode changes
+  // Apply per-mode defaults only when viewMode first changes
   const viewMode = (st.viewMode==='advisors') ? 'advisors' : 'techs';
   if(viewMode !== st._lastViewMode){
     st._lastViewMode = viewMode;
@@ -466,10 +468,11 @@ function renderServicesHome(){
 
   const focus      = (st.focus === 'sold') ? 'sold' : 'asr';
   const goalMetric = (st.goalMetric === 'sold') ? 'sold' : 'asr';
+  const teamSel    = (st.team === 'express' || st.team === 'kia') ? st.team : 'store';
   const fluidsSel  = (st.fluids === 'without' || st.fluids === 'only' || st.fluids === 'with') ? st.fluids : 'with';
   const soldFocus  = (st.soldFocus === 'ro') ? 'ro' : 'asrs';
-  // preMpi is locked per mode: techs=excluded, advisors=included
-  const preMpi     = (viewMode === 'advisors') ? 'included' : 'excluded';
+  // preMpi: techs always locked to excluded; advisors user-controlled (defaults included)
+  const preMpi     = (viewMode === 'techs') ? 'excluded' : ((st.preMpi === 'excluded') ? 'excluded' : 'included');
   const _preMpiApplies = (viewMode !== 'advisors');
   const comparison = 'goal';
 
@@ -478,8 +481,13 @@ function renderServicesHome(){
   const focusLine = (focus === 'sold') ? 'Sold Goal' : 'ASR Goal';
 
   // Techs live in DATA.techs (EXPRESS/KIA), advisors in DATA.advisors (separate array)
-  const _rawTechs    = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))    ? DATA.techs.filter(t=>t&&(t.team==='EXPRESS'||t.team==='KIA')) : [];
+  const _rawTechsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs)) ? DATA.techs.filter(t=>t&&(t.team==='EXPRESS'||t.team==='KIA')) : [];
   const _rawAdvisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors.filter(a=>a) : [];
+
+  // Apply team filter (techs only)
+  const _rawTechs = (teamSel === 'express') ? _rawTechsAll.filter(t=>t.team==='EXPRESS')
+                  : (teamSel === 'kia')     ? _rawTechsAll.filter(t=>t.team==='KIA')
+                  :                           _rawTechsAll;
 
   // Normalize advisor categories: map advisor_sold → sold so all downstream logic is unified
   const _normAdvisors = _rawAdvisors.map(a => {
@@ -845,6 +853,15 @@ function serviceGoalDial(pct, sz){
         <div class="mainFiltersBar">
           <div class="controls mainAlwaysOpen">
             <div class="filterRow row1">
+              ${viewMode === 'techs' ? `
+              <div>
+                <label>Team</label>
+                <select data-svcdash="1" data-ctl="team">
+                  <option value="store" ${teamSel==='store'?'selected':''}>All Teams</option>
+                  <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
+                  <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
+                </select>
+              </div>` : `<div></div>`}
               <div>
                 <label>Fluids</label>
                 <select data-svcdash="1" data-ctl="fluids">
@@ -853,6 +870,15 @@ function serviceGoalDial(pct, sz){
                   <option value="only" ${fluidsSel==='only'?'selected':''}>Fluids Only</option>
                 </select>
               </div>
+              <div>
+                <label>Pre-MPI Sales</label>
+                <select data-svcdash="1" data-ctl="preMpi" ${viewMode==='techs'?'disabled':''}>
+                  <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
+                  <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
+                </select>
+              </div>
+            </div>
+            <div class="filterRow row2">
               <div>
                 <label>Focus</label>
                 <select data-svcdash="1" data-ctl="focus">
@@ -867,6 +893,7 @@ function serviceGoalDial(pct, sz){
                   <option value="ro" ${soldFocus==='ro'?'selected':''}>Sold/RO</option>
                 </select>
               </div>
+              <div></div>
             </div>
           </div>
         <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
@@ -1687,8 +1714,10 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     const ctl = sel.getAttribute('data-ctl');
     sel.addEventListener('change', ()=>{
       if(ctl==='focus'){ st.focus = sel.value; st.goalMetric = sel.value; }
+      if(ctl==='team') st.team = sel.value;
       if(ctl==='fluids') st.fluids = sel.value;
       if(ctl==='soldFocus') st.soldFocus = sel.value;
+      if(ctl==='preMpi') st.preMpi = sel.value;
       renderServicesHome();
     });
   });
