@@ -1536,8 +1536,8 @@ function tbMiniBoxSvc(title, rows, mode, kind){
           ${slices.map(s=> s.tooSmall ? `
             <line x1="${s.l0x.toFixed(2)}" y1="${s.l0y.toFixed(2)}" x2="${s.l1x.toFixed(2)}" y2="${s.l1y.toFixed(2)}" stroke="rgba(255,255,255,.95)" stroke-width="1.2" />
           ` : '').join('')}
-          ${slices.map(s=>`<text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${s.ly.toFixed(2)}" text-anchor="middle" dominant-baseline="middle">${s.n}</text>`).join('')}
-          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />
+          ${slices.map(s=>`<text class="diagPieTxt" x="${s.lx.toFixed(2)}" y="${s.ly.toFixed(2)}" text-anchor="middle" dominant-baseline="middle" style="pointer-events:none">${s.n}</text>`).join('')}
+          <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="1.6" style="pointer-events:none" />
         </svg>
       </div>`;
   }
@@ -1871,13 +1871,15 @@ try{
     document.addEventListener('keydown', onSvcEsc, true);
   }
 
-  // Pie slice clicks -> popup (delegated, capture phase, attached once globally)
-  if(!app._svcPieDelegateAttached){
-    app._svcPieDelegateAttached = true;
-    app.addEventListener('click', function _svcPieDelegate(e){
+  // Pie slice clicks -> popup.
+  // Use document-level capture (same as renderTech.js) — this is the only pattern that
+  // reliably intercepts SVG clicks before other handlers can swallow them.
+  if(!window._svcPieDelegateAttached){
+    window._svcPieDelegateAttached = true;
+    document.addEventListener('click', function _svcPieDelegate(e){
       const slice = e.target && e.target.closest ? e.target.closest('.diagPieSlice') : null;
       if(!slice) return;
-      if(slice.getAttribute('data-tech')) return; // renderTech.js owns those
+      if(slice.getAttribute('data-tech')) return; // renderTech.js owns slices with data-tech
       e.stopPropagation();
       const mode = slice.getAttribute('data-mode');
       const band = slice.getAttribute('data-band');
