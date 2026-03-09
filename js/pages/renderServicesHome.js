@@ -997,7 +997,8 @@ function serviceGoalDial(pct, sz){
       const rosTech = Number(t.ros)||0;
       asr += a; soldAsr += so; totalRos += rosTech;
       const req   = rosTech ? (a/rosTech) : 0;  // ASR/RO
-      const close = a ? (so/a) : 0;             // Sold/ASR — never changes with filter
+      // For advisors with no ASRs (Fluids/Brakes/Tires), fall back to Sold/RO
+      const close = (a > 0) ? (so/a) : (t._isAdvisor && rosTech > 0 ? so/rosTech : 0);
       techRows.push({id:t.id, name:t.name, team:t.team, ros:rosTech, asr:a, sold:so, req, close, serviceName});
     }
 
@@ -1006,7 +1007,9 @@ function serviceGoalDial(pct, sz){
     const soldForRo  = (_preMpiApplies && preMpi === 'included') ? (soldAsr + preMpiSvc) : soldAsr;
 
     const reqTot   = totalRos ? (asr / totalRos) : 0;
-    const closeTot = asr ? (soldAsr / asr) : 0;        // Sold/ASR — always ASR-sold ÷ ASRs
+    // For advisor mode with no ASRs (Fluids/Brakes/Tires), use Sold/RO as close metric
+    const isAdvMode = techs.length > 0 && techs[0]._isAdvisor;
+    const closeTot = asr ? (soldAsr / asr) : (isAdvMode && totalRos > 0 ? soldForRo / totalRos : 0);
     const soldPerRoSvc = totalRos ? (soldForRo / totalRos) : 0;
 
     const nTech = techs.length || 1;
