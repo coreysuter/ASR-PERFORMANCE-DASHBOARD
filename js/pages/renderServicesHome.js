@@ -489,11 +489,16 @@ function renderServicesHome(){
                   : (teamSel === 'kia')     ? _rawTechsAll.filter(t=>t.team==='KIA')
                   :                           _rawTechsAll;
 
-  // Normalize advisor categories: map advisor_sold → sold so all downstream logic is unified
+  // Normalize advisor categories: map sold_total or sold → sold so all downstream logic is unified.
+  // When Pre-MPI Included: use sold_total (tech-closed + advisor pre-MPI) — fixes Fluids/Brakes/Tires.
+  // When Pre-MPI Excluded:  use sold only (tech-closed portion).
   const _normAdvisors = _rawAdvisors.map(a => {
     const normCats = {};
     for(const [k,v] of Object.entries(a.categories||{})){
-      normCats[k] = {...v, sold: Number(v.advisor_sold)||0};
+      const soldVal = (preMpi === 'included')
+        ? (Number(v.sold_total) || (Number(v.sold)||0) + (Number(v.advisor_sold)||0))
+        : (Number(v.sold)||0);
+      normCats[k] = {...v, sold: soldVal};
     }
     return {...a, _isAdvisor: true, categories: normCats};
   });
