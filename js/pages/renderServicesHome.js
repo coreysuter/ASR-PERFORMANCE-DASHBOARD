@@ -479,10 +479,22 @@ function renderServicesHome(){
   const focusLine = (focus === 'sold') ? 'Sold Goal' : 'ASR Goal';
 
   // People set based on viewMode
-  const _allPeople = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs)) ? DATA.techs.filter(t=>t) : [];
-  const techs = (viewMode === 'advisors') ? _allPeople.filter(t=>t.team==='ADVISORS')
-              : (viewMode === 'both')     ? _allPeople
-              :                             _allPeople.filter(t=>t.team==='EXPRESS'||t.team==='KIA');
+  // Techs live in DATA.techs (team EXPRESS/KIA), advisors in DATA.advisors (separate array)
+  const _rawTechs    = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))    ? DATA.techs.filter(t=>t&&(t.team==='EXPRESS'||t.team==='KIA')) : [];
+  const _rawAdvisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors.filter(a=>a) : [];
+
+  // Normalize advisor category data: map advisor_sold → sold so downstream code is unified
+  const _normAdvisors = _rawAdvisors.map(a => {
+    const normCats = {};
+    for(const [k,v] of Object.entries(a.categories||{})){
+      normCats[k] = {...v, sold: Number(v.advisor_sold)||0};
+    }
+    return {...a, _isAdvisor: true, categories: normCats};
+  });
+
+  const techs = (viewMode === 'advisors') ? _normAdvisors
+              : (viewMode === 'both')     ? [..._rawTechs, ..._normAdvisors]
+              :                             _rawTechs;
 
   const personLabelSingular = (viewMode==='advisors') ? 'Advisor' : (viewMode==='both') ? 'Person' : 'Technician';
   const personLabelPlural   = (viewMode==='advisors') ? 'Advisors' : (viewMode==='both') ? 'Advisors & Techs' : 'Technicians';
@@ -515,9 +527,11 @@ function renderServicesHome(){
     return total;
   })();
 
-  // Pre-MPI sold ADDS to Sold/RO when included (sold before MPI, no ASR attached).
-  // Sold/ASR is always ASR-sold ÷ ASRs — pre-MPI never affects it.
-  const totalSoldForRo = (preMpi === 'included') ? (totalSoldAsr + totalPreMpiSold) : totalSoldAsr;
+  // Pre-MPI sold ADDS to Sold/RO when included (sold before MPI by advisors, no ASR attached to techs).
+  // In advisor mode, advisor_sold IS already their metric — don't double-count it.
+  // preMpi is only meaningful in techs/both mode.
+  const _preMpiApplies = (viewMode !== 'advisors');
+  const totalSoldForRo = (_preMpiApplies && preMpi === 'included') ? (totalSoldAsr + totalPreMpiSold) : totalSoldAsr;
   const totalSold    = totalSoldForRo; // used for display pills (shows what's in Sold/RO)
   const soldPerAsr   = totalAsr ? (totalSoldAsr / totalAsr) : null;  // NEVER changes with filter
   const asrPerRo     = totalRos ? (totalAsr / totalRos) : null;
@@ -675,7 +689,7 @@ function serviceGoalDial(pct, sz){
     // Sold/ASR (closeTot) never changes with pre-MPI filter
     // Sold/RO uses soldForRo only when rankMetric==='sold' and soldFocus==='ro'
     const preMpiSvc = preMpiSoldForService(svcName);
-    const soldForRo = (preMpi === 'included') ? (soldAsr + preMpiSvc) : soldAsr;
+    const soldForRo = (_preMpiApplies && preMpi === 'included') ? (soldAsr + preMpiSvc) : soldAsr;
     const reqTot   = ros ? (asr / ros) : NaN;
     const closeTot = asr ? (soldAsr / asr) : NaN;       // Sold/ASR — never changes
     const soldPerRoSvc = ros ? (soldForRo / ros) : NaN; // Sold/RO — changes with filter
@@ -848,7 +862,8 @@ function serviceGoalDial(pct, sz){
               </div>
               <div>
                 <label>Pre-MPI Sales</label>
-                <select data-svcdash="1" data-ctl="preMpi" ${viewMode==='techs'?'disabled':''}>
+                <select data-svcdash="1" data-ctl="preMpi" ${viewMode!=='both'?'disabled':''}>
+
                   <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
                   <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
                 </select>
@@ -965,9 +980,9 @@ function serviceGoalDial(pct, sz){
       techRows.push({id:t.id, name:t.name, team:t.team, ros:rosTech, asr:a, sold:so, req, close, serviceName});
     }
 
-    // Pre-MPI adds to Sold/RO when included; Sold/ASR (close) is always ASR-sold ÷ ASRs
+    // Pre-MPI adds to Sold/RO in techs/both mode; in advisor mode advisor_sold is already the metric
     const preMpiSvc  = preMpiSoldForService(serviceName);
-    const soldForRo  = (preMpi === 'included') ? (soldAsr + preMpiSvc) : soldAsr;
+    const soldForRo  = (_preMpiApplies && preMpi === 'included') ? (soldAsr + preMpiSvc) : soldAsr;
 
     const reqTot   = totalRos ? (asr / totalRos) : 0;
     const closeTot = asr ? (soldAsr / asr) : 0;        // Sold/ASR — always ASR-sold ÷ ASRs
@@ -1064,7 +1079,7 @@ function serviceGoalDial(pct, sz){
       // Pre-MPI adds to Sold/RO; Sold/ASR always uses ASR-sold only
       let soldForRo = soldAsr;
       for(const cat of (sec.categories||[])){
-        if(preMpi === 'included') soldForRo += preMpiSoldForService(String(cat));
+        if(_preMpiApplies && preMpi === 'included') soldForRo += preMpiSoldForService(String(cat));
       }
 
       const asrPerRo  = ros ? (asr/ros) : NaN;
