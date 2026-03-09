@@ -368,8 +368,8 @@ function renderServicesHome(){
 
 
 
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:flex !important;flex-direction:column !important;gap:8px !important;}
-      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{display:grid !important;grid-template-columns:repeat(3, minmax(110px,1fr)) !important;gap:8px !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen{display:flex !important;flex-direction:column !important;gap:8px !important;width:100% !important;}
+      .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{display:grid !important;grid-template-columns:repeat(3, minmax(110px,1fr)) !important;gap:8px !important;width:100% !important;}
       @media(max-width:560px){
         .pageServicesDash .techHeaderPanel .mainFiltersBar .controls.mainAlwaysOpen .filterRow{grid-template-columns:1fr !important;}
       }
@@ -816,7 +816,7 @@ function serviceGoalDial(pct, sz){
                 </div>
               </div>
               
-              <div class="svcHdrPillsAndDials" style="margin-left:34px;display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
+              <div class="svcHdrPillsAndDials" style="display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
                 <div class="pillsMini">
                   <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                   <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
