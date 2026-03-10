@@ -216,7 +216,7 @@ function _renderTeamsSection(container){
     </div>`;
 
   container.innerHTML = `
-    <div class="svcSetSection">
+    <div class="svcSetSection" style="width:100%">
       <div class="svcSetSectionHdr">
         <div class="svcSetSectionHdrName">Teams</div>
         <button id="addTeamBtn" class="menuClose" style="
@@ -659,7 +659,7 @@ function renderDealerSettingsPage(){
 
           ${canManageSettings ? `
           <!-- Dealership -->
-          <div class="svcSetSection" style="margin-top:20px">
+          <div class="svcSetSection" style="margin-top:20px;width:100%">
             <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Dealership</div></div>
             <div style="padding:10px 14px 14px">
               <!-- Display row -->
@@ -691,14 +691,14 @@ function renderDealerSettingsPage(){
           </div>
 
           <!-- Teams -->
-          <div id="teamsSectionContainer" style="margin-top:20px"></div>
+          <div id="teamsSectionContainer" style="margin-top:20px;width:100%"></div>
 
           <!-- Color Settings -->
           <div class="svcSetSection" style="margin-top:20px">
             <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Color Settings</div></div>
             <div style="padding:12px 14px">
               <div class="notice" style="padding:0 0 12px 0;margin:0">
-                Configure color thresholds for Performance Dials and Pills.
+                Configure colors and thresholds for performance graphics.
               </div>
               <div style="display:flex;gap:10px;margin-bottom:18px">
                 ${(()=>{
