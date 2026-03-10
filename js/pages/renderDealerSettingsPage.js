@@ -190,6 +190,16 @@ window.getUsersByRole = function(role){
   return _loadUsers().filter(u => u.role === String(role||"").toLowerCase());
 };
 
+// Returns true if `name` matches any user in the dealer users list (case-insensitive trim).
+// When the users list is empty (not yet configured), returns true for everyone
+// so the dashboard doesn't go blank on first load.
+window.isListedUser = function(name){
+  const users = _loadUsers();
+  if(!users.length) return true;   // no users configured → show all
+  const n = String(name||"").trim().toLowerCase();
+  return users.some(u => String(u.name||"").trim().toLowerCase() === n);
+};
+
 // ─────────────────────────────────────────────────────────────
 //  Shared helpers
 // ─────────────────────────────────────────────────────────────

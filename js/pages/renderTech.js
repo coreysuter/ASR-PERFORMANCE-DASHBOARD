@@ -48,7 +48,6 @@
 
   function bandOfPct(pct){
     if(!Number.isFinite(pct)) return null;
-    if(window.getColorBand) return window.getColorBand(pct);
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
     return "green";
@@ -88,11 +87,10 @@
     const title = (mode==="sold") ? "SOLD" : "ASR";
     const isRed = (band==="red");
     const isYellow = (band==="yellow");
-    const isOrange = (band==="orange");
     const isGreen = (band==="green");
-    const colorClass = isRed ? "diagRed" : (isOrange ? "diagOrange" : (isYellow ? "diagYellow" : "diagGreen"));
-    const popFill = isRed ? "#ff4b4b" : (isOrange ? "#f97316" : (isYellow ? "#ffbf2f" : "#1fcb6a"));
-    const popFillHi = isRed ? "#ff8b8b" : (isOrange ? "#fdba74" : (isYellow ? "#ffd978" : "#7CFFB0"));
+    const colorClass = isRed ? "diagRed" : (isYellow ? "diagYellow" : "diagGreen");
+    const popFill = isRed ? "#ff4b4b" : (isYellow ? "#ffbf2f" : "#1fcb6a");
+    const popFillHi = isRed ? "#ff8b8b" : (isYellow ? "#ffd978" : "#7CFFB0");
     const lbl = (mode==="sold") ? "SOLD" : "ASR";
 
     const iconSvg = isGreen
@@ -392,7 +390,8 @@ const hash = location.hash || "";
 
 const s = t.summary?.[filterKey] || {};
 
-  function allTechs(){ return (DATA.techs||[]).filter(x=>x.team==="EXPRESS" || x.team==="KIA"); }
+  function allTechs(){ return (DATA.techs||[]).filter(x=>(x.team==="EXPRESS" || x.team==="KIA")
+    && (typeof window.isListedUser !== "function" || window.isListedUser(x.name))); }
   function categoryUniverse(){
     const cats=new Set();
     for(const x of (DATA.techs||[])){
@@ -521,7 +520,7 @@ function diagCheckBadge(n, mode){
 
 
 function countBandsFor(mode){
-    let red=0, yellow=0, orange=0, green=0;
+    let red=0, yellow=0, green=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
@@ -530,13 +529,11 @@ function countBandsFor(mode){
       const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
-      const band = window.getColorBand ? window.getColorBand(pct) : (pct>=0.80?"green":pct>=0.60?"yellow":"red");
-      if(band==="green")  green++;
-      else if(band==="yellow") yellow++;
-      else if(band==="orange") orange++;
+      if(pct >= 0.80) { green++; continue; }
+      if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow, orange, green};
+    return {red, yellow, green};
   }
 
   // NOTE: Badge popups are handled by the global diag popup handler at the top of this file
@@ -555,13 +552,6 @@ function countBandsFor(mode){
   function bandClass(val, base){
     if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) return "";
     const pct = val/base;
-    if(window.getColorBand){
-      const band = window.getColorBand(pct);
-      if(band==="green")  return "bGreen";
-      if(band==="yellow") return "bYellow";
-      if(band==="orange") return "bOrange";
-      return "bRed";
-    }
     if(pct>=0.80) return "bGreen";
     if(pct>=0.60) return "bYellow";
     return "bRed";
@@ -1310,9 +1300,8 @@ return `
   function diagPieChart(counts, mode){
     const red = Math.max(0, Number(counts?.red)||0);
     const yellow = Math.max(0, Number(counts?.yellow)||0);
-    const orange = Math.max(0, Number(counts?.orange)||0);
     const green = Math.max(0, Number(counts?.green)||0);
-    const total = red + yellow + orange + green;
+    const total = red + yellow + green;
 
     // SVG helpers
     const cx = 80, cy = 80, rad = 70; // viewBox 0..160
@@ -1328,12 +1317,10 @@ return `
       return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
     };
 
-    const _pf = window.getPieFill || function(b){ return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":b==="orange"?"#f97316":"#ff4b4b"; };
     const parts = [
-      {band:"red",    n:red,    fill:_pf("red")},
-      {band:"yellow", n:yellow, fill:_pf("yellow")},
-      {band:"orange", n:orange, fill:_pf("orange")},
-      {band:"green",  n:green,  fill:_pf("green")},
+      {band:"red", n:red, fill:"#ff4b4b"},
+      {band:"yellow", n:yellow, fill:"#ffbf2f"},
+      {band:"green", n:green, fill:"#1fcb6a"},
     ].filter(p=>p.n>0);
 
     // If no data, show a neutral circle with 0
@@ -1379,8 +1366,6 @@ return `
       });
     }
 
-    const singleSlice = slices.length === 1;
-
     return `
       <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
         <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
@@ -1391,10 +1376,7 @@ return `
           </defs>
 
           <g filter="url(#diagPieShadow)">
-            ${singleSlice
-              ? `<circle class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${slices[0].band}" data-compare="${compareBasis}"
-                   cx="80" cy="80" r="70" fill="${slices[0].fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />`
-              : slices.map(s=>`
+            ${slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="${compareBasis}"
                 d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
             `).join('')}

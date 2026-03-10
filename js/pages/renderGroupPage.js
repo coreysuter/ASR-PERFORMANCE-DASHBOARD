@@ -44,8 +44,9 @@ let __ALL_TECHS = null;
 function getAllTechsCached(){
   if(__ALL_TECHS) return __ALL_TECHS;
   const techs = (typeof DATA!=='undefined' && Array.isArray(DATA.techs)) ? DATA.techs : [];
-  // Only Express + Kia are in this project
-  __ALL_TECHS = techs.filter(t => (t.team==="EXPRESS" || t.team==="KIA"));
+  // Only Express + Kia, and only users listed in dealer settings
+  __ALL_TECHS = techs.filter(t => (t.team==="EXPRESS" || t.team==="KIA")
+    && (typeof window.isListedUser !== "function" || window.isListedUser(t.name)));
   return __ALL_TECHS;
 }
 let __ALL_CATS = null;

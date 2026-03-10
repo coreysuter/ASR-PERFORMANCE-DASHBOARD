@@ -45,7 +45,8 @@ function renderMain(){
   }
 
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
-    ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA"))
+    ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA")
+        && (typeof window.isListedUser !== "function" || window.isListedUser(t.name)))
     : [];
 
   const totalRos = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
@@ -284,13 +285,6 @@ function buildTeamCategoryStats(team){
 function bandClass(val, base){
     if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) return "";
     const pct = val/base;
-    if(window.getColorBand){
-      const band = window.getColorBand(pct);
-      if(band==="green")  return "bGreen";
-      if(band==="yellow") return "bYellow";
-      if(band==="orange") return "bOrange";
-      return "bRed";
-    }
     if(pct>=0.80) return "bGreen";
     if(pct>=0.60) return "bYellow";
     return "bRed";

@@ -30,8 +30,8 @@
       const reqs=[], closes=[];
       for(const x of scopeAdvisors){
         const c = x.categories?.[cat];
-        const req   = (c && c.req   != null) ? Number(c.req)   : NaN;
-        const close = (c && c.close != null) ? Number(c.close) : NaN;
+        const req = Number(c?.req);
+        const close = Number(c?.close);
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
       }
@@ -43,7 +43,6 @@
   }
   function bandOfPct(pct){
     if(!Number.isFinite(pct)) return null;
-    if(window.getColorBand) return window.getColorBand(pct);
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
     return "green";
@@ -62,7 +61,8 @@
     const mode = slice.getAttribute("data-mode");
     const band = slice.getAttribute("data-band");
 
-    const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total");
+    const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total"
+      && (typeof window.isListedUser !== "function" || window.isListedUser(a.name)));
     const t = advisors.find(x=>String(x.id)===String(advId));
     if(!t) return;
 
@@ -86,10 +86,9 @@
     const title = (mode==="sold") ? "SOLD" : "ASR";
     const isRed = (band==="red");
     const isYellow = (band==="yellow");
-    const isOrange = (band==="orange");
     const isGreen = (band==="green");
-    const popFill = isRed ? "#ff4b4b" : (isOrange ? "#f97316" : (isYellow ? "#ffbf2f" : "#1fcb6a"));
-    const popFillHi = isRed ? "#ff8b8b" : (isOrange ? "#fdba74" : (isYellow ? "#ffd978" : "#7CFFB0"));
+    const popFill = isRed ? "#ff4b4b" : (isYellow ? "#ffbf2f" : "#1fcb6a");
+    const popFillHi = isRed ? "#ff8b8b" : (isYellow ? "#ffd978" : "#7CFFB0");
     const lbl = (mode==="sold") ? "SOLD" : "ASR";
     const uid = `${mode}-${band}-adv-${advId}`;
 
@@ -208,29 +207,10 @@ function renderAdvisorDetail(advisorId){
       .advDetailControls select{color:#fff}
       .advDetailControls select option{color:#000}
 
-      body.route-advisor .catCard .catHeader .svcGaugeWrap{
-        --sz:74px !important;
-        width:var(--sz) !important;
-        height:var(--sz) !important;
-        flex:0 0 var(--sz) !important;
-      }
-      body.route-advisor .catCard .catHeader .svcGauge{
-        --sz:74px !important;
-        width:var(--sz) !important;
-        height:var(--sz) !important;
-      }
       body.route-advisor .catCard .catHeader .svcGauge .pctSub,
       body.route-advisor .catCard .catHeader .svcGauge .pctTitle{
         font-size:12px !important;
         letter-spacing:.25px !important;
-      }
-      body.route-advisor .muted.svcMetaLine,
-      body.route-advisor .svcMetaLine{
-        font-size:14px !important;
-        text-transform:none !important;
-        letter-spacing:.2px !important;
-        font-weight:900 !important;
-        color:rgba(234,240,255,.75) !important;
       }
 
       /* === Section header right cluster: keep dials + rank badge + stats on one row === */
@@ -284,17 +264,10 @@ function renderAdvisorDetail(advisorId){
       }
       body.route-advisor .secNamePills .pill .v{
         font-size:20px !important; font-weight:1000 !important; line-height:1 !important;
-        color:rgba(255,255,255,.75) !important;
-      }
-      body.route-advisor .secNamePills .pill.soldRoPill .v{
-        color:#fff !important;
       }
       body.route-advisor .secNamePills .pill .k{
         font-size:12px !important; font-weight:900 !important;
         color:rgba(255,255,255,.55) !important; text-transform:none !important;
-      }
-      body.route-advisor .catTitle{
-        font-size:26px !important;
       }
       body.route-advisor .svcGauge .pctTitle{
         white-space:normal;
@@ -304,7 +277,8 @@ function renderAdvisorDetail(advisorId){
   })();
 
   // --- Find advisor ---
-  const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total");
+  const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total"
+    && (typeof window.isListedUser !== "function" || window.isListedUser(a.name)));
   const t = advisors.find(x=>String(x.id)===String(advisorId));
   if(!t){
     document.getElementById('app').innerHTML = `<div class="panel"><div class="phead" style="display:flex;flex-direction:column;min-height:0"><div class="h2">Advisor not found</div><div class="sub"><a href="#/advisors">Back to Advisors</a></div></div></div>`;
@@ -314,9 +288,8 @@ function renderAdvisorDetail(advisorId){
   // --- Parse query string ---
   let filterKey = "total";
   let compareBasis = "advisors"; // advisors | goal
-  let focus = "sold"; // sold | goal | sold_ro
+  let focus = "sold"; // sold | goal
   let goalMetric = "sold"; // always sold for advisors
-  let preMpi = "included"; // included | excluded
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
@@ -329,14 +302,10 @@ function renderAdvisorDetail(advisorId){
       }
       if(k==="focus"){
         const vv = decodeURIComponent(v||"") || "sold";
-        focus = (vv==="sold"||vv==="goal"||vv==="sold_ro") ? vv : "sold";
-      }
-      if(k==="prempi"){
-        const vv = decodeURIComponent(v||"") || "included";
-        preMpi = (vv==="excluded") ? "excluded" : "included";
+        focus = (vv==="sold"||vv==="goal") ? vv : "sold";
       }
       if(k==="goal"){
-        goalMetric = "sold";
+        goalMetric = "sold"; // always sold for advisors
       }
     }
   }
@@ -408,9 +377,9 @@ function renderAdvisorDetail(advisorId){
       let topReq=-1, topName="—", topClose=null;
       for(const x of scopeAdvisors){
         const c=x.categories?.[cat];
-        const req  = (c && c.req  != null) ? Number(c.req)  : NaN;
-        const close= (c && c.close!= null) ? Number(c.close): NaN;
-        const asrN = (c && c.asr  != null) ? Number(c.asr)  : NaN;
+        const req=Number(c?.req);
+        const close=Number(c?.close);
+        const asrN=Number(c?.asr);
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
         if(Number.isFinite(asrN)) asrCounts.push(asrN);
@@ -432,76 +401,25 @@ function renderAdvisorDetail(advisorId){
 
   const ADV_BENCH = buildBench(advisors);
 
-  // Tech benchmarks used as fallback for categories where advisor pool has no close data
-  // (Fluids, Brakes, Tires). Uses sold/RO as the comparable metric since advisors
-  // don't generate ASRs for those services — techs do.
-  function buildTechBench(){
-    const techs = (DATA.techs||[]).filter(x=> x && String(x.id||"").toLowerCase()!=="total");
-    const bench = {};
-    for(const cat of CAT_LIST){
-      const soldRos=[], reqs=[], asrCounts=[];
-      let topSoldRo=-1, topName="—";
-      for(const x of techs){
-        const c = x.categories?.[cat];
-        const ros  = Number(x.ros ?? 0);
-        const req  = (c && c.req   != null) ? Number(c.req)  : NaN;
-        const asr  = (c && c.asr   != null) ? Number(c.asr)  : NaN;
-        const sold = (c && c.sold  != null) ? Number(c.sold) : NaN;
-        const soldRo = (Number.isFinite(sold) && ros > 0) ? sold/ros : NaN;
-        if(Number.isFinite(req)) reqs.push(req);
-        if(Number.isFinite(asr)) asrCounts.push(asr);
-        if(Number.isFinite(soldRo)) soldRos.push(soldRo);
-        if(Number.isFinite(soldRo) && soldRo > topSoldRo){ topSoldRo=soldRo; topName=x.name||"—"; }
-      }
-      bench[cat]={
-        avgReq:    reqs.length     ? reqs.reduce((a,b)=>a+b,0)/reqs.length           : null,
-        avgClose:  soldRos.length  ? soldRos.reduce((a,b)=>a+b,0)/soldRos.length     : null,
-        avgSoldRo: soldRos.length  ? soldRos.reduce((a,b)=>a+b,0)/soldRos.length     : null,
-        avgAsr:    asrCounts.length? asrCounts.reduce((a,b)=>a+b,0)/asrCounts.length : null,
-        topReq:    reqs.length     ? Math.max(...reqs) : null,
-        topClose:  topSoldRo >= 0  ? topSoldRo : null,
-        topName,
-        isTechBench: true
-      };
-    }
-    return bench;
-  }
-  const TECH_BENCH = buildTechBench();
-
   function getBenchmarks(cat){
-    try{
-      const advB = (ADV_BENCH && ADV_BENCH[cat]) ? ADV_BENCH[cat] : {};
-      // Fall back to tech benchmarks for categories with no advisor close data
-      if(advB.avgClose == null){
-        return (TECH_BENCH && TECH_BENCH[cat]) ? TECH_BENCH[cat] : advB;
-      }
-      return advB;
-    }catch(e){ return {}; }
+    try{ return (ADV_BENCH && ADV_BENCH[cat]) ? ADV_BENCH[cat] : {}; }catch(e){ return {}; }
   }
 
   // --- Band counts for diag pie ---
   function countBandsFor(mode){
-    let red=0, yellow=0, orange=0, green=0;
-    const ros = Number(t.ros ?? 0);
+    let red=0, yellow=0, green=0;
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
       if(!mine) continue;
-      // Use sold_ro when no ASR data (Fluids/Brakes/Tires for advisors)
-      const useSoldRo = (mine.close == null && Number(mine.asr ?? 0) === 0);
-      const val = (mode==="sold")
-        ? (useSoldRo ? (ros > 0 ? Number(mine.sold ?? 0)/ros : NaN) : Number(mine.close))
-        : Number(mine.req);
-      const bench = getBenchmarks(cat);
-      const base = (mode==="sold") ? Number(bench?.avgClose) : Number(bench?.avgReq);
+      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const base = (mode==="sold") ? Number(ADV_BENCH?.[cat]?.avgClose) : Number(ADV_BENCH?.[cat]?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
-      const band = window.getColorBand ? window.getColorBand(pct) : (pct>=0.80?"green":pct>=0.60?"yellow":"red");
-      if(band==="green")  green++;
-      else if(band==="yellow") yellow++;
-      else if(band==="orange") orange++;
+      if(pct >= 0.80) { green++; continue; }
+      if(pct >= 0.60) yellow++;
       else red++;
     }
-    return {red, yellow, orange, green};
+    return {red, yellow, green};
   }
 
   // --- Ranking ---
@@ -509,19 +427,13 @@ function renderAdvisorDetail(advisorId){
     const total = advisors.length || 0;
     function scoreFor(x){
       const c = x.categories?.[cat] || {};
-      const ros = Number(x.ros ?? 0);
-      const useSoldRo = (c.close == null && Number(c.asr ?? 0) === 0);
       let v = NaN;
       if(focus==="goal"){
-        const closeVal = useSoldRo
-          ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN)
-          : Number(c.close);
+        const close = Number(c.close);
         const gClose = Number(getGoal(cat,"close"));
-        v = (Number.isFinite(closeVal) && Number.isFinite(gClose) && gClose>0) ? (closeVal/gClose) : NaN;
+        v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
       }else{
-        v = useSoldRo
-          ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN)
-          : Number(c.close);
+        v = Number(c.close);
       }
       return Number.isFinite(v) ? v : -Infinity;
     }
@@ -555,20 +467,6 @@ function renderAdvisorDetail(advisorId){
 
   // --- Advisor metrics ---
   const s = t.summary?.[filterKey] || {};
-
-  // Pre-MPI helpers
-  function preMpiSoldSummary(){ return Number(s.advisor_sold) || 0; }
-  function preMpiSoldForCat(c){ return Number(c?.advisor_sold) || 0; }
-  function effectiveSoldSummary(){
-    const raw = Number(s.sold) || 0;
-    if(preMpi === "excluded") return raw - preMpiSoldSummary();
-    return raw;
-  }
-  function effectiveSoldForCat(c){
-    const raw = Number(c?.sold) || 0;
-    if(preMpi === "excluded") return raw - preMpiSoldForCat(c);
-    return raw;
-  }
 
   function advAsrPerRo(a, fk){
     const sm = a?.summary?.[fk];
@@ -609,15 +507,13 @@ function renderAdvisorDetail(advisorId){
 
   const __asrsTotal = Number(s.asr);
   const __soldTotal = Number(s.sold);
-  const __preMpiTotal = preMpiSoldSummary();
-  const __effectiveSold = effectiveSoldSummary();
   const __rosTotal = Number(t.ros);
   const __soldAsrPct = (Number.isFinite(__soldTotal) && Number.isFinite(__asrsTotal) && __asrsTotal>0) ? (__soldTotal/__asrsTotal) : NaN;
   const __soldAsrPctTxt = Number.isFinite(__soldAsrPct) ? `(${(__soldAsrPct*100).toFixed(1)}%)` : "";
   const __soldAsrPctFocus = Number.isFinite(__soldAsrPct) ? `${(__soldAsrPct*100).toFixed(1)}%` : "—";
   const __asrPerRoVal = advAsrPerRo(t, filterKey);
   const __asrPerRoTxt = fmt1(__asrPerRoVal, 1);
-  const __soldPerRoVal = (Number.isFinite(__effectiveSold) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__effectiveSold/Number(t.ros)) : NaN;
+  const __soldPerRoVal = (Number.isFinite(__soldTotal) && Number.isFinite(t.ros) && Number(t.ros)>0) ? (__soldTotal/Number(t.ros)) : NaN;
   const __soldPerRoTxt = Number.isFinite(__soldPerRoVal) ? fmt1(__soldPerRoVal, 1) : "—";
 
   const __effFocusHdr = "sold";
@@ -646,24 +542,10 @@ function renderAdvisorDetail(advisorId){
         </select>
       </div>
       <div>
-        <label>Pre MPI Sales</label>
-        <select id="advPreMpi">
-          <option value="included" ${preMpi==="included"?"selected":""}>Included</option>
-          <option value="excluded" ${preMpi==="excluded"?"selected":""}>Excluded</option>
-        </select>
-      </div>
-      <div>
         <label>Focus</label>
         <select id="advFocus">
-          <option value="sold" ${focus==="sold"?"selected":""}>Sold/ASRs</option>
-          <option value="sold_ro" ${focus==="sold_ro"?"selected":""}>Sold/RO</option>
-        </select>
-      </div>
-      <div>
-        <label>Comparison</label>
-        <select id="advCompare">
-          <option value="advisors" ${compareBasis==="advisors"?"selected":""}>Advisors</option>
-          <option value="goal" ${compareBasis==="goal"?"selected":""}>Goal</option>
+          <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
+          <option value="goal" ${focus==="goal"?"selected":""}>Sold Goal</option>
         </select>
       </div>
     </div>
@@ -711,12 +593,8 @@ function renderAdvisorDetail(advisorId){
                   <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(s.asr)}</div>
                 </div>
                 <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
-                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">ASRs Sold</div>
+                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
                   <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(s.sold)}</div>
-                </div>
-                <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold Pre-MPI</div>
-                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(__preMpiTotal)}</div>
                 </div>
               </div>
             </div>
@@ -750,20 +628,11 @@ function renderAdvisorDetail(advisorId){
     const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
     const asrCount = Number(c.asr ?? 0);
     const soldCount = Number(c.sold ?? 0);
-    const catPreMpi = preMpiSoldForCat(c);
-    const effSold = effectiveSoldForCat(c);
     const req = Number(c.req ?? NaN);
+    const close = Number(c.close ?? NaN);
     const advRos = Number(t.ros ?? 0);
 
-    // For categories with no ASR data (Fluids/Brakes/Tires for advisors),
-    // use sold/RO as the close metric instead of sold/ASR
-    const useSoldRo = (c.close == null && asrCount === 0);
-    const close = useSoldRo
-      ? (advRos > 0 ? effSold / advRos : NaN)
-      : Number(c.close ?? NaN);
-
     const basis = getBenchmarks(cat) || {};
-    const isTechBench = !!basis.isTechBench;
     const goalReq = Number(getGoal(cat,"req"));
     const goalClose = Number(getGoal(cat,"close"));
     const cmpReq = Number(basis.avgReq);
@@ -793,12 +662,12 @@ function renderAdvisorDetail(advisorId){
       : _popupSold(cmpClose, close, pctCmpClose);
 
     const rk = rankFor(cat);
-    const compareLabel = isTechBench ? "Tech Avg" : "Advisor Avg";
+    const compareLabel = "Advisor Avg";
 
     const avgAsrCount = Number(basis.avgAsr);
     const avgAsrTxt = Number.isFinite(avgAsrCount) ? fmt1(avgAsrCount, 1) : "—";
 
-    const asrBlock = useSoldRo ? `` : `
+    const asrBlock = `
       <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
           <div class="mbKicker">ASR/RO</div>
@@ -820,7 +689,7 @@ function renderAdvisorDetail(advisorId){
     const soldBlock = `
       <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
-          <div class="mbKicker">${useSoldRo ? "Sold/RO" : "Sold"}</div>
+          <div class="mbKicker">Sold</div>
           <div class="mbStat ${bandClass(pctCmpClose)}">${fmtPct(close)}</div>
         </div>
         <div class="mbRight">
@@ -873,8 +742,7 @@ function renderAdvisorDetail(advisorId){
           <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
-              <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${useSoldRo ? "—" : fmt1(asrCount,0)} ASRs</span><br>
-              <span class="svcMetaSoldLine" style="display:block;margin-top:2px;">ASRs Sold: ${fmt1(soldCount,0)} · Pre-MPI: ${fmt1(catPreMpi,0)}</span>
+              <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><br><span class="svcMetaSoldLine" style="display:block;margin-top:2px;">${fmt1(soldCount,0)} Sold</span>
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
@@ -890,20 +758,8 @@ function renderAdvisorDetail(advisorId){
   // --- Section stats ---
   function sectionStatsForAdvisor(sec){
     const cats = sec.categories || [];
-    const ros = Number(t.ros ?? 0);
-    const reqs = cats.map(cat=>{
-      const c = t.categories?.[cat];
-      return (c && c.req != null) ? Number(c.req) : NaN;
-    }).filter(n=>Number.isFinite(n));
-    const closes = cats.map(cat=>{
-      const c = t.categories?.[cat];
-      if(!c) return NaN;
-      // Use sold_ro fallback when close is null and asr is 0
-      if(c.close == null && Number(c.asr ?? 0) === 0){
-        return (ros > 0 && c.sold != null) ? Number(c.sold)/ros : NaN;
-      }
-      return (c.close != null) ? Number(c.close) : NaN;
-    }).filter(n=>Number.isFinite(n));
+    const reqs = cats.map(cat=>Number(t.categories?.[cat]?.req)).filter(n=>Number.isFinite(n));
+    const closes = cats.map(cat=>Number(t.categories?.[cat]?.close)).filter(n=>Number.isFinite(n));
     const sumReq = reqs.length ? reqs.reduce((a,b)=>a+b,0) : null;
     const avgClose = closes.length ? closes.reduce((a,b)=>a+b,0)/closes.length : null;
     return { sumReq, avgClose };
@@ -911,18 +767,16 @@ function renderAdvisorDetail(advisorId){
 
   function sectionScoreForAdvisor(sec, x){
     const cats = sec.categories || [];
-    const ros = Number(x.ros ?? 0);
     const vals = [];
     for(const cat of cats){
       const c = x.categories?.[cat];
       if(!c) continue;
-      const useSoldRo = (c.close == null && Number(c.asr ?? 0) === 0);
       if(focus==="goal"){
-        const v = useSoldRo ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN) : Number(c.close);
+        const v = Number(c.close);
         const g = Number(getGoal(cat,"close"));
         if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
       }else{
-        const v = useSoldRo ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN) : Number(c.close);
+        const v = Number(c.close);
         if(Number.isFinite(v)) vals.push(v);
       }
     }
@@ -1006,19 +860,15 @@ function renderAdvisorDetail(advisorId){
       const cc = t.categories?.[cat] || {};
       const asr = Number(cc.asr);
       const sold = Number(cc.sold);
-      const advSold = preMpiSoldForCat(cc);
       if(Number.isFinite(asr)) a.asr += asr;
       if(Number.isFinite(sold)) a.sold += sold;
-      a.preMpi += (Number.isFinite(advSold) ? advSold : 0);
       return a;
-    },{asr:0, sold:0, preMpi:0});
+    },{asr:0, sold:0});
 
     const __secROs = Number(t.ros ?? 0);
     const __secASRs = __agg.asr;
     const __secSold = __agg.sold;
-    const __secPreMpi = __agg.preMpi;
-    const __secEffSold = preMpi === "excluded" ? (__secSold - __secPreMpi) : __secSold;
-    const __soldPerRo = (Number.isFinite(__secROs) && __secROs>0 && Number.isFinite(__secEffSold)) ? (__secEffSold/__secROs) : NaN;
+    const __soldPerRo = (Number.isFinite(__secROs) && __secROs>0 && Number.isFinite(__secSold)) ? (__secSold/__secROs) : NaN;
     const __soldPerRoTxt = Number.isFinite(__soldPerRo) ? (__soldPerRo.toFixed(2)) : "—";
 
     const __secHeaderPills = `
@@ -1027,9 +877,7 @@ function renderAdvisorDetail(advisorId){
         <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
         <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
         <div class="pill"><div class="k">ASRs/RO</div><div class="v">${Number.isFinite(secStats.sumReq) ? fmt1(secStats.sumReq,1) : "—"}</div></div>
-        <div class="pill"><div class="k">ASRs Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
-        <div class="pill"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(__secPreMpi)}</div></div>
-        <div class="pill soldRoPill"><div class="k">Sold/RO</div><div class="v">${__soldPerRoTxt}</div></div>
+        <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
       </div>
     `;
 
@@ -1121,9 +969,8 @@ function renderAdvisorDetail(advisorId){
   function diagPieChart(counts, mode){
     const red = Math.max(0, Number(counts?.red)||0);
     const yellow = Math.max(0, Number(counts?.yellow)||0);
-    const orange = Math.max(0, Number(counts?.orange)||0);
     const green = Math.max(0, Number(counts?.green)||0);
-    const total = red + yellow + orange + green;
+    const total = red + yellow + green;
 
     const cx = 80, cy = 80, rad = 70;
     const toRad = (deg)=> (deg*Math.PI/180);
@@ -1138,12 +985,10 @@ function renderAdvisorDetail(advisorId){
       return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
     };
 
-    const _pf = window.getPieFill || function(b){ return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":b==="orange"?"#f97316":"#ff4b4b"; };
     const parts = [
-      {band:"red",    n:red,    fill:_pf("red")},
-      {band:"yellow", n:yellow, fill:_pf("yellow")},
-      {band:"orange", n:orange, fill:_pf("orange")},
-      {band:"green",  n:green,  fill:_pf("green")},
+      {band:"red", n:red, fill:"#ff4b4b"},
+      {band:"yellow", n:yellow, fill:"#ffbf2f"},
+      {band:"green", n:green, fill:"#1fcb6a"},
     ].filter(p=>p.n>0);
 
     if(total<=0 || !parts.length){
@@ -1181,8 +1026,6 @@ function renderAdvisorDetail(advisorId){
       });
     }
 
-    const singleSlice = slices.length === 1;
-
     return `
       <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
         <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
@@ -1192,10 +1035,7 @@ function renderAdvisorDetail(advisorId){
             </filter>
           </defs>
           <g filter="url(#advDiagPieShadow)">
-            ${singleSlice
-              ? `<circle class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${slices[0].band}" data-compare="advisors"
-                   cx="80" cy="80" r="70" fill="${slices[0].fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />`
-              : slices.map(s=>`
+            ${slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="advisors"
                 d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
             `).join('')}
@@ -1275,12 +1115,11 @@ function renderAdvisorDetail(advisorId){
 
   // --- Wire up filter controls ---
   function buildHash(){
-    const f  = encodeURIComponent(filterKey);
-    const c  = encodeURIComponent(compareBasis||"advisors");
+    const f = encodeURIComponent(filterKey);
+    const c = encodeURIComponent(compareBasis||"advisors");
     const fo = encodeURIComponent(focus||"sold");
-    const pm = encodeURIComponent(preMpi||"included");
-    const g  = encodeURIComponent("sold");
-    return `#/advisor/${encodeURIComponent(advisorId)}?filter=${f}&compare=${c}&focus=${fo}&prempi=${pm}&goal=${g}`;
+    const g = encodeURIComponent("sold");
+    return `#/advisor/${encodeURIComponent(advisorId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
   }
 
   const advFilterSel = document.getElementById('advFilter');
@@ -1295,22 +1134,6 @@ function renderAdvisorDetail(advisorId){
   if(advFocusSel){
     advFocusSel.addEventListener('change', ()=>{
       focus = advFocusSel.value || "sold";
-      location.hash = buildHash();
-    });
-  }
-
-  const advPreMpiSel = document.getElementById('advPreMpi');
-  if(advPreMpiSel){
-    advPreMpiSel.addEventListener('change', ()=>{
-      preMpi = advPreMpiSel.value || "included";
-      location.hash = buildHash();
-    });
-  }
-
-  const advCompareSel = document.getElementById('advCompare');
-  if(advCompareSel){
-    advCompareSel.addEventListener('change', ()=>{
-      compareBasis = advCompareSel.value || "advisors";
       location.hash = buildHash();
     });
   }
