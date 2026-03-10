@@ -20,7 +20,7 @@ from collections import defaultdict
 XTIME_PATH  = 'reports/XTIME_RO_DATA.xlsx'
 DMS1_PATH   = 'reports/DMS_RO_REPORT1.xlsx'
 DMS2_PATH   = 'reports/DMS_RO_REPORT2.xlsx'
-OUTPUT_PATH = 'js/base.js'
+OUTPUT_PATH = 'js/core/base.js'
 
 TECH_ROSTER = {
     "EXPRESS": ["Alex Gourley","Christian Johnson","Duong Troung","Jacob Rumley",
