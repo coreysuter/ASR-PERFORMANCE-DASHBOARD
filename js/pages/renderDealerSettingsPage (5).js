@@ -216,13 +216,12 @@ function _renderTeamsSection(container){
     </div>`;
 
   container.innerHTML = `
-    <div class="svcSetSection">
+    <div class="svcSetSection" style="min-width:420px">
       <div class="svcSetSectionHdr">
         <div class="svcSetSectionHdrName">Teams</div>
-        <div class="sub" style="font-size:11px;margin:0;font-weight:400">(${customTeams.length})</div>
         <button id="addTeamBtn" class="menuClose" style="
           margin-left:auto;width:auto;padding:5px 12px;font-size:12px;font-weight:800">
-          + Add Team
+          + Add
         </button>
       </div>
       <div style="padding:10px 14px 12px">
@@ -478,10 +477,9 @@ function _renderUsersSection(container){
     <div class="svcSetSection" style="margin-top:0">
       <div class="svcSetSectionHdr">
         <div class="svcSetSectionHdrName">Users</div>
-        <div class="sub" style="font-size:11px;margin:0">(${users.length})</div>
         <button id="addUserBtn" class="menuClose" style="
           margin-left:auto;width:auto;padding:5px 12px;font-size:12px;font-weight:800">
-          + Add User
+          + Add
         </button>
       </div>
       <div style="padding:10px 14px 4px">
@@ -660,9 +658,9 @@ function renderDealerSettingsPage(){
           </div>
 
           ${canManageSettings ? `
-          <!-- Dealership Name -->
-          <div class="svcSetSection" style="margin-top:20px">
-            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Dealership Name</div></div>
+          <!-- Dealership -->
+          <div class="svcSetSection" style="margin-top:20px;min-width:420px">
+            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Dealership</div></div>
             <div style="padding:10px 14px 14px">
               <!-- Display row -->
               <div id="dealerNameDisplay" style="display:flex;align-items:center;gap:10px">
@@ -700,7 +698,7 @@ function renderDealerSettingsPage(){
             <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Color Settings</div></div>
             <div style="padding:12px 14px">
               <div class="notice" style="padding:0 0 12px 0;margin:0">
-                Configure color thresholds for Performance Dials and Pills.
+                Configure colors and thresholds for performance graphics.
               </div>
               <div style="display:flex;gap:10px;margin-bottom:18px">
                 ${(()=>{
@@ -812,6 +810,26 @@ function renderDealerSettingsPage(){
         </div>
       </div>
     </div>`;
+
+
+
+
+  // ── Nudge topbar left so logos sit above the panel's right corner ──
+  (function(){
+    const topBar = document.getElementById('pageTopBar');
+    const panel  = app.querySelector('.techNotchStage .svcSetPanel');
+    if (!topBar || !panel) return;
+    requestAnimationFrame(() => {
+      const appRight   = app.getBoundingClientRect().right;
+      const panelRight = panel.getBoundingClientRect().right;
+      topBar.style.paddingRight = (appRight - panelRight) + 'px';
+    });
+    const _restore = () => {
+      topBar.style.paddingRight = '';
+      window.removeEventListener('hashchange', _restore);
+    };
+    window.addEventListener('hashchange', _restore);
+  })();
 
   // ── Teams ────────────────────────────────────────────────
   if(canManageUsers){
