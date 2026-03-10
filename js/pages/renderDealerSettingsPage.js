@@ -193,146 +193,6 @@ function _wireToggle(id, onChange){
 }
 
 // ─────────────────────────────────────────────────────────────
-//  My Account — available to every logged-in user
-// ─────────────────────────────────────────────────────────────
-function _renderMyAccount(container, session){
-  const r = _roleConf(session.role);
-
-  container.innerHTML = `
-    <div class="svcSetSection" style="margin-top:20px">
-      <div class="svcSetSectionHdr">
-        <div class="svcSetSectionHdrName">My Account</div>
-      </div>
-      <div style="padding:14px">
-
-        <!-- Profile row -->
-        <div style="display:flex;align-items:center;gap:14px;padding:10px 12px;
-          border-radius:12px;border:1px solid rgba(255,255,255,.08);
-          background:rgba(0,0,0,.15);margin-bottom:18px">
-          <div style="width:42px;height:42px;border-radius:12px;flex-shrink:0;
-            background:${r.bg};border:1px solid ${r.color}44;
-            display:flex;align-items:center;justify-content:center;
-            font-size:18px;font-weight:900;color:${r.color}">
-            ${_esc((session.name||"?")[0].toUpperCase())}
-          </div>
-          <div style="min-width:0;flex:1">
-            <div style="font-weight:800;font-size:14px">${_esc(session.name||"—")}</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
-              <span class="sub" style="font-size:11px;margin:0">${_esc(session.email||"—")}</span>
-              ${_roleBadge(session.role)}
-              ${session.team ? `<span class="sub" style="font-size:11px;margin:0;opacity:.6">${_esc(session.team)}</span>` : ""}
-            </div>
-          </div>
-        </div>
-
-        <!-- Change password -->
-        <div style="font-size:11px;font-weight:800;letter-spacing:.5px;
-          text-transform:uppercase;color:rgba(234,240,255,.4);margin-bottom:10px">
-          Change Password
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
-          <div>
-            <div class="sub" style="font-size:11px;margin-bottom:4px">Current Password</div>
-            <div style="position:relative">
-              <input id="ma_curPw" class="svcSetMiles" type="password" maxlength="128"
-                placeholder="Current password"
-                style="width:100%;box-sizing:border-box;padding-right:48px">
-              <button class="ma_pwShow" data-for="ma_curPw" type="button" style="
-                position:absolute;right:8px;top:50%;transform:translateY(-50%);
-                background:none;border:none;cursor:pointer;
-                color:var(--muted,#94a3b8);font-size:10px;font-weight:700;
-                padding:0;text-decoration:underline">Show</button>
-            </div>
-          </div>
-          <div>
-            <div class="sub" style="font-size:11px;margin-bottom:4px">New Password</div>
-            <div style="position:relative">
-              <input id="ma_newPw" class="svcSetMiles" type="password" maxlength="128"
-                placeholder="New password (min 6)"
-                style="width:100%;box-sizing:border-box;padding-right:48px">
-              <button class="ma_pwShow" data-for="ma_newPw" type="button" style="
-                position:absolute;right:8px;top:50%;transform:translateY(-50%);
-                background:none;border:none;cursor:pointer;
-                color:var(--muted,#94a3b8);font-size:10px;font-weight:700;
-                padding:0;text-decoration:underline">Show</button>
-            </div>
-          </div>
-          <div>
-            <div class="sub" style="font-size:11px;margin-bottom:4px">Confirm New Password</div>
-            <input id="ma_confPw" class="svcSetMiles" type="password" maxlength="128"
-              placeholder="Confirm new password"
-              style="width:100%;box-sizing:border-box">
-          </div>
-        </div>
-
-        <div id="ma_err" style="display:none;color:#f87171;font-size:12px;margin-bottom:10px;
-          padding:7px 10px;background:rgba(248,113,113,.08);
-          border-radius:6px;border:1px solid rgba(248,113,113,.2)"></div>
-        <div id="ma_ok" style="display:none;color:#86efac;font-size:12px;margin-bottom:10px;
-          padding:7px 10px;background:rgba(34,197,94,.08);
-          border-radius:6px;border:1px solid rgba(34,197,94,.2)">
-          ✓ Password updated successfully.
-        </div>
-
-        <div style="display:flex;justify-content:flex-end">
-          <button id="ma_saveBtn" style="
-            background:var(--accent,#4f8ef7);border:none;border-radius:8px;
-            color:#fff;font-weight:800;font-size:12px;padding:7px 18px;
-            cursor:pointer;letter-spacing:.2px">Update Password</button>
-        </div>
-      </div>
-    </div>`;
-
-  // Show/hide toggles
-  container.querySelectorAll(".ma_pwShow").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const inp = container.querySelector("#"+btn.getAttribute("data-for")); if(!inp) return;
-      const hidden = inp.type==="password";
-      inp.type = hidden?"text":"password";
-      btn.textContent = hidden?"Hide":"Show";
-    });
-  });
-
-  // Clear messages on input
-  ["ma_curPw","ma_newPw","ma_confPw"].forEach(id=>{
-    const el = container.querySelector("#"+id);
-    if(el) el.addEventListener("input", ()=>{
-      container.querySelector("#ma_err").style.display="none";
-      container.querySelector("#ma_ok").style.display="none";
-    });
-  });
-
-  container.querySelector("#ma_saveBtn").addEventListener("click", ()=>{
-    const curPw  = container.querySelector("#ma_curPw").value  || "";
-    const newPw  = container.querySelector("#ma_newPw").value  || "";
-    const confPw = container.querySelector("#ma_confPw").value || "";
-    const errEl  = container.querySelector("#ma_err");
-    const okEl   = container.querySelector("#ma_ok");
-    const showErr = msg=>{ errEl.textContent=msg; errEl.style.display="block"; okEl.style.display="none"; };
-
-    if(!curPw) { showErr("Please enter your current password."); return; }
-    if(!newPw) { showErr("Please enter a new password."); return; }
-    if(newPw.length < 6){ showErr("New password must be at least 6 characters."); return; }
-    if(newPw !== confPw){ showErr("New passwords do not match."); return; }
-
-    const users   = _loadUsers();
-    const userIdx = users.findIndex(u => u.id === session.userId);
-    if(userIdx < 0){ showErr("Your account could not be found. Please sign out and back in."); return; }
-    if(users[userIdx].password !== curPw){ showErr("Current password is incorrect."); return; }
-
-    users[userIdx].password = newPw;
-    _saveUsers(users);
-
-    container.querySelector("#ma_curPw").value  = "";
-    container.querySelector("#ma_newPw").value  = "";
-    container.querySelector("#ma_confPw").value = "";
-    errEl.style.display = "none";
-    okEl.style.display  = "block";
-  });
-}
-
-// ─────────────────────────────────────────────────────────────
 //  Users section — administrator only
 // ─────────────────────────────────────────────────────────────
 function _renderUsersSection(container, allTeams){
@@ -380,9 +240,9 @@ function _renderUsersSection(container, allTeams){
       <div style="display:flex;gap:6px;align-items:flex-start;padding-top:2px;flex-shrink:0">
         <button class="editUserBtn menuClose" data-uid="${_esc(u.id)}"
           style="width:auto;padding:4px 11px;font-size:11px">Edit</button>
-        <button class="deleteUserBtn" data-uid="${_esc(u.id)}" style="
-          background:none;border:1px solid rgba(248,113,113,.35);color:#f87171;
-          border-radius:8px;padding:4px 11px;font-size:11px;cursor:pointer;font-weight:800">Del</button>
+        <button class="deleteUserBtn menuClose" data-uid="${_esc(u.id)}" style="
+          width:auto;padding:4px 11px;font-size:11px;font-weight:800;
+          background:none;border:1px solid rgba(248,113,113,.35);color:#f87171;border-radius:8px;cursor:pointer">Del</button>
       </div>
     </div>`).join("") : `
     <div class="sub" style="padding:18px 0;text-align:center;opacity:.45">
@@ -433,14 +293,14 @@ function _renderUsersSection(container, allTeams){
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
           <div>
             <div class="sub" style="font-size:11px;margin-bottom:4px">Role <span style="color:#f87171">*</span></div>
-            <select id="uf_role" class="svcSetMiles" style="width:100%;box-sizing:border-box;cursor:pointer">
+            <select id="uf_role" class="svcSetMiles" style="width:100%;box-sizing:border-box;cursor:pointer;background:#000;color:#fff">
               <option value="">— select role —</option>
               ${roleOptions}
             </select>
           </div>
           <div>
             <div class="sub" style="font-size:11px;margin-bottom:4px">Team</div>
-            <select id="uf_team" class="svcSetMiles" style="width:100%;box-sizing:border-box;cursor:pointer">
+            <select id="uf_team" class="svcSetMiles" style="width:100%;box-sizing:border-box;cursor:pointer;background:#000;color:#fff">
               <option value="">— no team —</option>
               ${teamOptions}
             </select>
@@ -472,10 +332,6 @@ function _renderUsersSection(container, allTeams){
         </button>
       </div>
       <div style="padding:10px 14px 4px">
-        <div class="notice" style="padding:0 0 10px 0;margin:0">
-          Staff accounts for this dashboard. Each user's email address serves as their username.
-          Passwords are stored locally in this browser only.
-        </div>
         ${formHtml}
         <div id="userList">${rowsHtml}</div>
       </div>
@@ -661,15 +517,11 @@ function renderDealerSettingsPage(){
             ${sessionBadge}
           </div>
 
-          <!-- My Account — visible to all roles -->
-          <div id="myAccountContainer"></div>
-
           ${canManageSettings ? `
           <!-- Identity -->
           <div class="svcSetSection" style="margin-top:20px">
             <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Identity</div></div>
             <div style="padding:8px 14px 12px">
-              <div class="notice" style="padding:0 0 8px 0;margin:0">Set a dealer name to display in dashboard headers.</div>
               <div class="svcSetRow">
                 <div class="svcSetLeft"><div class="svcSetName">Dealer / Store Name</div></div>
                 <div class="svcSetRight" style="flex:1;min-width:0">
@@ -690,7 +542,6 @@ function renderDealerSettingsPage(){
               <div class="svcSetSectionHdrMiles">Display Name</div>
             </div>
             <div style="padding:0 14px 4px">
-              <div class="notice" style="padding:8px 0;margin:0">Override how team names appear. Leave blank to use the default.</div>
               <div class="svcSetRows" style="padding-left:0;padding-right:0">${teamRowsHtml}</div>
             </div>
           </div>` : ""}
@@ -802,9 +653,6 @@ function renderDealerSettingsPage(){
           <!-- Bottom controls -->
           <div style="display:flex;gap:10px;align-items:center;justify-content:flex-end;
             margin-top:20px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
-            <button id="dealerClearBtn" class="menuClose" style="width:auto;padding:8px 14px">
-              Clear Dealer Settings
-            </button>
             <div id="dealerSavedMsg" class="sub" style="margin:0;opacity:.8;display:none">✓ Saved</div>
           </div>
 
@@ -829,12 +677,6 @@ function renderDealerSettingsPage(){
         </div>
       </div>
     </div>`;
-
-  // ── My Account (always) ──────────────────────────────────
-  if(session){
-    const mac = app.querySelector("#myAccountContainer");
-    if(mac) _renderMyAccount(mac, session);
-  }
 
   // ── Users & Roster ───────────────────────────────────────
   if(canManageUsers){
