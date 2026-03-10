@@ -219,10 +219,9 @@ function _renderTeamsSection(container){
     <div class="svcSetSection">
       <div class="svcSetSectionHdr">
         <div class="svcSetSectionHdrName">Teams</div>
-        <div class="sub" style="font-size:11px;margin:0;font-weight:400">(${customTeams.length})</div>
         <button id="addTeamBtn" class="menuClose" style="
           margin-left:auto;width:auto;padding:5px 12px;font-size:12px;font-weight:800">
-          + Add Team
+          + Add
         </button>
       </div>
       <div style="padding:10px 14px 12px">
@@ -478,10 +477,9 @@ function _renderUsersSection(container){
     <div class="svcSetSection" style="margin-top:0">
       <div class="svcSetSectionHdr">
         <div class="svcSetSectionHdrName">Users</div>
-        <div class="sub" style="font-size:11px;margin:0">(${users.length})</div>
         <button id="addUserBtn" class="menuClose" style="
           margin-left:auto;width:auto;padding:5px 12px;font-size:12px;font-weight:800">
-          + Add User
+          + Add
         </button>
       </div>
       <div style="padding:10px 14px 4px">
@@ -660,9 +658,9 @@ function renderDealerSettingsPage(){
           </div>
 
           ${canManageSettings ? `
-          <!-- Dealership Name -->
+          <!-- Dealership -->
           <div class="svcSetSection" style="margin-top:20px">
-            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Dealership Name</div></div>
+            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Dealership</div></div>
             <div style="padding:10px 14px 14px">
               <!-- Display row -->
               <div id="dealerNameDisplay" style="display:flex;align-items:center;gap:10px">
