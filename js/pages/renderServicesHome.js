@@ -773,7 +773,7 @@ function serviceGoalDial(pct, sz){
     }
   }
   // Show Sold/RO as extra pill only when ASR goal + Sold/ASR focus (since sub is Sold/ASR, Sold/RO is demoted)
-  const showSoldRoPill = (focus === 'asr' && soldFocus === 'asrs');
+  const showSoldRoPill = (focus === 'asr' && soldFocus === 'asrs') || viewMode === 'advisors';
 
   // Header panel (copied structure from Technician Dashboard)
   const header = `
@@ -1783,6 +1783,32 @@ try{
     const list = (svcBands[mode] && svcBands[mode][band]) ? svcBands[mode][band].slice() : [];
     list.sort((a,b)=> (a.pct||0) - (b.pct||0));
     const title = (mode==='sold') ? 'SOLD' : 'ASR';
+    const uid = `svc-${mode}-${band}`;
+    const isGreen  = band==='green';
+    const isYellow = band==='yellow';
+    const isOrange = band==='orange';
+    const isRed    = band==='red';
+    const popFill   = isGreen ? '#1fcb6a' : isYellow ? '#ffbf2f' : isOrange ? '#ff8c00' : '#ff4b4b';
+    const popFillHi = isGreen ? '#7CFFB0' : isYellow ? '#ffd978' : isOrange ? '#ffb347' : '#ff8b8b';
+    const bandIcon = isGreen
+      ? `<svg viewBox="0 0 64 64" aria-hidden="true" style="width:34px;height:34px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
+          <defs>
+            <radialGradient id="popChkHi-${uid}" cx="35%" cy="25%" r="70%"><stop offset="0%" stop-color="rgba(255,255,255,.55)"/><stop offset="60%" stop-color="rgba(255,255,255,.10)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+            <linearGradient id="popChkGrad-${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${popFillHi}"/><stop offset="100%" stop-color="${popFill}"/></linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="28" fill="url(#popChkGrad-${uid})"/><circle cx="32" cy="32" r="28" fill="url(#popChkHi-${uid})"/>
+          <path d="M19 33.5l7.2 7.2L46 21.9" fill="none" stroke="#fff" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`
+      : `<svg viewBox="0 0 100 87" aria-hidden="true" style="width:34px;height:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
+          <defs>
+            <linearGradient id="popTriGrad-${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${popFillHi}"/><stop offset="100%" stop-color="${popFill}"/></linearGradient>
+            <radialGradient id="popTriHi-${uid}" cx="35%" cy="20%" r="75%"><stop offset="0%" stop-color="rgba(255,255,255,.55)"/><stop offset="55%" stop-color="rgba(255,255,255,.10)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+          </defs>
+          <path d="M50 0 C53 0 55 2 56.5 4.5 L99 85 C101 88 99 91 95 91 L5 91 C1 91 -1 88 1 85 L43.5 4.5 C45 2 47 0 50 0Z" fill="url(#popTriGrad-${uid})"/>
+          <path d="M50 6 C52 6 54 7.2 55.2 9.6 L92 80 C94 83 92.2 86 88.4 86 L11.6 86 C7.8 86 6 83 8 80 L44.8 9.6 C46 7.2 48 6 50 6Z" fill="url(#popTriHi-${uid})"/>
+          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"/>
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"/>
+        </svg>`;
     const pop = document.createElement('div');
     pop.id = 'svcDiagPopup';
     pop.className = 'diagPopup';
@@ -1800,7 +1826,7 @@ try{
     pop.style.overflowX = 'hidden';
     pop.innerHTML = `
       <div class="diagPopHead" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title} • ${band.toUpperCase()} Services</div>
+        <div class="diagPopTitle" style="font-weight:1000;letter-spacing:.4px;display:flex;align-items:center;gap:10px">${title} • ${band.toUpperCase()} Services${bandIcon}</div>
         <button class="diagPopClose" aria-label="Close" style="margin-left:auto;background:transparent;border:none;color:rgba(255,255,255,.75);font-size:22px;cursor:pointer;line-height:1">×</button>
       </div>
       <div class="diagPopList" style="padding:10px 12px;display:grid;gap:8px;max-height:420px;overflow:auto;overflow-x:hidden">
