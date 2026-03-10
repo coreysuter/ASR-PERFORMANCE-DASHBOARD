@@ -812,28 +812,6 @@ function renderDealerSettingsPage(){
     </div>`;
 
 
-  // ── Logo bar: inject into title row of first panel ───────
-  (function(){
-    const topBar  = document.getElementById('pageTopBar');
-    const titleRow = app.querySelector('.techNotchStage .titleRow');
-    if (!topBar || !titleRow) return;
-
-    // Make titleRow a flex row so logos sit on the right
-    titleRow.style.display        = 'flex';
-    titleRow.style.alignItems     = 'center';
-    titleRow.style.justifyContent = 'space-between';
-
-    const logoWrap = document.createElement('div');
-    logoWrap.id = 'settingsLogoOverlay';
-    logoWrap.style.cssText = 'display:flex;align-items:center;gap:12px;flex-shrink:0;';
-    logoWrap.innerHTML = topBar.innerHTML;
-    titleRow.appendChild(logoWrap);
-
-    topBar.style.display = 'none';
-    const _restore = () => { topBar.style.display = ''; window.removeEventListener('hashchange', _restore); };
-    window.addEventListener('hashchange', _restore);
-  })();
-
   // ── Teams ────────────────────────────────────────────────
   if(canManageUsers){
     const tc = app.querySelector("#teamsSectionContainer");
