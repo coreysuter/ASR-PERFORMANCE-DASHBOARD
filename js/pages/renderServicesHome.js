@@ -59,8 +59,8 @@ function renderServicesHome(){
       .pageServicesDash .svcSecFocusStats>div{display:flex;flex-direction:column;align-items:center;}
       .pageServicesDash .svcSecFocusStats .statValTop{font-size:32px;line-height:1;font-weight:1000;color:#fff;text-align:center;}
       .pageServicesDash .svcSecFocusStats .statValBot{font-size:22px;line-height:1;font-weight:1000;color:#fff;opacity:.92;text-align:center;}
-      .pageServicesDash .svcSecFocusStats .statLbl{font-size:13px;line-height:1.05;font-weight:900;color:rgba(255,255,255,.65);letter-spacing:.2px;text-transform:none;text-align:center;width:100%;}
-      .pageServicesDash .svcSecFocusStats>div:last-child .statLbl{font-size:11px;color:rgba(255,255,255,.55);}
+      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;text-align:center;width:100%;}
+      .pageServicesDash .svcSecFocusStats>div:last-child .statLbl{font-size:11px;}
       /* Pills under category name (far-left) */
       .pageServicesDash .svcDashSecPillsLeft{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;}
 
