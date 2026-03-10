@@ -48,12 +48,14 @@ function renderLoginPage(opts){
   if(sideMenu)   sideMenu.style.display  = "none";
   if(menuScrim)  menuScrim.style.display = "none";
   if(menuToggle) menuToggle.style.display= "none";
+  document.body.classList.add("login-active");
 
   // Restore them when we leave
   function _restoreNav(){
     if(sideMenu)   sideMenu.style.display  = "";
     if(menuScrim)  menuScrim.style.display = "";
     if(menuToggle) menuToggle.style.display= "";
+    document.body.classList.remove("login-active");
   }
 
   // Pull dealer name for display

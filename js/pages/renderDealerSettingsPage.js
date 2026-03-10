@@ -811,6 +811,22 @@ function renderDealerSettingsPage(){
       </div>
     </div>`;
 
+
+  // ── Logo bar: float above top-right corner of panel ──────
+  (function(){
+    const topBar = document.getElementById('pageTopBar');
+    const stage  = app.querySelector('.techNotchStage');
+    if (!topBar || !stage) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'settingsLogoOverlay';
+    overlay.style.cssText = 'position:absolute;right:0;top:-44px;display:flex;align-items:center;gap:12px;pointer-events:none;z-index:3;';
+    overlay.innerHTML = topBar.innerHTML;
+    stage.appendChild(overlay);
+    topBar.style.display = 'none';
+    const _restore = () => { topBar.style.display = ''; window.removeEventListener('hashchange', _restore); };
+    window.addEventListener('hashchange', _restore);
+  })();
+
   // ── Teams ────────────────────────────────────────────────
   if(canManageUsers){
     const tc = app.querySelector("#teamsSectionContainer");
