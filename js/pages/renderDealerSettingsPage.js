@@ -1,35 +1,4 @@
 // ─────────────────────────────────────────────────────────────
-//  One-time seed: pre-populate dealer + admin account
-// ─────────────────────────────────────────────────────────────
-(function _seed(){
-  try{
-    const DKEY = "dealerSettings_v1";
-    const UKEY = "dealerUsers_v1";
-
-    // Only seed dealer name if not already set
-    const ds = JSON.parse(localStorage.getItem(DKEY)||"{}") || {};
-    if(!ds.dealerName){
-      ds.dealerName = "Kalidy Kia";
-      localStorage.setItem(DKEY, JSON.stringify(ds));
-    }
-
-    // Only seed users if none exist yet
-    const users = JSON.parse(localStorage.getItem(UKEY)||"[]") || [];
-    if(!users.length){
-      users.push({
-        id:       "u_seed_admin",
-        name:     "Corey Suter",
-        email:    "corey.suter@kalidykia.com",
-        password: "Kalidy2026!",
-        role:     "administrator",
-        team:     ""
-      });
-      localStorage.setItem(UKEY, JSON.stringify(users));
-    }
-  }catch(e){}
-})();
-
-// ─────────────────────────────────────────────────────────────
 //  Storage keys
 // ─────────────────────────────────────────────────────────────
 const DEALER_LS_KEY = "dealerSettings_v1";
@@ -57,57 +26,6 @@ function _saveUsers(arr){
 function _genUserId(){
   return "u_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,7);
 }
-
-// ─────────────────────────────────────────────────────────────
-//  GitHub Integration
-// ─────────────────────────────────────────────────────────────
-const GITHUB_LS_KEY = "githubSettings_v1";
-const GITHUB_OWNER  = "coreysuter";
-const GITHUB_REPO   = "ASR-PERFORMANCE-DASHBOARD";
-const GITHUB_BRANCH = "main";
-const GITHUB_PATH   = "config/services-config.json";
-
-function _loadGitHubSettings(){
-  try{ return JSON.parse(localStorage.getItem(GITHUB_LS_KEY) || "{}") || {}; }
-  catch(e){ return {}; }
-}
-function _saveGitHubSettings(obj){
-  try{ localStorage.setItem(GITHUB_LS_KEY, JSON.stringify(obj || {})); }
-  catch(e){}
-}
-
-window.getGitHubToken = function(){
-  return (_loadGitHubSettings().token || "").trim();
-};
-
-window.commitToGitHub = async function(content){
-  const token = window.getGitHubToken();
-  if(!token) return { ok:false, err:"No GitHub token configured." };
-  const apiBase = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_PATH}`;
-  try{
-    let sha = null;
-    const getRes = await fetch(apiBase, {
-      headers:{ Authorization:`token ${token}`, Accept:"application/vnd.github.v3+json" }
-    });
-    if(getRes.ok){ const d = await getRes.json(); sha = d.sha || null; }
-    else if(getRes.status !== 404) return { ok:false, err:`GitHub read error: HTTP ${getRes.status}` };
-
-    const b64  = btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2))));
-    const body = { message:`Update services config — ${new Date().toISOString()}`, content:b64, branch:GITHUB_BRANCH };
-    if(sha) body.sha = sha;
-
-    const putRes = await fetch(apiBase, {
-      method:"PUT",
-      headers:{ Authorization:`token ${token}`, Accept:"application/vnd.github.v3+json", "Content-Type":"application/json" },
-      body: JSON.stringify(body)
-    });
-    if(putRes.ok) return { ok:true };
-    const errData = await putRes.json().catch(()=>({}));
-    return { ok:false, err: errData.message || `GitHub write error: HTTP ${putRes.status}` };
-  } catch(e){
-    return { ok:false, err: String(e.message || e) };
-  }
-};
 
 // ─────────────────────────────────────────────────────────────
 //  Public helpers used by other pages
@@ -701,17 +619,18 @@ function renderDealerSettingsPage(){
   app.innerHTML = `
     <div class="techNotchStage" style="position:relative;width:100%;overflow:visible;">
 
-      <div class="panel techMenuFloat" style="
-        position:absolute;left:-80px;top:4px;width:72px;height:72px;
+      <div class="panel techMenuNotch" style="
+        position:absolute;left:-68px;top:0;width:68px;height:56px;
         display:flex;align-items:center;justify-content:center;
-        border-radius:14px;z-index:2;">
+        border-top-right-radius:0;border-bottom-right-radius:0;
+        border-right:none;z-index:3;">
         <label for="menuToggle" class="hamburgerMini" aria-label="Menu" style="
-          font-size:2.2em;line-height:1;display:flex;align-items:center;
-          justify-content:center;cursor:pointer;
+          font-size:1.5em;line-height:1;display:flex;align-items:center;
+          justify-content:center;padding:8px 10px;cursor:pointer;
           color:inherit;user-select:none;">☰</label>
       </div>
 
-      <div class="panel svcSetPanel" style="min-width:0;">
+      <div class="panel svcSetPanel" style="border-top-left-radius:0;border-left:none;min-width:0;">
         <div class="phead">
 
           <div class="titleRow" style="align-items:center">
@@ -776,41 +695,6 @@ function renderDealerSettingsPage(){
               ${canManageUsers ? "" : accessDenied("Users")}
             </div>
             <div id="staffRosterContainer" style="flex:1;min-width:0"></div>
-          </div>
-
-          <!-- GitHub Integration -->
-          <div class="svcSetSection" style="margin-top:20px">
-            <div class="svcSetSectionHdr">
-              <div class="svcSetSectionHdrName">GitHub Integration</div>
-            </div>
-            <div style="padding:12px 14px 16px">
-              <div class="svcSetRow" style="align-items:center;gap:10px">
-                <div class="svcSetLeft" style="flex:1;min-width:0">
-                  <div class="sub" style="font-size:11px;margin-bottom:4px">Personal Access Token</div>
-                  <div style="position:relative">
-                    <input id="githubTokenInput" class="svcSetMiles" type="password" maxlength="120"
-                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                      value="${_esc(_loadGitHubSettings().token||"")}"
-                      style="width:100%;box-sizing:border-box;padding-right:52px;font-family:monospace;font-size:12px">
-                    <button id="ghTokenShow" type="button" style="
-                      position:absolute;right:8px;top:50%;transform:translateY(-50%);
-                      background:none;border:none;cursor:pointer;
-                      color:var(--muted,#94a3b8);font-size:10px;font-weight:700;
-                      padding:0;text-decoration:underline">Show</button>
-                  </div>
-                </div>
-                <div style="flex-shrink:0;padding-top:18px">
-                  <button id="ghTestBtn" style="
-                    background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.35);
-                    border-radius:8px;color:#4f8ef7;font-weight:800;font-size:12px;
-                    padding:7px 16px;cursor:pointer;white-space:nowrap">
-                    Test Connection
-                  </button>
-                </div>
-              </div>
-              <div id="ghTestStatus" style="display:none;margin-top:8px;font-size:12px;
-                font-weight:700;padding:7px 10px;border-radius:6px"></div>
-            </div>
           </div>
 
           <!-- Bottom controls -->
@@ -889,7 +773,7 @@ function renderDealerSettingsPage(){
 
   // ── Clear settings ───────────────────────────────────────
   document.getElementById("dealerClearBtn")?.addEventListener("click", ()=>{
-    if(!confirm("Clear dealer identity, team labels, and display options?\n\nUser accounts and GitHub settings will NOT be affected.")) return;
+    if(!confirm("Clear dealer identity, team labels, and display options?\n\nUser accounts will NOT be affected.")) return;
     try{ localStorage.removeItem(DEALER_LS_KEY); }catch(e){}
     const n = document.getElementById("dealerNameInput"); if(n) n.value="";
     app.querySelectorAll(".dealerTeamInput").forEach(i=>i.value="");
@@ -904,63 +788,6 @@ function renderDealerSettingsPage(){
     }
     flashSaved();
   });
-
-  // ── GitHub token ─────────────────────────────────────────
-  const ghInp    = document.getElementById("githubTokenInput");
-  const ghShow   = document.getElementById("ghTokenShow");
-  const ghTest   = document.getElementById("ghTestBtn");
-  const ghStatus = document.getElementById("ghTestStatus");
-
-  function _ghSetStatus(type, msg){
-    if(!ghStatus) return;
-    const styles = {
-      ok:   "color:#86efac;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)",
-      err:  "color:#f87171;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2)",
-      warn: "color:#fbbf24;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)"
-    };
-    ghStatus.style.cssText += `;display:block;${styles[type]||styles.warn}`;
-    ghStatus.textContent = msg;
-  }
-
-  if(ghShow && ghInp){
-    ghShow.addEventListener("click", ()=>{
-      const hidden = ghInp.type === "password";
-      ghInp.type = hidden ? "text" : "password";
-      ghShow.textContent = hidden ? "Hide" : "Show";
-    });
-  }
-
-  if(ghInp){
-    ghInp.addEventListener("input", ()=>{
-      const gh = _loadGitHubSettings();
-      gh.token = ghInp.value.trim();
-      _saveGitHubSettings(gh);
-      flashSaved();
-      if(ghStatus) ghStatus.style.display = "none";
-    });
-  }
-
-  if(ghTest){
-    ghTest.addEventListener("click", async ()=>{
-      const token = (ghInp ? ghInp.value.trim() : window.getGitHubToken());
-      if(!token){ _ghSetStatus("warn", "⚠ Enter a token first."); return; }
-      ghTest.textContent = "Testing…";
-      ghTest.disabled = true;
-      try{
-        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`, {
-          headers:{ Authorization:`token ${token}`, Accept:"application/vnd.github.v3+json" }
-        });
-        if(res.ok)                _ghSetStatus("ok",   "✓ Connected — repo access confirmed.");
-        else if(res.status===401) _ghSetStatus("err",  "✗ Invalid token.");
-        else if(res.status===404) _ghSetStatus("err",  "✗ Repo not found — check token has repo scope.");
-        else                      _ghSetStatus("err",  `✗ HTTP ${res.status}`);
-      } catch(e){
-        _ghSetStatus("err", `✗ Network error: ${e.message||e}`);
-      }
-      ghTest.textContent = "Test Connection";
-      ghTest.disabled = false;
-    });
-  }
 }
 
 window.renderDealerSettingsPage = renderDealerSettingsPage;
