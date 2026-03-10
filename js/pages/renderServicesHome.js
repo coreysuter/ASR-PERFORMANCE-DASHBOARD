@@ -868,14 +868,7 @@ function serviceGoalDial(pct, sz){
                   <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
                 </select>
               </div>` : `<div></div>`}
-              <div>
-                <label>Fluids</label>
-                <select data-svcdash="1" data-ctl="fluids">
-                  <option value="with" ${fluidsSel==='with'?'selected':''}>With Fluids (Total)</option>
-                  <option value="without" ${fluidsSel==='without'?'selected':''}>Without Fluids</option>
-                  <option value="only" ${fluidsSel==='only'?'selected':''}>Fluids Only</option>
-                </select>
-              </div>
+
               <div>
                 <label>Pre-MPI Sales</label>
                 <select data-svcdash="1" data-ctl="preMpi" ${viewMode==='techs'?'disabled':''}>
