@@ -30,8 +30,8 @@
       const reqs=[], closes=[];
       for(const x of scopeAdvisors){
         const c = x.categories?.[cat];
-        const req = Number(c?.req);
-        const close = Number(c?.close);
+        const req   = (c && c.req   != null) ? Number(c.req)   : NaN;
+        const close = (c && c.close != null) ? Number(c.close) : NaN;
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
       }
@@ -61,8 +61,7 @@
     const mode = slice.getAttribute("data-mode");
     const band = slice.getAttribute("data-band");
 
-    const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total"
-      && (typeof window.isListedUser !== "function" || window.isListedUser(a.name)));
+    const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total");
     const t = advisors.find(x=>String(x.id)===String(advId));
     if(!t) return;
 
@@ -277,8 +276,7 @@ function renderAdvisorDetail(advisorId){
   })();
 
   // --- Find advisor ---
-  const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total"
-    && (typeof window.isListedUser !== "function" || window.isListedUser(a.name)));
+  const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total");
   const t = advisors.find(x=>String(x.id)===String(advisorId));
   if(!t){
     document.getElementById('app').innerHTML = `<div class="panel"><div class="phead" style="display:flex;flex-direction:column;min-height:0"><div class="h2">Advisor not found</div><div class="sub"><a href="#/advisors">Back to Advisors</a></div></div></div>`;
@@ -377,9 +375,9 @@ function renderAdvisorDetail(advisorId){
       let topReq=-1, topName="—", topClose=null;
       for(const x of scopeAdvisors){
         const c=x.categories?.[cat];
-        const req=Number(c?.req);
-        const close=Number(c?.close);
-        const asrN=Number(c?.asr);
+        const req  = (c && c.req  != null) ? Number(c.req)  : NaN;
+        const close= (c && c.close!= null) ? Number(c.close): NaN;
+        const asrN = (c && c.asr  != null) ? Number(c.asr)  : NaN;
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
         if(Number.isFinite(asrN)) asrCounts.push(asrN);
@@ -401,18 +399,67 @@ function renderAdvisorDetail(advisorId){
 
   const ADV_BENCH = buildBench(advisors);
 
+  // Tech benchmarks used as fallback for categories where advisor pool has no close data
+  // (Fluids, Brakes, Tires). Uses sold/RO as the comparable metric since advisors
+  // don't generate ASRs for those services — techs do.
+  function buildTechBench(){
+    const techs = (DATA.techs||[]).filter(x=> x && String(x.id||"").toLowerCase()!=="total");
+    const bench = {};
+    for(const cat of CAT_LIST){
+      const soldRos=[], reqs=[], asrCounts=[];
+      let topSoldRo=-1, topName="—";
+      for(const x of techs){
+        const c = x.categories?.[cat];
+        const ros  = Number(x.ros ?? 0);
+        const req  = (c && c.req   != null) ? Number(c.req)  : NaN;
+        const asr  = (c && c.asr   != null) ? Number(c.asr)  : NaN;
+        const sold = (c && c.sold  != null) ? Number(c.sold) : NaN;
+        const soldRo = (Number.isFinite(sold) && ros > 0) ? sold/ros : NaN;
+        if(Number.isFinite(req)) reqs.push(req);
+        if(Number.isFinite(asr)) asrCounts.push(asr);
+        if(Number.isFinite(soldRo)) soldRos.push(soldRo);
+        if(Number.isFinite(soldRo) && soldRo > topSoldRo){ topSoldRo=soldRo; topName=x.name||"—"; }
+      }
+      bench[cat]={
+        avgReq:    reqs.length     ? reqs.reduce((a,b)=>a+b,0)/reqs.length           : null,
+        avgClose:  soldRos.length  ? soldRos.reduce((a,b)=>a+b,0)/soldRos.length     : null,
+        avgSoldRo: soldRos.length  ? soldRos.reduce((a,b)=>a+b,0)/soldRos.length     : null,
+        avgAsr:    asrCounts.length? asrCounts.reduce((a,b)=>a+b,0)/asrCounts.length : null,
+        topReq:    reqs.length     ? Math.max(...reqs) : null,
+        topClose:  topSoldRo >= 0  ? topSoldRo : null,
+        topName,
+        isTechBench: true
+      };
+    }
+    return bench;
+  }
+  const TECH_BENCH = buildTechBench();
+
   function getBenchmarks(cat){
-    try{ return (ADV_BENCH && ADV_BENCH[cat]) ? ADV_BENCH[cat] : {}; }catch(e){ return {}; }
+    try{
+      const advB = (ADV_BENCH && ADV_BENCH[cat]) ? ADV_BENCH[cat] : {};
+      // Fall back to tech benchmarks for categories with no advisor close data
+      if(advB.avgClose == null){
+        return (TECH_BENCH && TECH_BENCH[cat]) ? TECH_BENCH[cat] : advB;
+      }
+      return advB;
+    }catch(e){ return {}; }
   }
 
   // --- Band counts for diag pie ---
   function countBandsFor(mode){
     let red=0, yellow=0, green=0;
+    const ros = Number(t.ros ?? 0);
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
       if(!mine) continue;
-      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
-      const base = (mode==="sold") ? Number(ADV_BENCH?.[cat]?.avgClose) : Number(ADV_BENCH?.[cat]?.avgReq);
+      // Use sold_ro when no ASR data (Fluids/Brakes/Tires for advisors)
+      const useSoldRo = (mine.close == null && Number(mine.asr ?? 0) === 0);
+      const val = (mode==="sold")
+        ? (useSoldRo ? (ros > 0 ? Number(mine.sold ?? 0)/ros : NaN) : Number(mine.close))
+        : Number(mine.req);
+      const bench = getBenchmarks(cat);
+      const base = (mode==="sold") ? Number(bench?.avgClose) : Number(bench?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
       if(pct >= 0.80) { green++; continue; }
@@ -427,13 +474,19 @@ function renderAdvisorDetail(advisorId){
     const total = advisors.length || 0;
     function scoreFor(x){
       const c = x.categories?.[cat] || {};
+      const ros = Number(x.ros ?? 0);
+      const useSoldRo = (c.close == null && Number(c.asr ?? 0) === 0);
       let v = NaN;
       if(focus==="goal"){
-        const close = Number(c.close);
+        const closeVal = useSoldRo
+          ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN)
+          : Number(c.close);
         const gClose = Number(getGoal(cat,"close"));
-        v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
+        v = (Number.isFinite(closeVal) && Number.isFinite(gClose) && gClose>0) ? (closeVal/gClose) : NaN;
       }else{
-        v = Number(c.close);
+        v = useSoldRo
+          ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN)
+          : Number(c.close);
       }
       return Number.isFinite(v) ? v : -Infinity;
     }
@@ -629,10 +682,17 @@ function renderAdvisorDetail(advisorId){
     const asrCount = Number(c.asr ?? 0);
     const soldCount = Number(c.sold ?? 0);
     const req = Number(c.req ?? NaN);
-    const close = Number(c.close ?? NaN);
     const advRos = Number(t.ros ?? 0);
 
+    // For categories with no ASR data (Fluids/Brakes/Tires for advisors),
+    // use sold/RO as the close metric instead of sold/ASR
+    const useSoldRo = (c.close == null && asrCount === 0);
+    const close = useSoldRo
+      ? (advRos > 0 ? soldCount / advRos : NaN)
+      : Number(c.close ?? NaN);
+
     const basis = getBenchmarks(cat) || {};
+    const isTechBench = !!basis.isTechBench;
     const goalReq = Number(getGoal(cat,"req"));
     const goalClose = Number(getGoal(cat,"close"));
     const cmpReq = Number(basis.avgReq);
@@ -662,12 +722,12 @@ function renderAdvisorDetail(advisorId){
       : _popupSold(cmpClose, close, pctCmpClose);
 
     const rk = rankFor(cat);
-    const compareLabel = "Advisor Avg";
+    const compareLabel = isTechBench ? "Tech Avg" : "Advisor Avg";
 
     const avgAsrCount = Number(basis.avgAsr);
     const avgAsrTxt = Number.isFinite(avgAsrCount) ? fmt1(avgAsrCount, 1) : "—";
 
-    const asrBlock = `
+    const asrBlock = useSoldRo ? `` : `
       <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
           <div class="mbKicker">ASR/RO</div>
@@ -689,7 +749,7 @@ function renderAdvisorDetail(advisorId){
     const soldBlock = `
       <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
-          <div class="mbKicker">Sold</div>
+          <div class="mbKicker">${useSoldRo ? "Sold/RO" : "Sold"}</div>
           <div class="mbStat ${bandClass(pctCmpClose)}">${fmtPct(close)}</div>
         </div>
         <div class="mbRight">
@@ -742,7 +802,7 @@ function renderAdvisorDetail(advisorId){
           <div>
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
-              <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><br><span class="svcMetaSoldLine" style="display:block;margin-top:2px;">${fmt1(soldCount,0)} Sold</span>
+              <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${useSoldRo ? "—" : fmt1(asrCount,0)} ASRs</span><br><span class="svcMetaSoldLine" style="display:block;margin-top:2px;">${fmt1(soldCount,0)} Sold</span>
             </div>
           </div>
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
@@ -758,8 +818,20 @@ function renderAdvisorDetail(advisorId){
   // --- Section stats ---
   function sectionStatsForAdvisor(sec){
     const cats = sec.categories || [];
-    const reqs = cats.map(cat=>Number(t.categories?.[cat]?.req)).filter(n=>Number.isFinite(n));
-    const closes = cats.map(cat=>Number(t.categories?.[cat]?.close)).filter(n=>Number.isFinite(n));
+    const ros = Number(t.ros ?? 0);
+    const reqs = cats.map(cat=>{
+      const c = t.categories?.[cat];
+      return (c && c.req != null) ? Number(c.req) : NaN;
+    }).filter(n=>Number.isFinite(n));
+    const closes = cats.map(cat=>{
+      const c = t.categories?.[cat];
+      if(!c) return NaN;
+      // Use sold_ro fallback when close is null and asr is 0
+      if(c.close == null && Number(c.asr ?? 0) === 0){
+        return (ros > 0 && c.sold != null) ? Number(c.sold)/ros : NaN;
+      }
+      return (c.close != null) ? Number(c.close) : NaN;
+    }).filter(n=>Number.isFinite(n));
     const sumReq = reqs.length ? reqs.reduce((a,b)=>a+b,0) : null;
     const avgClose = closes.length ? closes.reduce((a,b)=>a+b,0)/closes.length : null;
     return { sumReq, avgClose };
@@ -767,16 +839,18 @@ function renderAdvisorDetail(advisorId){
 
   function sectionScoreForAdvisor(sec, x){
     const cats = sec.categories || [];
+    const ros = Number(x.ros ?? 0);
     const vals = [];
     for(const cat of cats){
       const c = x.categories?.[cat];
       if(!c) continue;
+      const useSoldRo = (c.close == null && Number(c.asr ?? 0) === 0);
       if(focus==="goal"){
-        const v = Number(c.close);
+        const v = useSoldRo ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN) : Number(c.close);
         const g = Number(getGoal(cat,"close"));
         if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
       }else{
-        const v = Number(c.close);
+        const v = useSoldRo ? (ros > 0 ? Number(c.sold ?? 0)/ros : NaN) : Number(c.close);
         if(Number.isFinite(v)) vals.push(v);
       }
     }
@@ -1026,6 +1100,8 @@ function renderAdvisorDetail(advisorId){
       });
     }
 
+    const singleSlice = slices.length === 1;
+
     return `
       <div class="diagPieWrap" aria-label="${mode.toUpperCase()} distribution">
         <svg class="diagPieSvg" viewBox="0 0 160 160" role="img" aria-hidden="true">
@@ -1035,7 +1111,10 @@ function renderAdvisorDetail(advisorId){
             </filter>
           </defs>
           <g filter="url(#advDiagPieShadow)">
-            ${slices.map(s=>`
+            ${singleSlice
+              ? `<circle class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${slices[0].band}" data-compare="advisors"
+                   cx="80" cy="80" r="70" fill="${slices[0].fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" />`
+              : slices.map(s=>`
               <path class="diagPieSlice" data-tech="${t.id}" data-mode="${mode}" data-band="${s.band}" data-compare="advisors"
                 d="${s.path}" fill="${s.fill}" stroke="rgba(255,255,255,.95)" stroke-width="1.6" stroke-linejoin="round" />
             `).join('')}
