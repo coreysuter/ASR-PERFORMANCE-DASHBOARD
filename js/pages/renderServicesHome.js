@@ -869,13 +869,20 @@ function serviceGoalDial(pct, sz){
                 </select>
               </div>` : `<div></div>`}
 
-              <div>
+              ${viewMode==='techs' ? `<div></div>` : `<div>
                 <label>Pre-MPI Sales</label>
-                <select data-svcdash="1" data-ctl="preMpi" ${viewMode==='techs'?'disabled':''}>
+                <select data-svcdash="1" data-ctl="preMpi">
                   <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
                   <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
                 </select>
-              </div>
+              </div>`}
+
+
+
+
+
+
+
             </div>
             <div class="filterRow row2">
               <div>
