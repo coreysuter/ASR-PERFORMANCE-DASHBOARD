@@ -1,1 +1,34 @@
+name: Rebuild Data
+
+on:
+  push:
+    paths:
+      - 'reports/**'   # only runs when files in the reports/ folder change
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install openpyxl xlrd
+
+      - name: Run build_data.py
+        run: python build_data.py
+
+      - name: Commit updated base.js
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add base.js
+          git diff --staged --quiet || git commit -m "Auto-rebuild base.js from updated reports"
+          git push
 
