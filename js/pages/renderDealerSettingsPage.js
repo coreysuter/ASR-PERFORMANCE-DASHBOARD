@@ -217,10 +217,9 @@ function _renderTeamsSection(container){
 
   container.innerHTML = `
     <div class="svcSetSection">
-      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;
-        border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="svcSetSectionHdrName" style="font-weight:800;font-size:18px">Teams</div>
-        <div class="sub" style="font-size:11px;margin:0">(${customTeams.length})</div>
+      <div class="svcSetSectionHdr">
+        <div class="svcSetSectionHdrName">Teams</div>
+        <div class="sub" style="font-size:11px;margin:0;font-weight:400">(${customTeams.length})</div>
         <button id="addTeamBtn" class="menuClose" style="
           margin-left:auto;width:auto;padding:5px 12px;font-size:12px;font-weight:800">
           + Add Team
@@ -661,18 +660,34 @@ function renderDealerSettingsPage(){
           </div>
 
           ${canManageSettings ? `
-          <!-- Identity -->
+          <!-- Dealership Name -->
           <div class="svcSetSection" style="margin-top:20px">
-            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Identity</div></div>
-            <div style="padding:8px 14px 12px">
-              <div class="svcSetRow">
-                <div class="svcSetLeft"><div class="svcSetName">Dealer / Store Name</div></div>
-                <div class="svcSetRight" style="flex:1;min-width:0">
-                  <input id="dealerNameInput" class="svcSetMiles" type="text" maxlength="80"
-                    placeholder="e.g. Metro Kia of Springfield"
-                    value="${_esc(s.dealerName||"")}"
-                    style="width:100%;min-width:180px;max-width:340px">
-                </div>
+            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Dealership Name</div></div>
+            <div style="padding:10px 14px 14px">
+              <!-- Display row -->
+              <div id="dealerNameDisplay" style="display:flex;align-items:center;gap:10px">
+                <span id="dealerNameValue" style="font-size:15px;font-weight:700;flex:1">
+                  ${_esc(s.dealerName||"") || `<span style="opacity:.35;font-style:italic">Not set</span>`}
+                </span>
+                <button id="dealerNameEditBtn" class="menuClose"
+                  style="width:auto;padding:4px 11px;font-size:11px;font-weight:800;flex-shrink:0">
+                  Edit
+                </button>
+              </div>
+              <!-- Edit row (hidden by default) -->
+              <div id="dealerNameEditRow" style="display:none;align-items:center;gap:8px">
+                <input id="dealerNameInput" class="svcSetMiles" type="text" maxlength="80"
+                  placeholder="e.g. Metro Kia of Springfield"
+                  value="${_esc(s.dealerName||"")}"
+                  style="flex:1;min-width:0;box-sizing:border-box">
+                <button id="dealerNameSaveBtn" style="
+                  background:var(--accent,#4f8ef7);border:none;border-radius:8px;
+                  color:#fff;font-weight:800;font-size:11px;padding:5px 13px;
+                  cursor:pointer;white-space:nowrap;flex-shrink:0">Save</button>
+                <button id="dealerNameCancelBtn" class="menuClose"
+                  style="width:auto;padding:4px 11px;font-size:11px;font-weight:800;flex-shrink:0">
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
@@ -823,7 +838,6 @@ function renderDealerSettingsPage(){
   // ── Persist settings ─────────────────────────────────────
   function persist(){
     const cur = _loadDealerSettings();
-    const n = document.getElementById("dealerNameInput"); if(n) cur.dealerName=n.value.trim();
 
     // Color settings
     const modeEl = app.querySelector('input[name="colorMode"]:checked');
@@ -841,8 +855,35 @@ function renderDealerSettingsPage(){
     _updateColorPreview();
   }
 
-  app.querySelectorAll("#dealerNameInput")
-    .forEach(inp=>inp.addEventListener("input", persist));
+  // ── Dealership Name edit/save/cancel ────────────────────
+  const _dnEditBtn   = app.querySelector("#dealerNameEditBtn");
+  const _dnSaveBtn   = app.querySelector("#dealerNameSaveBtn");
+  const _dnCancelBtn = app.querySelector("#dealerNameCancelBtn");
+  const _dnDisplay   = app.querySelector("#dealerNameDisplay");
+  const _dnEditRow   = app.querySelector("#dealerNameEditRow");
+  const _dnValue     = app.querySelector("#dealerNameValue");
+  const _dnInput     = app.querySelector("#dealerNameInput");
+
+  if(_dnEditBtn) _dnEditBtn.addEventListener("click", ()=>{
+    _dnDisplay.style.display = "none";
+    _dnEditRow.style.display = "flex";
+    if(_dnInput){ _dnInput.value = _loadDealerSettings().dealerName||""; _dnInput.focus(); }
+  });
+  if(_dnCancelBtn) _dnCancelBtn.addEventListener("click", ()=>{
+    _dnDisplay.style.display = "flex";
+    _dnEditRow.style.display = "none";
+  });
+  if(_dnSaveBtn) _dnSaveBtn.addEventListener("click", ()=>{
+    const val = _dnInput ? _dnInput.value.trim() : "";
+    const cur = _loadDealerSettings();
+    cur.dealerName = val;
+    _saveDealerSettings(cur);
+    if(_dnValue) _dnValue.innerHTML = val ? _esc(val) : `<span style="opacity:.35;font-style:italic">Not set</span>`;
+    _dnDisplay.style.display = "flex";
+    _dnEditRow.style.display = "none";
+    flashSaved();
+  });
+
 
   // ── Color mode radio buttons ──────────────────────────
   app.querySelectorAll('input[name="colorMode"]').forEach(radio=>{
