@@ -297,12 +297,15 @@ function renderServicesHome(){
       /* Base sizes: triangles 2x, green circle +50% */
       .pageServicesDash .svcIcon-good{width:18px;height:18px;}
       .pageServicesDash .svcIcon-warn,
+      .pageServicesDash .svcIcon-orange,
       .pageServicesDash .svcIcon-bad{width:24px;height:24px;}
       .pageServicesDash .svcIcon-good svg{width:18px;height:18px;display:block}
       .pageServicesDash .svcIcon-warn svg,
+      .pageServicesDash .svcIcon-orange svg,
       .pageServicesDash .svcIcon-bad svg{width:24px;height:24px;display:block}
       /* Make the ! a bit smaller inside triangles */
       .pageServicesDash .svcIcon-warn text,
+      .pageServicesDash .svcIcon-orange text,
       .pageServicesDash .svcIcon-bad text{font-size:7.9px !important;}
       @media (max-width: 540px){
         .pageServicesDash .svcTechRow{flex-direction:column;align-items:flex-start;}
@@ -579,7 +582,8 @@ function renderServicesHome(){
     const ring = Math.round(Math.min(p, 1) * 100);
 
     let cls = "gRed";
-    if(p >= 0.80) cls = "gGreen";
+    if(window.getDialClass){ cls = window.getDialClass(p); }
+    else if(p >= 0.80) cls = "gGreen";
     else if(p >= 0.60) cls = "gYellow";
 
     const top = String(topLabel||"").trim();
@@ -613,7 +617,8 @@ function renderServicesHome(){
     const ring = Math.round(Math.min(pClamped, 1) * 100);
 
     let cls = "gRed";
-    if(pClamped >= 0.80) cls = "gGreen";
+    if(window.getDialClass){ cls = window.getDialClass(pClamped); }
+    else if(pClamped >= 0.80) cls = "gGreen";
     else if(pClamped >= 0.60) cls = "gYellow";
 
     // percent above/below goal
@@ -645,7 +650,8 @@ function serviceGoalDial(pct, sz){
   const ring = Math.round(Math.min(pClamped, 1) * 100);
 
   let cls = "gRed";
-  if(pClamped >= 0.80) cls = "gGreen";
+  if(window.getDialClass){ cls = window.getDialClass(pClamped); }
+  else if(pClamped >= 0.80) cls = "gGreen";
   else if(pClamped >= 0.60) cls = "gYellow";
 
   const delta = finite ? Math.round((pClamped - 1) * 100) : null;
@@ -902,6 +908,13 @@ function serviceGoalDial(pct, sz){
 
   function iconKindFromPctOfBase(pctOfBase){
     if(pctOfBase===null || pctOfBase===undefined || !Number.isFinite(Number(pctOfBase))) return 'warn';
+    if(window.getColorBand){
+      const band = window.getColorBand(Number(pctOfBase));
+      if(band==="green")  return 'good';
+      if(band==="yellow") return 'warn';
+      if(band==="orange") return 'orange';
+      return 'bad';
+    }
     const pct100 = Number(pctOfBase) * 100;
     const g = (typeof _gradeFromPct100 === 'function') ? _gradeFromPct100(pct100) : (pct100>=90?'A':pct100>=80?'B':pct100>=70?'C':pct100>=60?'D':'F');
     return (g==='A' || g==='B') ? 'good' : (g==='C' || g==='D') ? 'warn' : 'bad';
@@ -910,6 +923,7 @@ function serviceGoalDial(pct, sz){
   function iconSvg(kind){
     if(kind==='good') return `<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(26,196,96,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><path d="M4.3 8.3 L7 11 L12 5.6" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     if(kind==='bad') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,74,74,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
+    if(kind==='orange') return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(249,115,22,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
     return `<svg viewBox="0 0 16 16" aria-hidden="true"><polygon points="8,3 14,13 2,13" fill="rgba(255,197,66,1)" stroke="rgba(255,255,255,.35)" stroke-width="1"/><text x="8" y="11.6" text-anchor="middle" font-size="7.9" font-weight="600" fill="rgba(255,255,255,.95)">!</text></svg>`;
   }
 
@@ -925,6 +939,13 @@ function serviceGoalDial(pct, sz){
   }
   function bandClassPct(pctOfBase){
     if(!Number.isFinite(pctOfBase)) return "";
+    if(window.getColorBand){
+      const band = window.getColorBand(pctOfBase);
+      if(band==="green")  return "bGreen";
+      if(band==="yellow") return "bYellow";
+      if(band==="orange") return "bOrange";
+      return "bRed";
+    }
     if(pctOfBase >= 0.80) return "bGreen";
     if(pctOfBase >= 0.60) return "bYellow";
     return "bRed";
@@ -1335,6 +1356,7 @@ function serviceGoalDial(pct, sz){
   // ---- Diag panel (Services vs Goal + Tech top/bottom by avg goal performance across all services) ----
   function bandOfPct(pct){
     if(!Number.isFinite(pct)) return null;
+    if(window.getColorBand) return window.getColorBand(pct);
     if(pct < 0.60) return 'red';
     if(pct < 0.80) return 'yellow';
     return 'green';
@@ -1342,7 +1364,7 @@ function serviceGoalDial(pct, sz){
 
   // Service goal bands (for the pies)
   const svcAggsAll = _uniqServices.map(buildServiceAgg);
-  const svcBands = { asr:{red:[],yellow:[],green:[]}, sold:{red:[],yellow:[],green:[]} };
+  const svcBands = { asr:{red:[],yellow:[],orange:[],green:[]}, sold:{red:[],yellow:[],orange:[],green:[]} };
   for(const s of svcAggsAll){
     const gReq = Number(getGoal(s.serviceName,'req'));
     const gClose = Number(getGoal(s.serviceName,'close'));
@@ -1451,8 +1473,9 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   function diagPieChartServices(mode){
     const red = svcBands[mode].red.length;
     const yellow = svcBands[mode].yellow.length;
+    const orange = (svcBands[mode].orange||[]).length;
     const green = svcBands[mode].green.length;
-    const total = red + yellow + green;
+    const total = red + yellow + orange + green;
 
     const cx = 80, cy = 80, rad = 70;
     const toRad = (deg)=> (deg*Math.PI/180);
@@ -1464,10 +1487,12 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
     };
 
+    const _pf = window.getPieFill || function(b){ return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":b==="orange"?"#f97316":"#ff4b4b"; };
     const parts = [
-      {band:'red', n:red, fill:'#ff4b4b'},
-      {band:'yellow', n:yellow, fill:'#ffbf2f'},
-      {band:'green', n:green, fill:'#1fcb6a'},
+      {band:'red',    n:red,    fill:_pf('red')},
+      {band:'yellow', n:yellow, fill:_pf('yellow')},
+      {band:'orange', n:orange, fill:_pf('orange')},
+      {band:'green',  n:green,  fill:_pf('green')},
     ].filter(p=>p.n>0);
 
     if(total<=0 || !parts.length){
@@ -1788,8 +1813,8 @@ try{
     const isYellow = band==='yellow';
     const isOrange = band==='orange';
     const isRed    = band==='red';
-    const popFill   = isGreen ? '#1fcb6a' : isYellow ? '#ffbf2f' : isOrange ? '#ff8c00' : '#ff4b4b';
-    const popFillHi = isGreen ? '#7CFFB0' : isYellow ? '#ffd978' : isOrange ? '#ffb347' : '#ff8b8b';
+    const popFill   = isGreen ? '#1fcb6a' : isYellow ? '#ffbf2f' : isOrange ? '#f97316' : '#ff4b4b';
+    const popFillHi = isGreen ? '#7CFFB0' : isYellow ? '#ffd978' : isOrange ? '#fdba74' : '#ff8b8b';
     const bandIcon = isGreen
       ? `<svg viewBox="0 0 64 64" aria-hidden="true" style="width:34px;height:34px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))">
           <defs>

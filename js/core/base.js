@@ -1120,6 +1120,24 @@ function ensureDashTypographyOverrides(){
     inset 0 0 16px rgba(60, 255, 140, .28);
 }
 
+/* ORANGE */
+.techRow .pill.compO::before{
+  opacity: .72;
+  background:
+    radial-gradient(circle at 50% 55%,
+      rgba(0,0,0,.28) 0 42%,
+      rgba(249, 115, 22, .35) 70%,
+      rgba(249, 115, 22, .60) 100%
+    ),
+    linear-gradient(180deg, rgba(249,115,22,.22), rgba(249,115,22,.10));
+}
+.techRow .pill.compO::after{
+  opacity: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(253, 150, 60, .50),
+    inset 0 0 16px rgba(249, 115, 22, .30);
+}
+
 
 /* --- Force ALL pill text white (dashboard only) --- */
 .pill, .pill *{
@@ -1399,6 +1417,13 @@ function renderTeam(team, st){
   function compClass(actual, baseline){
     if(!Number.isFinite(actual) || !Number.isFinite(baseline) || baseline<=0) return "";
     const r = actual / baseline;
+    if(window.getColorBand){
+      const band = window.getColorBand(r);
+      if(band==="green")  return " compG";
+      if(band==="yellow") return " compY";
+      if(band==="orange") return " compO";
+      return " compR";
+    }
     if(r >= 0.80) return " compG";
     if(r >= 0.60) return " compY";
     return " compR";

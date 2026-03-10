@@ -88,10 +88,11 @@
     const title = (mode==="sold") ? "SOLD" : "ASR";
     const isRed = (band==="red");
     const isYellow = (band==="yellow");
+    const isOrange = (band==="orange");
     const isGreen = (band==="green");
-    const colorClass = isRed ? "diagRed" : (isYellow ? "diagYellow" : "diagGreen");
-    const popFill = isRed ? "#ff4b4b" : (isYellow ? "#ffbf2f" : "#1fcb6a");
-    const popFillHi = isRed ? "#ff8b8b" : (isYellow ? "#ffd978" : "#7CFFB0");
+    const colorClass = isRed ? "diagRed" : (isOrange ? "diagOrange" : (isYellow ? "diagYellow" : "diagGreen"));
+    const popFill = isRed ? "#ff4b4b" : (isOrange ? "#f97316" : (isYellow ? "#ffbf2f" : "#1fcb6a"));
+    const popFillHi = isRed ? "#ff8b8b" : (isOrange ? "#fdba74" : (isYellow ? "#ffd978" : "#7CFFB0"));
     const lbl = (mode==="sold") ? "SOLD" : "ASR";
 
     const iconSvg = isGreen
@@ -520,7 +521,7 @@ function diagCheckBadge(n, mode){
 
 
 function countBandsFor(mode){
-    let red=0, yellow=0, green=0;
+    let red=0, yellow=0, orange=0, green=0;
     const bench = (compareBasis==="team") ? TEAM_B : STORE_B;
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
@@ -529,11 +530,13 @@ function countBandsFor(mode){
       const base = (mode==="sold") ? Number(bench?.[cat]?.avgClose) : Number(bench?.[cat]?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
-      if(pct >= 0.80) { green++; continue; }
-      if(pct >= 0.60) yellow++;
+      const band = window.getColorBand ? window.getColorBand(pct) : (pct>=0.80?"green":pct>=0.60?"yellow":"red");
+      if(band==="green")  green++;
+      else if(band==="yellow") yellow++;
+      else if(band==="orange") orange++;
       else red++;
     }
-    return {red, yellow, green};
+    return {red, yellow, orange, green};
   }
 
   // NOTE: Badge popups are handled by the global diag popup handler at the top of this file
@@ -1307,8 +1310,9 @@ return `
   function diagPieChart(counts, mode){
     const red = Math.max(0, Number(counts?.red)||0);
     const yellow = Math.max(0, Number(counts?.yellow)||0);
+    const orange = Math.max(0, Number(counts?.orange)||0);
     const green = Math.max(0, Number(counts?.green)||0);
-    const total = red + yellow + green;
+    const total = red + yellow + orange + green;
 
     // SVG helpers
     const cx = 80, cy = 80, rad = 70; // viewBox 0..160
@@ -1324,10 +1328,12 @@ return `
       return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
     };
 
+    const _pf = window.getPieFill || function(b){ return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":b==="orange"?"#f97316":"#ff4b4b"; };
     const parts = [
-      {band:"red",    n:red,    fill:(window.getPieFill||function(b){return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":"#ff4b4b";})("red")},
-      {band:"yellow", n:yellow, fill:(window.getPieFill||function(b){return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":"#ff4b4b";})("yellow")},
-      {band:"green",  n:green,  fill:(window.getPieFill||function(b){return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":"#ff4b4b";})("green")},
+      {band:"red",    n:red,    fill:_pf("red")},
+      {band:"yellow", n:yellow, fill:_pf("yellow")},
+      {band:"orange", n:orange, fill:_pf("orange")},
+      {band:"green",  n:green,  fill:_pf("green")},
     ].filter(p=>p.n>0);
 
     // If no data, show a neutral circle with 0

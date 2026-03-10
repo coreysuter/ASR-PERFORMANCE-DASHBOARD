@@ -765,6 +765,7 @@ select,input{width:100%;padding:10px 10px;border-radius:12px;border:1px solid va
 }
 .svcGauge.gGreen{--gCol:rgba(90,220,120,.95)}
 .svcGauge.gYellow{--gCol:rgba(255,210,60,.95)}
+.svcGauge.gOrange{--gCol:rgba(249,115,22,.95)}
 .svcGauge.gRed{--gCol:rgba(255,80,80,.95)}
 
 /* Technician service tile: two stacked metric blocks */

@@ -43,6 +43,7 @@
   }
   function bandOfPct(pct){
     if(!Number.isFinite(pct)) return null;
+    if(window.getColorBand) return window.getColorBand(pct);
     if(pct < 0.60) return "red";
     if(pct < 0.80) return "yellow";
     return "green";
@@ -85,9 +86,10 @@
     const title = (mode==="sold") ? "SOLD" : "ASR";
     const isRed = (band==="red");
     const isYellow = (band==="yellow");
+    const isOrange = (band==="orange");
     const isGreen = (band==="green");
-    const popFill = isRed ? "#ff4b4b" : (isYellow ? "#ffbf2f" : "#1fcb6a");
-    const popFillHi = isRed ? "#ff8b8b" : (isYellow ? "#ffd978" : "#7CFFB0");
+    const popFill = isRed ? "#ff4b4b" : (isOrange ? "#f97316" : (isYellow ? "#ffbf2f" : "#1fcb6a"));
+    const popFillHi = isRed ? "#ff8b8b" : (isOrange ? "#fdba74" : (isYellow ? "#ffd978" : "#7CFFB0"));
     const lbl = (mode==="sold") ? "SOLD" : "ASR";
     const uid = `${mode}-${band}-adv-${advId}`;
 
@@ -479,7 +481,7 @@ function renderAdvisorDetail(advisorId){
 
   // --- Band counts for diag pie ---
   function countBandsFor(mode){
-    let red=0, yellow=0, green=0;
+    let red=0, yellow=0, orange=0, green=0;
     const ros = Number(t.ros ?? 0);
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
@@ -493,11 +495,13 @@ function renderAdvisorDetail(advisorId){
       const base = (mode==="sold") ? Number(bench?.avgClose) : Number(bench?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
-      if(pct >= 0.80) { green++; continue; }
-      if(pct >= 0.60) yellow++;
+      const band = window.getColorBand ? window.getColorBand(pct) : (pct>=0.80?"green":pct>=0.60?"yellow":"red");
+      if(band==="green")  green++;
+      else if(band==="yellow") yellow++;
+      else if(band==="orange") orange++;
       else red++;
     }
-    return {red, yellow, green};
+    return {red, yellow, orange, green};
   }
 
   // --- Ranking ---
@@ -1117,8 +1121,9 @@ function renderAdvisorDetail(advisorId){
   function diagPieChart(counts, mode){
     const red = Math.max(0, Number(counts?.red)||0);
     const yellow = Math.max(0, Number(counts?.yellow)||0);
+    const orange = Math.max(0, Number(counts?.orange)||0);
     const green = Math.max(0, Number(counts?.green)||0);
-    const total = red + yellow + green;
+    const total = red + yellow + orange + green;
 
     const cx = 80, cy = 80, rad = 70;
     const toRad = (deg)=> (deg*Math.PI/180);
@@ -1133,10 +1138,12 @@ function renderAdvisorDetail(advisorId){
       return `M ${cx} ${cy} L ${p0.x.toFixed(2)} ${p0.y.toFixed(2)} A ${rad} ${rad} 0 ${large} 1 ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} Z`;
     };
 
+    const _pf = window.getPieFill || function(b){ return b==="green"?"#1fcb6a":b==="yellow"?"#ffbf2f":b==="orange"?"#f97316":"#ff4b4b"; };
     const parts = [
-      {band:"red", n:red, fill:"#ff4b4b"},
-      {band:"yellow", n:yellow, fill:"#ffbf2f"},
-      {band:"green", n:green, fill:"#1fcb6a"},
+      {band:"red",    n:red,    fill:_pf("red")},
+      {band:"yellow", n:yellow, fill:_pf("yellow")},
+      {band:"orange", n:orange, fill:_pf("orange")},
+      {band:"green",  n:green,  fill:_pf("green")},
     ].filter(p=>p.n>0);
 
     if(total<=0 || !parts.length){
