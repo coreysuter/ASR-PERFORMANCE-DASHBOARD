@@ -1005,6 +1005,7 @@ h3{font-size:var(--H3)!important;font-weight:var(--HB)!important}
 
 /* ===== v212: collapsible category sections ===== */
 .secHeadRow{display:flex;align-items:center;gap:10px}
+.secHeadRow:hover .secToggle{filter:brightness(1.25)}
 .secToggle{
   width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;
   border-radius:10px;border:1px solid var(--border);

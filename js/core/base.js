@@ -395,10 +395,14 @@ function initSectionToggles(){
     h2Wrap.appendChild(toggle);
     h2Wrap.appendChild(h2);
 
+    // Make the entire header row clickable
+    h2Wrap.style.cursor = "pointer";
+    h2Wrap.style.userSelect = "none";
+
     // default: first expanded, rest collapsed
     if(i!==0) p.classList.add("secCollapsed");
 
-    toggle.addEventListener("click", (e)=>{
+    h2Wrap.addEventListener("click", (e)=>{
       e.preventDefault();
       const collapsed = p.classList.toggle("secCollapsed");
       toggle.textContent = collapsed ? "+" : "−";
