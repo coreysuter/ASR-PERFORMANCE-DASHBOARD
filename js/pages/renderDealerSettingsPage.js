@@ -193,9 +193,157 @@ function _wireToggle(id, onChange){
 }
 
 // ─────────────────────────────────────────────────────────────
+//  Teams section — administrator only
+// ─────────────────────────────────────────────────────────────
+function _renderTeamsSection(container){
+  const ds          = _loadDealerSettings();
+  const customTeams = Array.isArray(ds.customTeams) ? ds.customTeams : [];
+  const techTeams   = customTeams.filter(t=>t.type==="technicians");
+  const advTeams    = customTeams.filter(t=>t.type==="advisors");
+
+  const renderGroup = (label, list) => list.length ? list.map(t=>`
+    <div class="teamRow" data-tid="${_esc(t.id)}" style="
+      display:flex;align-items:center;gap:8px;
+      padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)">
+      <span style="font-size:13px;font-weight:700;flex:1">${_esc(t.name)}</span>
+      <button class="deleteTeamBtn menuClose" data-tid="${_esc(t.id)}"
+        style="width:auto;padding:4px 11px;font-size:11px;font-weight:800;
+        background:none;border:1px solid rgba(248,113,113,.35);color:#f87171;
+        border-radius:8px;cursor:pointer">Del</button>
+    </div>`).join("") : `
+    <div style="padding:8px 0 4px;opacity:.35;font-size:12px;font-style:italic">
+      No ${label.toLowerCase()} teams yet.
+    </div>`;
+
+  container.innerHTML = `
+    <div class="svcSetSection">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;
+        border-bottom:1px solid rgba(255,255,255,.08)">
+        <div class="svcSetSectionHdrName" style="font-weight:800;font-size:18px">Teams</div>
+        <div class="sub" style="font-size:11px;margin:0">(${customTeams.length})</div>
+        <button id="addTeamBtn" class="menuClose" style="
+          margin-left:auto;width:auto;padding:5px 12px;font-size:12px;font-weight:800">
+          + Add Team
+        </button>
+      </div>
+      <div style="padding:10px 14px 12px">
+
+        <!-- Add Team Form -->
+        <div id="teamFormWrap" style="display:none;margin-bottom:12px">
+          <div style="background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));
+            border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:16px 16px 18px">
+            <div style="font-weight:800;font-size:11px;letter-spacing:.6px;
+              text-transform:uppercase;color:var(--muted,#94a3b8);margin-bottom:14px">Add Team</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+              <div>
+                <div class="sub" style="font-size:11px;margin-bottom:4px">Team Name <span style="color:#f87171">*</span></div>
+                <input id="tf_name" class="svcSetMiles" type="text" maxlength="40"
+                  placeholder="e.g. Express" style="width:100%;box-sizing:border-box">
+              </div>
+              <div>
+                <div class="sub" style="font-size:11px;margin-bottom:4px">Type <span style="color:#f87171">*</span></div>
+                <select id="tf_type" class="svcSetMiles"
+                  style="width:100%;box-sizing:border-box;cursor:pointer;background:#000;color:#fff">
+                  <option value="">— select type —</option>
+                  <option value="technicians">Technicians</option>
+                  <option value="advisors">Advisors</option>
+                </select>
+              </div>
+            </div>
+            <div id="teamFormErr" style="display:none;color:#f87171;font-size:12px;margin-bottom:12px;
+              padding:7px 10px;background:rgba(248,113,113,.08);
+              border-radius:6px;border:1px solid rgba(248,113,113,.2)"></div>
+            <div style="display:flex;gap:8px;align-items:center;justify-content:flex-end">
+              <button id="teamFormCancel" class="menuClose"
+                style="width:auto;padding:6px 14px;font-size:12px">Cancel</button>
+              <button id="teamFormSave" style="
+                background:var(--accent,#4f8ef7);border:none;border-radius:8px;
+                color:#fff;font-weight:800;font-size:12px;padding:7px 18px;
+                cursor:pointer;letter-spacing:.2px">Save Team</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technicians group -->
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+            color:rgba(234,240,255,.4);padding:6px 0 4px;
+            border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:2px">Technicians</div>
+          <div id="techTeamList">${renderGroup("Technicians", techTeams)}</div>
+        </div>
+
+        <!-- Advisors group -->
+        <div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+            color:rgba(234,240,255,.4);padding:6px 0 4px;
+            border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:2px">Advisors</div>
+          <div id="advTeamList">${renderGroup("Advisors", advTeams)}</div>
+        </div>
+
+      </div>
+    </div>`;
+
+  // ── Wire Add Team button ──────────────────────────────────
+  container.querySelector("#addTeamBtn").addEventListener("click", ()=>{
+    const fw = container.querySelector("#teamFormWrap");
+    if(!fw) return;
+    const opening = fw.style.display==="none";
+    fw.style.display = opening ? "block" : "none";
+    if(opening){
+      container.querySelector("#tf_name").value = "";
+      container.querySelector("#tf_type").value = "";
+      const e=container.querySelector("#teamFormErr"); if(e){e.style.display="none";e.textContent="";}
+    }
+  });
+
+  container.querySelector("#teamFormCancel").addEventListener("click", ()=>{
+    container.querySelector("#teamFormWrap").style.display = "none";
+    const e=container.querySelector("#teamFormErr"); if(e){e.style.display="none";e.textContent="";}
+  });
+
+  container.querySelector("#teamFormSave").addEventListener("click", ()=>{
+    const name  = container.querySelector("#tf_name").value.trim();
+    const type  = container.querySelector("#tf_type").value;
+    const errEl = container.querySelector("#teamFormErr");
+    const showErr = m=>{ errEl.textContent=m; errEl.style.display="block"; };
+    errEl.style.display = "none";
+
+    if(!name){ showErr("Team name is required."); return; }
+    if(!type){ showErr("Please select a type."); return; }
+
+    const ds2 = _loadDealerSettings();
+    const list = Array.isArray(ds2.customTeams) ? ds2.customTeams : [];
+    if(list.find(t=>t.name.toLowerCase()===name.toLowerCase())){
+      showErr("A team with that name already exists."); return;
+    }
+    list.push({ id:"team_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,6), name, type });
+    ds2.customTeams = list;
+    _saveDealerSettings(ds2);
+
+    _renderTeamsSection(container);
+    // Refresh users section so team dropdown updates
+    const uc = document.getElementById("usersSectionContainer");
+    if(uc) _renderUsersSection(uc);
+  });
+
+  // ── Wire Delete buttons ───────────────────────────────────
+  container.querySelectorAll(".deleteTeamBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const tid = btn.getAttribute("data-tid");
+      const ds2 = _loadDealerSettings();
+      ds2.customTeams = (Array.isArray(ds2.customTeams)?ds2.customTeams:[]).filter(t=>t.id!==tid);
+      _saveDealerSettings(ds2);
+      _renderTeamsSection(container);
+      const uc = document.getElementById("usersSectionContainer");
+      if(uc) _renderUsersSection(uc);
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
 //  Users section — administrator only
 // ─────────────────────────────────────────────────────────────
-function _renderUsersSection(container, allTeams){
+function _renderUsersSection(container){
   const users = _loadUsers();
   const ROLE_ORDER = ["administrator","manager","advisor","technician"];
   const sorted = [...users].sort((a,b)=>{
@@ -204,7 +352,14 @@ function _renderUsersSection(container, allTeams){
     return (a.name||"").localeCompare(b.name||"");
   });
 
-  const teamOptions = allTeams.map(t=>`<option value="${_esc(t)}">${_esc(t)}</option>`).join("");
+  // Build team options from custom teams storage, grouped by type
+  const customTeams = _loadDealerSettings().customTeams || [];
+  const techTeams = customTeams.filter(t=>t.type==="technicians");
+  const advTeams  = customTeams.filter(t=>t.type==="advisors");
+  const teamOptions = [
+    ...(techTeams.length ? [`<optgroup label="Technicians">`,...techTeams.map(t=>`<option value="${_esc(t.name)}">${_esc(t.name)}</option>`),`</optgroup>`] : []),
+    ...(advTeams.length  ? [`<optgroup label="Advisors">`,...advTeams.map(t=>`<option value="${_esc(t.name)}">${_esc(t.name)}</option>`),`</optgroup>`] : [])
+  ].join("");
   const roleOptions = USER_ROLES.map(r=>`<option value="${_esc(r.value)}">${_esc(r.label)}</option>`).join("");
 
   const rowsHtml = sorted.length ? sorted.map(u=>`
@@ -322,9 +477,8 @@ function _renderUsersSection(container, allTeams){
 
   container.innerHTML = `
     <div class="svcSetSection" style="margin-top:0">
-      <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;
-        border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="svcSetSectionHdrName" style="font-weight:800;font-size:18px">Users</div>
+      <div class="svcSetSectionHdr">
+        <div class="svcSetSectionHdrName">Users</div>
         <div class="sub" style="font-size:11px;margin:0">(${users.length})</div>
         <button id="addUserBtn" class="menuClose" style="
           margin-left:auto;width:auto;padding:5px 12px;font-size:12px;font-weight:800">
@@ -395,7 +549,7 @@ function _renderUsersSection(container, allTeams){
     }
     _saveUsers(users);
     closeForm();
-    _renderUsersSection(container, allTeams);
+    _renderUsersSection(container);
   });
 
   container.querySelectorAll(".editUserBtn").forEach(btn=>{
@@ -412,7 +566,7 @@ function _renderUsersSection(container, allTeams){
       if(!user) return;
       if(!confirm(`Delete "${user.name}" (${user.email})?\nThis cannot be undone.`)) return;
       _saveUsers(_loadUsers().filter(u=>u.id!==uid));
-      _renderUsersSection(container, allTeams);
+      _renderUsersSection(container);
     });
   });
 
@@ -453,17 +607,6 @@ function renderDealerSettingsPage(){
   const sourceFile  = meta.file||"";
   const generatedOn = meta.generated_on||"";
   const s           = _loadDealerSettings();
-  const teamLabels  = s.teamLabels||{};
-
-  const teamRowsHtml = teams.map(team=>`
-    <div class="svcSetRow">
-      <div class="svcSetLeft"><div class="svcSetName">${_esc(team)}</div></div>
-      <div class="svcSetRight">
-        <input class="dealerTeamInput svcSetMiles" data-team="${_esc(team)}"
-          type="text" maxlength="40"
-          placeholder="${_esc(team)}" value="${_esc(teamLabels[team]||"")}">
-      </div>
-    </div>`).join("");
 
   // ── Logged-in user badge ─────────────────────────────────
   const r = session ? _roleConf(session.role) : {color:"#888",bg:"rgba(136,136,136,.15)",label:""};
@@ -534,31 +677,8 @@ function renderDealerSettingsPage(){
             </div>
           </div>
 
-          ${teams.length ? `
-          <!-- Team Labels -->
-          <div class="svcSetSection" style="margin-top:20px">
-            <div class="svcSetSectionHdr">
-              <div class="svcSetSectionHdrName">Team Labels</div>
-              <div class="svcSetSectionHdrMiles">Display Name</div>
-            </div>
-            <div style="padding:0 14px 4px">
-              <div class="svcSetRows" style="padding-left:0;padding-right:0">${teamRowsHtml}</div>
-            </div>
-          </div>` : ""}
-
-          <!-- Display Options -->
-          <div class="svcSetSection" style="margin-top:20px">
-            <div class="svcSetSectionHdr"><div class="svcSetSectionHdrName">Display Options</div></div>
-            <div style="padding:12px 14px">
-              <div class="svcSetRow" style="align-items:center">
-                <div class="svcSetLeft" style="flex:1">
-                  <div class="svcSetName">Hide zero-RO technicians</div>
-                  <div class="sub" style="margin-top:2px">Exclude techs with no repair orders from dashboards and team averages.</div>
-                </div>
-                <div class="svcSetRight">${_buildToggle("hideZeroRoToggle", s.hideZeroRoTechs)}</div>
-              </div>
-            </div>
-          </div>
+          <!-- Teams -->
+          <div id="teamsSectionContainer" style="margin-top:20px"></div>
 
           <!-- Color Settings -->
           <div class="svcSetSection" style="margin-top:20px">
@@ -678,10 +798,16 @@ function renderDealerSettingsPage(){
       </div>
     </div>`;
 
+  // ── Teams ────────────────────────────────────────────────
+  if(canManageUsers){
+    const tc = app.querySelector("#teamsSectionContainer");
+    if(tc) _renderTeamsSection(tc);
+  }
+
   // ── Users & Roster ───────────────────────────────────────
   if(canManageUsers){
     const uc = app.querySelector("#usersSectionContainer");
-    if(uc) _renderUsersSection(uc, teams.length?teams:["EXPRESS","KIA"]);
+    if(uc) _renderUsersSection(uc);
   }
 
   if(!canManageSettings) return;
@@ -698,13 +824,6 @@ function renderDealerSettingsPage(){
   function persist(){
     const cur = _loadDealerSettings();
     const n = document.getElementById("dealerNameInput"); if(n) cur.dealerName=n.value.trim();
-    const tMap = cur.teamLabels||{};
-    app.querySelectorAll(".dealerTeamInput").forEach(inp=>{
-      const t=inp.getAttribute("data-team")||"", v=inp.value.trim();
-      if(v) tMap[t]=v; else delete tMap[t];
-    });
-    cur.teamLabels = tMap;
-    const tog = document.getElementById("hideZeroRoToggle"); if(tog) cur.hideZeroRoTechs=tog.checked;
 
     // Color settings
     const modeEl = app.querySelector('input[name="colorMode"]:checked');
@@ -722,9 +841,8 @@ function renderDealerSettingsPage(){
     _updateColorPreview();
   }
 
-  app.querySelectorAll("#dealerNameInput, .dealerTeamInput")
+  app.querySelectorAll("#dealerNameInput")
     .forEach(inp=>inp.addEventListener("input", persist));
-  _wireToggle("hideZeroRoToggle", ()=>persist());
 
   // ── Color mode radio buttons ──────────────────────────
   app.querySelectorAll('input[name="colorMode"]').forEach(radio=>{
