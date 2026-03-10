@@ -216,7 +216,7 @@ function _renderTeamsSection(container){
     </div>`;
 
   container.innerHTML = `
-    <div class="svcSetSection" style="width:100%;min-width:420px">
+    <div class="svcSetSection" style="min-width:420px">
       <div class="svcSetSectionHdr">
         <div class="svcSetSectionHdrName">Teams</div>
         <button id="addTeamBtn" class="menuClose" style="
@@ -691,7 +691,7 @@ function renderDealerSettingsPage(){
           </div>
 
           <!-- Teams -->
-          <div id="teamsSectionContainer" style="margin-top:20px;min-width:420px"></div>
+          <div id="teamsSectionContainer" style="margin-top:20px"></div>
 
           <!-- Color Settings -->
           <div class="svcSetSection" style="margin-top:20px">
