@@ -173,18 +173,22 @@ function renderServiceSettingsPage(){
   // ── Logo bar: sit directly above top-right of the panel ──
   (function(){
     const topBar = document.getElementById('pageTopBar');
+    const stage  = app.querySelector('.techNotchStage');
     const panel  = app.querySelector('.techNotchStage .svcSetPanel');
-    if (!topBar || !panel) return;
-
-    // Allow the panel to be a positioning parent without clipping outside content
-    panel.style.position = 'relative';
-    panel.style.overflow = 'visible';
+    if (!topBar || !stage || !panel) return;
 
     const overlay = document.createElement('div');
     overlay.id = 'settingsLogoOverlay';
-    overlay.style.cssText = 'position:absolute;right:0;bottom:100%;margin-bottom:6px;display:flex;align-items:center;gap:12px;pointer-events:none;z-index:3;';
+    overlay.style.cssText = 'position:absolute;top:-44px;display:flex;align-items:center;gap:12px;pointer-events:none;z-index:3;';
     overlay.innerHTML = topBar.innerHTML;
-    panel.appendChild(overlay);
+    stage.appendChild(overlay);
+
+    // After layout, align overlay's right edge with the panel's right edge
+    requestAnimationFrame(() => {
+      const stageRect = stage.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+      overlay.style.right = (stageRect.right - panelRect.right) + 'px';
+    });
 
     topBar.style.display = 'none';
     const _restore = () => { topBar.style.display = ''; window.removeEventListener('hashchange', _restore); };
