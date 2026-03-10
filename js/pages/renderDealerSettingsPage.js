@@ -647,7 +647,7 @@ function renderDealerSettingsPage(){
           color:inherit;user-select:none;">☰</label>
       </div>
 
-      <div class="panel svcSetPanel" style="min-width:0;width:100%;">
+      <div class="panel svcSetPanel" style="min-width:0;">
         <div class="phead">
 
           <div class="titleRow" style="align-items:center">
@@ -812,6 +812,24 @@ function renderDealerSettingsPage(){
     </div>`;
 
 
+
+
+  // ── Nudge topbar left so logos sit above the panel's right corner ──
+  (function(){
+    const topBar = document.getElementById('pageTopBar');
+    const panel  = app.querySelector('.techNotchStage .svcSetPanel');
+    if (!topBar || !panel) return;
+    requestAnimationFrame(() => {
+      const appRight   = app.getBoundingClientRect().right;
+      const panelRight = panel.getBoundingClientRect().right;
+      topBar.style.paddingRight = (appRight - panelRight) + 'px';
+    });
+    const _restore = () => {
+      topBar.style.paddingRight = '';
+      window.removeEventListener('hashchange', _restore);
+    };
+    window.addEventListener('hashchange', _restore);
+  })();
 
   // ── Teams ────────────────────────────────────────────────
   if(canManageUsers){

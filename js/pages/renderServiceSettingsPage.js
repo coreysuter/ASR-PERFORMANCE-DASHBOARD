@@ -127,7 +127,7 @@ function renderServiceSettingsPage(){
         ">☰</label>
       </div>
 
-      <div class="panel svcSetPanel" style="--svcSetNameW:${nameW};min-width:0;width:100%;">
+      <div class="panel svcSetPanel" style="--svcSetNameW:${nameW};min-width:0;">
         <div class="phead">
           <div class="titleRow">
             <div>
@@ -151,7 +151,7 @@ function renderServiceSettingsPage(){
 
     <!-- Op-Codes Panel (separate) -->
     <div class="techNotchStage" style="position:relative;width:100%;overflow:visible;margin-top:18px;">
-      <div class="panel svcSetPanel" style="min-width:0;width:100%;">
+      <div class="panel svcSetPanel" style="min-width:0;">
         <div class="phead">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
             <div class="svcSetMinMilesHeading" style="margin:0;">Services, Op-Codes &amp; Descriptions</div>
@@ -169,6 +169,24 @@ function renderServiceSettingsPage(){
   `;
 
 
+
+
+  // ── Nudge topbar left so logos sit above the panel's right corner ──
+  (function(){
+    const topBar = document.getElementById('pageTopBar');
+    const panel  = app.querySelector('.techNotchStage .svcSetPanel');
+    if (!topBar || !panel) return;
+    requestAnimationFrame(() => {
+      const appRight   = app.getBoundingClientRect().right;
+      const panelRight = panel.getBoundingClientRect().right;
+      topBar.style.paddingRight = (appRight - panelRight) + 'px';
+    });
+    const _restore = () => {
+      topBar.style.paddingRight = '';
+      window.removeEventListener('hashchange', _restore);
+    };
+    window.addEventListener('hashchange', _restore);
+  })();
 
   function flashSaved(){
     const el = document.getElementById("svcSetSaved");
