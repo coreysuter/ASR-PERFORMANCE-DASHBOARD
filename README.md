@@ -1,6 +1,6 @@
 # Technician Dashboard (split build v2)
 
-This repo separates the single-file build into independent files per page:
+This repo separates the single-file build into independent files per page: 
 
 - Main dashboard: `js/pages/renderMain.js`
 - Tech details: `js/pages/renderTech.js`
