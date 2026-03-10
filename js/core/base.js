@@ -1494,8 +1494,8 @@ function renderTeam(team, st){
     const asrGoalTxt = asrGoalRatio==null ? '—' : fmtPct(asrGoalRatio);
     const soldGoalTxt = soldGoalRatio==null ? '—' : fmtPct(soldGoalRatio);
 
-    const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? (Number(s.sold)/Number(t.ros)) : null;
-    const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? (Number(s.sold)/Number(s.asr)) : null;
+    const soldRoVal = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros))) ? (Number(t.ros)>0 ? (Number(s.sold)/Number(t.ros)) : 0) : null;
+    const soldAsrRatio = (Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr))) ? (Number(s.asr)>0 ? (Number(s.sold)/Number(s.asr)) : 0) : null;
 
     // Pill shading is controlled by Comparison mode only (TEAM | STORE | GOAL).
     const inGoalMode = compareMode==='goal';
