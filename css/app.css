@@ -2722,3 +2722,107 @@ body.route-tech .pills .k *{
   border-color:rgba(79,142,247,.4);
   background:rgba(79,142,247,.10);
 }
+
+/* ===== Goals page: consistency with other settings pages ===== */
+
+/* Header area: add phead-style bottom separator */
+.goalsBigTop {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+/* OVERALL GOALS box: replace gray rgba(180,180,180) borders with app-standard white-alpha borders */
+.goalsMidGoals {
+  border-color: rgba(255,255,255,.12) !important;
+  background: rgba(0,0,0,.15) !important;
+}
+.goalsMidDivider {
+  background: rgba(255,255,255,.12) !important;
+}
+
+/* Sub description text in Goals header: match .notice sizing */
+.goalsBigTop .sub {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Quadrant cards: align border-radius + border opacity with svcSetSection */
+.goalQuad {
+  border-radius: 16px !important;
+  border-color: rgba(255,255,255,.08) !important;
+  background: rgba(0,0,0,.12) !important;
+}
+
+/* Quadrant title: add bottom border like svcSetSectionHdr */
+.goalQuadTitle {
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+  margin-bottom: 10px !important;
+}
+
+/* Head row column separator: softer to match other pages */
+.goalQuadHeadRow {
+  border-bottom-color: rgba(255,255,255,.08) !important;
+}
+
+/* Row separators: softer */
+.goalRow {
+  border-bottom-color: rgba(255,255,255,.07);
+}
+
+/* Mini goals box (per-quadrant header stat): standard border radius + border */
+.miniGoalsBox {
+  border-radius: 12px !important;
+  border-color: rgba(255,255,255,.10) !important;
+  background: rgba(0,0,0,.15) !important;
+}
+.miniGoalsBox > div[style*="width:1px"] {
+  background: rgba(255,255,255,.10) !important;
+}
+
+/* Goal input: focus state matching svcSetMiles */
+.goalMini:focus {
+  border-color: rgba(120,190,255,.55);
+  outline: none;
+}
+
+/* Row hover: subtle interactive feedback */
+.goalRow.tight:hover {
+  background: rgba(255,255,255,.03);
+  border-radius: 8px;
+  transition: background .1s;
+}
+
+/* Service name text: consistent size with svcSetName */
+.gTitle {
+  font-size: 13px;
+  letter-spacing: .1px;
+}
+
+/* Avg stat lines: slightly subdued */
+.gAvg {
+  font-size: 11px;
+}
+
+/* Divider between goal groups: softer */
+.goalDivider {
+  border-top-color: rgba(255,255,255,.08) !important;
+  opacity: .85;
+}
+
+/* Apply-all row: muted label color like other settings controls */
+.brApplyAllRow .q {
+  color: var(--muted) !important;
+}
+.brApplyAllRow label {
+  color: var(--muted);
+}
+
+/* Switch On/Off labels: match muted style */
+.swLab {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 900;
+  letter-spacing: .15px;
+}
