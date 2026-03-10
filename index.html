@@ -61,41 +61,27 @@
         <label for="menuToggle" class="menuClose" aria-label="Close menu" title="Close">✕</label>
       </div>
 
-      <!-- Date Picker -->
-      <div id="menuDatePicker" style="
-        padding: 10px 14px 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        margin-bottom: 4px;
-      ">
-        <label for="globalDateInput" style="
-          display: block;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.8px;
-          text-transform: uppercase;
-          color: rgba(255,255,255,0.45);
-          margin-bottom: 5px;
-        ">Report Date</label>
-        <input type="month" id="globalDateInput" style="
-          width: 100%;
-          box-sizing: border-box;
-          background: rgba(255,255,255,0.07);
-          border: 1px solid rgba(255,255,255,0.15);
-          border-radius: 8px;
-          color: #fff;
-          font-size: 14px;
-          font-weight: 600;
-          font-family: inherit;
-          padding: 7px 10px;
-          cursor: pointer;
-          outline: none;
-          transition: border-color 0.2s, background 0.2s;
-          color-scheme: dark;
-        "
-          onfocus="this.style.borderColor='rgba(239,68,68,0.6)';this.style.background='rgba(255,255,255,0.11)'"
-          onblur="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.07)'"
-          onchange="window.handleGlobalDateChange && window.handleGlobalDateChange(this.value)"
-        />
+      <!-- Date Range Picker -->
+      <div id="menuDatePicker" style="padding:10px 14px 12px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:4px;">
+        <style>
+          .drRow{display:flex;align-items:flex-end;gap:6px;}
+          .drCol{flex:1;min-width:0;}
+          .drLbl{display:block;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:3px;}
+          .drInput{width:100%;box-sizing:border-box;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;font-size:12px;font-weight:600;font-family:inherit;padding:7px 8px;cursor:pointer;outline:none;transition:border-color .2s,background .2s;color-scheme:dark;}
+          .drInput:focus{border-color:rgba(239,68,68,.6);background:rgba(255,255,255,.11);}
+          .drSep{color:rgba(255,255,255,.35);font-size:12px;font-weight:700;padding-bottom:8px;flex-shrink:0;}
+        </style>
+        <div class="drRow">
+          <div class="drCol">
+            <span class="drLbl">From</span>
+            <input type="date" id="globalDateStart" class="drInput" onchange="window.handleGlobalDateRangeChange&&window.handleGlobalDateRangeChange()"/>
+          </div>
+          <div class="drSep">—</div>
+          <div class="drCol">
+            <span class="drLbl">To</span>
+            <input type="date" id="globalDateEnd" class="drInput" onchange="window.handleGlobalDateRangeChange&&window.handleGlobalDateRangeChange()"/>
+          </div>
+        </div>
       </div>
 
       <!-- Services Dashboard -->
@@ -266,23 +252,28 @@
       window.location.replace(location.pathname);
     };
 
-    // Global date picker: initialize and handle changes
-    window.handleGlobalDateChange = function(val) {
-      window.globalReportDate = val;
-      window.dispatchEvent(new CustomEvent('globalDateChange', { detail: { value: val } }));
+    // Global date range picker
+    window.handleGlobalDateRangeChange = function() {
+      var start = document.getElementById('globalDateStart');
+      var end = document.getElementById('globalDateEnd');
+      window.globalDateRange = { start: start && start.value, end: end && end.value };
+      window.dispatchEvent(new CustomEvent('globalDateChange', { detail: window.globalDateRange }));
     };
 
-    // Set default value to current month on load
+    // Set default range to last 30 days
     window.addEventListener('DOMContentLoaded', function() {
-      var input = document.getElementById('globalDateInput');
-      if (input) {
-        var now = new Date();
-        var yyyy = now.getFullYear();
-        var mm = String(now.getMonth() + 1).padStart(2, '0');
-        var defaultVal = yyyy + '-' + mm;
-        input.value = defaultVal;
-        window.globalReportDate = defaultVal;
+      var toDate = new Date();
+      toDate.setDate(toDate.getDate() - 1);
+      var fromDate = new Date(toDate);
+      fromDate.setDate(fromDate.getDate() - 29);
+      function fmt(d) {
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
       }
+      var startInput = document.getElementById('globalDateStart');
+      var endInput = document.getElementById('globalDateEnd');
+      if (startInput) startInput.value = fmt(fromDate);
+      if (endInput) endInput.value = fmt(toDate);
+      window.globalDateRange = { start: fmt(fromDate), end: fmt(toDate) };
     });
 </script>
 
