@@ -698,10 +698,10 @@ function countBandsFor(mode){
 
   // Header focus stats: when Focus=Goal, mirror the exact stats for the selected goal metric.
   const __effFocusHdr = (focus==="goal") ? goalMetric : focus; // "asr" | "sold"
-  const __topFocusVal = (__effFocusHdr==="sold") ? (Number.isFinite(__soldAsrPct) ? `${(__soldAsrPct*100).toFixed(1)}%` : "—") : __asrPerRoTxt;
-  const __topFocusLbl = (__effFocusHdr==="sold") ? "Sold/ASRs" : "ASRs/RO";
-  const __botFocusVal = (__effFocusHdr==="sold") ? __asrPerRoTxt : (Number.isFinite(__soldAsrPct) ? `${(__soldAsrPct*100).toFixed(1)}%` : "—");
-  const __botFocusLbl = (__effFocusHdr==="sold") ? "ASRs/RO" : "Sold/ASRs";
+  const __topFocusVal = (__effFocusHdr==="sold") ? __soldPerRoTxt : __asrPerRoTxt;
+  const __topFocusLbl = (__effFocusHdr==="sold") ? "Sold/RO" : "ASRs/RO";
+  const __botFocusVal = (__effFocusHdr==="sold") ? __asrPerRoTxt : __soldPerRoTxt;
+  const __botFocusLbl = (__effFocusHdr==="sold") ? "ASRs/RO" : "Sold/RO";
 
 
   const __fullName = String(t.name||"").trim();
@@ -783,8 +783,8 @@ const header = `
   </div>
 
   <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
-    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/RO</div>
-    <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${__soldPerRoTxt}</div>
+    <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold/ASRs</div>
+    <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(t.summary?.[filterKey]?.sold)}<span style="font-size:18px;font-weight:1000;color:#fff;margin-left:8px;white-space:nowrap">${__soldAsrPctTxt}</span></div>
   </div>
 </div>
         </div>
@@ -1065,7 +1065,7 @@ function sectionRankFor(sec){
 
     
 const goalFocusPct = (goalMetric==="sold") ? pctGoalSold : pctGoalAsr;
-const goalFocusLbl = (goalMetric==="sold") ? "Sold/ASRs Goal" : "ASR Goal";
+const goalFocusLbl = (goalMetric==="sold") ? "Sold Goal" : "ASR Goal";
 
 // Focus dial: when focus=goal, use the selected goal metric (ASR Goal or Sold Goal)
 const focusPct = (focus==="sold") ? pctSold : (focus==="goal" ? goalFocusPct : pctAsr);
@@ -1081,7 +1081,7 @@ const dialGoalAsr = Number.isFinite(pctGoalAsr)
   ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalAsr,"ASR Goal", _popupAsrGoal(goalReq, asrVal, pctGoalAsr))}</div>`
   : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 const dialGoalSold = Number.isFinite(pctGoalSold)
-  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold/ASRs Goal", _popupSoldGoal(goalClose, soldVal, pctGoalSold))}</div>`
+  ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal", _popupSoldGoal(goalClose, soldVal, pctGoalSold))}</div>`
   : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 
 // Focus dial popup
