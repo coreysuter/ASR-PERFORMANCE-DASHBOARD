@@ -290,6 +290,7 @@ function renderAdvisorDetail(advisorId){
   let compareBasis = "advisors"; // advisors | goal
   let focus = "sold"; // sold | goal
   let goalMetric = "sold"; // always sold for advisors
+  let preMpi = "included"; // included | excluded  (advisors default: included)
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
@@ -306,6 +307,10 @@ function renderAdvisorDetail(advisorId){
       }
       if(k==="goal"){
         goalMetric = "sold"; // always sold for advisors
+      }
+      if(k==="preMpi"){
+        const vv = decodeURIComponent(v||"") || "included";
+        preMpi = (vv==="excluded") ? "excluded" : "included";
       }
     }
   }
@@ -360,6 +365,27 @@ function renderAdvisorDetail(advisorId){
       .replace(/^-+|-+$/g,"");
   }
 
+  // --- Pre-MPI helpers ---
+  // When preMpi=included, use sold_total (ASR-closed + advisor pre-MPI) instead of sold.
+  // Close rate becomes sold_total / asr when data is available.
+  function getEffClose(c){
+    if(!c) return NaN;
+    if(preMpi === "included"){
+      const asr = Number(c.asr);
+      const soldT = Number(c.sold_total);
+      if(Number.isFinite(asr) && asr > 0 && Number.isFinite(soldT)) return soldT / asr;
+    }
+    return Number(c.close ?? NaN);
+  }
+  function getEffSold(c){
+    if(!c) return NaN;
+    if(preMpi === "included"){
+      const soldT = Number(c.sold_total);
+      if(Number.isFinite(soldT)) return soldT;
+    }
+    return Number(c.sold ?? NaN);
+  }
+
   // --- Category universe & benchmarks ---
   function categoryUniverse(){
     const cats=new Set();
@@ -378,7 +404,7 @@ function renderAdvisorDetail(advisorId){
       for(const x of scopeAdvisors){
         const c=x.categories?.[cat];
         const req=Number(c?.req);
-        const close=Number(c?.close);
+        const close=getEffClose(c);
         const asrN=Number(c?.asr);
         if(Number.isFinite(req)) reqs.push(req);
         if(Number.isFinite(close)) closes.push(close);
@@ -411,7 +437,7 @@ function renderAdvisorDetail(advisorId){
     for(const cat of CAT_LIST){
       const mine = t?.categories?.[cat];
       if(!mine) continue;
-      const val = (mode==="sold") ? Number(mine.close) : Number(mine.req);
+      const val = (mode==="sold") ? getEffClose(mine) : Number(mine.req);
       const base = (mode==="sold") ? Number(ADV_BENCH?.[cat]?.avgClose) : Number(ADV_BENCH?.[cat]?.avgReq);
       if(!(Number.isFinite(val) && Number.isFinite(base) && base>0)) continue;
       const pct = val/base;
@@ -429,11 +455,11 @@ function renderAdvisorDetail(advisorId){
       const c = x.categories?.[cat] || {};
       let v = NaN;
       if(focus==="goal"){
-        const close = Number(c.close);
+        const close = getEffClose(c);
         const gClose = Number(getGoal(cat,"close"));
         v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
       }else{
-        v = Number(c.close);
+        v = getEffClose(c);
       }
       return Number.isFinite(v) ? v : -Infinity;
     }
@@ -506,7 +532,11 @@ function renderAdvisorDetail(advisorId){
   const overall = ordered.length ? {rank: (idx>=0?idx+1:null), total: ordered.length} : {rank:null,total:null};
 
   const __asrsTotal = Number(s.asr);
-  const __soldTotal = Number(s.sold);
+  const __soldRaw   = Number(s.sold);
+  const __soldPreMpi = Number(s.advisor_sold ?? 0);
+  const __soldTotal = (preMpi === "included" && Number.isFinite(Number(s.sold_total)))
+    ? Number(s.sold_total)
+    : __soldRaw;
   const __rosTotal = Number(t.ros);
   const __soldAsrPct = (Number.isFinite(__soldTotal) && Number.isFinite(__asrsTotal) && __asrsTotal>0) ? (__soldTotal/__asrsTotal) : NaN;
   const __soldAsrPctTxt = Number.isFinite(__soldAsrPct) ? `(${(__soldAsrPct*100).toFixed(1)}%)` : "";
@@ -546,6 +576,13 @@ function renderAdvisorDetail(advisorId){
         <select id="advFocus">
           <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
           <option value="goal" ${focus==="goal"?"selected":""}>Sold Goal</option>
+        </select>
+      </div>
+      <div>
+        <label>Pre-MPI Sales</label>
+        <select id="advPreMpi">
+          <option value="included" ${preMpi==="included"?"selected":""}>Included</option>
+          <option value="excluded" ${preMpi==="excluded"?"selected":""}>Excluded</option>
         </select>
       </div>
     </div>
@@ -593,9 +630,14 @@ function renderAdvisorDetail(advisorId){
                   <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(s.asr)}</div>
                 </div>
                 <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
-                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
-                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(s.sold)}</div>
+                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">${preMpi==="included" ? "Sold (w/ Pre-MPI)" : "Sold"}</div>
+                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(__soldTotal)}</div>
                 </div>
+                ${(preMpi==="included" && __soldPreMpi > 0) ? `
+                <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,200,80,.22);background:rgba(0,0,0,.18);">
+                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Pre-MPI</div>
+                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:rgba(255,210,100,1);">${fmtInt(__soldPreMpi)}</div>
+                </div>` : ""}
               </div>
             </div>
           </div>
@@ -627,9 +669,9 @@ function renderAdvisorDetail(advisorId){
   function renderCategoryCard(cat){
     const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
     const asrCount = Number(c.asr ?? 0);
-    const soldCount = Number(c.sold ?? 0);
+    const soldCount = getEffSold(c);
     const req = Number(c.req ?? NaN);
-    const close = Number(c.close ?? NaN);
+    const close = getEffClose(c);
     const advRos = Number(t.ros ?? 0);
 
     const basis = getBenchmarks(cat) || {};
@@ -759,7 +801,7 @@ function renderAdvisorDetail(advisorId){
   function sectionStatsForAdvisor(sec){
     const cats = sec.categories || [];
     const reqs = cats.map(cat=>Number(t.categories?.[cat]?.req)).filter(n=>Number.isFinite(n));
-    const closes = cats.map(cat=>Number(t.categories?.[cat]?.close)).filter(n=>Number.isFinite(n));
+    const closes = cats.map(cat=>getEffClose(t.categories?.[cat])).filter(n=>Number.isFinite(n));
     const sumReq = reqs.length ? reqs.reduce((a,b)=>a+b,0) : null;
     const avgClose = closes.length ? closes.reduce((a,b)=>a+b,0)/closes.length : null;
     return { sumReq, avgClose };
@@ -772,11 +814,11 @@ function renderAdvisorDetail(advisorId){
       const c = x.categories?.[cat];
       if(!c) continue;
       if(focus==="goal"){
-        const v = Number(c.close);
+        const v = getEffClose(c);
         const g = Number(getGoal(cat,"close"));
         if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
       }else{
-        const v = Number(c.close);
+        const v = getEffClose(c);
         if(Number.isFinite(v)) vals.push(v);
       }
     }
@@ -859,7 +901,7 @@ function renderAdvisorDetail(advisorId){
     const __agg = __cats.reduce((a,cat)=>{
       const cc = t.categories?.[cat] || {};
       const asr = Number(cc.asr);
-      const sold = Number(cc.sold);
+      const sold = getEffSold(cc);
       if(Number.isFinite(asr)) a.asr += asr;
       if(Number.isFinite(sold)) a.sold += sold;
       return a;
@@ -921,7 +963,7 @@ function renderAdvisorDetail(advisorId){
   const svcRowsTB = allCatsTB.map(cat=>{
     const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
     const req = Number(c.req);
-    const close = Number(c.close);
+    const close = getEffClose(c);
     const label = (typeof catLabel==="function") ? catLabel(cat) : String(cat);
     return { cat, label, req, close };
   });
@@ -1119,7 +1161,8 @@ function renderAdvisorDetail(advisorId){
     const c = encodeURIComponent(compareBasis||"advisors");
     const fo = encodeURIComponent(focus||"sold");
     const g = encodeURIComponent("sold");
-    return `#/advisor/${encodeURIComponent(advisorId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}`;
+    const pm = encodeURIComponent(preMpi||"included");
+    return `#/advisor/${encodeURIComponent(advisorId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}&preMpi=${pm}`;
   }
 
   const advFilterSel = document.getElementById('advFilter');
@@ -1134,6 +1177,14 @@ function renderAdvisorDetail(advisorId){
   if(advFocusSel){
     advFocusSel.addEventListener('change', ()=>{
       focus = advFocusSel.value || "sold";
+      location.hash = buildHash();
+    });
+  }
+
+  const advPreMpiSel = document.getElementById('advPreMpi');
+  if(advPreMpiSel){
+    advPreMpiSel.addEventListener('change', ()=>{
+      preMpi = advPreMpiSel.value || "included";
       location.hash = buildHash();
     });
   }
