@@ -1542,18 +1542,18 @@ function renderTeam(team, st){
             ${focusIsGoal ? `
               <div class="pillGroup pillGroupNonGoal">
                 <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
-                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
                 <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
+                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
               </div>
               <div class="pillGroup pillGroupGoal">
                 ${goalMetric==='asr'
                   ? `
-                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold/ASRs Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
                     <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
                   `
                   : `
                     <div class="pill${clsAsrGoal}${goalMetric==='asr' ? ' goalFocusSel' : ''}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
-                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                    <div class="pill${clsSoldGoal}${goalMetric==='sold' ? ' goalFocusSel' : ''}"><div class="k">Sold/ASRs Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
                   `
                 }
               </div>
@@ -1563,15 +1563,15 @@ function renderTeam(team, st){
                 <div class="pill${clsAsrGoal}"><div class="k">ASR Goal</div><div class="v">${safe(asrGoalTxt)}</div></div>
               </div>
               <div class="pillGroup pillGroupB focusGroup">
-                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
                 <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-                <div class="pill${clsSoldGoal}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                <div class="pill${clsSoldGoal}"><div class="k">Sold/ASRs Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
               </div>
             ` : `
               <div class="pillGroup pillGroupB">
-                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
                 <div class="pill${clsSoldRo}"><div class="k">Sold/RO</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(t.ros)) && Number(t.ros)>0) ? fmt1(Number(s.sold)/Number(t.ros),2) : "—"}</div></div>
-                <div class="pill${clsSoldGoal}"><div class="k">Sold Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
+                <div class="pill${clsSoldAsr}"><div class="k">Sold/ASRs</div><div class="v">${(Number.isFinite(Number(s.sold)) && Number.isFinite(Number(s.asr)) && Number(s.asr)>0) ? fmtPct(Number(s.sold)/Number(s.asr)) : "—"}</div></div>
+                <div class="pill${clsSoldGoal}"><div class="k">Sold/ASRs Goal</div><div class="v">${safe(soldGoalTxt)}</div></div>
               </div>
               <div class="pillGroup pillGroupA focusGroup">
                 <div class="pill${clsAsrpr}"><div class="k">ASRs/RO</div><div class="v">${fmt1(asrpr,1)}</div></div>
