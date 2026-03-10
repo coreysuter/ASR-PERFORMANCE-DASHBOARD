@@ -404,16 +404,29 @@ function renderServiceSettingsPage(){
   renderOpcTable();
 }
 
-// Optional helper for later filtering logic
+// Returns the configured minimum miles for a service, or null if not set.
+// null means "no minimum configured → always include."
 window.getServiceMinMiles = function(serviceName){
   try{
     const m = JSON.parse(localStorage.getItem("svcMinMilesByService_v1") || "{}") || {};
-    const v = m[String(serviceName||"").trim()];
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
+    const k = String(serviceName||"").trim();
+    if(!(k in m)) return null;          // not configured → no filter
+    const n = Number(m[k]);
+    return (Number.isFinite(n) && n >= 0) ? n : null;
   }catch(e){
-    return 0;
+    return null;
   }
+};
+
+// Returns true if a service line should be counted for a vehicle with the given odometer reading.
+// Rule: if no minimum is set for the service, always include it.
+//       if a minimum IS set, only include if vehicleMiles >= that minimum.
+window.shouldIncludeService = function(serviceName, vehicleMiles){
+  const min = window.getServiceMinMiles(serviceName);
+  if(min === null) return true;                    // no minimum set → always include
+  const miles = Number(vehicleMiles);
+  if(!Number.isFinite(miles)) return true;         // unknown mileage → include (safe default)
+  return miles >= min;
 };
 
 window.getOpCodes = function(){
