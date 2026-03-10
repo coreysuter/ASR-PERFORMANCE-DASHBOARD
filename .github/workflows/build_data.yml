@@ -3,7 +3,8 @@ name: Rebuild Data
 on:
   push:
     paths:
-      - 'reports/**'   # only runs when files in the reports/ folder change
+      - 'reports/**'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -28,7 +29,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add base.js
+          git add js/base.js
           git diff --staged --quiet || git commit -m "Auto-rebuild base.js from updated reports"
           git push
-
