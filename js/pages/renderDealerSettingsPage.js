@@ -816,25 +816,35 @@ function renderDealerSettingsPage(){
   // ── Logo bar: sit directly above top-right of the panel ──
   (function(){
     const topBar = document.getElementById('pageTopBar');
-    const stage  = app.querySelector('.techNotchStage');
+    const wrap   = document.querySelector('.wrap');
     const panel  = app.querySelector('.techNotchStage .svcSetPanel');
-    if (!topBar || !stage || !panel) return;
+    if (!topBar || !wrap || !panel) return;
 
     const overlay = document.createElement('div');
     overlay.id = 'settingsLogoOverlay';
-    overlay.style.cssText = 'position:absolute;top:-44px;display:flex;align-items:center;gap:12px;pointer-events:none;z-index:3;';
+    overlay.style.cssText = 'position:absolute;display:flex;align-items:center;gap:12px;pointer-events:none;z-index:3;';
     overlay.innerHTML = topBar.innerHTML;
-    stage.appendChild(overlay);
+    // .wrap already has position relative via its layout context; make sure
+    wrap.style.position = 'relative';
+    wrap.appendChild(overlay);
 
-    // After layout, align overlay's right edge with the panel's right edge
+    // After layout: position overlay flush above the panel's top-right corner
     requestAnimationFrame(() => {
-      const stageRect = stage.getBoundingClientRect();
+      const wrapRect  = wrap.getBoundingClientRect();
       const panelRect = panel.getBoundingClientRect();
-      overlay.style.right = (stageRect.right - panelRect.right) + 'px';
+      const overlayH  = overlay.getBoundingClientRect().height;
+      overlay.style.top   = (panelRect.top  - wrapRect.top  - overlayH - 6) + 'px';
+      overlay.style.right = (wrapRect.right - panelRect.right) + 'px';
     });
 
     topBar.style.display = 'none';
-    const _restore = () => { topBar.style.display = ''; window.removeEventListener('hashchange', _restore); };
+    const _restore = () => {
+      topBar.style.display = '';
+      const ol = document.getElementById('settingsLogoOverlay');
+      if (ol) ol.remove();
+      wrap.style.position = '';
+      window.removeEventListener('hashchange', _restore);
+    };
     window.addEventListener('hashchange', _restore);
   })();
 
