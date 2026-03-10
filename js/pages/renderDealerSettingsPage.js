@@ -647,7 +647,7 @@ function renderDealerSettingsPage(){
           color:inherit;user-select:none;">☰</label>
       </div>
 
-      <div class="panel svcSetPanel" style="min-width:0;">
+      <div class="panel svcSetPanel" style="min-width:0;width:100%;">
         <div class="phead">
 
           <div class="titleRow" style="align-items:center">
@@ -812,41 +812,6 @@ function renderDealerSettingsPage(){
     </div>`;
 
 
-
-  // ── Logo bar: sit directly above top-right of the panel ──
-  (function(){
-    const topBar = document.getElementById('pageTopBar');
-    const wrap   = document.querySelector('.wrap');
-    const panel  = app.querySelector('.techNotchStage .svcSetPanel');
-    if (!topBar || !wrap || !panel) return;
-
-    const overlay = document.createElement('div');
-    overlay.id = 'settingsLogoOverlay';
-    overlay.style.cssText = 'position:absolute;display:flex;align-items:center;gap:12px;pointer-events:none;z-index:3;';
-    overlay.innerHTML = topBar.innerHTML;
-    // .wrap already has position relative via its layout context; make sure
-    wrap.style.position = 'relative';
-    wrap.appendChild(overlay);
-
-    // After layout: position overlay flush above the panel's top-right corner
-    requestAnimationFrame(() => {
-      const wrapRect  = wrap.getBoundingClientRect();
-      const panelRect = panel.getBoundingClientRect();
-      const overlayH  = overlay.getBoundingClientRect().height;
-      overlay.style.top   = (panelRect.top  - wrapRect.top  - overlayH - 6) + 'px';
-      overlay.style.right = (wrapRect.right - panelRect.right) + 'px';
-    });
-
-    topBar.style.display = 'none';
-    const _restore = () => {
-      topBar.style.display = '';
-      const ol = document.getElementById('settingsLogoOverlay');
-      if (ol) ol.remove();
-      wrap.style.position = '';
-      window.removeEventListener('hashchange', _restore);
-    };
-    window.addEventListener('hashchange', _restore);
-  })();
 
   // ── Teams ────────────────────────────────────────────────
   if(canManageUsers){
