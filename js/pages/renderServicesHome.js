@@ -867,24 +867,13 @@ function serviceGoalDial(pct, sz){
                   <option value="express" ${teamSel==='express'?'selected':''}>Express</option>
                   <option value="kia" ${teamSel==='kia'?'selected':''}>Kia</option>
                 </select>
-              </div>` : `<div></div>`}
-
-              ${viewMode==='techs' ? `<div></div>` : `<div>
+              </div>` : `<div>
                 <label>Pre-MPI Sales</label>
                 <select data-svcdash="1" data-ctl="preMpi">
                   <option value="included" ${preMpi==='included'?'selected':''}>Included</option>
                   <option value="excluded" ${preMpi==='excluded'?'selected':''}>Excluded</option>
                 </select>
               </div>`}
-
-
-
-
-
-
-
-            </div>
-            <div class="filterRow row2">
               <div>
                 <label>Focus</label>
                 <select data-svcdash="1" data-ctl="focus">
@@ -899,7 +888,6 @@ function serviceGoalDial(pct, sz){
                   <option value="ro" ${soldFocus==='ro'?'selected':''}>Sold/RO</option>
                 </select>
               </div>
-              <div></div>
             </div>
           </div>
         <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
