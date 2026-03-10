@@ -18,7 +18,8 @@ function renderServicesHome(){
       .pageServicesDash .svcdashHeaderWrap{margin-bottom:14px;display:grid;grid-template-columns:minmax(0,0.70fr) minmax(0,1.30fr);gap:14px;align-items:stretch;}
       .pageServicesDash .svcDashSections{display:grid;gap:20px;}
       .pageServicesDash details.svcDashSec{border:1px solid rgba(200,45,45,.45);border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--card2));box-shadow:0 0 14px rgba(200,40,40,.22),0 0 4px rgba(200,40,40,.14);}
-      .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:pointer;}
+      .pageServicesDash details.svcDashSec > summary{list-style:none;cursor:default;}
+      .pageServicesDash .svcDashSecTitleRow .secToggle,.pageServicesDash .svcDashSecTitle{cursor:pointer;}
       .pageServicesDash details.svcDashSec > summary::-webkit-details-marker{display:none;}
 
       .pageServicesDash .svcDashSecHead{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:18px;}
@@ -1773,6 +1774,15 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     };
     d.addEventListener('toggle', _sync);
     _sync();
+
+    // Only allow toggling when clicking the title text or the +/- icon
+    const summary = d.querySelector('summary');
+    if(summary){
+      summary.addEventListener('click', (e)=>{
+        const hit = e.target && e.target.closest ? e.target.closest('.secToggle, .svcDashSecTitle') : null;
+        if(!hit){ e.preventDefault(); }
+      }, true);
+    }
   });
 
 // Animate gauges (sets ring fill + enables hold interaction)
