@@ -13,18 +13,42 @@
       localStorage.setItem(DKEY, JSON.stringify(ds));
     }
 
-    // Only seed users if none exist yet
+    // Seed all users if none exist yet
     const users = JSON.parse(localStorage.getItem(UKEY)||"[]") || [];
     if(!users.length){
-      users.push({
-        id:       "u_seed_admin",
-        name:     "Corey Suter",
-        email:    "corey.suter@kalidykia.com",
-        password: "Kalidy2026!",
-        role:     "administrator",
-        team:     ""
-      });
-      localStorage.setItem(UKEY, JSON.stringify(users));
+      const seedUsers = [
+        { id:"u_seed_admin",  name:"Corey Suter",          email:"corey.suter@kalidykia.com",          password:"Kalidy2026!", role:"administrator", team:""        },
+        { id:"u_028",         name:"Jace Wales",            email:"jace.wales@kalidykia.com",            password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_077",         name:"Lanedon Pennington",    email:"lanedon.pennington@kalidykia.com",    password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_113",         name:"Ray Ingram",            email:"ray.ingram@kalidykia.com",            password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_118",         name:"Miguel Montante",       email:"miguel.montante@kalidykia.com",       password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_159",         name:"Rocco Statsmann",       email:"rocco.statsmann@kalidykia.com",       password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_200",         name:"John Ginter",           email:"john.ginter@kalidykia.com",           password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_211",         name:"Juan Ruiz",             email:"juan.ruiz@kalidykia.com",             password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_224",         name:"Ethan Pugh",            email:"ethan.pugh@kalidykia.com",            password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_327",         name:"Jonathan Estrada",      email:"jonathan.estrada@kalidykia.com",      password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_342",         name:"Alex Gourley",          email:"alex.gourley@kalidykia.com",          password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_518",         name:"Duong Troung",          email:"duong.troung@kalidykia.com",          password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_537",         name:"Scotty Smith",          email:"scotty.smith@kalidykia.com",          password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_593",         name:"Caleb Walley",          email:"caleb.walley@kalidykia.com",          password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_617",         name:"Marcus Frazier",        email:"marcus.frazier@kalidykia.com",        password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_624",         name:"Justin Strawderman",    email:"justin.strawderman@kalidykia.com",    password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_706",         name:"Hank Beard",            email:"hank.beard@kalidykia.com",            password:"Kalidy26!",   role:"administrator", team:"KIA"     },
+        { id:"u_790",         name:"Dan Womack",            email:"dan.womack@kalidykia.com",            password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_834",         name:"Luis Bondi",            email:"luis.bondi@kalidykia.com",            password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_872",         name:"Jacob Rumley",          email:"jacob.rumley@kalidykia.com",          password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_874",         name:"Jacob Williams",        email:"jacob.williams@kalidykia.com",        password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_906",         name:"Miguel Cisneros",       email:"miguel.cisneros@kalidykia.com",       password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_951",         name:"Don Lee",               email:"don.lee@kalidykia.com",               password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_960",         name:"Christian Johnson",     email:"christian.johnson@kalidykia.com",     password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_991",         name:"Morgan Volpicella",     email:"morgan.volpicella@kalidykia.com",     password:"Kalidy26!",   role:"technician",    team:"EXPRESS" },
+        { id:"u_996",         name:"House Tech",            email:"house.tech@kalidykia.com",            password:"Kalidy26!",   role:"technician",    team:"KIA"     },
+        { id:"u_175",         name:"Taegan Baeriswyl",      email:"taegan.baeriswyl@kalidykia.com",      password:"Kalidy26!",   role:"advisor",       team:"ADVISORS" },
+        { id:"u_552",         name:"Paige Stevenson",       email:"paige.stevenson@kalidykia.com",       password:"Kalidy26!",   role:"advisor",       team:"ADVISORS" },
+        { id:"u_900",         name:"Andrew Lapach",         email:"andrew.lapach@kalidykia.com",         password:"Kalidy26!",   role:"advisor",       team:"ADVISORS" },
+        { id:"u_BB1",         name:"Brandon Blackmon",      email:"brandon.blackmon@kalidykia.com",      password:"Kalidy26!",   role:"administrator", team:""         },
+      ];
+      localStorage.setItem(UKEY, JSON.stringify(seedUsers));
     }
   }catch(e){}
 })();
