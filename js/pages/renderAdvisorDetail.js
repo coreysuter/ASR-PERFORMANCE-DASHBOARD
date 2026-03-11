@@ -704,6 +704,10 @@ function renderAdvisorDetail(advisorId){
       return "bandBad";
     }
 
+    const compareLabel = "Advisor Avg";
+    const avgAsrCount = Number(basis.avgAsr);
+    const avgAsrTxt = Number.isFinite(avgAsrCount) ? fmt1(avgAsrCount, 1) : "—";
+
     // --- Sold/RO dial for catCard header ---
     const advisorSoldCat = Number(c.advisor_sold ?? 0);
     const soldPerRoCat = (advRos > 0 && Number.isFinite(soldCount)) ? (soldCount / advRos) : NaN;
@@ -794,10 +798,6 @@ function renderAdvisorDetail(advisorId){
     ], grade: null, pctAttained: null };
 
     const rk = rankFor(cat);
-    const compareLabel = "Advisor Avg";
-
-    const avgAsrCount = Number(basis.avgAsr);
-    const avgAsrTxt = Number.isFinite(avgAsrCount) ? fmt1(avgAsrCount, 1) : "—";
 
     return `
       <div class="catCard" id="${safeSvcId(cat)}">
