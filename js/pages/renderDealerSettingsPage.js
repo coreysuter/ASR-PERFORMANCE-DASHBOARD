@@ -13,9 +13,11 @@
       localStorage.setItem(DKEY, JSON.stringify(ds));
     }
 
-    // Seed all users if none exist yet
-    const users = JSON.parse(localStorage.getItem(UKEY)||"[]") || [];
-    if(!users.length){
+    // Seed users — version-gated so adding new users forces a re-seed
+    const SEED_VERSION = "seed_v2";
+    const existingVersion = localStorage.getItem("dealerUsers_seedVersion");
+    if(existingVersion !== SEED_VERSION){
+      localStorage.setItem("dealerUsers_seedVersion", SEED_VERSION);
       const seedUsers = [
         { id:"u_seed_admin",  name:"Corey Suter",          email:"corey.suter@kalidykia.com",          password:"Kalidy2026!", role:"administrator", team:""        },
         { id:"u_028",         name:"Jace Wales",            email:"jace.wales@kalidykia.com",            password:"Kalidy26!",   role:"technician",    team:"KIA"     },
