@@ -288,9 +288,9 @@ function renderAdvisorDetail(advisorId){
   // --- Parse query string ---
   let filterKey = "total";
   let compareBasis = "advisors"; // advisors | goal
-  let focus = "sold"; // sold | goal
-  let goalMetric = "sold"; // always sold for advisors
-  let preMpi = "included"; // included | excluded  (advisors default: included)
+  let soldFocus = "asrs";        // asrs | ro  (which sold metric is primary)
+  let goalMetric = "sold";       // always sold for advisors
+  let preMpi = "included";       // included | excluded  (advisors default: included)
   const hash = location.hash || "";
   const qs = hash.includes("?") ? hash.split("?")[1] : "";
   if(qs){
@@ -302,8 +302,8 @@ function renderAdvisorDetail(advisorId){
         compareBasis = (vv==="goal") ? "goal" : "advisors";
       }
       if(k==="focus"){
-        const vv = decodeURIComponent(v||"") || "sold";
-        focus = (vv==="sold"||vv==="goal") ? vv : "sold";
+        const vv = decodeURIComponent(v||"") || "asrs";
+        soldFocus = (vv==="ro") ? "ro" : "asrs";
       }
       if(k==="goal"){
         goalMetric = "sold"; // always sold for advisors
@@ -315,7 +315,7 @@ function renderAdvisorDetail(advisorId){
     }
   }
 
-  try{ document.body.dataset.techFocus = focus; document.body.dataset.techGoalMetric = goalMetric; }catch(e){}
+  try{ document.body.dataset.techFocus = soldFocus; document.body.dataset.techGoalMetric = goalMetric; }catch(e){}
 
   // --- Helper functions ---
   function _fmtDec(v){ return Number.isFinite(v) ? v.toFixed(2) : "—"; }
@@ -454,7 +454,7 @@ function renderAdvisorDetail(advisorId){
     function scoreFor(x){
       const c = x.categories?.[cat] || {};
       let v = NaN;
-      if(focus==="goal"){
+      if(compareBasis==="goal"){
         const close = getEffClose(c);
         const gClose = Number(getGoal(cat,"close"));
         v = (Number.isFinite(close) && Number.isFinite(gClose) && gClose>0) ? (close/gClose) : NaN;
@@ -473,11 +473,13 @@ function renderAdvisorDetail(advisorId){
   }
 
   // --- Focus rank badge ---
-  function rankBadgeHtml(rank, total, foc, size="lg"){
+  // focOrLabel can be a pre-computed string label (e.g. "Sold/ASRs", "Sold/RO", "Sold Goal")
+  // or legacy "sold"/"goal" tokens for backward compatibility.
+  function rankBadgeHtml(rank, total, focOrLabel, size="lg"){
     let top;
-    if(foc==="sold") top = (size==="lg") ? "Sold/RO" : "SOLD%";
-    else if(foc==="goal") top = "Sold Goal";
-    else top = "Sold/RO";
+    if(focOrLabel==="sold") top = (size==="lg") ? "Sold/RO" : "SOLD%";
+    else if(focOrLabel==="goal") top = "Sold Goal";
+    else top = focOrLabel; // use as-is (e.g. "Sold/ASRs", "Sold/RO", "Sold Goal")
     const r = (rank===null || rank===undefined || rank==="") ? "—" : rank;
     const tt = (total===null || total===undefined || total==="") ? "—" : total;
     const cls = (size==="sm") ? "rankFocusBadge sm" : "rankFocusBadge";
@@ -519,7 +521,7 @@ function renderAdvisorDetail(advisorId){
 
   // --- Overall ranking ---
   const metricForRank = (x)=> {
-    if(focus==="goal") return Number(advGoalScore(x));
+    if(compareBasis==="goal") return Number(advGoalScore(x));
     return Number(advSoldPct(x, filterKey));
   };
   const ordered = advisors.slice().sort((a,b)=>{
@@ -530,6 +532,9 @@ function renderAdvisorDetail(advisorId){
   const myV = metricForRank(t);
   const idx = Number.isFinite(myV) ? ordered.findIndex(o=>o.id===t.id) : -1;
   const overall = ordered.length ? {rank: (idx>=0?idx+1:null), total: ordered.length} : {rank:null,total:null};
+
+  // --- Rank label for badges ---
+  const rankLabel = (compareBasis==="goal") ? "Sold Goal" : (soldFocus==="ro" ? "Sold/RO" : "Sold/ASRs");
 
   const __asrsTotal = Number(s.asr);
   const __soldRaw   = Number(s.sold);
@@ -572,10 +577,17 @@ function renderAdvisorDetail(advisorId){
         </select>
       </div>
       <div>
-        <label>Focus</label>
+        <label>Sold Focus</label>
         <select id="advFocus">
-          <option value="sold" ${focus==="sold"?"selected":""}>Sold</option>
-          <option value="goal" ${focus==="goal"?"selected":""}>Sold Goal</option>
+          <option value="asrs" ${soldFocus==="asrs"?"selected":""}>Sold/ASRs</option>
+          <option value="ro" ${soldFocus==="ro"?"selected":""}>Sold/ROs</option>
+        </select>
+      </div>
+      <div>
+        <label>Comparison</label>
+        <select id="advCompare">
+          <option value="advisors" ${compareBasis==="advisors"?"selected":""}>Advisors</option>
+          <option value="goal" ${compareBasis==="goal"?"selected":""}>Goal</option>
         </select>
       </div>
       <div>
@@ -642,7 +654,7 @@ function renderAdvisorDetail(advisorId){
             </div>
           </div>
           <div class="techRankPinned" style="position:absolute;top:2px;right:0;display:flex;flex-direction:row;align-items:flex-start;gap:12px;margin-right:4px;">
-            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", focus, "lg")}
+            ${rankBadgeHtml(overall.rank ?? "—", overall.total ?? "—", rankLabel, "lg")}
             <div style="text-align:right;line-height:1;align-self:center;display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
               <div style="text-align:right">
                 <div style="font-size:38px;font-weight:1000;letter-spacing:.2px;color:#fff;">${__soldPerRoTxt}</div>
@@ -692,22 +704,14 @@ function renderAdvisorDetail(advisorId){
       return "bandBad";
     }
 
-    let hdrPct = pctCmpClose;
-    if(focus==="goal"){
-      const parts = [];
-      if(Number.isFinite(pctGoalClose)) parts.push(pctGoalClose);
-      hdrPct = parts.length ? (parts.reduce((a,b)=>a+b,0)/parts.length) : NaN;
-    }
-
-    const _hdrPopup = (focus==="goal")
-      ? _popupSoldGoal(goalClose, close, pctGoalClose)
-      : _popupSold(cmpClose, close, pctCmpClose);
-
-    const rk = rankFor(cat);
-    const compareLabel = "Advisor Avg";
-
-    const avgAsrCount = Number(basis.avgAsr);
-    const avgAsrTxt = Number.isFinite(avgAsrCount) ? fmt1(avgAsrCount, 1) : "—";
+    // --- Sold/RO dial for catCard header ---
+    const advisorSoldCat = Number(c.advisor_sold ?? 0);
+    const soldPerRoCat = (advRos > 0 && Number.isFinite(soldCount)) ? (soldCount / advRos) : NaN;
+    const avgSoldPerRoCat = (Number.isFinite(cmpReq) && Number.isFinite(cmpClose)) ? (cmpReq * cmpClose) : NaN;
+    const goalSoldPerRoCat = (Number.isFinite(goalReq) && Number.isFinite(goalClose)) ? (goalReq * goalClose) : NaN;
+    const cmpSoldPerRo = (compareBasis==="goal") ? goalSoldPerRoCat : avgSoldPerRoCat;
+    const pctSoldPerRoCat = (Number.isFinite(soldPerRoCat) && Number.isFinite(cmpSoldPerRo) && cmpSoldPerRo>0) ? (soldPerRoCat/cmpSoldPerRo) : NaN;
+    const soldPerRoCatTxt = Number.isFinite(soldPerRoCat) ? soldPerRoCat.toFixed(2) : "—";
 
     const asrBlock = `
       <div class="metricBlock metricBlockDivided">
@@ -731,11 +735,11 @@ function renderAdvisorDetail(advisorId){
     const soldBlock = `
       <div class="metricBlock metricBlockDivided">
         <div class="mbLeft">
-          <div class="mbKicker">Sold</div>
+          <div class="mbKicker">Sold/ASRs</div>
           <div class="mbStat ${bandClass(pctCmpClose)}">${fmtPct(close)}</div>
         </div>
         <div class="mbRight">
-          ${(focus==="goal") ? `
+          ${(compareBasis==="goal") ? `
           <div class="mbRow">
             <div class="mbItem">
               <div class="mbLbl">Goal</div>
@@ -777,17 +781,38 @@ function renderAdvisorDetail(advisorId){
       </div>
     `;
 
+    // hdrPct for Sold/ASRs dial uses compareBasis
+    let hdrPct = (compareBasis==="goal") ? pctGoalClose : pctCmpClose;
+
+    const _hdrPopup = (compareBasis==="goal")
+      ? _popupSoldGoal(goalClose, close, pctGoalClose)
+      : _popupSold(cmpClose, close, pctCmpClose);
+
+    const _hdrRoPopup = { rows:[
+      { label: (compareBasis==="goal") ? "Sold/RO Goal" : "Advisor Avg Sold/RO", value: Number.isFinite(cmpSoldPerRo) ? cmpSoldPerRo.toFixed(2) : "—" },
+      { label: "Advisor's Sold/RO", value: soldPerRoCatTxt }
+    ], grade: null, pctAttained: null };
+
+    const rk = rankFor(cat);
+    const compareLabel = "Advisor Avg";
+
+    const avgAsrCount = Number(basis.avgAsr);
+    const avgAsrTxt = Number.isFinite(avgAsrCount) ? fmt1(avgAsrCount, 1) : "—";
+
     return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:74px">${Number.isFinite(hdrPct)? svcGauge(hdrPct, (focus==="goal"?"Goal":"Sold%"), _hdrPopup) : ""}</div>
-          <div>
+          <div class="svcGaugeWrap" style="--sz:68px">${Number.isFinite(hdrPct) ? svcGauge(hdrPct, "Sold/ASRs", _hdrPopup) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:68px">${Number.isFinite(pctSoldPerRoCat) ? svcGauge(pctSoldPerRoCat, "Sold/RO", _hdrRoPopup) : ""}</div>
+          <div style="flex:1;min-width:0">
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
-              <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span><br><span class="svcMetaSoldLine" style="display:block;margin-top:2px;">${fmt1(soldCount,0)} Sold</span>
+              <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span>
+              <span style="display:block;margin-top:2px;" class="svcMetaSoldLine">${fmt1(soldCount,0)} ASRs Sold${(preMpi==="included" && advisorSoldCat>0) ? ` · <span style="color:rgba(255,210,100,1)">${fmt1(advisorSoldCat,0)} Pre-MPI</span>` : ""}</span>
+              <span style="display:block;margin-top:2px;color:rgba(255,255,255,.60);font-size:12px">Sold/RO: ${soldPerRoCatTxt}</span>
             </div>
           </div>
-          <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", focus, "sm")}</div>
+          <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", rankLabel, "sm")}</div>
         </div>
         <div class="metricStack">
           ${soldBlock}
@@ -813,7 +838,7 @@ function renderAdvisorDetail(advisorId){
     for(const cat of cats){
       const c = x.categories?.[cat];
       if(!c) continue;
-      if(focus==="goal"){
+      if(compareBasis==="goal"){
         const v = getEffClose(c);
         const g = Number(getGoal(cat,"close"));
         if(Number.isFinite(v) && Number.isFinite(g) && g>0) vals.push(v/g);
@@ -867,32 +892,30 @@ function renderAdvisorDetail(advisorId){
 
     const goalFocusPct = pctGoalSold;
     const goalFocusLbl = "Sold Goal";
-    const focusPct = (focus==="goal") ? goalFocusPct : pctSold;
-    const focusLbl = (focus==="goal") ? goalFocusLbl : "Sold%";
+    const focusPct = (compareBasis==="goal") ? goalFocusPct : pctSold;
+    const focusLbl = (compareBasis==="goal") ? goalFocusLbl : (soldFocus==="ro" ? "Sold/RO" : "Sold/ASRs");
 
     const dialASR = Number.isFinite(pctAsr)
       ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASRs/RO", _popupAsr(benchReq, asrVal, pctAsr))}</div>`
       : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
     const dialSold = Number.isFinite(pctSold)
-      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold%", _popupSold(benchClose, soldVal, pctSold))}</div>`
+      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold/ASRs", _popupSold(benchClose, soldVal, pctSold))}</div>`
       : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
     const dialGoalSold = Number.isFinite(pctGoalSold)
       ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal", _popupSoldGoal(goalClose, soldVal, pctGoalSold))}</div>`
       : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 
-    const _focusPopup = (focus==="goal")
+    const _focusPopup = (compareBasis==="goal")
       ? _popupSoldGoal(goalClose, soldVal, pctGoalSold)
       : _popupSold(benchClose, soldVal, pctSold);
     const dialFocus = Number.isFinite(focusPct)
       ? `<div class="svcGaugeWrap" style="--sz:140px">${svcGauge(focusPct,focusLbl, _focusPopup)}</div>`
       : `<div class="svcGaugeWrap" style="--sz:140px"></div>`;
 
-    // Mini dials: show the dials NOT used as focus dial
-    // ASR always shown as mini, Sold and SoldGoal shown when not the focus
+    // Mini dials: ASR always shown; Sold/ASRs or Sold Goal shown when not the focus
     const _miniDials = [dialASR];
-    if(focus==="sold"){ _miniDials.push(dialGoalSold); }
-    else if(focus==="goal"){ _miniDials.push(dialSold); }
-    else { _miniDials.push(dialSold); _miniDials.push(dialGoalSold); }
+    if(compareBasis==="goal"){ _miniDials.push(dialSold); }
+    else { _miniDials.push(dialGoalSold); }
     const miniHtml = `<div class="secMiniDials" style="gap:22px">${_miniDials.join("")}</div>`;
 
     const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
@@ -910,6 +933,7 @@ function renderAdvisorDetail(advisorId){
     const __secROs = Number(t.ros ?? 0);
     const __secASRs = __agg.asr;
     const __secSold = __agg.sold;
+    const __secPreMpi = __cats.reduce((a,cat)=>{ const cc=t.categories?.[cat]||{}; return a+(Number(cc.advisor_sold)||0); }, 0);
     const __soldPerRo = (Number.isFinite(__secROs) && __secROs>0 && Number.isFinite(__secSold)) ? (__secSold/__secROs) : NaN;
     const __soldPerRoTxt = Number.isFinite(__soldPerRo) ? (__soldPerRo.toFixed(2)) : "—";
 
@@ -919,13 +943,19 @@ function renderAdvisorDetail(advisorId){
         <div class="pill"><div class="k">ROs</div><div class="v">${fmtInt(__secROs)}</div></div>
         <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
         <div class="pill"><div class="k">ASRs/RO</div><div class="v">${Number.isFinite(secStats.sumReq) ? fmt1(secStats.sumReq,1) : "—"}</div></div>
-        <div class="pill"><div class="k">Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
+        <div class="pill"><div class="k">ASRs Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
+        ${(preMpi==="included" && __secPreMpi>0) ? `<div class="pill" style="border-color:rgba(255,200,80,.28)"><div class="k">Pre-MPI</div><div class="v" style="color:rgba(255,210,100,1)">${fmtInt(__secPreMpi)}</div></div>` : ""}
       </div>
     `;
 
     let topStatVal, topStatTitle, botStatVal, botStatTitle;
-    topStatVal = fmtPct(secStats.avgClose); topStatTitle = "Sold";
-    botStatVal = __soldPerRoTxt; botStatTitle = "Sold/RO";
+    if(soldFocus==="ro"){
+      topStatVal = __soldPerRoTxt; topStatTitle = "Sold/RO";
+      botStatVal = fmtPct(secStats.avgClose); botStatTitle = "Sold/ASRs";
+    } else {
+      topStatVal = fmtPct(secStats.avgClose); topStatTitle = "Sold/ASRs";
+      botStatVal = __soldPerRoTxt; botStatTitle = "Sold/RO";
+    }
 
     const rows = __cats.map(cat=>renderCategoryCard(cat)).join("");
 
@@ -940,7 +970,7 @@ function renderAdvisorDetail(advisorId){
               </div>
               <div class="sub"></div>
             </div>
-            <div class="secHdrRight" style="gap:22px">${miniHtml}<div class="secFocusDial" style="margin:0">${dialFocus}</div><div class="secHdrRank" style="margin:0">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", focus, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
+            <div class="secHdrRight" style="gap:22px">${miniHtml}<div class="secFocusDial" style="margin:0">${dialFocus}</div><div class="secHdrRank" style="margin:0">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", rankLabel, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
                 <div class="secStatBlock">
                   <div class="secStatVal" style="font-size:36px;font-weight:1000;line-height:1;color:#fff">${topStatVal}</div>
                   <div class="secStatTitle" style="margin-top:4px;font-size:13px;font-weight:900;color:rgba(255,255,255,.65)">${topStatTitle}</div>
@@ -1159,7 +1189,7 @@ function renderAdvisorDetail(advisorId){
   function buildHash(){
     const f = encodeURIComponent(filterKey);
     const c = encodeURIComponent(compareBasis||"advisors");
-    const fo = encodeURIComponent(focus||"sold");
+    const fo = encodeURIComponent(soldFocus||"asrs");
     const g = encodeURIComponent("sold");
     const pm = encodeURIComponent(preMpi||"included");
     return `#/advisor/${encodeURIComponent(advisorId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}&preMpi=${pm}`;
@@ -1176,7 +1206,15 @@ function renderAdvisorDetail(advisorId){
   const advFocusSel = document.getElementById('advFocus');
   if(advFocusSel){
     advFocusSel.addEventListener('change', ()=>{
-      focus = advFocusSel.value || "sold";
+      soldFocus = advFocusSel.value || "asrs";
+      location.hash = buildHash();
+    });
+  }
+
+  const advCompareSel = document.getElementById('advCompare');
+  if(advCompareSel){
+    advCompareSel.addEventListener('change', ()=>{
+      compareBasis = advCompareSel.value || "advisors";
       location.hash = buildHash();
     });
   }
