@@ -472,6 +472,18 @@ function renderServicesHome(){
       .svcInfoPopup .svcInfoPopClose:hover{color:#fff;}
       .svcInfoPopup .svcInfoPopBody{font-size:13px;font-weight:700;line-height:1.65;color:rgba(255,255,255,.86);}
 
+      /* Math stack two-column layout inside info popup */
+      .svcInfoPopCols{display:flex;gap:0;align-items:stretch;}
+      .svcInfoMathCol{flex:1 1 0;display:flex;flex-direction:column;gap:5px;padding:4px 14px 4px 0;}
+      .svcInfoMathCol:last-child{padding:4px 0 4px 14px;}
+      .svcInfoColDivider{width:1px;background:rgba(255,255,255,.14);flex-shrink:0;}
+      .svcInfoMathRow{display:flex;align-items:baseline;gap:7px;}
+      .svcInfoNum{font-size:13px;font-weight:1000;color:#fff;white-space:nowrap;min-width:52px;text-align:right;font-variant-numeric:tabular-nums;}
+      .svcInfoNumLbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);white-space:nowrap;}
+      .svcInfoMathLine{height:1px;background:rgba(255,255,255,.25);margin:3px 0;}
+      .svcInfoMathResult .svcInfoNum{color:#fff;font-size:14px;}
+      .svcInfoMathResult .svcInfoNumLbl{color:rgba(255,255,255,.8);font-size:11px;font-weight:900;}
+
       /* ===== Focus stats in catCard header (Technicians mode) ===== */
       .pageServicesDash .sdCatFocusStats{
         display:flex;flex-direction:column;gap:8px;align-items:flex-end;
@@ -820,12 +832,10 @@ function serviceGoalDial(pct, sz){
   }
 
   // ---- Info icon helper (Technicians mode only) ----
-  function infoIconBtn(name){
+  function infoIconBtn(name, d){
     if(viewMode !== 'techs') return '';
-    const txt = `${name} ROs = Total ROs \u2212 all ${name} Pre-MPI Sales. Sold/RO = (Total ROs \u2212 Pre-MPI Sales) / ASRs Sold.`;
-    // encode the text into a data attribute
-    const encoded = txt.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    return `<button class="svcInfoIconBtn" type="button" data-svcinfo="${encoded}" aria-label="Formula info"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6.2" r="1" fill="currentColor"/></svg></button>`;
+    const payload = JSON.stringify(d || {}).replace(/"/g,'&quot;');
+    return `<button class="svcInfoIconBtn" type="button" data-svcinfo="${payload}" data-svcname="${safe(name)}" aria-label="Formula info"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6.2" r="1" fill="currentColor"/></svg></button>`;
   }
 
 
@@ -1328,7 +1338,7 @@ function serviceGoalDial(pct, sz){
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
           <div class="catHeader">
             <div class="catHdrLeft" style="min-width:0">
-              <div class="catTitleRow"><div class="catTitle">${safe(s.serviceName)}</div>${infoIconBtn(s.serviceName)}</div>
+              <div class="catTitleRow"><div class="catTitle">${safe(s.serviceName)}</div>${infoIconBtn(s.serviceName, {totalRos: s.totalRos, preMpi: s.preMpiSvc, soldAsr: s.soldAsr})}</div>
               <div class="muted" style="margin-top:2px">
                 <div>${fmtInt(viewMode==='techs' ? Math.max(0, s.totalRos - s.preMpiSvc) : s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs</div>
                 <div>${fmtInt(s.soldAsr)} ASRs Sold</div>
@@ -1346,7 +1356,7 @@ function serviceGoalDial(pct, sz){
               ${goalRankBadge(s.serviceName)}
               ${viewMode==='techs' ? (()=>{
                 const adjRos = Math.max(0, s.totalRos - s.preMpiSvc);
-                const cardAsrPerRo = (adjRos > 0 && Number.isFinite(s.asr/adjRos)) ? fmt1(s.asr/adjRos, 2) : '—';
+                const cardAsrPerRo = (adjRos > 0 && Number.isFinite(s.asr/adjRos)) ? fmtPct(s.asr/adjRos) : '—';
                 const cardSoldAsr  = (s.asr > 0 && Number.isFinite(s.soldAsr/s.asr)) ? fmtPct(s.soldAsr/s.asr) : '—';
                 const topVal = goalMetric==='sold' ? cardSoldAsr  : cardAsrPerRo;
                 const topLbl = goalMetric==='sold' ? 'Sold/ASR'   : 'ASRs/RO';
@@ -1376,7 +1386,7 @@ function serviceGoalDial(pct, sz){
               <div class="svcDashSecTitleRow">
                 <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
                 <div class="svcDashSecTitle">${safe(secName)}</div>
-                ${infoIconBtn(secName)}
+                ${infoIconBtn(secName, {totalRos: secRos, preMpi: secPreMpiSold, soldAsr: secSoldAsr})}
               </div>
               <div class="svcDashSecPillsLeft pillsMini">
                 <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
@@ -1384,7 +1394,7 @@ function serviceGoalDial(pct, sz){
                 <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
                 <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(secSoldAsr)}</div></div>
                 <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(secPreMpiSold)}</div></div>
-                <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'}</div></div>
+                <div class="pillMini"><div class="k">Sold/RO</div><div class="v">${(()=>{ const adj=secRos-secPreMpiSold; return (viewMode==='techs' && adj>0) ? (secSoldAsr/adj).toFixed(2) : (Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'); })()}</div></div>
               </div>
             </div>
 
@@ -1871,22 +1881,63 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       e.stopPropagation();
       closeInfoPopup();
 
-      const txt = btn.getAttribute('data-svcinfo') || '';
+      let d = {};
+      try{ d = JSON.parse(btn.getAttribute('data-svcinfo') || '{}'); }catch(_){}
+      const totalRos  = Number(d.totalRos) || 0;
+      const preMpi    = Number(d.preMpi)   || 0;
+      const soldAsr   = Number(d.soldAsr)  || 0;
+      const adjRos    = Math.max(0, totalRos - preMpi);
+      const resultVal = adjRos > 0 ? (soldAsr / adjRos) : 0;
+      const fmt = n => (typeof fmtInt === 'function') ? fmtInt(n) : String(Math.round(n));
+
       const pop = document.createElement('div');
       pop.id = 'svcInfoPopupEl';
       pop.className = 'svcInfoPopup';
+      pop.style.width = '430px';
       pop.innerHTML = `
         <div class="svcInfoPopHdr">
-          <span class="svcInfoPopTitle">Formula</span>
+          <span class="svcInfoPopTitle">Technician ROs</span>
           <button class="svcInfoPopClose" aria-label="Close" type="button">×</button>
         </div>
-        <div class="svcInfoPopBody">${txt.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+        <div class="svcInfoPopCols">
+          <div class="svcInfoMathCol">
+            <div class="svcInfoMathRow">
+              <span class="svcInfoNum">${fmt(totalRos)}</span>
+              <span class="svcInfoNumLbl">Total ROs</span>
+            </div>
+            <div class="svcInfoMathRow">
+              <span class="svcInfoNum">− ${fmt(preMpi)}</span>
+              <span class="svcInfoNumLbl">Sold Pre-MPI</span>
+            </div>
+            <div class="svcInfoMathLine"></div>
+            <div class="svcInfoMathRow svcInfoMathResult">
+              <span class="svcInfoNum">${fmt(adjRos)}</span>
+              <span class="svcInfoNumLbl">ASR Eligible ROs</span>
+            </div>
+          </div>
+          <div class="svcInfoColDivider"></div>
+          <div class="svcInfoMathCol">
+            <div class="svcInfoMathRow">
+              <span class="svcInfoNum">${fmt(soldAsr)}</span>
+              <span class="svcInfoNumLbl">ASRs Sold</span>
+            </div>
+            <div class="svcInfoMathRow">
+              <span class="svcInfoNum">÷ ${fmt(adjRos)}</span>
+              <span class="svcInfoNumLbl">ASR Eligible ROs</span>
+            </div>
+            <div class="svcInfoMathLine"></div>
+            <div class="svcInfoMathRow svcInfoMathResult">
+              <span class="svcInfoNum">${resultVal.toFixed(2)}</span>
+              <span class="svcInfoNumLbl">Sold/ASR Eligible ROs</span>
+            </div>
+          </div>
+        </div>
       `;
       document.body.appendChild(pop);
 
       // Position near the button
       const rect = btn.getBoundingClientRect();
-      const pw = 360, ph = 120;
+      const pw = 430, ph = 160;
       const vw = window.innerWidth, vh = window.innerHeight;
       let left = rect.right + 10;
       let top  = rect.top - 6;
