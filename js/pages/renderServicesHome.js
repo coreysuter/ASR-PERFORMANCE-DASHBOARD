@@ -1227,7 +1227,10 @@ function serviceGoalDial(pct, sz){
     const aggs = services.map(buildServiceAgg);
 
     // Section-level totals and focus stats (team + fluids scoped)
-    const secRos     = aggs.reduce((s,x)=>s+(Number(x.totalRos)||0),0);
+    // FIX: secRos must NOT sum x.totalRos across services — every service already holds the full
+    // RO pool as its denominator, so summing them multiplies the count by the number of services
+    // in the section (e.g. 676 ROs × 7 services = 4,698). Use the shared totalRos instead.
+    const secRos     = totalRos;
     const secAsr     = aggs.reduce((s,x)=>s+(Number(x.asr)||0),0);
     const secSoldAsr = aggs.reduce((s,x)=>s+(Number(x.soldAsr)||0),0); // ASR-sold only, never changes
     const secSoldForRo = aggs.reduce((s,x)=>s+(Number(x.sold)||0),0); // includes pre-MPI when included
