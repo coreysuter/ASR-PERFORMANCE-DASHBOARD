@@ -1345,7 +1345,6 @@ function serviceGoalDial(pct, sz){
                 const adjRos = Math.max(0, s.totalRos - s.preMpiSvc);
                 const cardAsrPerRo = (adjRos > 0 && Number.isFinite(s.asr/adjRos)) ? fmt1(s.asr/adjRos, 2) : '—';
                 const cardSoldAsr  = (s.asr > 0 && Number.isFinite(s.soldAsr/s.asr)) ? fmtPct(s.soldAsr/s.asr) : '—';
-                const cardSoldRo   = (adjRos > 0 && Number.isFinite(s.soldAsr/adjRos)) ? fmt1(s.soldAsr/adjRos, 2) : '—';
                 const topVal = goalMetric==='sold' ? cardSoldAsr  : cardAsrPerRo;
                 const topLbl = goalMetric==='sold' ? 'Sold/ASR'   : 'ASRs/RO';
                 const midVal = goalMetric==='sold' ? cardAsrPerRo : cardSoldAsr;
@@ -1353,7 +1352,6 @@ function serviceGoalDial(pct, sz){
                 return `<div class="sdCatFocusStats">
                   <div><div class="sdCatStatTop">${topVal}</div><div class="sdCatStatLbl">${topLbl}</div></div>
                   <div><div class="sdCatStatMid">${midVal}</div><div class="sdCatStatLbl">${midLbl}</div></div>
-                  <div><div class="sdCatStatBot">${cardSoldRo}</div><div class="sdCatStatLbl">Sold/RO</div></div>
                 </div>`;
               })() : ''}
             </div>
@@ -1417,7 +1415,6 @@ function serviceGoalDial(pct, sz){
                 const adjSecRos = Math.max(0, secRos - secPreMpiSold);
                 const secAsrPerRoTech = (adjSecRos > 0 && Number.isFinite(secAsr/adjSecRos)) ? fmt1(secAsr/adjSecRos, 2) : '—';
                 const secSoldAsrPct   = (secAsr > 0 && Number.isFinite(secSoldAsr/secAsr)) ? fmtPct(secSoldAsr/secAsr) : '—';
-                const secSoldRoTech   = (adjSecRos > 0 && Number.isFinite(secSoldAsr/adjSecRos)) ? fmt1(secSoldAsr/adjSecRos, 2) : '—';
                 const topVal  = goalMetric==='sold' ? secSoldAsrPct  : secAsrPerRoTech;
                 const topLbl  = goalMetric==='sold' ? 'Sold/ASR'     : 'ASRs/RO';
                 const midVal  = goalMetric==='sold' ? secAsrPerRoTech : secSoldAsrPct;
@@ -1425,7 +1422,6 @@ function serviceGoalDial(pct, sz){
                 return `<div class="svcSecFocusStats">
                   <div><div class="statValTop">${topVal}</div><div class="statLbl">${topLbl}</div></div>
                   <div><div class="statValBot">${midVal}</div><div class="statLbl">${midLbl}</div></div>
-                  <div><div class="statValBot" style="font-size:18px">${secSoldRoTech}</div><div class="statLbl" style="font-size:11px">Sold/RO</div></div>
                 </div>`;
               })() : `<div class="svcSecFocusStats">
                 <div>
