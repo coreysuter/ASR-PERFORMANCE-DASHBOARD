@@ -194,9 +194,10 @@ function renderServicesHome(){
       .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
       .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
       .pageServicesDash .catHdrLeft{min-width:0;}
-      .pageServicesDash .sdCatHdrRow{display:flex;align-items:center;justify-content:flex-end;gap:22px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
-      .pageServicesDash .sdCatHdrRow .svcGaugeWrap{order:1 !important;}
+      .pageServicesDash .sdCatHdrRow{display:flex;align-items:flex-start;justify-content:flex-end;gap:18px;flex:0 0 auto;white-space:nowrap;flex-direction:row !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatDialCol{order:1 !important;}
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{order:2 !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatFocusStats{order:3 !important;}
 
       /* sdCatHdrRow rank badge: +15% size and adjust # position for double-digits */
       .pageServicesDash .sdCatHdrRow .rankFocusBadge.sm{
@@ -401,7 +402,6 @@ function renderServicesHome(){
       .pageServicesDash .techHeaderPanel select{color:#fff !important;}
       .pageServicesDash .techHeaderPanel select option{color:#000 !important;}
       /* === sdCatHdrRow dial label positioning (service card header dials ONLY) === */
-      .pageServicesDash .sdCatHdrRow{align-items:center !important;}
       .pageServicesDash .sdCatHdrRow .svcGaugeCol{
         display:flex;
         flex-direction:column;
@@ -416,9 +416,6 @@ function renderServicesHome(){
         width:100%;
         transform:none;
       }
-
-      /* === sdCatHdrRow micro-align (service card header ONLY) === */
-      .pageServicesDash .sdCatHdrRow{align-items:flex-start !important;}
       /* Lock the dial column to the dial size so the label centers perfectly */
       .pageServicesDash .sdCatHdrRow .sdCatDialCol{width:80px !important;}
       .pageServicesDash .sdCatHdrRow .sdCatDialCol .svcGaugeWrap{width:80px !important;height:80px !important;}
@@ -431,9 +428,69 @@ function renderServicesHome(){
         left:auto !important;
         right:auto !important;
       }
-      /* Keep the (scaled) rank badge pinned to the top of the row */
+      /* Keep the rank badge and focus stats pinned to the top of the row */
       .pageServicesDash .sdCatHdrRow .rankFocusBadge{align-self:flex-start !important;margin-top:0 !important;}
+      .pageServicesDash .sdCatHdrRow .sdCatFocusStats{align-self:flex-start !important;}
 
+      /* ===== Info icon button ===== */
+      .pageServicesDash .svcInfoIconBtn{
+        background:transparent;border:none;padding:0;margin:0 0 0 7px;
+        color:rgba(255,255,255,.48);cursor:pointer;
+        display:inline-flex;align-items:center;justify-content:center;
+        vertical-align:middle;line-height:1;flex-shrink:0;
+        transition:color 120ms ease;
+      }
+      .pageServicesDash .svcInfoIconBtn:hover{color:rgba(255,255,255,.9);}
+      /* catTitle row: keep icon vertically centered with title */
+      .pageServicesDash .catTitleRow{display:flex;align-items:center;flex-wrap:nowrap;}
+      .pageServicesDash .svcDashSecTitleRow .svcInfoIconBtn{margin-left:9px;}
+
+      /* ===== Info popup ===== */
+      .svcInfoPopup{
+        position:fixed;z-index:9995;
+        width:360px;max-width:calc(100vw - 20px);
+        background:linear-gradient(160deg,rgba(24,30,50,.99),rgba(10,14,26,.99));
+        border:1px solid rgba(255,255,255,.13);
+        border-radius:14px;
+        box-shadow:0 20px 56px rgba(0,0,0,.60),0 0 0 1px rgba(255,255,255,.04);
+        padding:14px 16px 16px;
+        font-size:13px;font-weight:700;line-height:1.65;color:rgba(255,255,255,.86);
+      }
+      .svcInfoPopup .svcInfoPopHdr{
+        display:flex;align-items:center;justify-content:space-between;
+        margin-bottom:9px;
+      }
+      .svcInfoPopup .svcInfoPopTitle{
+        font-size:12px;font-weight:1000;letter-spacing:.5px;text-transform:uppercase;
+        color:rgba(255,255,255,.55);
+      }
+      .svcInfoPopup .svcInfoPopClose{
+        background:transparent;border:none;color:rgba(255,255,255,.5);
+        font-size:20px;cursor:pointer;line-height:1;padding:0 2px;
+        transition:color 100ms;
+      }
+      .svcInfoPopup .svcInfoPopClose:hover{color:#fff;}
+      .svcInfoPopup .svcInfoPopBody{font-size:13px;font-weight:700;line-height:1.65;color:rgba(255,255,255,.86);}
+
+      /* ===== Focus stats in catCard header (Technicians mode) ===== */
+      .pageServicesDash .sdCatFocusStats{
+        display:flex;flex-direction:column;gap:8px;align-items:flex-end;
+        align-self:flex-start;
+      }
+      .pageServicesDash .sdCatFocusStats>div{display:flex;flex-direction:column;align-items:center;}
+      .pageServicesDash .sdCatFocusStats .sdCatStatTop{
+        font-size:26px;line-height:1;font-weight:1000;color:#fff;text-align:center;
+      }
+      .pageServicesDash .sdCatFocusStats .sdCatStatMid{
+        font-size:18px;line-height:1;font-weight:1000;color:#fff;opacity:.92;text-align:center;
+      }
+      .pageServicesDash .sdCatFocusStats .sdCatStatBot{
+        font-size:15px;line-height:1;font-weight:1000;color:#fff;opacity:.85;text-align:center;
+      }
+      .pageServicesDash .sdCatFocusStats .sdCatStatLbl{
+        font-size:11px;line-height:1.1;font-weight:1000;
+        color:rgba(255,255,255,.52);letter-spacing:.2px;text-align:center;margin-top:2px;
+      }
 
     `;
   })();
@@ -762,6 +819,15 @@ function serviceGoalDial(pct, sz){
     return rankBadgeHtmlSvc(rk, total, top, true);
   }
 
+  // ---- Info icon helper (Technicians mode only) ----
+  function infoIconBtn(name){
+    if(viewMode !== 'techs') return '';
+    const txt = `${name} ROs = Total ROs \u2212 all ${name} Pre-MPI Sales. Sold/RO = (Total ROs \u2212 Pre-MPI Sales) / ASRs Sold.`;
+    // encode the text into a data attribute
+    const encoded = txt.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    return `<button class="svcInfoIconBtn" type="button" data-svcinfo="${encoded}" aria-label="Formula info"><svg viewBox="0 0 20 20" width="15" height="15" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6.2" r="1" fill="currentColor"/></svg></button>`;
+  }
+
 
   // Top-right block
   let topVal = asrPerRo;
@@ -888,13 +954,13 @@ function serviceGoalDial(pct, sz){
                   <option value="sold" ${focus==='sold'?'selected':''}>Sold Goal</option>
                 </select>
               </div>
-              <div>
+              ${viewMode === 'advisors' ? `<div>
                 <label>Sold Focus</label>
                 <select data-svcdash="1" data-ctl="soldFocus">
                   <option value="asrs" ${soldFocus==='asrs'?'selected':''}>Sold/ASRs</option>
                   <option value="ro" ${soldFocus==='ro'?'selected':''}>Sold/RO</option>
                 </select>
-              </div>
+              </div>` : ''}
             </div>
           </div>
         <div class="svcHdrNote"><em><span class="svcHdrNoteL1">All metrics in the Services Dashboard are evaluated</span><br><span class="svcHdrNoteL2">by comparison to ASR or Sold Goals.</span></em></div>
@@ -1259,9 +1325,9 @@ function serviceGoalDial(pct, sz){
         <div class="catCard" id="${safe('sd-'+safeSvcIdLocal(s.serviceName).replace(/^svc-/,''))}">
           <div class="catHeader">
             <div class="catHdrLeft" style="min-width:0">
-              <div class="catTitle">${safe(s.serviceName)}</div>
+              <div class="catTitleRow"><div class="catTitle">${safe(s.serviceName)}</div>${infoIconBtn(s.serviceName)}</div>
               <div class="muted" style="margin-top:2px">
-                <div>${fmtInt(s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs</div>
+                <div>${fmtInt(viewMode==='techs' ? Math.max(0, s.totalRos - s.preMpiSvc) : s.totalRos)} ROs • ${fmtInt(s.asr)} ASRs</div>
                 <div>${fmtInt(s.soldAsr)} ASRs Sold</div>
                 <div>Pre-MPI Sold: ${fmtInt(s.preMpiSvc)}</div>
               </div>
@@ -1275,6 +1341,21 @@ function serviceGoalDial(pct, sz){
                 <div class="svcGaugeLbl">${sdDialTitle}</div>
               </div>
               ${goalRankBadge(s.serviceName)}
+              ${viewMode==='techs' ? (()=>{
+                const adjRos = Math.max(0, s.totalRos - s.preMpiSvc);
+                const cardAsrPerRo = (adjRos > 0 && Number.isFinite(s.asr/adjRos)) ? fmt1(s.asr/adjRos, 2) : '—';
+                const cardSoldAsr  = (s.asr > 0 && Number.isFinite(s.soldAsr/s.asr)) ? fmtPct(s.soldAsr/s.asr) : '—';
+                const cardSoldRo   = (adjRos > 0 && Number.isFinite(s.soldAsr/adjRos)) ? fmt1(s.soldAsr/adjRos, 2) : '—';
+                const topVal = goalMetric==='sold' ? cardSoldAsr  : cardAsrPerRo;
+                const topLbl = goalMetric==='sold' ? 'Sold/ASR'   : 'ASRs/RO';
+                const midVal = goalMetric==='sold' ? cardAsrPerRo : cardSoldAsr;
+                const midLbl = goalMetric==='sold' ? 'ASRs/RO'    : 'Sold/ASR';
+                return `<div class="sdCatFocusStats">
+                  <div><div class="sdCatStatTop">${topVal}</div><div class="sdCatStatLbl">${topLbl}</div></div>
+                  <div><div class="sdCatStatMid">${midVal}</div><div class="sdCatStatLbl">${midLbl}</div></div>
+                  <div><div class="sdCatStatBot">${cardSoldRo}</div><div class="sdCatStatLbl">Sold/RO</div></div>
+                </div>`;
+              })() : ''}
             </div>
           </div>
 
@@ -1294,10 +1375,11 @@ function serviceGoalDial(pct, sz){
               <div class="svcDashSecTitleRow">
                 <div class="secToggle" aria-hidden="true">${isOpen?'−':'+'}</div>
                 <div class="svcDashSecTitle">${safe(secName)}</div>
+                ${infoIconBtn(secName)}
               </div>
               <div class="svcDashSecPillsLeft pillsMini">
                 <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
-                <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>
+                <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(viewMode==='techs' ? Math.max(0, secRos - secPreMpiSold) : secRos)}</div></div>
                 <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
                 <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(secSoldAsr)}</div></div>
                 <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(secPreMpiSold)}</div></div>
@@ -1331,7 +1413,21 @@ function serviceGoalDial(pct, sz){
                 }
               </div>
               ${rankBadgeHtmlSvc(secRank, fmtInt(_secRankInfo.den), secRankTop, false)}
-              <div class="svcSecFocusStats">
+              ${viewMode==='techs' ? (()=>{
+                const adjSecRos = Math.max(0, secRos - secPreMpiSold);
+                const secAsrPerRoTech = (adjSecRos > 0 && Number.isFinite(secAsr/adjSecRos)) ? fmt1(secAsr/adjSecRos, 2) : '—';
+                const secSoldAsrPct   = (secAsr > 0 && Number.isFinite(secSoldAsr/secAsr)) ? fmtPct(secSoldAsr/secAsr) : '—';
+                const secSoldRoTech   = (adjSecRos > 0 && Number.isFinite(secSoldAsr/adjSecRos)) ? fmt1(secSoldAsr/adjSecRos, 2) : '—';
+                const topVal  = goalMetric==='sold' ? secSoldAsrPct  : secAsrPerRoTech;
+                const topLbl  = goalMetric==='sold' ? 'Sold/ASR'     : 'ASRs/RO';
+                const midVal  = goalMetric==='sold' ? secAsrPerRoTech : secSoldAsrPct;
+                const midLbl  = goalMetric==='sold' ? 'ASRs/RO'      : 'Sold/ASR';
+                return `<div class="svcSecFocusStats">
+                  <div><div class="statValTop">${topVal}</div><div class="statLbl">${topLbl}</div></div>
+                  <div><div class="statValBot">${midVal}</div><div class="statLbl">${midLbl}</div></div>
+                  <div><div class="statValBot" style="font-size:18px">${secSoldRoTech}</div><div class="statLbl" style="font-size:11px">Sold/RO</div></div>
+                </div>`;
+              })() : `<div class="svcSecFocusStats">
                 <div>
                   <div class="statValTop">${secTopVal===null || !Number.isFinite(secTopVal) ? "—" : (secTopLbl==="Sold/ASR" ? fmtPct(secTopVal) : fmt1(secTopVal,2))}</div>
                   <div class="statLbl">${safe(secTopLbl)}</div>
@@ -1340,7 +1436,7 @@ function serviceGoalDial(pct, sz){
                   <div class="statValBot">${secBotVal===null || !Number.isFinite(secBotVal) ? "—" : (secBotLbl==="Sold/ASR" ? fmtPct(secBotVal) : fmt1(secBotVal,2))}</div>
                   <div class="statLbl">${safe(secBotLbl)}</div>
                 </div>
-              </div>
+              </div>`}
             </div>
           </div>
         </summary>
@@ -1764,6 +1860,55 @@ function tbMiniBoxSvc(title, rows, mode, kind){
   }
   _syncPickToggleLabel();
 
+  // ---- Info icon popup (Technicians mode) ----
+  (function setupInfoPopup(){
+    function closeInfoPopup(){
+      const el = document.getElementById('svcInfoPopupEl');
+      if(el) el.remove();
+    }
+    app.addEventListener('click', function(e){
+      const btn = e.target && e.target.closest ? e.target.closest('.svcInfoIconBtn[data-svcinfo]') : null;
+      if(!btn) return;
+      e.stopPropagation();
+      closeInfoPopup();
+
+      const txt = btn.getAttribute('data-svcinfo') || '';
+      const pop = document.createElement('div');
+      pop.id = 'svcInfoPopupEl';
+      pop.className = 'svcInfoPopup';
+      pop.innerHTML = `
+        <div class="svcInfoPopHdr">
+          <span class="svcInfoPopTitle">Formula</span>
+          <button class="svcInfoPopClose" aria-label="Close" type="button">×</button>
+        </div>
+        <div class="svcInfoPopBody">${txt.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      `;
+      document.body.appendChild(pop);
+
+      // Position near the button
+      const rect = btn.getBoundingClientRect();
+      const pw = 360, ph = 120;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      let left = rect.right + 10;
+      let top  = rect.top - 6;
+      if(left + pw > vw - 8) left = Math.max(8, rect.left - pw - 10);
+      if(top + ph > vh - 8) top = Math.max(8, vh - ph - 8);
+      if(top < 8) top = 8;
+      pop.style.left = `${left}px`;
+      pop.style.top  = `${top}px`;
+
+      pop.querySelector('.svcInfoPopClose').addEventListener('click', closeInfoPopup);
+
+      setTimeout(()=>{
+        const onDoc = ev => {
+          if(!pop.isConnected){ document.removeEventListener('mousedown', onDoc, true); return; }
+          if(!pop.contains(ev.target)){ closeInfoPopup(); document.removeEventListener('mousedown', onDoc, true); }
+        };
+        document.addEventListener('mousedown', onDoc, true);
+      }, 0);
+    }, true);
+  })();
+
   // Persist open/closed sections
   app.querySelectorAll('details.svcDashSec').forEach(d=>{
     const key = d.getAttribute('data-sec');
@@ -1780,6 +1925,8 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     if(summary){
       summary.addEventListener('click', (e)=>{
         const hit = e.target && e.target.closest ? e.target.closest('.secToggle, .svcDashSecTitle') : null;
+        const infoHit = e.target && e.target.closest ? e.target.closest('.svcInfoIconBtn') : null;
+        if(infoHit){ e.preventDefault(); return; } // info icon handles its own popup
         if(!hit){ e.preventDefault(); }
       }, true);
     }
