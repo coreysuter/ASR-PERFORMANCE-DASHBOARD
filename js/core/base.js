@@ -179,6 +179,7 @@ function _showGaugePopup(el){
   const rows = data.rows || [];
   const grade = data.grade || "—";
   const pctAttained = data.pctAttained || "—";
+  const iconBand = data.iconBand || null; // "green" | "yellow" | "orange" | "red"
 
   // Color the grade
   let gradeColor = "#ff4b4b"; // F
@@ -194,18 +195,46 @@ function _showGaugePopup(el){
     </div>
   `).join("");
 
-  // Grade line: letter grade + (% attained) — no label
-  const gradeHtml = `
-    <div class="gpRow gpGradeRow">
-      <span class="gpGrade" style="color:${gradeColor}">${_safePopup(grade)}</span>
-      <span class="gpAttained">(${_safePopup(pctAttained)})</span>
-    </div>
-  `;
+  // Bottom line: icon (if iconBand set) or letter grade
+  let bottomHtml;
+  if(iconBand){
+    const uid = 'gp-' + Math.random().toString(36).slice(2,7);
+    const fill   = iconBand==='green' ? '#1fcb6a' : iconBand==='yellow' ? '#ffbf2f' : iconBand==='orange' ? '#f97316' : '#ff4b4b';
+    const fillHi = iconBand==='green' ? '#7CFFB0' : iconBand==='yellow' ? '#ffd978' : iconBand==='orange' ? '#fdba74' : '#ff8b8b';
+    const iconSvg = iconBand==='green'
+      ? `<svg viewBox="0 0 64 64" width="28" height="28" style="display:block;flex-shrink:0">
+          <defs>
+            <radialGradient id="gpChkHi-${uid}" cx="35%" cy="25%" r="70%"><stop offset="0%" stop-color="rgba(255,255,255,.55)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+            <linearGradient id="gpChkGr-${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${fillHi}"/><stop offset="100%" stop-color="${fill}"/></linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="28" fill="url(#gpChkGr-${uid})"/><circle cx="32" cy="32" r="28" fill="url(#gpChkHi-${uid})"/>
+          <path d="M19 33.5l7.2 7.2L46 21.9" fill="none" stroke="#fff" stroke-width="7.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`
+      : `<svg viewBox="0 0 100 87" width="28" height="24" style="display:block;flex-shrink:0">
+          <defs>
+            <linearGradient id="gpTriGr-${uid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${fillHi}"/><stop offset="100%" stop-color="${fill}"/></linearGradient>
+            <radialGradient id="gpTriHi-${uid}" cx="35%" cy="20%" r="75%"><stop offset="0%" stop-color="rgba(255,255,255,.55)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+          </defs>
+          <path d="M50 0 C53 0 55 2 56.5 4.5 L99 85 C101 88 99 91 95 91 L5 91 C1 91 -1 88 1 85 L43.5 4.5 C45 2 47 0 50 0Z" fill="url(#gpTriGr-${uid})"/>
+          <path d="M50 6 C52 6 54 7.2 55.2 9.6 L92 80 C94 83 92.2 86 88.4 86 L11.6 86 C7.8 86 6 83 8 80 L44.8 9.6 C46 7.2 48 6 50 6Z" fill="url(#gpTriHi-${uid})"/>
+          <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"/>
+          <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"/>
+        </svg>`;
+    bottomHtml = `<div class="gpRow gpGradeRow" style="justify-content:center;gap:8px;">${iconSvg}<span class="gpAttained">${_safePopup(pctAttained)}</span></div>`;
+  } else {
+    // original letter grade
+    bottomHtml = `
+      <div class="gpRow gpGradeRow">
+        <span class="gpGrade" style="color:${gradeColor}">${_safePopup(grade)}</span>
+        <span class="gpAttained">(${_safePopup(pctAttained)})</span>
+      </div>
+    `;
+  }
 
   const pop = document.createElement("div");
   pop.id = "gaugePopup";
   pop.className = "gaugePopup";
-  pop.innerHTML = rowsHtml + gradeHtml;
+  pop.innerHTML = rowsHtml + bottomHtml;
 
   document.body.appendChild(pop);
 

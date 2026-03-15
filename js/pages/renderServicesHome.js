@@ -710,7 +710,7 @@ function renderServicesHome(){
 
 
   // --- Header: goal focus dials (match Tech Details focus dial: % + arrow + GOAL stacked) ---
-  function headerGoalDial(pct){
+  function headerGoalDial(pct, popupData){
     const p = Number(pct);
     const finite = Number.isFinite(p);
     const pClamped = finite ? Math.max(0, p) : 0;
@@ -727,7 +727,9 @@ function renderServicesHome(){
     const arrow = (delta===null) ? "" : (delta >= 0 ? "▲" : "▼");
     const arrowColor = (delta===null) ? "rgba(255,255,255,.55)" : (delta >= 0 ? "rgba(34,197,94,.98)" : "rgba(239,68,68,.98)");
 
-    return `<span class="svcGauge ${cls}" data-p="${ring}">
+    const popAttr = popupData ? ` data-gauge-popup="${safe(JSON.stringify(popupData)).replace(/'/g,'&#39;')}"` : '';
+
+    return `<span class="svcGauge ${cls}" data-p="${ring}"${popAttr}>
       <svg viewBox="0 0 36 36" aria-hidden="true">
         <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
         <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
@@ -743,7 +745,7 @@ function renderServicesHome(){
   }
 
 // --- Service tile goal dial (same stacked % / arrow / Goal format as svcHdrGoalDials) ---
-function serviceGoalDial(pct, sz){
+function serviceGoalDial(pct, sz, popupData){
   const p = Number(pct);
   const finite = Number.isFinite(p);
   const pClamped = finite ? Math.max(0, p) : 0;
@@ -762,9 +764,11 @@ function serviceGoalDial(pct, sz){
   const s = Number(sz);
   const size = Number.isFinite(s) && s>0 ? Math.round(s) : 72;
 
+  const popAttr = popupData ? ` data-gauge-popup="${safe(JSON.stringify(popupData)).replace(/'/g,'&#39;')}"` : '';
+
   /* IMPORTANT: the dial size MUST be applied to the svcGauge itself (not just the wrapper),
      because app.css defines a default --sz on .svcGauge. */
-  return `<span class="svcGauge ${cls}" data-p="${ring}" style="--sz:${size}px;width:${size}px;height:${size}px">
+  return `<span class="svcGauge ${cls}" data-p="${ring}" style="--sz:${size}px;width:${size}px;height:${size}px"${popAttr}>
     <svg viewBox="0 0 36 36" aria-hidden="true">
       <circle class="bg" cx="18" cy="18" r="15.91549430918954"></circle>
       <circle class="fg" cx="18" cy="18" r="15.91549430918954"></circle>
@@ -781,7 +785,21 @@ function serviceGoalDial(pct, sz){
 
 
 
-  // --- Build a global goal-rank map for services (denominator = total services on this page) ---
+  // --- Popup data builder for Services Dashboard dials ---
+function _svcDialPopup(pct, goalVal, actualVal, goalLbl, actualLbl){
+  const p = Number.isFinite(Number(pct)) ? Number(pct) : 0;
+  const band = window.getColorBand ? window.getColorBand(p) : (p>=0.80?'green':p>=0.60?'yellow':'red');
+  const pctAtt = Number.isFinite(p) ? Math.round(p*100)+'%' : '—';
+  const _f = v => Number.isFinite(Number(v)) ? (Number(v)<2 ? (Number(v)*100).toFixed(1)+'%' : Number(v).toFixed(2)) : '—';
+  return {
+    rows:[
+      { label: goalLbl   || 'Goal',   value: _f(goalVal)   },
+      { label: actualLbl || 'Actual', value: _f(actualVal) }
+    ],
+    iconBand: band,
+    pctAttained: pctAtt
+  };
+}
   const _allCatsSet = new Set();
   for(const t of techs){ for(const k of Object.keys(t.categories||{})) _allCatsSet.add(k); }
 
@@ -942,11 +960,11 @@ function serviceGoalDial(pct, sz){
 
                 <div class="svcHdrGoalDials">
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.asrPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.asrPctOfGoal, _svcDialPopup(goalsAgg.asrPctOfGoal, goalsAgg.gAsr, asrPerRo, 'ASR/RO Goal', 'Actual ASR/RO'))}</div>
                     <div class="svcGaugeLbl">ASR</div>
                   </div>
                   <div class="svcGaugeCol">
-                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
+                    <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.soldPctOfGoal, _svcDialPopup(goalsAgg.soldPctOfGoal, goalsAgg.gSold, soldPerRo, 'Sold/RO Goal', 'Actual Sold/RO'))}</div>
                     <div class="svcGaugeLbl">${soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs'}</div>
                   </div>
                 </div>
@@ -1379,7 +1397,14 @@ function serviceGoalDial(pct, sz){
             <div class="sdCatHdrRow">
               <div class="svcGaugeCol sdCatDialCol">
                 <div class="svcGaugeWrap" style="--sz:${sdDialSz}px">
-                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz)}
+                  ${serviceGoalDial(Number.isFinite(dialPct)?dialPct:0, sdDialSz, (()=>{
+                    if(rankMetric==='sold'){
+                      const goalVal = soldFocus==='ro' ? (Number.isFinite(gReq)&&Number.isFinite(gClose)?gReq*gClose:NaN) : gClose;
+                      const actVal  = soldFocus==='ro' ? s.soldPerRoSvc : s.closeTot;
+                      return _svcDialPopup(dialPct, goalVal, actVal, soldFocus==='ro'?'Sold/RO Goal':'Sold/ASR Goal', soldFocus==='ro'?'Actual Sold/RO':'Actual Sold/ASR');
+                    }
+                    return _svcDialPopup(dialPct, gReq, s.reqTot, 'ASR/RO Goal', 'Actual ASR/RO');
+                  })())}
                 </div>
                 <div class="svcGaugeLbl">${sdDialTitle}</div>
               </div>
@@ -1447,21 +1472,21 @@ function serviceGoalDial(pct, sz){
                 ${goalMetric==='sold'
                   ? `
                     <div class="svcGaugeCol">
-                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74)}</div>
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalAsr, 74, _svcDialPopup(secPctGoalAsr, gReqSec, secAsrPerRo, 'ASR/RO Goal', 'Actual ASR/RO'))}</div>
                       <div class="svcGaugeLbl">ASR</div>
                     </div>
                     <div class="svcGaugeCol">
-                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90)}</div>
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalSold, 90, _svcDialPopup(secPctGoalSold, soldFocus==='ro'?(Number.isFinite(gReqSec)&&Number.isFinite(gCloseSec)?gReqSec*gCloseSec:NaN):gCloseSec, soldFocus==='ro'?secSoldPerRo:secSoldPct, soldFocus==='ro'?'Sold/RO Goal':'Sold/ASR Goal', soldFocus==='ro'?'Actual Sold/RO':'Actual Sold/ASR'))}</div>
                       <div class="svcGaugeLbl">${soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs'}</div>
                     </div>
                   `
                   : `
                     <div class="svcGaugeCol">
-                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74)}</div>
+                      <div class="svcGaugeWrap mini">${serviceGoalDial(secPctGoalSold, 74, _svcDialPopup(secPctGoalSold, soldFocus==='ro'?(Number.isFinite(gReqSec)&&Number.isFinite(gCloseSec)?gReqSec*gCloseSec:NaN):gCloseSec, soldFocus==='ro'?secSoldPerRo:secSoldPct, soldFocus==='ro'?'Sold/RO Goal':'Sold/ASR Goal', soldFocus==='ro'?'Actual Sold/RO':'Actual Sold/ASR'))}</div>
                       <div class="svcGaugeLbl">${soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs'}</div>
                     </div>
                     <div class="svcGaugeCol">
-                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90)}</div>
+                      <div class="svcGaugeWrap focus">${serviceGoalDial(secPctGoalAsr, 90, _svcDialPopup(secPctGoalAsr, gReqSec, secAsrPerRo, 'ASR/RO Goal', 'Actual ASR/RO'))}</div>
                       <div class="svcGaugeLbl">ASR</div>
                     </div>
                   `
