@@ -207,10 +207,80 @@ function renderAdvisorDetail(advisorId){
       .advDetailControls select{color:#fff}
       .advDetailControls select option{color:#000}
 
-      body.route-advisor .catCard .catHeader .svcGauge .pctSub,
-      body.route-advisor .catCard .catHeader .svcGauge .pctTitle{
-        font-size:12px !important;
-        letter-spacing:.25px !important;
+      /* === Dial label-below pattern (mirrors Services Dashboard svcGaugeCol/svcGaugeLbl) === */
+      body.route-advisor .svcGaugeCol{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:flex-start;
+      }
+      body.route-advisor .svcGaugeLbl{
+        margin-top:6px;
+        text-align:center;
+        font-size:11px;
+        font-weight:1000;
+        color:rgba(255,255,255,.70);
+        letter-spacing:.2px;
+        text-transform:none;
+        white-space:nowrap;
+      }
+
+      /* === catCard header layout (label-below dial + rank + focus stats) === */
+      body.route-advisor .catCard .catHeader{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:space-between !important;
+        gap:14px !important;
+      }
+      body.route-advisor .catCard .catHdrLeft{
+        min-width:0;
+        flex:1 1 auto;
+      }
+      body.route-advisor .sdCatHdrRow{
+        display:flex;
+        align-items:flex-start;
+        justify-content:flex-end;
+        gap:14px;
+        flex:0 0 auto;
+        white-space:nowrap;
+      }
+      body.route-advisor .sdCatHdrRow .svcGaugeCol{ order:1; }
+      body.route-advisor .sdCatHdrRow .catRank{ order:2; }
+      body.route-advisor .sdCatHdrRow .sdCatFocusStats{ order:3; }
+      body.route-advisor .sdCatFocusStats{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+        align-items:flex-end;
+        align-self:flex-start;
+      }
+      body.route-advisor .sdCatFocusStats>div{
+        display:flex;
+        flex-direction:column;
+        align-items:flex-end;
+      }
+      body.route-advisor .sdCatStatTop{
+        font-size:24px;
+        line-height:1;
+        font-weight:1000;
+        color:#fff;
+        text-align:right;
+      }
+      body.route-advisor .sdCatStatMid{
+        font-size:18px;
+        line-height:1;
+        font-weight:1000;
+        color:rgba(255,255,255,.85);
+        text-align:right;
+      }
+      body.route-advisor .sdCatStatLbl{
+        font-size:11px;
+        line-height:1.1;
+        font-weight:1000;
+        color:rgba(255,255,255,.52);
+        letter-spacing:.2px;
+        text-align:right;
+        margin-top:2px;
       }
 
       /* === Section header right cluster: keep dials + rank badge + stats on one row === */
@@ -670,9 +740,9 @@ function renderAdvisorDetail(advisorId){
                   <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(__soldTotal)}</div>
                 </div>
                 ${(preMpi==="included" && __soldPreMpi > 0) ? `
-                <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,200,80,.22);background:rgba(0,0,0,.18);">
+                <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
                   <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Pre-MPI</div>
-                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:rgba(255,210,100,1);">${fmtInt(__soldPreMpi)}</div>
+                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(__soldPreMpi)}</div>
                 </div>` : ""}
               </div>
             </div>
@@ -811,6 +881,7 @@ function renderAdvisorDetail(advisorId){
 
     // hdrPct for Sold/ASRs dial uses compareBasis
     let hdrPct = (compareBasis==="goal") ? pctGoalClose : pctCmpClose;
+    const hdrDialLbl = (compareBasis==="goal") ? "Sold Goal" : "Sold/ASRs";
 
     const _hdrPopup = (compareBasis==="goal")
       ? _popupSoldGoal(goalClose, close, pctGoalClose)
@@ -826,17 +897,25 @@ function renderAdvisorDetail(advisorId){
     return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
-          <div class="svcGaugeWrap" style="--sz:68px">${Number.isFinite(hdrPct) ? svcGauge(hdrPct, "Sold/ASRs", _hdrPopup) : ""}</div>
-          <div class="svcGaugeWrap" style="--sz:68px">${Number.isFinite(pctSoldPerRoCat) ? svcGauge(pctSoldPerRoCat, "Sold/RO", _hdrRoPopup) : ""}</div>
-          <div style="flex:1;min-width:0">
+          <div class="catHdrLeft" style="min-width:0;flex:1 1 auto">
             <div class="catTitle">${safe(catLabel(cat))}</div>
             <div class="muted svcMetaLine" style="margin-top:2px">
               <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span>
-              <span style="display:block;margin-top:2px;" class="svcMetaSoldLine">${fmt1(soldCount,0)} ASRs Sold${(preMpi==="included" && advisorSoldCat>0) ? ` · <span style="color:rgba(255,210,100,1)">${fmt1(advisorSoldCat,0)} Pre-MPI</span>` : ""}</span>
+              <span style="display:block;margin-top:2px;" class="svcMetaSoldLine">${fmt1(soldCount,0)} ASRs Sold${(preMpi==="included" && advisorSoldCat>0) ? ` · <span style="color:rgba(255,255,255,.75)">${fmt1(advisorSoldCat,0)} Pre-MPI</span>` : ""}</span>
               <span style="display:block;margin-top:2px;color:rgba(255,255,255,.60);font-size:12px">Sold/RO: ${soldPerRoCatTxt}</span>
             </div>
           </div>
-          <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", rankLabel, "sm")}</div>
+          <div class="sdCatHdrRow">
+            <div class="svcGaugeCol sdCatDialCol">
+              <div class="svcGaugeWrap" style="--sz:68px">${Number.isFinite(hdrPct) ? svcGauge(hdrPct, "", _hdrPopup) : ""}</div>
+              <div class="svcGaugeLbl">${hdrDialLbl}</div>
+            </div>
+            <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", rankLabel, "sm")}</div>
+            <div class="sdCatFocusStats">
+              <div><div class="sdCatStatTop">${fmtPct(close)}</div><div class="sdCatStatLbl">Sold/ASRs</div></div>
+              <div><div class="sdCatStatMid">${soldPerRoCatTxt}</div><div class="sdCatStatLbl">Sold/RO</div></div>
+            </div>
+          </div>
         </div>
         <div class="metricStack">
           ${soldBlock}
@@ -919,22 +998,14 @@ function renderAdvisorDetail(advisorId){
     const focusPct = (compareBasis==="goal") ? goalFocusPct : pctSold;
     const focusLbl = (compareBasis==="goal") ? goalFocusLbl : (soldFocus==="ro" ? "Sold/RO" : "Sold/ASRs");
 
-    const dialASR = Number.isFinite(pctAsr)
-      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASRs/RO", _popupAsr(benchReq, asrVal, pctAsr))}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
-    const dialSold = Number.isFinite(pctSold)
-      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold/ASRs", _popupSold(benchClose, soldVal, pctSold))}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
-    const dialGoalSold = Number.isFinite(pctGoalSold)
-      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal", _popupSoldGoal(goalClose, soldVal, pctGoalSold))}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
+    const dialASR = `<div class="svcGaugeCol"><div class="svcGaugeWrap" style="--sz:55px">${Number.isFinite(pctAsr) ? svcGauge(pctAsr,"", _popupAsr(benchReq, asrVal, pctAsr)) : ""}</div><div class="svcGaugeLbl">ASRs/RO</div></div>`;
+    const dialSold = `<div class="svcGaugeCol"><div class="svcGaugeWrap" style="--sz:55px">${Number.isFinite(pctSold) ? svcGauge(pctSold,"", _popupSold(benchClose, soldVal, pctSold)) : ""}</div><div class="svcGaugeLbl">Sold/ASRs</div></div>`;
+    const dialGoalSold = `<div class="svcGaugeCol"><div class="svcGaugeWrap" style="--sz:55px">${Number.isFinite(pctGoalSold) ? svcGauge(pctGoalSold,"", _popupSoldGoal(goalClose, soldVal, pctGoalSold)) : ""}</div><div class="svcGaugeLbl">Sold Goal</div></div>`;
 
     const _focusPopup = (compareBasis==="goal")
       ? _popupSoldGoal(goalClose, soldVal, pctGoalSold)
       : _popupSold(benchClose, soldVal, pctSold);
-    const dialFocus = Number.isFinite(focusPct)
-      ? `<div class="svcGaugeWrap" style="--sz:140px">${svcGauge(focusPct,focusLbl, _focusPopup)}</div>`
-      : `<div class="svcGaugeWrap" style="--sz:140px"></div>`;
+    const dialFocus = `<div class="svcGaugeCol"><div class="svcGaugeWrap" style="--sz:140px">${Number.isFinite(focusPct) ? svcGauge(focusPct,"", _focusPopup) : ""}</div><div class="svcGaugeLbl">${focusLbl}</div></div>`;
 
     // Mini dials: ASR always shown; Sold/ASRs or Sold Goal shown when not the focus
     const _miniDials = [dialASR];
@@ -968,7 +1039,7 @@ function renderAdvisorDetail(advisorId){
         <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
         <div class="pill"><div class="k">ASRs/RO</div><div class="v">${Number.isFinite(secStats.sumReq) ? fmt1(secStats.sumReq,1) : "—"}</div></div>
         <div class="pill"><div class="k">ASRs Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
-        ${(preMpi==="included" && __secPreMpi>0) ? `<div class="pill" style="border-color:rgba(255,200,80,.28)"><div class="k">Pre-MPI</div><div class="v" style="color:rgba(255,210,100,1)">${fmtInt(__secPreMpi)}</div></div>` : ""}
+        ${(preMpi==="included" && __secPreMpi>0) ? `<div class="pill" style="border-color:rgba(255,255,255,.12)"><div class="k">Pre-MPI</div><div class="v">${fmtInt(__secPreMpi)}</div></div>` : ""}
       </div>
     `;
 
