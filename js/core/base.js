@@ -220,7 +220,7 @@ function _showGaugePopup(el){
           <rect x="46" y="20" width="8" height="34" rx="3" fill="rgba(0,0,0,.78)"/>
           <circle cx="50" cy="66" r="5" fill="rgba(0,0,0,.78)"/>
         </svg>`;
-    bottomHtml = `<div class="gpRow gpGradeRow" style="justify-content:center;gap:8px;">${iconSvg}<span class="gpAttained">${_safePopup(pctAttained)}</span></div>`;
+    bottomHtml = `<div class="gpRow gpGradeRow" style="justify-content:center;gap:8px;">${iconSvg}<span class="gpAttained">${_safePopup(pctAttained)} of Goal</span></div>`;
   } else {
     // original letter grade
     bottomHtml = `
