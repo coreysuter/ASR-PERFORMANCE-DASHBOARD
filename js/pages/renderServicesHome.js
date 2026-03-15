@@ -640,6 +640,11 @@ function renderServicesHome(){
     const filtered = (entity.ro_rows || []).filter(_roInRange);
     const n = filtered.length;
 
+    // advisor_sold comes from DMS pre-MPI data which has no individual dates in ro_rows.
+    // Scale it proportionally to the filtered window: (filtered ROs / all-time ROs).
+    const _rosOrig   = Number(entity.ros) || 0;
+    const _advScale  = (_rosOrig > 0) ? (n / _rosOrig) : 0;
+
     // Recount asr/sold per category from filtered ro_rows
     const catAsr  = {};
     const catSold = {};
@@ -660,11 +665,12 @@ function renderServicesHome(){
         sold: s,
         close: a ? s / a : null,
       };
-      // Advisors: advisor_sold is from DMS (no ro_rows to date-filter it), keep original
+      // advisor_sold: scale all-time DMS count proportionally to filtered window
       if (orig.advisor_sold !== undefined) {
-        const adv_s = Number(orig.advisor_sold) || 0;
-        entry.sold_total = s + adv_s;
-        entry.sold_ro    = n ? (s + adv_s) / n : 0;
+        const adv_s = Math.round((Number(orig.advisor_sold) || 0) * _advScale);
+        entry.advisor_sold = adv_s;
+        entry.sold_total   = s + adv_s;
+        entry.sold_ro      = n ? (s + adv_s) / n : 0;
       }
       newCats[k] = entry;
     }
@@ -674,9 +680,9 @@ function renderServicesHome(){
       const a = catList.reduce((sum, c) => sum + (catAsr[c]  || 0), 0);
       const s = catList.reduce((sum, c) => sum + (catSold[c] || 0), 0);
       const b = { asr: a, asr_per_ro: n ? a / n : 0, sold: s, sold_pct: a ? s / a : null };
-      const origBkt = entity.summary?.total; // use total as proxy for advisor_sold sums
-      if (origBkt?.advisor_sold !== undefined) {
-        const adv_s = catList.reduce((sum, c) => sum + (Number((entity.categories || {})[c]?.advisor_sold) || 0), 0);
+      if (entity.summary?.total?.advisor_sold !== undefined) {
+        // Use scaled advisor_sold from the already-rebuilt newCats entries
+        const adv_s = catList.reduce((sum, c) => sum + (Number(newCats[c]?.advisor_sold) || 0), 0);
         b.advisor_sold = adv_s;
         b.sold_total   = s + adv_s;
         b.sold_ro      = n ? (s + adv_s) / n : 0;
