@@ -57,10 +57,10 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHeadRightTop .rankFocusBadge{transform:none;align-self:center;}
       /* Sold stats stack */
       .pageServicesDash .svcSecFocusStats{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
-      .pageServicesDash .svcSecFocusStats>div{display:flex;flex-direction:column;align-items:center;}
-      .pageServicesDash .svcSecFocusStats .statValTop{font-size:32px;line-height:1;font-weight:1000;color:#fff;text-align:center;}
-      .pageServicesDash .svcSecFocusStats .statValBot{font-size:22px;line-height:1;font-weight:1000;color:#fff;opacity:.92;text-align:center;}
-      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;text-align:center;width:100%;}
+      .pageServicesDash .svcSecFocusStats>div{display:flex;flex-direction:column;align-items:flex-end;}
+      .pageServicesDash .svcSecFocusStats .statValTop{font-size:32px;line-height:1;font-weight:1000;color:#fff;text-align:right;}
+      .pageServicesDash .svcSecFocusStats .statValBot{font-size:22px;line-height:1;font-weight:1000;color:#fff;opacity:.92;text-align:right;}
+      .pageServicesDash .svcSecFocusStats .statLbl{font-size:14px;line-height:1.05;font-weight:1000;color:rgba(255,255,255,.55);letter-spacing:.2px;text-transform:none;text-align:right;width:100%;}
       .pageServicesDash .svcSecFocusStats>div:last-child .statLbl{font-size:11px;}
       /* Pills under category name (far-left) */
       .pageServicesDash .svcDashSecPillsLeft{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;}
@@ -489,19 +489,19 @@ function renderServicesHome(){
         display:flex;flex-direction:column;gap:8px;align-items:flex-end;
         align-self:flex-start;
       }
-      .pageServicesDash .sdCatFocusStats>div{display:flex;flex-direction:column;align-items:center;}
+      .pageServicesDash .sdCatFocusStats>div{display:flex;flex-direction:column;align-items:flex-end;}
       .pageServicesDash .sdCatFocusStats .sdCatStatTop{
-        font-size:26px;line-height:1;font-weight:1000;color:#fff;text-align:center;
+        font-size:26px;line-height:1;font-weight:1000;color:#fff;text-align:right;
       }
       .pageServicesDash .sdCatFocusStats .sdCatStatMid{
-        font-size:18px;line-height:1;font-weight:1000;color:#fff;opacity:.92;text-align:center;
+        font-size:18px;line-height:1;font-weight:1000;color:#fff;opacity:.92;text-align:right;
       }
       .pageServicesDash .sdCatFocusStats .sdCatStatBot{
-        font-size:15px;line-height:1;font-weight:1000;color:#fff;opacity:.85;text-align:center;
+        font-size:15px;line-height:1;font-weight:1000;color:#fff;opacity:.85;text-align:right;
       }
       .pageServicesDash .sdCatFocusStats .sdCatStatLbl{
         font-size:11px;line-height:1.1;font-weight:1000;
-        color:rgba(255,255,255,.52);letter-spacing:.2px;text-align:center;margin-top:2px;
+        color:rgba(255,255,255,.52);letter-spacing:.2px;text-align:right;margin-top:2px;
       }
 
     `;
