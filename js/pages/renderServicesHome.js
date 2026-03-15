@@ -447,22 +447,33 @@ function renderServicesHome(){
 
       /* ===== Clickable * stats ===== */
       .pageServicesDash .svcStatStar{cursor:pointer;}
-      .pageServicesDash .svcStatStar:hover .pillMini-k,
       .pageServicesDash .svcStatStar:hover .statValTop,
       .pageServicesDash .svcStatStar:hover .statValBot,
       .pageServicesDash .svcStatStar:hover .sdCatStatTop,
-      .pageServicesDash .svcStatStar:hover .sdCatStatMid,
-      .pageServicesDash .svcStatStar:hover .svcStarInline{
+      .pageServicesDash .svcStatStar:hover .sdCatStatMid{
         filter:brightness(1.5);color:#fff !important;opacity:1 !important;
       }
       .pageServicesDash .svcStatStar:hover .statLbl,
-      .pageServicesDash .svcStatStar:hover .sdCatStatLbl,
-      .pageServicesDash .svcStatStar:hover .pillMini .v{
+      .pageServicesDash .svcStatStar:hover .sdCatStatLbl{
         filter:brightness(1.4);color:rgba(255,255,255,.9) !important;opacity:1 !important;
       }
+      .pageServicesDash .pillMini.svcStatStar:hover .k,
+      .pageServicesDash .pillMini.svcStatStar:hover .v{
+        filter:brightness(1.5);color:#fff !important;opacity:1 !important;
+      }
+      .pageServicesDash .svcStarInline{ display:inline; }
+      .pageServicesDash .svcStatStar.svcStarInline:hover{
+        filter:brightness(1.5);color:#fff !important;opacity:1 !important;
+      }
       .pageServicesDash .pillMini.svcStatStar .k,
-      .pageServicesDash .pillMini.svcStatStar .v{ transition:filter 120ms,color 120ms; }
-      .pageServicesDash .svcStarInline{ display:inline;transition:filter 120ms,color 120ms; }
+      .pageServicesDash .pillMini.svcStatStar .v,
+      .pageServicesDash .svcStatStar .statValTop,
+      .pageServicesDash .svcStatStar .statValBot,
+      .pageServicesDash .svcStatStar .sdCatStatTop,
+      .pageServicesDash .svcStatStar .sdCatStatMid,
+      .pageServicesDash .svcStatStar .statLbl,
+      .pageServicesDash .svcStatStar .sdCatStatLbl,
+      .pageServicesDash .svcStarInline{ transition:filter 120ms,color 120ms,opacity 120ms; }
 
       /* ===== Info popup ===== */
       .svcInfoPopup{
