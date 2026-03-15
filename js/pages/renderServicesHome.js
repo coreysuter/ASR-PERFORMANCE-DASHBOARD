@@ -445,6 +445,25 @@ function renderServicesHome(){
       .pageServicesDash .catTitleRow{display:flex;align-items:center;flex-wrap:nowrap;}
       .pageServicesDash .svcDashSecTitleRow .svcInfoIconBtn{margin-left:9px;}
 
+      /* ===== Clickable * stats ===== */
+      .pageServicesDash .svcStatStar{cursor:pointer;}
+      .pageServicesDash .svcStatStar:hover .pillMini-k,
+      .pageServicesDash .svcStatStar:hover .statValTop,
+      .pageServicesDash .svcStatStar:hover .statValBot,
+      .pageServicesDash .svcStatStar:hover .sdCatStatTop,
+      .pageServicesDash .svcStatStar:hover .sdCatStatMid,
+      .pageServicesDash .svcStatStar:hover .svcStarInline{
+        filter:brightness(1.5);color:#fff !important;opacity:1 !important;
+      }
+      .pageServicesDash .svcStatStar:hover .statLbl,
+      .pageServicesDash .svcStatStar:hover .sdCatStatLbl,
+      .pageServicesDash .svcStatStar:hover .pillMini .v{
+        filter:brightness(1.4);color:rgba(255,255,255,.9) !important;opacity:1 !important;
+      }
+      .pageServicesDash .pillMini.svcStatStar .k,
+      .pageServicesDash .pillMini.svcStatStar .v{ transition:filter 120ms,color 120ms; }
+      .pageServicesDash .svcStarInline{ display:inline;transition:filter 120ms,color 120ms; }
+
       /* ===== Info popup ===== */
       .svcInfoPopup{
         position:fixed;z-index:9995;
@@ -1340,7 +1359,7 @@ function serviceGoalDial(pct, sz){
             <div class="catHdrLeft" style="min-width:0">
               <div class="catTitleRow"><div class="catTitle">${safe(s.serviceName)}</div>${infoIconBtn(s.serviceName, {totalRos: s.totalRos, preMpi: s.preMpiSvc, soldAsr: s.soldAsr})}</div>
               <div class="muted" style="margin-top:2px">
-                <div>${fmtInt(viewMode==='techs' ? Math.max(0, s.totalRos - s.preMpiSvc) : s.totalRos)} ${viewMode==='techs' ? 'Adj ROs' : 'ROs'} • ${fmtInt(s.asr)} ASRs</div>
+                <div>${viewMode==='techs' ? (()=>{ const _ar=Math.max(0,s.totalRos-s.preMpiSvc); const _sd=JSON.stringify({type:'ros',name:s.serviceName,totalRos:s.totalRos,preMpi:s.preMpiSvc,soldAsr:s.soldAsr,asr:s.asr}).replace(/"/g,'&quot;'); return `<span class="svcStatStar svcStarInline" data-svcstat="${_sd}">${fmtInt(_ar)} ROs*</span>`; })() : `${fmtInt(s.totalRos)} ROs`} • ${fmtInt(s.asr)} ASRs</div>
                 <div>${fmtInt(s.soldAsr)} ASRs Sold</div>
                 <div>Pre-MPI Sold: ${fmtInt(s.preMpiSvc)}</div>
               </div>
@@ -1359,12 +1378,15 @@ function serviceGoalDial(pct, sz){
                 const cardAsrPerRo = (adjRos > 0 && Number.isFinite(s.asr/adjRos)) ? fmtPct(s.asr/adjRos) : '—';
                 const cardSoldAsr  = (s.asr > 0 && Number.isFinite(s.soldAsr/s.asr)) ? fmtPct(s.soldAsr/s.asr) : '—';
                 const topVal = goalMetric==='sold' ? cardSoldAsr  : cardAsrPerRo;
-                const topLbl = goalMetric==='sold' ? 'Sold/ASR'      : 'ASRs/Adj RO';
+                const topLbl = goalMetric==='sold' ? 'Sold/ASR'      : 'ASRs/RO*';
+                const topStar = goalMetric !== 'sold';
                 const midVal = goalMetric==='sold' ? cardAsrPerRo : cardSoldAsr;
-                const midLbl = goalMetric==='sold' ? 'ASRs/Adj RO'  : 'Sold/ASR';
+                const midLbl = goalMetric==='sold' ? 'ASRs/RO*'  : 'Sold/ASR';
+                const midStar = goalMetric === 'sold';
+                const _sdAsrRo = JSON.stringify({type:'asrro',name:s.serviceName,totalRos:s.totalRos,preMpi:s.preMpiSvc,soldAsr:s.soldAsr,asr:s.asr}).replace(/"/g,'&quot;');
                 return `<div class="sdCatFocusStats">
-                  <div><div class="sdCatStatTop">${topVal}</div><div class="sdCatStatLbl">${topLbl}</div></div>
-                  <div><div class="sdCatStatMid">${midVal}</div><div class="sdCatStatLbl">${midLbl}</div></div>
+                  <div${topStar ? ` class="svcStatStar" data-svcstat="${_sdAsrRo}"` : ''}><div class="sdCatStatTop">${topVal}</div><div class="sdCatStatLbl">${topLbl}</div></div>
+                  <div${midStar ? ` class="svcStatStar" data-svcstat="${_sdAsrRo}"` : ''}><div class="sdCatStatMid">${midVal}</div><div class="sdCatStatLbl">${midLbl}</div></div>
                 </div>`;
               })() : ''}
             </div>
@@ -1390,11 +1412,22 @@ function serviceGoalDial(pct, sz){
               </div>
               <div class="svcDashSecPillsLeft pillsMini">
                 <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
-                <div class="pillMini"><div class="k">${viewMode==='techs' ? 'Adj ROs' : 'ROs'}</div><div class="v">${fmtInt(viewMode==='techs' ? Math.max(0, secRos - secPreMpiSold) : secRos)}</div></div>
+                ${viewMode==='techs' ? (()=>{
+                  const _adjR = Math.max(0, secRos - secPreMpiSold);
+                  const _sd = JSON.stringify({type:'ros',name:secName,totalRos:secRos,preMpi:secPreMpiSold,soldAsr:secSoldAsr,asr:secAsr}).replace(/"/g,'&quot;');
+                  const _sd2 = JSON.stringify({type:'soldro',name:secName,totalRos:secRos,preMpi:secPreMpiSold,soldAsr:secSoldAsr,asr:secAsr}).replace(/"/g,'&quot;');
+                  const _soldRoVal = _adjR > 0 ? (secSoldAsr/_adjR).toFixed(2) : '—';
+                  return `<div class="pillMini svcStatStar" data-svcstat="${_sd}"><div class="k">ROs*</div><div class="v">${fmtInt(_adjR)}</div></div>`;
+                })() : `<div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(secRos)}</div></div>`}
                 <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
                 <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(secSoldAsr)}</div></div>
                 <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(secPreMpiSold)}</div></div>
-                <div class="pillMini"><div class="k">${viewMode==='techs' ? 'Sold/Adj ROs' : 'Sold/RO'}</div><div class="v">${(()=>{ const adj=secRos-secPreMpiSold; return (viewMode==='techs' && adj>0) ? (secSoldAsr/adj).toFixed(2) : (Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'); })()}</div></div>
+                ${viewMode==='techs' ? (()=>{
+                  const _adjR = Math.max(0, secRos - secPreMpiSold);
+                  const _sd2 = JSON.stringify({type:'soldro',name:secName,totalRos:secRos,preMpi:secPreMpiSold,soldAsr:secSoldAsr,asr:secAsr}).replace(/"/g,'&quot;');
+                  const _soldRoVal = _adjR > 0 ? (secSoldAsr/_adjR).toFixed(2) : '—';
+                  return `<div class="pillMini svcStatStar" data-svcstat="${_sd2}"><div class="k">Sold/ROs*</div><div class="v">${_soldRoVal}</div></div>`;
+                })() : `<div class="pillMini"><div class="k">Sold/RO</div><div class="v">${Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'}</div></div>`}
               </div>
             </div>
 
@@ -1429,12 +1462,20 @@ function serviceGoalDial(pct, sz){
                 const secAsrPerRoTech = (adjSecRos > 0 && Number.isFinite(secAsr/adjSecRos)) ? fmt1(secAsr/adjSecRos, 2) : '—';
                 const secSoldAsrPct   = (secAsr > 0 && Number.isFinite(secSoldAsr/secAsr)) ? fmtPct(secSoldAsr/secAsr) : '—';
                 const topVal  = goalMetric==='sold' ? secSoldAsrPct  : secAsrPerRoTech;
-                const topLbl  = goalMetric==='sold' ? 'Sold/ASR'        : 'ASRs/Adj RO';
+                const topLbl  = goalMetric==='sold' ? 'Sold/ASR'        : 'ASRs/RO*';
+                const topType = goalMetric==='sold' ? '' : 'asrro';
                 const midVal  = goalMetric==='sold' ? secAsrPerRoTech : secSoldAsrPct;
-                const midLbl  = goalMetric==='sold' ? 'ASRs/Adj RO'   : 'Sold/ASR';
+                const midLbl  = goalMetric==='sold' ? 'ASRs/RO*'   : 'Sold/ASR';
+                const midType = goalMetric==='sold' ? 'asrro' : '';
+                const _sd = JSON.stringify({name:secName,totalRos:secRos,preMpi:secPreMpiSold,soldAsr:secSoldAsr,asr:secAsr}).replace(/"/g,'&quot;');
+                const topAttr = topType ? `class="svcStatStar" data-svcstat="${_sd.replace(/"/, `"type":"${topType}",`)}"` : '';
+                const midAttr = midType ? `class="svcStatStar" data-svcstat="${_sd.replace(/"/, `"type":"${midType}",`)}"` : '';
+                const _sdAsrRo = JSON.stringify({type:'asrro',name:secName,totalRos:secRos,preMpi:secPreMpiSold,soldAsr:secSoldAsr,asr:secAsr}).replace(/"/g,'&quot;');
+                const topStar = topType==='asrro';
+                const midStar = midType==='asrro';
                 return `<div class="svcSecFocusStats">
-                  <div><div class="statValTop">${topVal}</div><div class="statLbl">${topLbl}</div></div>
-                  <div><div class="statValBot">${midVal}</div><div class="statLbl">${midLbl}</div></div>
+                  <div${topStar ? ` class="svcStatStar" data-svcstat="${_sdAsrRo}"` : ''}><div class="statValTop">${topVal}</div><div class="statLbl">${topLbl}</div></div>
+                  <div${midStar ? ` class="svcStatStar" data-svcstat="${_sdAsrRo}"` : ''}><div class="statValBot">${midVal}</div><div class="statLbl">${midLbl}</div></div>
                 </div>`;
               })() : `<div class="svcSecFocusStats">
                 <div>
@@ -1874,82 +1915,26 @@ function tbMiniBoxSvc(title, rows, mode, kind){
     function closeInfoPopup(){
       const el = document.getElementById('svcInfoPopupEl');
       if(el) el.remove();
+      document.removeEventListener('keydown', _onEsc, true);
     }
-    app.addEventListener('click', function(e){
-      const btn = e.target && e.target.closest ? e.target.closest('.svcInfoIconBtn[data-svcinfo]') : null;
-      if(!btn) return;
-      e.stopPropagation();
-      closeInfoPopup();
+    function _onEsc(e){ if(e.key==='Escape') closeInfoPopup(); }
 
-      let d = {};
-      try{ d = JSON.parse(btn.getAttribute('data-svcinfo') || '{}'); }catch(_){}
-      const totalRos  = Number(d.totalRos) || 0;
-      const preMpi    = Number(d.preMpi)   || 0;
-      const soldAsr   = Number(d.soldAsr)  || 0;
-      const adjRos    = Math.max(0, totalRos - preMpi);
-      const resultVal = adjRos > 0 ? (soldAsr / adjRos) : 0;
-      const fmt = n => (typeof fmtInt === 'function') ? fmtInt(n) : String(Math.round(n));
-
-      const pop = document.createElement('div');
-      pop.id = 'svcInfoPopupEl';
-      pop.className = 'svcInfoPopup';
-      pop.style.width = 'max-content';
-      pop.style.maxWidth = 'calc(100vw - 24px)';
-      pop.innerHTML = `
-        <div class="svcInfoPopHdr">
-          <span class="svcInfoPopTitle" style="white-space:nowrap">Adj ROs: Excludes ROs with Pre-MPI Sales for selected Service(s).</span>
-          <button class="svcInfoPopClose" aria-label="Close" type="button">×</button>
-        </div>
-        <div class="svcInfoPopCols">
-          <div class="svcInfoMathCol">
-            <div class="svcInfoMathRow">
-              <span class="svcInfoNum">${fmt(totalRos)}</span>
-              <span class="svcInfoNumLbl">Total ROs</span>
-            </div>
-            <div class="svcInfoMathRow">
-              <span class="svcInfoNum">− ${fmt(preMpi)}</span>
-              <span class="svcInfoNumLbl">Sold Pre-MPI</span>
-            </div>
-            <div class="svcInfoMathLine"></div>
-            <div class="svcInfoMathRow svcInfoMathResult">
-              <span class="svcInfoNum">${fmt(adjRos)}</span>
-              <span class="svcInfoNumLbl">Adj ROs</span>
-            </div>
-          </div>
-          <div class="svcInfoColDivider"></div>
-          <div class="svcInfoMathCol">
-            <div class="svcInfoMathRow">
-              <span class="svcInfoNum">${fmt(soldAsr)}</span>
-              <span class="svcInfoNumLbl">ASRs Sold</span>
-            </div>
-            <div class="svcInfoMathRow">
-              <span class="svcInfoNum">÷ ${fmt(adjRos)}</span>
-              <span class="svcInfoNumLbl">Adj ROs</span>
-            </div>
-            <div class="svcInfoMathLine"></div>
-            <div class="svcInfoMathRow svcInfoMathResult">
-              <span class="svcInfoNum">${resultVal.toFixed(2)}</span>
-              <span class="svcInfoNumLbl">Sold/Adj ROs</span>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(pop);
-
-      // Position near the button
-      const rect = btn.getBoundingClientRect();
-      const pw = 430, ph = 160;
+    function _positionPop(pop, anchorEl, estW, estH){
+      const rect = anchorEl.getBoundingClientRect();
       const vw = window.innerWidth, vh = window.innerHeight;
       let left = rect.right + 10;
       let top  = rect.top - 6;
-      if(left + pw > vw - 8) left = Math.max(8, rect.left - pw - 10);
-      if(top + ph > vh - 8) top = Math.max(8, vh - ph - 8);
+      if(left + estW > vw - 8) left = Math.max(8, rect.left - estW - 10);
+      if(top + estH > vh - 8) top = Math.max(8, vh - estH - 8);
       if(top < 8) top = 8;
       pop.style.left = `${left}px`;
       pop.style.top  = `${top}px`;
+    }
 
-      pop.querySelector('.svcInfoPopClose').addEventListener('click', closeInfoPopup);
-
+    function _attachClose(pop){
+      const cb = pop.querySelector('.svcInfoPopClose');
+      if(cb) cb.addEventListener('click', closeInfoPopup);
+      document.addEventListener('keydown', _onEsc, true);
       setTimeout(()=>{
         const onDoc = ev => {
           if(!pop.isConnected){ document.removeEventListener('mousedown', onDoc, true); return; }
@@ -1957,6 +1942,99 @@ function tbMiniBoxSvc(title, rows, mode, kind){
         };
         document.addEventListener('mousedown', onDoc, true);
       }, 0);
+    }
+
+    function _makePop(innerHtml, wStyle){
+      const pop = document.createElement('div');
+      pop.id = 'svcInfoPopupEl';
+      pop.className = 'svcInfoPopup';
+      pop.style.cssText = wStyle || 'width:max-content;max-width:calc(100vw - 24px);';
+      pop.innerHTML = innerHtml;
+      document.body.appendChild(pop);
+      return pop;
+    }
+
+    const fmt = n => (typeof fmtInt === 'function') ? fmtInt(n) : String(Math.round(n));
+
+    function _mathRow(num, lbl){ return `<div class="svcInfoMathRow"><span class="svcInfoNum">${num}</span><span class="svcInfoNumLbl">${lbl}</span></div>`; }
+    function _mathLine(){ return `<div class="svcInfoMathLine"></div>`; }
+    function _mathResult(num, lbl){ return `<div class="svcInfoMathRow svcInfoMathResult"><span class="svcInfoNum">${num}</span><span class="svcInfoNumLbl">${lbl}</span></div>`; }
+
+    function _singleColPop(title, rows){
+      return `
+        <div class="svcInfoPopHdr">
+          <span class="svcInfoPopTitle" style="white-space:nowrap">${title}</span>
+          <button class="svcInfoPopClose" aria-label="Close" type="button">×</button>
+        </div>
+        <div style="padding:14px 18px 16px;display:flex;flex-direction:column;gap:7px;">
+          ${rows}
+        </div>`;
+    }
+
+    // Info icon → plain text
+    app.addEventListener('click', function(e){
+      const btn = e.target && e.target.closest ? e.target.closest('.svcInfoIconBtn[data-svcinfo]') : null;
+      if(!btn) return;
+      e.stopPropagation();
+      closeInfoPopup();
+      const pop = _makePop(`
+        <div class="svcInfoPopHdr" style="padding:12px 14px 10px;">
+          <span class="svcInfoPopTitle" style="white-space:normal;line-height:1.5;">ROs for Technicians exclude any with Pre-MPI Sales for selected Service or Category. Click any stats with * for details.</span>
+          <button class="svcInfoPopClose" aria-label="Close" type="button">×</button>
+        </div>`, 'width:360px;max-width:calc(100vw - 24px);');
+      _positionPop(pop, btn, 360, 80);
+      _attachClose(pop);
+    }, true);
+
+    // Stat clicks → typed math stack
+    app.addEventListener('click', function(e){
+      const el = e.target && e.target.closest ? e.target.closest('.svcStatStar[data-svcstat]') : null;
+      if(!el) return;
+      e.stopPropagation();
+      closeInfoPopup();
+
+      let d = {};
+      try{ d = JSON.parse(el.getAttribute('data-svcstat') || '{}'); }catch(_){}
+      const name     = d.name    || '';
+      const totalRos = Number(d.totalRos) || 0;
+      const preMpi   = Number(d.preMpi)   || 0;
+      const soldAsr  = Number(d.soldAsr)  || 0;
+      const asr      = Number(d.asr)      || 0;
+      const adjRos   = Math.max(0, totalRos - preMpi);
+      const type     = d.type || 'ros';
+
+      let html = '';
+      if(type === 'ros'){
+        const title = `Technician ${name} ROs`;
+        html = _singleColPop(title,
+          _mathRow(fmt(totalRos), 'Total ROs') +
+          _mathRow(`− ${fmt(preMpi)}`, 'Sold Pre-MPI') +
+          _mathLine() +
+          _mathResult(fmt(adjRos), `Technician ${name} ROs`)
+        );
+      } else if(type === 'asrro'){
+        const title = `Technician ${name} ASRs/RO`;
+        const result = adjRos > 0 ? (asr/adjRos).toFixed(2) : '—';
+        html = _singleColPop(title,
+          _mathRow(fmt(asr), 'ASRs') +
+          _mathRow(`÷ ${fmt(adjRos)}`, `Technician ${name} ROs`) +
+          _mathLine() +
+          _mathResult(result, `Technician ${name} ASRs/RO`)
+        );
+      } else if(type === 'soldro'){
+        const title = `Sold/Technician ${name} ROs`;
+        const result = adjRos > 0 ? (soldAsr/adjRos).toFixed(2) : '—';
+        html = _singleColPop(title,
+          _mathRow(fmt(soldAsr), 'ASRs Sold') +
+          _mathRow(`÷ ${fmt(adjRos)}`, `Technician ${name} ROs`) +
+          _mathLine() +
+          _mathResult(result, `Sold/Technician ${name} ROs`)
+        );
+      }
+
+      const pop = _makePop(html, 'width:max-content;max-width:calc(100vw - 24px);');
+      _positionPop(pop, el, 320, 180);
+      _attachClose(pop);
     }, true);
   })();
 
