@@ -190,12 +190,6 @@ function renderServicesHome(){
 
 
 
-      /* Header goal dials: pointer cursor — pctText is position:absolute;inset:0 and blocks cursor,
-         so pass pointer-events through it to the parent svcGauge */
-      .pageServicesDash .svcHdrGoalDials .svcGauge,
-      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{cursor:pointer !important;}
-      .pageServicesDash .svcHdrGoalDials .svcGauge .pctText{pointer-events:none;}
-
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
       .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
       .pageServicesDash .catHeader{display:flex;align-items:center;justify-content:space-between;gap:14px;}
@@ -362,8 +356,8 @@ function renderServicesHome(){
       .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{--sz:85px;width:var(--sz);height:var(--sz);flex:0 0 var(--sz);}
       .pageServicesDash .svcHdrGoalDials .svcGauge{--sz:85px !important;width:var(--sz) !important;height:var(--sz) !important;}
       .pageServicesDash .svcHdrGoalDials .svcGaugeWrap,
-      .pageServicesDash .svcHdrGoalDials .svcGauge,
-      .pageServicesDash .svcHdrGoalDials .svcGauge *{cursor:default !important;}
+      .pageServicesDash .svcHdrGoalDials .svcGauge{cursor:pointer !important;}
+      .pageServicesDash .svcHdrGoalDials .svcGauge *{pointer-events:none;}
 
       .pageServicesDash .svcHdrGoalDials .svcGaugeLbl{margin-top:6px;text-align:center;font-size:11px;font-weight:1000;color:rgba(255,255,255,.70);letter-spacing:.2px;}
       .pageServicesDash .svcHdrGoalDials .pctStack2{display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;}
