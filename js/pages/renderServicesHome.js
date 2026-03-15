@@ -840,21 +840,19 @@ function serviceGoalDial(pct, sz){
 
 
   // Top-right block
-  const _roLbl    = viewMode==='techs' ? 'ASRs/Adj. RO'  : 'ASRs/RO';
-  const _sRoLbl   = viewMode==='techs' ? 'Sold/Adj. ROs' : 'Sold/RO';
   let topVal = asrPerRo;
-  let topLbl = _roLbl;
+  let topLbl = 'ASRs/RO';
   let subVal = (soldFocus === 'asrs') ? soldPerAsr : soldPerRo;
-  let subLbl = (soldFocus === 'asrs') ? 'Sold/ASR' : _sRoLbl;
-  // When ASR Goal + Sold/ASR focus: top=ASRs/Adj. RO, sub=Sold/ASR, Sold/Adj. ROs becomes a pill
-  // When ASR Goal + Sold/RO focus: top=ASRs/Adj. RO, sub=Sold/Adj. ROs
+  let subLbl = (soldFocus === 'asrs') ? 'Sold/ASR' : 'Sold/RO';
+  // When ASR Goal + Sold/ASR focus: top=ASRs/RO, sub=Sold/ASR, Sold/RO becomes a pill
+  // When ASR Goal + Sold/RO focus: top=ASRs/RO, sub=Sold/RO
   if(focus === 'sold'){
     if(soldFocus === 'ro'){
-      topVal = soldPerRo; topLbl = _sRoLbl;
-      subVal = asrPerRo;  subLbl = _roLbl;
+      topVal = soldPerRo; topLbl = 'Sold/RO';
+      subVal = asrPerRo;  subLbl = 'ASRs/RO';
     } else {
       topVal = soldPerAsr; topLbl = 'Sold/ASR';
-      subVal = asrPerRo;   subLbl = _roLbl;
+      subVal = asrPerRo;   subLbl = 'ASRs/RO';
     }
   }
   // Show Sold/RO as extra pill only when ASR goal + Sold/ASR focus (since sub is Sold/ASR, Sold/RO is demoted)
@@ -904,12 +902,12 @@ function serviceGoalDial(pct, sz){
               
               <div class="svcHdrPillsAndDials" style="display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-width:0">
                 <div class="pillsMini">
-                  <div class="pillMini"><div class="k">${viewMode==='techs' ? 'Adj. ROs' : 'ROs'}</div><div class="v">${fmtInt(totalRos)}</div></div>
+                  <div class="pillMini"><div class="k">ROs</div><div class="v">${fmtInt(totalRos)}</div></div>
                   <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(totalAsr)}</div></div>
                   <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(totalSoldAsr)}</div></div>
                   <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(totalPreMpiSold)}</div></div>
                   <div class="pillMini sold"><div class="k">Sold/ASR</div><div class="v">${soldPerAsr===null ? "—" : fmtPct(soldPerAsr)}</div></div>
-                  ${showSoldRoPill ? `<div class="pillMini"><div class="k">${viewMode==='techs' ? 'Sold/Adj. ROs' : 'Sold/RO'}</div><div class="v">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div></div>` : ''}
+                  ${showSoldRoPill ? `<div class="pillMini"><div class="k">Sold/RO</div><div class="v">${soldPerRo===null ? "—" : fmt1(soldPerRo,2)}</div></div>` : ''}
                 </div>
 
                 <div class="svcHdrGoalDials">
@@ -919,7 +917,7 @@ function serviceGoalDial(pct, sz){
                   </div>
                   <div class="svcGaugeCol">
                     <div class="svcGaugeWrap" style="--sz:85px">${headerGoalDial(goalsAgg.soldPctOfGoal)}</div>
-                    <div class="svcGaugeLbl">${soldFocus==='ro' ? (viewMode==='techs' ? 'Sold/Adj. ROs' : 'Sold/RO') : 'Sold/ASRs'}</div>
+                    <div class="svcGaugeLbl">${soldFocus==='ro' ? 'Sold/RO' : 'Sold/ASRs'}</div>
                   </div>
                 </div>
               </div>
@@ -1342,7 +1340,7 @@ function serviceGoalDial(pct, sz){
             <div class="catHdrLeft" style="min-width:0">
               <div class="catTitleRow"><div class="catTitle">${safe(s.serviceName)}</div>${infoIconBtn(s.serviceName, {totalRos: s.totalRos, preMpi: s.preMpiSvc, soldAsr: s.soldAsr})}</div>
               <div class="muted" style="margin-top:2px">
-                <div>${fmtInt(viewMode==='techs' ? Math.max(0, s.totalRos - s.preMpiSvc) : s.totalRos)} ${viewMode==='techs' ? 'Adj. ROs' : 'ROs'} • ${fmtInt(s.asr)} ASRs</div>
+                <div>${fmtInt(viewMode==='techs' ? Math.max(0, s.totalRos - s.preMpiSvc) : s.totalRos)} ${viewMode==='techs' ? 'Adj ROs' : 'ROs'} • ${fmtInt(s.asr)} ASRs</div>
                 <div>${fmtInt(s.soldAsr)} ASRs Sold</div>
                 <div>Pre-MPI Sold: ${fmtInt(s.preMpiSvc)}</div>
               </div>
@@ -1361,9 +1359,9 @@ function serviceGoalDial(pct, sz){
                 const cardAsrPerRo = (adjRos > 0 && Number.isFinite(s.asr/adjRos)) ? fmtPct(s.asr/adjRos) : '—';
                 const cardSoldAsr  = (s.asr > 0 && Number.isFinite(s.soldAsr/s.asr)) ? fmtPct(s.soldAsr/s.asr) : '—';
                 const topVal = goalMetric==='sold' ? cardSoldAsr  : cardAsrPerRo;
-                const topLbl = goalMetric==='sold' ? 'Sold/ASR'      : 'ASRs/Adj. RO';
+                const topLbl = goalMetric==='sold' ? 'Sold/ASR'      : 'ASRs/Adj RO';
                 const midVal = goalMetric==='sold' ? cardAsrPerRo : cardSoldAsr;
-                const midLbl = goalMetric==='sold' ? 'ASRs/Adj. RO'  : 'Sold/ASR';
+                const midLbl = goalMetric==='sold' ? 'ASRs/Adj RO'  : 'Sold/ASR';
                 return `<div class="sdCatFocusStats">
                   <div><div class="sdCatStatTop">${topVal}</div><div class="sdCatStatLbl">${topLbl}</div></div>
                   <div><div class="sdCatStatMid">${midVal}</div><div class="sdCatStatLbl">${midLbl}</div></div>
@@ -1392,11 +1390,11 @@ function serviceGoalDial(pct, sz){
               </div>
               <div class="svcDashSecPillsLeft pillsMini">
                 <div class="pillMini"><div class="k">Avg ODO</div><div class="v">${fmtInt(secAvgOdo)}</div></div>
-                <div class="pillMini"><div class="k">${viewMode==='techs' ? 'Adj. ROs' : 'ROs'}</div><div class="v">${fmtInt(viewMode==='techs' ? Math.max(0, secRos - secPreMpiSold) : secRos)}</div></div>
+                <div class="pillMini"><div class="k">${viewMode==='techs' ? 'Adj ROs' : 'ROs'}</div><div class="v">${fmtInt(viewMode==='techs' ? Math.max(0, secRos - secPreMpiSold) : secRos)}</div></div>
                 <div class="pillMini"><div class="k">ASRs</div><div class="v">${fmtInt(secAsr)}</div></div>
                 <div class="pillMini sold"><div class="k">ASRs Sold</div><div class="v">${fmtInt(secSoldAsr)}</div></div>
                 <div class="pillMini"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(secPreMpiSold)}</div></div>
-                <div class="pillMini"><div class="k">${viewMode==='techs' ? 'Sold/Adj. ROs' : 'Sold/RO'}</div><div class="v">${(()=>{ const adj=secRos-secPreMpiSold; return (viewMode==='techs' && adj>0) ? (secSoldAsr/adj).toFixed(2) : (Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'); })()}</div></div>
+                <div class="pillMini"><div class="k">${viewMode==='techs' ? 'Sold/Adj ROs' : 'Sold/RO'}</div><div class="v">${(()=>{ const adj=secRos-secPreMpiSold; return (viewMode==='techs' && adj>0) ? (secSoldAsr/adj).toFixed(2) : (Number.isFinite(secSoldPerRo)?secSoldPerRo.toFixed(2):'—'); })()}</div></div>
               </div>
             </div>
 
@@ -1431,9 +1429,9 @@ function serviceGoalDial(pct, sz){
                 const secAsrPerRoTech = (adjSecRos > 0 && Number.isFinite(secAsr/adjSecRos)) ? fmt1(secAsr/adjSecRos, 2) : '—';
                 const secSoldAsrPct   = (secAsr > 0 && Number.isFinite(secSoldAsr/secAsr)) ? fmtPct(secSoldAsr/secAsr) : '—';
                 const topVal  = goalMetric==='sold' ? secSoldAsrPct  : secAsrPerRoTech;
-                const topLbl  = goalMetric==='sold' ? 'Sold/ASR'        : 'ASRs/Adj. RO';
+                const topLbl  = goalMetric==='sold' ? 'Sold/ASR'        : 'ASRs/Adj RO';
                 const midVal  = goalMetric==='sold' ? secAsrPerRoTech : secSoldAsrPct;
-                const midLbl  = goalMetric==='sold' ? 'ASRs/Adj. RO'   : 'Sold/ASR';
+                const midLbl  = goalMetric==='sold' ? 'ASRs/Adj RO'   : 'Sold/ASR';
                 return `<div class="svcSecFocusStats">
                   <div><div class="statValTop">${topVal}</div><div class="statLbl">${topLbl}</div></div>
                   <div><div class="statValBot">${midVal}</div><div class="statLbl">${midLbl}</div></div>
@@ -1899,7 +1897,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
       pop.style.maxWidth = 'calc(100vw - 24px)';
       pop.innerHTML = `
         <div class="svcInfoPopHdr">
-          <span class="svcInfoPopTitle" style="white-space:nowrap">Adj. ROs: Excludes ROs with Pre-MPI Sales for selected Service(s).</span>
+          <span class="svcInfoPopTitle" style="white-space:nowrap">Adj ROs: Excludes ROs with Pre-MPI Sales for selected Service(s).</span>
           <button class="svcInfoPopClose" aria-label="Close" type="button">×</button>
         </div>
         <div class="svcInfoPopCols">
@@ -1915,7 +1913,7 @@ function tbMiniBoxSvc(title, rows, mode, kind){
             <div class="svcInfoMathLine"></div>
             <div class="svcInfoMathRow svcInfoMathResult">
               <span class="svcInfoNum">${fmt(adjRos)}</span>
-              <span class="svcInfoNumLbl">Adj. ROs</span>
+              <span class="svcInfoNumLbl">Adj ROs</span>
             </div>
           </div>
           <div class="svcInfoColDivider"></div>
@@ -1926,12 +1924,12 @@ function tbMiniBoxSvc(title, rows, mode, kind){
             </div>
             <div class="svcInfoMathRow">
               <span class="svcInfoNum">÷ ${fmt(adjRos)}</span>
-              <span class="svcInfoNumLbl">Adj. ROs</span>
+              <span class="svcInfoNumLbl">Adj ROs</span>
             </div>
             <div class="svcInfoMathLine"></div>
             <div class="svcInfoMathRow svcInfoMathResult">
               <span class="svcInfoNum">${resultVal.toFixed(2)}</span>
-              <span class="svcInfoNumLbl">Sold/Adj. ROs</span>
+              <span class="svcInfoNumLbl">Sold/Adj ROs</span>
             </div>
           </div>
         </div>
