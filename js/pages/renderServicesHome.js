@@ -713,19 +713,28 @@ function renderServicesHome(){
   const totalSoldAsr = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0); // ASR-sold only, never changes
 
   // --- Pre-MPI sold helpers (use filtered _rawAdvisors so unlisted advisors are excluded) ---
+  // advisor_sold has no per-RO dates, so scale each advisor's count proportionally
+  // to the fraction of their ROs that fall within the selected date window.
+  function _advPreMpiScale(a){
+    const rosOrig = Number(a.ros) || 0;
+    if (!rosOrig) return 0;
+    const filteredN = (a.ro_rows || []).filter(_roInRange).length;
+    return filteredN / rosOrig;
+  }
   function preMpiSoldForService(serviceName){
     let total = 0;
     for(const a of _rawAdvisors){
       const cat = (a.categories||{})[serviceName];
-      total += Number(cat?.advisor_sold)||0;
+      total += Math.round((Number(cat?.advisor_sold)||0) * _advPreMpiScale(a));
     }
     return total;
   }
   const totalPreMpiSold = (()=>{
     let total = 0;
     for(const a of _rawAdvisors){
+      const scale = _advPreMpiScale(a);
       for(const cat of Object.values(a.categories||{})){
-        total += Number(cat?.advisor_sold)||0;
+        total += Math.round((Number(cat?.advisor_sold)||0) * scale);
       }
     }
     return total;
