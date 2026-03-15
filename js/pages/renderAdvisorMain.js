@@ -614,8 +614,8 @@ function renderAdvisorMain(){
   function soldPerAsr(a){
     const s2   = ss(a);
     const asr  = Number(s2?.asr);
-    const sold = Number(s2?.sold);
-    return (Number.isFinite(asr) && asr>0 && Number.isFinite(sold)) ? (sold/asr) : null;
+    const sold = effectiveSoldForRo(a);
+    return (Number.isFinite(asr) && asr>0 && sold !== null && Number.isFinite(sold)) ? (sold/asr) : null;
   }
 
   function avgOf(list, fn){
@@ -688,8 +688,8 @@ function renderAdvisorMain(){
   const sorted = scored.map(x => x.a);
 
   // ── Sold/ASRs header text ──
-  const soldAsrHeaderTxt = (totalSold>0 && totalAsr>0)
-    ? fmtPct(totalSold/totalAsr)
+  const soldAsrHeaderTxt = (totalEffectiveSold>0 && totalAsr>0)
+    ? fmtPct(totalEffectiveSold/totalAsr)
     : "—";
 
 

@@ -574,7 +574,7 @@ function renderServicesHome(){
   const soldFocus  = (st.soldFocus === 'ro') ? 'ro' : 'asrs';
   // preMpi: techs always locked to excluded; advisors user-controlled (defaults included)
   const preMpi     = (viewMode === 'techs') ? 'excluded' : ((st.preMpi === 'excluded') ? 'excluded' : 'included');
-  const _preMpiApplies = (viewMode !== 'advisors');
+  const _preMpiApplies = true; // applies in all modes; tech mode is already locked to 'excluded' above
   const comparison = 'goal';
 
   const pickView = (st.pickView === 'services') ? 'services' : 'tech';
