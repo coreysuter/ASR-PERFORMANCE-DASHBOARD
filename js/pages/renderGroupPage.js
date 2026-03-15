@@ -113,7 +113,28 @@ function renderGroupPage(groupKey){
     }
   }
 
-  const techs = getTechsByTeam(teamKey);
+  const techs = (() => {
+    // ── Date-range filter ──────────────────────────────────────────────────────
+    const _dr      = window.globalDateRange || {};
+    const _drStart = _dr.start || null;
+    const _drEnd   = _dr.end   || null;
+    function _roInRange(ro){ const d=ro.dms_close; if(!d) return false; if(_drStart&&d<_drStart) return false; if(_drEnd&&d>_drEnd) return false; return true; }
+    function _filteredEntity(entity){
+      const filtered=(entity.ro_rows||[]).filter(_drStart||_drEnd ? _roInRange : ()=>true);
+      const n=filtered.length;
+      const catAsr={},catSold={};
+      for(const row of filtered){ for(const c of(row.asr_cats||[])) catAsr[c]=(catAsr[c]||0)+1; for(const c of(row.sold_cats||[])) catSold[c]=(catSold[c]||0)+1; }
+      const newCats={};
+      for(const [k,orig] of Object.entries(entity.categories||{})){ const a=catAsr[k]||0,s=catSold[k]||0; newCats[k]={...orig,asr:a,req:n?a/n:0,sold:s,close:a?s/a:null}; }
+      const _allCats=Object.keys(newCats);
+      const _fluidSet=new Set(Array.isArray(DATA.fluid_categories)?DATA.fluid_categories:[]);
+      function _bkt(list){ const a=list.reduce((s,c)=>s+(catAsr[c]||0),0),sl=list.reduce((s,c)=>s+(catSold[c]||0),0); return{asr:a,asr_per_ro:n?a/n:0,sold:sl,sold_pct:a?sl/a:null}; }
+      const _nf=_allCats.filter(c=>!_fluidSet.has(c)),_fl=_allCats.filter(c=>_fluidSet.has(c));
+      return{...entity,ros:n,categories:newCats,summary:{without_fluids:_bkt(_nf),fluids_only:_bkt(_fl),total:_bkt(_allCats)}};
+    }
+    return getTechsByTeam(teamKey).map(_filteredEntity);
+    // ── End date-range filter ──────────────────────────────────────────────────
+  })();
   const totalRos = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);
   const avgOdo = totalRos ? techs.reduce((s,t)=>s+(Number(t.odo)||0)*(Number(t.ros)||0),0)/totalRos : 0;
 
@@ -389,6 +410,12 @@ document.getElementById("app").innerHTML = header + `
   };
   teamSel.addEventListener("change", updateHash);
   focusSel.addEventListener("change", updateHash);
+
+  // Re-render when the global date picker changes
+  window.addEventListener('globalDateChange', function _groupDateHandler() {
+    window.removeEventListener('globalDateChange', _groupDateHandler);
+    if (typeof window.renderGroupPage === 'function') window.renderGroupPage(groupKey);
+  });
 }
 
 

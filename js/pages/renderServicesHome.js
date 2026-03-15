@@ -611,7 +611,90 @@ function renderServicesHome(){
     return {...a, _isAdvisor: true, categories: normCats};
   });
 
-  const techs = (viewMode === 'advisors') ? _normAdvisors : _rawTechs;
+  const _techsUnfiltered = (viewMode === 'advisors') ? _normAdvisors : _rawTechs;
+
+  // ── Date-range filter ────────────────────────────────────────────────────────
+  // Read the global date range set by the date picker in index.html.
+  // All RO-level counts (ros, asr, sold, per-category) are recomputed from
+  // ro_rows so the entire dashboard reflects the selected date window.
+  const _dr      = window.globalDateRange || {};
+  const _drStart = _dr.start || null;  // "YYYY-MM-DD" or null (no lower bound)
+  const _drEnd   = _dr.end   || null;  // "YYYY-MM-DD" or null (no upper bound)
+
+  function _roInRange(ro) {
+    if (!_drStart && !_drEnd) return true;
+    const d = ro.dms_close;
+    if (!d) return false;
+    if (_drStart && d < _drStart) return false;
+    if (_drEnd   && d > _drEnd)   return false;
+    return true;
+  }
+
+  // Fluid / non-fluid category lists (mirrors build_data.py NON_FLUID_PRIMARY / FLUID_CATS)
+  const _fluidCats = new Set(Array.isArray(DATA.fluid_categories) ? DATA.fluid_categories : []);
+  const _allDataCats = (Array.isArray(DATA.sections) ? DATA.sections : [])
+    .flatMap(s => (s?.categories || []).map(String).filter(Boolean));
+  const _nonFluidCats = _allDataCats.filter(c => !_fluidCats.has(c));
+
+  function _filteredEntity(entity) {
+    const filtered = (entity.ro_rows || []).filter(_roInRange);
+    const n = filtered.length;
+
+    // Recount asr/sold per category from filtered ro_rows
+    const catAsr  = {};
+    const catSold = {};
+    for (const row of filtered) {
+      for (const c of (row.asr_cats  || [])) catAsr[c]  = (catAsr[c]  || 0) + 1;
+      for (const c of (row.sold_cats || [])) catSold[c] = (catSold[c] || 0) + 1;
+    }
+
+    // Rebuild categories preserving all original fields, updating asr/sold counts
+    const newCats = {};
+    for (const [k, orig] of Object.entries(entity.categories || {})) {
+      const a = catAsr[k]  || 0;
+      const s = catSold[k] || 0;
+      const entry = {
+        ...orig,
+        asr:  a,
+        req:  n ? a / n : 0,
+        sold: s,
+        close: a ? s / a : null,
+      };
+      // Advisors: advisor_sold is from DMS (no ro_rows to date-filter it), keep original
+      if (orig.advisor_sold !== undefined) {
+        const adv_s = Number(orig.advisor_sold) || 0;
+        entry.sold_total = s + adv_s;
+        entry.sold_ro    = n ? (s + adv_s) / n : 0;
+      }
+      newCats[k] = entry;
+    }
+
+    // Rebuild summary buckets
+    function _bkt(catList) {
+      const a = catList.reduce((sum, c) => sum + (catAsr[c]  || 0), 0);
+      const s = catList.reduce((sum, c) => sum + (catSold[c] || 0), 0);
+      const b = { asr: a, asr_per_ro: n ? a / n : 0, sold: s, sold_pct: a ? s / a : null };
+      const origBkt = entity.summary?.total; // use total as proxy for advisor_sold sums
+      if (origBkt?.advisor_sold !== undefined) {
+        const adv_s = catList.reduce((sum, c) => sum + (Number((entity.categories || {})[c]?.advisor_sold) || 0), 0);
+        b.advisor_sold = adv_s;
+        b.sold_total   = s + adv_s;
+        b.sold_ro      = n ? (s + adv_s) / n : 0;
+      }
+      return b;
+    }
+
+    const newSummary = {
+      without_fluids: _bkt(_nonFluidCats),
+      fluids_only:    _bkt(Array.from(_fluidCats)),
+      total:          _bkt([..._nonFluidCats, ...Array.from(_fluidCats)]),
+    };
+
+    return { ...entity, ros: n, summary: newSummary, categories: newCats };
+  }
+
+  const techs = _techsUnfiltered.map(_filteredEntity);
+  // ── End date-range filter ────────────────────────────────────────────────────
 
   const personLabelSingular = (viewMode==='advisors') ? 'Advisor' : 'Technician';
   const personLabelPlural   = (viewMode==='advisors') ? 'Advisors' : 'Technicians';
@@ -2279,6 +2362,12 @@ try{
       if(id) location.hash = `#/tech/${encodeURIComponent(id)}`;
     }, true);
   }
+
+  // Re-render when the global date picker changes
+  window.addEventListener('globalDateChange', function _svcHomeDateHandler() {
+    window.removeEventListener('globalDateChange', _svcHomeDateHandler);
+    if (typeof window.renderServicesHome === 'function') window.renderServicesHome();
+  });
 
 }
 

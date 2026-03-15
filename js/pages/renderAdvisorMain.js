@@ -546,10 +546,31 @@ function renderAdvisorMain(){
   const app = document.getElementById("app");
   if(!app) return;
 
-  const advisors = (typeof DATA !== "undefined" && Array.isArray(DATA.advisors))
+  const _advisorsRaw = (typeof DATA !== "undefined" && Array.isArray(DATA.advisors))
     ? DATA.advisors.filter(a => a && String(a.id||"").toLowerCase() !== "total"
         && (typeof window.isListedAdvisor !== "function" || window.isListedAdvisor(a.name)))
     : [];
+
+  // ── Date-range filter ────────────────────────────────────────────────────────
+  const _dr      = window.globalDateRange || {};
+  const _drStart = _dr.start || null;
+  const _drEnd   = _dr.end   || null;
+  function _roInRange(ro){ const d=ro.dms_close; if(!d) return false; if(_drStart&&d<_drStart) return false; if(_drEnd&&d>_drEnd) return false; return true; }
+  function _filteredEntity(entity){
+    const filtered=(entity.ro_rows||[]).filter(_drStart||_drEnd ? _roInRange : ()=>true);
+    const n=filtered.length;
+    const catAsr={},catSold={};
+    for(const row of filtered){ for(const c of(row.asr_cats||[])) catAsr[c]=(catAsr[c]||0)+1; for(const c of(row.sold_cats||[])) catSold[c]=(catSold[c]||0)+1; }
+    const newCats={};
+    for(const [k,orig] of Object.entries(entity.categories||{})){ const a=catAsr[k]||0,s=catSold[k]||0; const adv_s=Number(orig.advisor_sold)||0; const sold_total=s+adv_s; newCats[k]={...orig,asr:a,req:n?a/n:0,sold:s,close:a?s/a:null,advisor_sold:adv_s,sold_total,sold_ro:n?sold_total/n:0}; }
+    const _allCats=Object.keys(newCats);
+    const _fluidSet=new Set(Array.isArray(DATA.fluid_categories)?DATA.fluid_categories:[]);
+    function _bkt(list){ const a=list.reduce((s,c)=>s+(catAsr[c]||0),0),sl=list.reduce((s,c)=>s+(catSold[c]||0),0); const adv_s=list.reduce((s,c)=>s+(Number((entity.categories||{})[c]?.advisor_sold)||0),0); const sold_total=sl+adv_s; return{asr:a,asr_per_ro:n?a/n:0,sold:sold_total,sold_pct:a?sl/a:null,advisor_sold:adv_s,sold_total,sold_ro:n?sold_total/n:0}; }
+    const _nf=_allCats.filter(c=>!_fluidSet.has(c)),_fl=_allCats.filter(c=>_fluidSet.has(c));
+    return{...entity,ros:n,categories:newCats,summary:{without_fluids:_bkt(_nf),fluids_only:_bkt(_fl),total:_bkt(_allCats)}};
+  }
+  const advisors = _advisorsRaw.map(_filteredEntity);
+  // ── End date-range filter ────────────────────────────────────────────────────
 
   // Independent state (persists across re-renders within session)
   if(typeof window._advState === "undefined"){
@@ -930,6 +951,12 @@ function renderAdvisorMain(){
       renderAdvisorMain();
     };
     el.addEventListener("change", handler);
+  });
+
+  // Re-render when the global date picker changes
+  window.addEventListener('globalDateChange', function _advMainDateHandler() {
+    window.removeEventListener('globalDateChange', _advMainDateHandler);
+    if (typeof window.renderAdvisorMain === 'function') window.renderAdvisorMain();
   });
 }
 
