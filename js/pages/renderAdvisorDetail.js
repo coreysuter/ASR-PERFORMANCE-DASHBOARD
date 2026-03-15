@@ -62,7 +62,7 @@
     const band = slice.getAttribute("data-band");
 
     const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total"
-      && (typeof window.isListedUser !== "function" || window.isListedUser(a.name)));
+      && (typeof window.isListedAdvisor !== "function" || window.isListedAdvisor(a.name)));
     const t = advisors.find(x=>String(x.id)===String(advId));
     if(!t) return;
 
@@ -278,7 +278,7 @@ function renderAdvisorDetail(advisorId){
 
   // --- Find advisor ---
   const advisors = (DATA.advisors||[]).filter(a => a && String(a.id||"").toLowerCase()!=="total"
-    && (typeof window.isListedUser !== "function" || window.isListedUser(a.name)));
+    && (typeof window.isListedAdvisor !== "function" || window.isListedAdvisor(a.name)));
   const t = advisors.find(x=>String(x.id)===String(advisorId));
   if(!t){
     document.getElementById('app').innerHTML = `<div class="panel"><div class="phead" style="display:flex;flex-direction:column;min-height:0"><div class="h2">Advisor not found</div><div class="sub"><a href="#/advisors">Back to Advisors</a></div></div></div>`;
@@ -569,14 +569,15 @@ function renderAdvisorDetail(advisorId){
   const filters = `
     <div class="controls advDetailControls" style="margin-top:0">
       <div>
-        <label>Pre-MPI Sales</label>
-        <select id="advPreMpi">
-          <option value="included" ${preMpi==="included"?"selected":""}>Included</option>
-          <option value="excluded" ${preMpi==="excluded"?"selected":""}>Excluded</option>
+        <label>Fluids</label>
+        <select id="advFilter">
+          <option value="total" ${filterKey==="total"?"selected":""}>With Fluids (Total)</option>
+          <option value="without_fluids" ${filterKey==="without_fluids"?"selected":""}>Without Fluids</option>
+          <option value="fluids_only" ${filterKey==="fluids_only"?"selected":""}>Fluids Only</option>
         </select>
       </div>
       <div>
-        <label>Focus</label>
+        <label>Sold Focus</label>
         <select id="advFocus">
           <option value="asrs" ${soldFocus==="asrs"?"selected":""}>Sold/ASRs</option>
           <option value="ro" ${soldFocus==="ro"?"selected":""}>Sold/ROs</option>
@@ -587,6 +588,13 @@ function renderAdvisorDetail(advisorId){
         <select id="advCompare">
           <option value="advisors" ${compareBasis==="advisors"?"selected":""}>Advisors</option>
           <option value="goal" ${compareBasis==="goal"?"selected":""}>Goal</option>
+        </select>
+      </div>
+      <div>
+        <label>Pre-MPI Sales</label>
+        <select id="advPreMpi">
+          <option value="included" ${preMpi==="included"?"selected":""}>Included</option>
+          <option value="excluded" ${preMpi==="excluded"?"selected":""}>Excluded</option>
         </select>
       </div>
     </div>
@@ -634,13 +642,13 @@ function renderAdvisorDetail(advisorId){
                   <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(s.asr)}</div>
                 </div>
                 <div class="pillMini sold" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(190,255,210,.22);background:rgba(0,0,0,.18);">
-                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold</div>
+                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">${preMpi==="included" ? "Sold (w/ Pre-MPI)" : "Sold"}</div>
                   <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:#fff;">${fmtInt(__soldTotal)}</div>
                 </div>
                 ${(preMpi==="included" && __soldPreMpi > 0) ? `
-                <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18);">
-                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Sold Pre-MPI</div>
-                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1;">${fmtInt(__soldPreMpi)}</div>
+                <div class="pillMini" style="display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,200,80,.22);background:rgba(0,0,0,.18);">
+                  <div class="k" style="font-size:16px; color:var(--muted); font-weight:900; letter-spacing:.2px; text-transform:none;">Pre-MPI</div>
+                  <div class="v" style="font-size:20px; font-weight:1000; line-height:1; color:rgba(255,210,100,1);">${fmtInt(__soldPreMpi)}</div>
                 </div>` : ""}
               </div>
             </div>
@@ -670,14 +678,6 @@ function renderAdvisorDetail(advisorId){
   `;
 
   // --- Category card rendering ---
-  // Helper: dial column with label below + showAlt (delta%/arrow/comparison) inside
-  function advDialCol(pct, label, popupData, sz){
-    const empty = `<div class="svcGaugeCol" style="display:flex;flex-direction:column;align-items:center"><div class="svcGaugeWrap" style="--sz:${sz}px"></div><div style="font-size:11px;opacity:.7;text-align:center;margin-top:4px;font-weight:900;letter-spacing:.2px">${safe(label)}</div></div>`;
-    if(!Number.isFinite(pct)) return empty;
-    const gaugeHtml = svcGauge(pct, label, popupData).replace('<span class="svcGauge ', '<span class="svcGauge showAlt ');
-    return `<div class="svcGaugeCol" style="display:flex;flex-direction:column;align-items:center"><div class="svcGaugeWrap" style="--sz:${sz}px">${gaugeHtml}</div><div style="font-size:11px;opacity:.7;text-align:center;margin-top:4px;font-weight:900;letter-spacing:.2px">${safe(label)}</div></div>`;
-  }
-
   function renderCategoryCard(cat){
     const c = (t.categories && t.categories[cat]) ? t.categories[cat] : {};
     const asrCount = Number(c.asr ?? 0);
@@ -802,14 +802,16 @@ function renderAdvisorDetail(advisorId){
     return `
       <div class="catCard" id="${safeSvcId(cat)}">
         <div class="catHeader">
+          <div class="svcGaugeWrap" style="--sz:68px">${Number.isFinite(hdrPct) ? svcGauge(hdrPct, "Sold/ASRs", _hdrPopup) : ""}</div>
+          <div class="svcGaugeWrap" style="--sz:68px">${Number.isFinite(pctSoldPerRoCat) ? svcGauge(pctSoldPerRoCat, "Sold/RO", _hdrRoPopup) : ""}</div>
           <div style="flex:1;min-width:0">
             <div class="catTitle">${safe(catLabel(cat))}</div>
-            <div class="muted svcMetaLine" style="margin-top:2px;font-size:14px;opacity:.75;text-transform:none;font-weight:500">
-              <span>${fmt1(advRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span>
-              <span style="display:block;margin-top:2px">${fmt1(soldCount,0)} ASRs Sold${(preMpi==="included" && advisorSoldCat>0) ? ` · ${fmt1(advisorSoldCat,0)} Sold Pre-MPI` : ""} · ${soldPerRoCatTxt}/RO</span>
+            <div class="muted svcMetaLine" style="margin-top:2px">
+              <span class="svcMetaTopLine">${fmt1(advRos,0)} ROs · ${fmt1(asrCount,0)} ASRs</span>
+              <span style="display:block;margin-top:2px;" class="svcMetaSoldLine">${fmt1(soldCount,0)} ASRs Sold${(preMpi==="included" && advisorSoldCat>0) ? ` · <span style="color:rgba(255,210,100,1)">${fmt1(advisorSoldCat,0)} Pre-MPI</span>` : ""}</span>
+              <span style="display:block;margin-top:2px;color:rgba(255,255,255,.60);font-size:12px">Sold/RO: ${soldPerRoCatTxt}</span>
             </div>
           </div>
-          ${advDialCol(hdrPct, (compareBasis==="goal" ? "Sold Goal" : "Sold/ASRs"), _hdrPopup, 74)}
           <div class="catRank">${rankBadgeHtml(rk && rk.rank ? rk.rank : "—", rk && rk.total ? rk.total : "—", rankLabel, "sm")}</div>
         </div>
         <div class="metricStack">
@@ -893,20 +895,28 @@ function renderAdvisorDetail(advisorId){
     const focusPct = (compareBasis==="goal") ? goalFocusPct : pctSold;
     const focusLbl = (compareBasis==="goal") ? goalFocusLbl : (soldFocus==="ro" ? "Sold/RO" : "Sold/ASRs");
 
-    const dialASR = advDialCol(pctAsr, "ASRs/RO", _popupAsr(benchReq, asrVal, pctAsr), 55);
-    const dialSold = advDialCol(pctSold, "Sold/ASRs", _popupSold(benchClose, soldVal, pctSold), 55);
-    const dialGoalSold = advDialCol(pctGoalSold, "Sold Goal", _popupSoldGoal(goalClose, soldVal, pctGoalSold), 55);
+    const dialASR = Number.isFinite(pctAsr)
+      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctAsr,"ASRs/RO", _popupAsr(benchReq, asrVal, pctAsr))}</div>`
+      : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
+    const dialSold = Number.isFinite(pctSold)
+      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctSold,"Sold/ASRs", _popupSold(benchClose, soldVal, pctSold))}</div>`
+      : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
+    const dialGoalSold = Number.isFinite(pctGoalSold)
+      ? `<div class="svcGaugeWrap" style="--sz:55px">${svcGauge(pctGoalSold,"Sold Goal", _popupSoldGoal(goalClose, soldVal, pctGoalSold))}</div>`
+      : `<div class="svcGaugeWrap" style="--sz:55px"></div>`;
 
     const _focusPopup = (compareBasis==="goal")
       ? _popupSoldGoal(goalClose, soldVal, pctGoalSold)
       : _popupSold(benchClose, soldVal, pctSold);
-    const dialFocus = advDialCol(focusPct, focusLbl, _focusPopup, 140);
+    const dialFocus = Number.isFinite(focusPct)
+      ? `<div class="svcGaugeWrap" style="--sz:140px">${svcGauge(focusPct,focusLbl, _focusPopup)}</div>`
+      : `<div class="svcGaugeWrap" style="--sz:140px"></div>`;
 
     // Mini dials: ASR always shown; Sold/ASRs or Sold Goal shown when not the focus
     const _miniDials = [dialASR];
     if(compareBasis==="goal"){ _miniDials.push(dialSold); }
     else { _miniDials.push(dialGoalSold); }
-    const miniHtml = `<div class="secMiniDials" style="display:flex;gap:22px;align-items:flex-end">${_miniDials.join("")}</div>`;
+    const miniHtml = `<div class="secMiniDials" style="gap:22px">${_miniDials.join("")}</div>`;
 
     const __cats = Array.from(new Set((sec.categories||[]).filter(Boolean)));
 
@@ -934,7 +944,7 @@ function renderAdvisorDetail(advisorId){
         <div class="pill"><div class="k">ASRs</div><div class="v">${fmtInt(__secASRs)}</div></div>
         <div class="pill"><div class="k">ASRs/RO</div><div class="v">${Number.isFinite(secStats.sumReq) ? fmt1(secStats.sumReq,1) : "—"}</div></div>
         <div class="pill"><div class="k">ASRs Sold</div><div class="v">${fmtInt(__secSold)}</div></div>
-        ${(preMpi==="included" && __secPreMpi>0) ? `<div class="pill"><div class="k">Sold Pre-MPI</div><div class="v">${fmtInt(__secPreMpi)}</div></div>` : ""}
+        ${(preMpi==="included" && __secPreMpi>0) ? `<div class="pill" style="border-color:rgba(255,200,80,.28)"><div class="k">Pre-MPI</div><div class="v" style="color:rgba(255,210,100,1)">${fmtInt(__secPreMpi)}</div></div>` : ""}
       </div>
     `;
 
@@ -954,8 +964,10 @@ function renderAdvisorDetail(advisorId){
         <div class="phead">
           <div class="titleRow">
             <div>
-              <div class="h2 techH2">${safe(sec.name)}</div>
-              ${__secHeaderPills}
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                <div class="h2 techH2">${safe(sec.name)}</div>
+                ${__secHeaderPills}
+              </div>
               <div class="sub"></div>
             </div>
             <div class="secHdrRight" style="gap:22px">${miniHtml}<div class="secFocusDial" style="margin:0">${dialFocus}</div><div class="secHdrRank" style="margin:0">${rankBadgeHtml(secRank && secRank.rank ? secRank.rank : "—", secRank && secRank.total ? secRank.total : "—", rankLabel, "dial")}</div><div class="secHdrStats" style="text-align:right;display:flex;flex-direction:column;align-items:flex-end">
@@ -1175,11 +1187,20 @@ function renderAdvisorDetail(advisorId){
 
   // --- Wire up filter controls ---
   function buildHash(){
+    const f = encodeURIComponent(filterKey);
     const c = encodeURIComponent(compareBasis||"advisors");
     const fo = encodeURIComponent(soldFocus||"asrs");
     const g = encodeURIComponent("sold");
     const pm = encodeURIComponent(preMpi||"included");
-    return `#/advisor/${encodeURIComponent(advisorId)}?compare=${c}&focus=${fo}&goal=${g}&preMpi=${pm}`;
+    return `#/advisor/${encodeURIComponent(advisorId)}?filter=${f}&compare=${c}&focus=${fo}&goal=${g}&preMpi=${pm}`;
+  }
+
+  const advFilterSel = document.getElementById('advFilter');
+  if(advFilterSel){
+    advFilterSel.addEventListener('change', ()=>{
+      filterKey = advFilterSel.value || "total";
+      location.hash = buildHash();
+    });
   }
 
   const advFocusSel = document.getElementById('advFocus');

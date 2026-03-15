@@ -269,7 +269,7 @@ function renderTech(techId){
   })();
 
   const t = (DATA.techs||[]).find(x=>x.id===techId);
-  if(!t){
+  if(!t || (typeof window.isListedTech==="function" && !window.isListedTech(t.name))){
     document.getElementById('app').innerHTML = `<div class="panel"><div class="phead" style="display:flex;flex-direction:column;min-height:0"><div class="h2">Technician not found</div><div class="sub"><a href="#/">Back</a></div></div></div>`;
     return;
   }
@@ -391,7 +391,7 @@ const hash = location.hash || "";
 const s = t.summary?.[filterKey] || {};
 
   function allTechs(){ return (DATA.techs||[]).filter(x=>(x.team==="EXPRESS" || x.team==="KIA")
-    && (typeof window.isListedUser !== "function" || window.isListedUser(x.name))); }
+    && (typeof window.isListedTech !== "function" || window.isListedTech(x.name))); }
   function categoryUniverse(){
     const cats=new Set();
     for(const x of (DATA.techs||[])){

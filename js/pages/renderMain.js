@@ -46,7 +46,7 @@ function renderMain(){
 
   const techs = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
     ? DATA.techs.filter(t=>t && (t.team==="EXPRESS" || t.team==="KIA")
-        && (typeof window.isListedUser !== "function" || window.isListedUser(t.name)))
+        && (typeof window.isListedTech !== "function" || window.isListedTech(t.name)))
     : [];
 
   const totalRos = techs.reduce((s,t)=>s+(Number(t.ros)||0),0);

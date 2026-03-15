@@ -41,15 +41,18 @@ function populateAsrMenuLinks(){
 
 // Lazily computed caches (DATA-based; no dependency on tech page helpers)
 let __ALL_TECHS = null;
+let __ALL_CATS  = null;
+// Call this whenever dealer users change so caches reflect the new roster.
+window.bustTechCache = function(){ __ALL_TECHS = null; __ALL_CATS = null; };
+
 function getAllTechsCached(){
   if(__ALL_TECHS) return __ALL_TECHS;
   const techs = (typeof DATA!=='undefined' && Array.isArray(DATA.techs)) ? DATA.techs : [];
-  // Only Express + Kia, and only users listed in dealer settings
+  // Only Express + Kia, and only users listed with role "technician" in dealer settings
   __ALL_TECHS = techs.filter(t => (t.team==="EXPRESS" || t.team==="KIA")
-    && (typeof window.isListedUser !== "function" || window.isListedUser(t.name)));
+    && (typeof window.isListedTech !== "function" || window.isListedTech(t.name)));
   return __ALL_TECHS;
 }
-let __ALL_CATS = null;
 function getAllCategoriesSet(){
   if(__ALL_CATS) return __ALL_CATS;
   const set = new Set();

@@ -547,7 +547,8 @@ function renderAdvisorMain(){
   if(!app) return;
 
   const advisors = (typeof DATA !== "undefined" && Array.isArray(DATA.advisors))
-    ? DATA.advisors.filter(a => a && String(a.id||"").toLowerCase() !== "total")
+    ? DATA.advisors.filter(a => a && String(a.id||"").toLowerCase() !== "total"
+        && (typeof window.isListedAdvisor !== "function" || window.isListedAdvisor(a.name)))
     : [];
 
   // Independent state (persists across re-renders within session)

@@ -19,7 +19,8 @@ function renderMenuTechLists(){
     const advEl = document.getElementById('menuAdvisorList');
     if(advEl && Array.isArray(DATA.advisors)){
       const advList = DATA.advisors
-        .filter(a => a && String(a.id||"").toLowerCase()!=="total")
+        .filter(a => a && String(a.id||"").toLowerCase()!=="total"
+            && (typeof window.isListedAdvisor !== "function" || window.isListedAdvisor(a.name)))
         .slice().sort((a,b)=>(a.name||"").localeCompare(b.name||""));
       advEl.innerHTML = advList.map(a=>`<a class="menuLink menuTechLink" href="#/advisor/${encodeURIComponent(a.id)}" onclick="return goAdvisor(${JSON.stringify(a.id)})">${safe(a.name||a.id)}</a>`).join("");
     }
