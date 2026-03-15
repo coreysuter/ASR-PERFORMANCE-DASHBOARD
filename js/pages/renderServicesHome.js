@@ -217,13 +217,8 @@ function renderServicesHome(){
 }
 
       /* Tech list inside service cards */
-      /* Service cards: allow rows to expand/show full text (no ellipsis) */
+      /* Service cards: fixed layout — name truncates, stats stay on one line */
       .pageServicesDash .catCard{min-width:0;max-width:none;width:100%;}
-      .pageServicesDash .svcTechRow{align-items:flex-start;}
-      .pageServicesDash .svcTechLeft{min-width:0;flex:1 1 auto;}
-      .pageServicesDash .svcTechLeft a{max-width:none;white-space:normal;overflow:visible;text-overflow:clip;}
-      .pageServicesDash .svcTechMeta{white-space:normal;}
-      .pageServicesDash .svcTechMetaRow{white-space:normal;}
 
       .pageServicesDash .svcTechList{margin-top:10px;display:grid;gap:8px;}
       /* Tech name + meta typography in section header (requested) */
@@ -231,12 +226,14 @@ function renderServicesHome(){
       .pageServicesDash .svcDashSecHead .svcTechLeft a{font-size:14px !important;font-weight:700 !important;}
       .pageServicesDash .svcDashSecHead .svcTechMetaRow{font-size:14px !important;font-weight:700 !important;}
 
-      .pageServicesDash .svcTechRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18);}
-      .pageServicesDash .svcTechLeft{display:flex;align-items:center;gap:8px;min-width:0;}
-      .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
-      .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;}
-      .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;}
-      .pageServicesDash .svcTechMetaRow{display:block;font-size:14px;font-weight:700;}
+      .pageServicesDash .svcTechRow{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.18);}
+      .pageServicesDash .svcTechLeft{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 0;}
+      .pageServicesDash .svcTechLeft a{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+      .pageServicesDash .svcRankNum{color:rgba(255,255,255,.65);font-weight:1000;min-width:22px;text-align:right;flex-shrink:0;}
+      .pageServicesDash .svcTechMeta{color:rgba(255,255,255,.72);font-weight:900;white-space:nowrap;font-size:12px;flex-shrink:0;}
+      .pageServicesDash .svcTechMetaRow{display:inline-flex;align-items:center;gap:3px;font-size:14px;font-weight:700;white-space:nowrap;flex-wrap:nowrap;}
+      .pageServicesDash .svcMetaDot{color:rgba(255,255,255,.35);margin:0 2px;}
+
 
       /* TechPickPanel toggle + thumbs (scoped) */
       .pageServicesDash .techPickPanel.diagSection .pickToggleRow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 2px -4px}
@@ -1122,7 +1119,7 @@ function _svcDialPopup(pct, goalVal, actualVal, goalLbl, actualLbl, actualIsDeci
           <a href="#/tech/${encodeURIComponent(r.id)}" onclick="return goTech(${JSON.stringify(r.id)})">${safe(r.name)}</a>
         </div>
         <div class="svcTechMeta">
-          <div class="svcTechMetaRow">ROs <b>${fmtInt(r.ros)}</b> • ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)} • ${soldMetricLbl} <b>${soldMetricVal}</b>${iconHtml(soldPctBase)}</div>
+          <div class="svcTechMetaRow"><span>ROs <b>${fmtInt(r.ros)}</b></span><span class="svcMetaDot">•</span><span>ASRs <b>${fmtInt(r.asr)}</b>${iconHtml(asrPctBase)}</span><span class="svcMetaDot">•</span><span>${soldMetricLbl} <b>${soldMetricVal}</b>${iconHtml(soldPctBase)}</span></div>
         </div>
       </div>
     `;
