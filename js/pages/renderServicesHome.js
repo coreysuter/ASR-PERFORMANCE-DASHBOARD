@@ -585,8 +585,15 @@ function renderServicesHome(){
   const focusLine = (focus === 'sold') ? 'Sold Goal' : 'ASR Goal';
 
   // Techs live in DATA.techs (EXPRESS/KIA), advisors in DATA.advisors (separate array)
-  const _rawTechsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs)) ? DATA.techs.filter(t=>t&&(t.team==='EXPRESS'||t.team==='KIA')) : [];
-  const _rawAdvisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors.filter(a=>a) : [];
+  // Both lists are filtered to only include users whose role matches in dealer settings.
+  const _rawTechsAll = (typeof DATA !== 'undefined' && Array.isArray(DATA.techs))
+    ? DATA.techs.filter(t => t && (t.team==='EXPRESS' || t.team==='KIA')
+        && (typeof window.isListedTech !== 'function' || window.isListedTech(t.name)))
+    : [];
+  const _rawAdvisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors))
+    ? DATA.advisors.filter(a => a
+        && (typeof window.isListedAdvisor !== 'function' || window.isListedAdvisor(a.name)))
+    : [];
 
   // Apply team filter (techs only)
   const _rawTechs = (teamSel === 'express') ? _rawTechsAll.filter(t=>t.team==='EXPRESS')
@@ -619,20 +626,18 @@ function renderServicesHome(){
   const totalAsr     = techs.reduce((s,t)=>s+(Number(t.summary?.total?.asr)||0),0);
   const totalSoldAsr = techs.reduce((s,t)=>s+(Number(t.summary?.total?.sold)||0),0); // ASR-sold only, never changes
 
-  // --- Pre-MPI sold helpers (from DATA.advisors) ---
+  // --- Pre-MPI sold helpers (use filtered _rawAdvisors so unlisted advisors are excluded) ---
   function preMpiSoldForService(serviceName){
-    const advisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors : [];
     let total = 0;
-    for(const a of advisors){
+    for(const a of _rawAdvisors){
       const cat = (a.categories||{})[serviceName];
       total += Number(cat?.advisor_sold)||0;
     }
     return total;
   }
   const totalPreMpiSold = (()=>{
-    const advisors = (typeof DATA !== 'undefined' && Array.isArray(DATA.advisors)) ? DATA.advisors : [];
     let total = 0;
-    for(const a of advisors){
+    for(const a of _rawAdvisors){
       for(const cat of Object.values(a.categories||{})){
         total += Number(cat?.advisor_sold)||0;
       }
