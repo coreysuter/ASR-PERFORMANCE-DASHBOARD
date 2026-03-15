@@ -1428,7 +1428,22 @@ function _svcDialPopup(pct, goalVal, actualVal, goalLbl, actualLbl, actualIsDeci
                   <div${topStar ? ` class="svcStatStar" data-svcstat="${_sdAsrRo}"` : ''}><div class="sdCatStatTop">${topVal}</div><div class="sdCatStatLbl">${topLbl}</div></div>
                   <div${midStar ? ` class="svcStatStar" data-svcstat="${_sdAsrRo}"` : ''}><div class="sdCatStatMid">${midVal}</div><div class="sdCatStatLbl">${midLbl}</div></div>
                 </div>`;
-              })() : ''}
+              })() : (()=>{
+                // Advisor focus stats: driven by Sold Focus filter (Sold/ASRs vs Sold/RO)
+                // s.closeTot   = Sold/ASRs rate — already reflects preMpi normalization via _normAdvisors
+                // s.soldPerRoSvc = Sold/RO      — already reflects preMpi via buildServiceAgg soldForRo
+                const cardSoldAsr = Number.isFinite(s.closeTot)    ? fmtPct(s.closeTot)       : '—';
+                const cardSoldRo  = Number.isFinite(s.soldPerRoSvc) ? fmt1(s.soldPerRoSvc, 2) : '—';
+                // Primary stat follows Sold Focus filter; secondary is the other
+                const topVal = soldFocus==='ro' ? cardSoldRo  : cardSoldAsr;
+                const topLbl = soldFocus==='ro' ? 'Sold/RO'   : 'Sold/ASRs';
+                const midVal = soldFocus==='ro' ? cardSoldAsr : cardSoldRo;
+                const midLbl = soldFocus==='ro' ? 'Sold/ASRs' : 'Sold/RO';
+                return `<div class="sdCatFocusStats">
+                  <div><div class="sdCatStatTop">${topVal}</div><div class="sdCatStatLbl">${topLbl}</div></div>
+                  <div><div class="sdCatStatMid">${midVal}</div><div class="sdCatStatLbl">${midLbl}</div></div>
+                </div>`;
+              })()}
             </div>
           </div>
 
