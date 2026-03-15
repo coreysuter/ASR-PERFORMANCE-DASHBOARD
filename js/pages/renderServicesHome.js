@@ -190,9 +190,11 @@ function renderServicesHome(){
 
 
 
-      /* Header goal dials: pointer cursor */
+      /* Header goal dials: pointer cursor — pctText is position:absolute;inset:0 and blocks cursor,
+         so pass pointer-events through it to the parent svcGauge */
       .pageServicesDash .svcHdrGoalDials .svcGauge,
       .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{cursor:pointer !important;}
+      .pageServicesDash .svcHdrGoalDials .svcGauge .pctText{pointer-events:none;}
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
       .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
