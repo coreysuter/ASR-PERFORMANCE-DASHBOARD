@@ -306,6 +306,7 @@ function renderAdvisorDetail(advisorId){
     return{...entity,ros:n,categories:newCats,summary:{without_fluids:_bkt(_nf),fluids_only:_bkt(_fl),total:_bkt(_allCats)}};
   }
   const t = _filteredEntity(_tRaw);
+  const advisors = _advisorsRaw.map(_filteredEntity);
   // ── End date-range filter ────────────────────────────────────────────────────
 
   // --- Parse query string ---
