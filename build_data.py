@@ -49,6 +49,44 @@ XTIME_NAME_FIX = {
     "Micguel Cisneros":   "Miguel Cisneros",
 }
 
+# ── DMS SW-code → Advisor name ────────────────────────────────────────────────
+# Derived by matching RO numbers between XTIME and DMS files.
+DMS_SW_ADVISOR = {
+    '175': 'Taegan Baeriswyl',
+    '552': 'Paige Stevenson',
+    '786': 'Darnell Reese',
+    '900': 'Andrew Lapach',
+    '984': 'Taylor Henson',
+    '328': 'Noah Duby',
+}
+
+# ── DMS Labor Op → Category ───────────────────────────────────────────────────
+# Maps DMS labor operation codes to the same category names used in XTIME.
+# These represent advisor pre-MPI sold lines (written up before tech inspection).
+DMS_LABOR_OP_CAT = {
+    'MOA':    'MOA OIL ADDITIVE',
+    'CF5':    'CF5 - FUEL TREATMENT',
+    'CFS':    'CFS - FUEL INDUCTION SERVICE',
+    'BRAKEF': 'BRAKE FLUID EXCHANGE',
+    'CSS':    'ENGINE COOLANT',
+    'TR':     'TRANS FLUID',
+    'ALIGN':  'ALIGNMENT',
+    'ROTATE': 'ROTATE',
+    'WB':     'WIPER BLADES',
+    'FWIPER': 'WIPER BLADES',
+    'RWIPER': 'WIPER BLADES',
+    'AF':     'ENGINE AIR FILTER',
+    'CF':     'CABIN AIR FILTER',
+    'FBS':    'FRONT BRAKES & ROTORS (RED)',
+    'RBS':    'REAR BRAKES & ROTORS (RED)',
+    '1TIRE':  'TWO TIRES (RED)',
+    '2TIRE':  'TWO TIRES (RED)',
+    '4TIRE':  'FOUR TIRES (RED)',
+    'RBATT':  'BATTERY',
+    '4PLUG':  'SPARK PLUGS',
+    '6PLUG':  'SPARK PLUGS',
+}
+
 # ── Text → category rules ─────────────────────────────────────────────────────
 RULES = [
     (["rotate tires","tire rotation","tire balance and rotate","tires - rotate","tires - rotate & balance"],"ROTATE"),
@@ -149,10 +187,47 @@ for ro in xtime_ros.values():
     ro['sold_cats'] = sorted(ro['sold_cats'])
     ro['asr_cats']  = sorted(ro['asr_cats'])
 
+# ── Load DMS (pre-MPI advisor sold lines) ────────────────────────────────────
+print("Loading DMS files for pre-MPI advisor sold lines...")
+# advisor_sold_cats[advisor_name][category] = count of pre-MPI sold lines
+advisor_sold_cats = defaultdict(lambda: defaultdict(int))
+
+for dms_path in [DMS1_PATH, DMS2_PATH]:
+    wb2 = openpyxl.load_workbook(dms_path, read_only=True, data_only=True)
+    ws2 = wb2.active
+    for row in ws2.iter_rows(min_row=3, values_only=True):
+        sw  = str(row[0]).strip() if row[0] else None
+        lo  = str(row[2]).strip() if row[2] else None
+        if not sw or not lo or sw == 'Serv Wtr' or lo == 'Labor Oper':
+            continue
+        adv_name = DMS_SW_ADVISOR.get(sw)
+        if not adv_name:
+            continue
+        cat = DMS_LABOR_OP_CAT.get(lo)
+        if not cat:
+            continue
+        advisor_sold_cats[adv_name][cat] += 1
+    wb2.close()
+
+# Derive brake/tire totals for DMS pre-MPI as well
+for adv_name, cats in advisor_sold_cats.items():
+    fr = cats.get("FRONT BRAKES & ROTORS (RED)", 0)
+    rr = cats.get("REAR BRAKES & ROTORS (RED)", 0)
+    if fr or rr:
+        cats["TOTAL BRAKES & ROTORS (RED)"] += (fr + rr)
+        cats["TOTAL BRAKES & ROTORS"] += (fr + rr)
+    t2r = cats.get("TWO TIRES (RED)", 0)
+    t4r = cats.get("FOUR TIRES (RED)", 0)
+    if t2r or t4r:
+        cats["TOTAL SETS OF 2 TIRES (RED)"] += (t2r + t4r * 2)
+
+for adv_name, cats in advisor_sold_cats.items():
+    print(f"  DMS pre-MPI {adv_name}: {sum(cats.values())} lines across {len(cats)} categories")
+
 # ── Aggregation helpers ───────────────────────────────────────────────────────
 def pct(a,b): return round(a/b,4) if b else None
 
-def build_entry(ros_list, is_advisor=False):
+def build_entry(ros_list, is_advisor=False, adv_name=None):
     n = len(ros_list)
     cat_asr = defaultdict(int); cat_sold = defaultdict(int)
     odo_sum = 0; odo_cnt = 0
@@ -164,18 +239,38 @@ def build_entry(ros_list, is_advisor=False):
         ro_rows.append({'ro':ro['ro_num'],'dms_close':ro['dms_close'],'odo':ro['odo'],
                         'asr_cats':ro['asr_cats'],'sold_cats':ro['sold_cats']})
     avg_odo = round(odo_sum/odo_cnt,0) if odo_cnt else 0
+
+    # Pre-MPI sold counts from DMS (advisor write-up sales, before tech inspection)
+    pre_mpi = advisor_sold_cats.get(adv_name, {}) if (is_advisor and adv_name) else {}
+
     cats = {}
     for c in ALL_CATS:
         a = cat_asr.get(c,0); s = cat_sold.get(c,0)
         e = {'asr':a,'req':round(a/n,4) if n else 0.0,'sold':s,'close':pct(s,a)}
-        if is_advisor: e.update({'advisor_sold':0,'sold_total':s,'sold_ro':round(s/n,4) if n else 0.0})
+        if is_advisor:
+            adv_s = pre_mpi.get(c, 0)
+            sold_total = s + adv_s
+            e.update({
+                'advisor_sold': adv_s,
+                'sold_total':   sold_total,
+                'sold_ro':      round(sold_total/n,4) if n else 0.0,
+            })
         cats[c] = e
+
     def bkt(cat_list):
         a = sum(cat_asr.get(c,0) for c in cat_list)
         s = sum(cat_sold.get(c,0) for c in cat_list)
         b = {'asr':a,'asr_per_ro':round(a/n,4) if n else 0.0,'sold':s,'sold_pct':pct(s,a)}
-        if is_advisor: b.update({'advisor_sold':0,'sold_total':s,'sold_ro':round(s/n,4) if n else 0.0})
+        if is_advisor:
+            adv_s = sum(pre_mpi.get(c,0) for c in cat_list)
+            sold_total = s + adv_s
+            b.update({
+                'advisor_sold': adv_s,
+                'sold_total':   sold_total,
+                'sold_ro':      round(sold_total/n,4) if n else 0.0,
+            })
         return b
+
     summary = {'without_fluids':bkt(NON_FLUID_PRIMARY),'fluids_only':bkt(FLUID_CATS),'total':bkt(NON_FLUID_PRIMARY+FLUID_CATS)}
     return {'ros':n,'odo':avg_odo,'summary':summary,'categories':cats,'ro_rows':ro_rows}
 
@@ -221,7 +316,7 @@ advisor_entries = []
 for adv_name in ADVISOR_ROSTER:
     ros_list = adv_ros.get(adv_name,[])
     print(f"  {adv_name}: {len(ros_list)} ROs")
-    e = build_entry(ros_list, True)
+    e = build_entry(ros_list, True, adv_name=adv_name)
     e.update({'id':adv_name.lower().replace(' ','_'),'name':adv_name,'team':'ADVISORS'})
     advisor_entries.append(e)
 
@@ -264,4 +359,5 @@ with open(OUTPUT_PATH,'w') as f:
 import os
 print(f"Done. {os.path.getsize(OUTPUT_PATH)/1024:.1f} KB")
 print(f"Date range: {fmt_d(min_d)} - {fmt_d(max_d)}")
-print("ASR source: XTIME Sold Lines + Unsold Lines (pre-MPI sales excluded).")
+print("ASR source: XTIME Sold Lines + Unsold Lines.")
+print("Pre-MPI advisor_sold: DMS labor op lines (write-up sales before tech inspection).")
