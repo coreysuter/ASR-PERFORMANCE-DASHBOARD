@@ -191,7 +191,8 @@ function renderServicesHome(){
 
 
       /* Header goal dials: pointer cursor */
-      .pageServicesDash .svcHdrGoalDials .svcGauge{cursor:pointer;}
+      .pageServicesDash .svcHdrGoalDials .svcGauge,
+      .pageServicesDash .svcHdrGoalDials .svcGaugeWrap{cursor:pointer !important;}
 
       /* Service card header: keep right-side controls on one row (Dial -> Badge -> Focus Stat) */
       .pageServicesDash .catHeader .muted{color:var(--muted) !important;}
